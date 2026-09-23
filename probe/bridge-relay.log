@@ -1,0 +1,12 @@
+[sandbox] listening ws://127.0.0.1:47002
+[sandbox] app-server connected, dialing ws://127.0.0.1:47100/sandbox?user=user1
+[sandbox] connection closed
+[sandbox] upstream=ws://127.0.0.1:47100/sandbox?user=user1 counts={'requests': 93, 'notifications_up': 1, 'notifications_down': 6, 'requests_from_executor': 0}
+[sandbox] RTT per request method (n, median ms, p90 ms, max ms):
+  environmentConfig/read           n=   3 med=    3.38 p90=    6.39 max=    6.39
+  fs/getMetadata                   n=  81 med=    8.28 p90=   43.03 max=   47.66
+  fs/readFile                      n=   3 med=    2.05 p90=   47.21 max=   47.21
+  fs/writeFile                     n=   1 med=   45.57 p90=   45.57 max=   45.57
+  initialize                       n=   1 med=   32.79 p90=   32.79 max=   32.79
+  process/start                    n=   2 med=    5.42 p90=    5.42 max=    5.42
+  process/terminate                n=   2 med=    2.85 p90=    2.85 max=    2.85

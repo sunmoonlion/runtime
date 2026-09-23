@@ -1,0 +1,4 @@
+[agent] control up
+[agent] conn=37348925 bridged to ws://127.0.0.1:47001
+[agent] conn=37348925 closed
+[agent] control error: no close frame received or sent

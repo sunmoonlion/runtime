@@ -1,0 +1,4 @@
+[relay] listening ws://127.0.0.1:47100
+[relay] agent control up user=user1
+[relay] paired conn=37348925
+[relay] closed conn=37348925

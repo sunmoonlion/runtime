@@ -1,0 +1,12 @@
+environment/add: {}
+environment/status: {'status': 'pending'} (48 ms)
+===== R1 read-only echo
+  cmd: "/usr/bin/zsh -lc 'echo hi'" | exit 0 | hi | 
+  final: hi
+  turn wall time: 9.1 s
+===== R2 workspace-write apply_patch+cat
+  cmd: "/usr/bin/zsh -lc 'cat PROBE_RELAY_1790178545.txt'" | exit 0 | via-relay | 
+  note: ('fileChange', {'status': 'completed', 'changes': [{'path': '/home/zym/worktrees/fable/runtime/probe/user-ws/PROBE_RELAY_1790178545.txt', 'kind': {'type': 'add'}, 'diff': 'via-relay\n'}]})
+  final: via-relay
+  turn wall time: 9.1 s
+  VERDICT file written through the path: True

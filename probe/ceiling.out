@@ -1,0 +1,20 @@
+environment/add: {}
+L0 environment/info: {"shell": {"name": "zsh", "path": "/usr/bin/zsh"}, "cwd": "file:///home/zym/worktrees/fable/runtime/probe"}
+===== L1 danger-full-access, write outside cwd: sandbox=danger-full-access cwd=/home/zym/worktrees/fable/runtime/probe/user-ws
+  cmd: "/usr/bin/zsh -lc 'touch /home/zym/probe-ceiling-L1-1790177845.txt && echo L1-touched'" | exit 0 | status completed | L1-touched | 
+  note: ('turn/completed', '{"threadId": "01a0ceea-234e-70b0-bfb8-0fb3005d7ae1", "turn": {"id": "01a0ceea-23d0-7aa3-a98d-c1a0924b4850", "items": [{"type": "agentMessage", "id": "msg_0f1b31fcb9f29af3016ab3f23cfb3887d0bb69b63b5060e062", "text": "L1-touched", "phase": "final_answer", "memor')
+  final: L1-touched
+  VERDICT L1 (file outside cwd created although executor config says read-only): True
+===== L2 workspace-write, write outside cwd: sandbox=workspace-write cwd=/home/zym/worktrees/fable/runtime/probe/user-ws
+  note: ('turn/completed', '{"threadId": "01a0ceea-3f56-7d70-a746-707004557d95", "turn": {"id": "01a0ceea-3fc5-7582-91ef-c4636afbcd9f", "items": [{"type": "agentMessage", "id": "msg_0994713ef5bb79ea016ab3f244d62887d0a8600bc6c2b550bd", "text": "touch: cannot touch \'/home/zym/probe-ceiling')
+  final: touch: cannot touch '/home/zym/probe-ceiling-L2-1790177845.txt': Read-only file system
+  VERDICT L2 (outside write blocked by sandbox): True
+===== L3 workspace-write, write inside cwd (executor requirements say read-only only): sandbox=workspace-write cwd=/home/zym/worktrees/fable/runtime/probe/user-ws
+  cmd: "/usr/bin/zsh -lc 'echo L3 > PROBE_L3_1790177845.txt && cat PROBE_L3_1790177845.txt'" | exit 0 | status completed | L3 | 
+  note: ('turn/completed', '{"threadId": "01a0ceea-605b-7c41-9d8c-871898fa7274", "turn": {"id": "01a0ceea-60c7-7512-89ae-f890dc51fd3a", "items": [{"type": "agentMessage", "id": "msg_0afb31eca2f888b1016ab3f252413887d08fd26921b3660fd1", "text": "L3", "phase": "final_answer", "memoryCitatio')
+  final: L3
+  VERDICT L3 (inside write succeeded despite executor requirements.toml read-only): True
+===== L4 read-only, cwd outside declared roots: sandbox=read-only cwd=/tmp/probe-outside-root
+  cmd: "/usr/bin/zsh -lc 'pwd && ls -la'" | exit 0 | status completed | /tmp/probe-outside-root | total 40 | drwxrwxr-x  2 zym    zym      4096 Sep 23 23:34 . | drwxrwxrwt 32 nobody nogroup 32768 Sep 23 23:37 .. | 
+  note: ('turn/completed', '{"threadId": "01a0ceea-922d-7360-acb0-d6712925f16e", "turn": {"id": "01a0ceea-9277-7522-bb14-1d2bf1b3fa61", "items": [{"type": "agentMessage", "id": "msg_02ad52b1f16ea15c016ab3f25a471087d094488dddd48ae1b9", "text": "```text\\n/tmp/probe-outside-root\\ntotal 40\\n')
+  final: ```text /tmp/probe-outside-root total 40 drwxrwxr-x  2 zym    zym      4096 Sep 23 23:34 . drwxrwxrwt 32 nobody nogroup 32768 Sep 23 23:37 .. ```

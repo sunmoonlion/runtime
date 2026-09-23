@@ -1,0 +1,15 @@
+  environment/status before B: {'status': 'pending'}
+===== B. remote env, workspace-write + on-request: create file via apply_patch, then touch outside sandbox
+  SERVER REQUEST: item/commandExecution/requestApproval {"environmentId": "user-pc", "command": "/usr/bin/zsh -lc 'touch /home/zym/probe-outside-1790172857.txt && echo touched'", "cwd": "/home/zym/worktrees/fable/runtime/probe/user-ws", "reason": "May I run this command to create the requested file outside the writable workspace?", "kind": "command"}
+  note: ('fileChange', {'status': 'completed', 'changes': [{'path': '/home/zym/worktrees/fable/runtime/probe/user-ws/PROBE_WRITE.txt', 'kind': {'type': 'add'}, 'diff': 'written-by-codex\n'}]})
+  note: ('turn/completed', '{"threadId": "01a0ce9e-0633-7e51-ba1b-7f26cb4e01bf", "turn": {"id": "01a0ce9e-06d8-7402-946d-d9ebd48e2bb6", "items": [{"type": "agentMessage", "id": "msg_0cf94b999e361b84016ab3dec6561887d0b170f30a62f331c2", "text": "1. Created `PROBE_WRITE.txt` using `apply_pa')
+  server requests during B: 1
+  VERDICT B1 file in user-ws: True
+  VERDICT B2 outside file created after approval: True
+===== C. disconnect: kill exec-server mid-turn
+  killing exec-server pids: [1412141]
+  note: thread/environment/disconnected {"threadId": "01a0ce9e-0633-7e51-ba1b-7f26cb4e01bf", "environmentId": "user-pc"}
+  note: thread/environment/disconnected {"threadId": "01a0ce9e-3cb7-76d3-8edc-20502c4007c1", "environmentId": "user-pc"}
+  note: item/completed {"item": {"type": "commandExecution", "id": "exec-3f0c0958-74fb-4879-ad6c-ad1ba1116703", "pluginId": null, "scriptPath": null, "command": "/usr/bin/zsh -lc 'sleep 45 && echo slept'", "cwd": "/home/zym/worktrees/fable/runtime/probe/user-ws", "processId": "2882", "source": "unifiedExecStartup", "statu
+  note: turn/completed {"threadId": "01a0ce9e-3cb7-76d3-8edc-20502c4007c1", "turn": {"id": "01a0ce9e-3d2b-70d1-ab91-e27445a0b7be", "items": [{"type": "agentMessage", "id": "msg_0a4259d34b9cd033016ab3def0997c87d0874e07883e3692eb", "text": "No output was captured. The execution connection disconnected before the command com
+  environment/status after kill: {'status': 'disconnected', 'error': 'exec-server transport disconnected: failed to read websocket JSON-RPC message from exec-server websocket ws://127.0.0.1:47001: WebSocket protocol error: Connection reset without closing handshake; failed to resume exec-server session: recovery timed out after 25s'}

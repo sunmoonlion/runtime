@@ -1,0 +1,37 @@
+environment/add: {}
+===== N1 network blip 3 s (within 25 s window)
+  [disrupt] killing bridge [1475080]; restarting after 3 s
+  [disrupt] bridge restarted: True
+  turn took 21.4 s
+  event thread/environment/disconnected: {"threadId": "01a0cef7-9cc1-7cf0-869e-233c11278782", "environmentId": "user-pc"}
+  event thread/environment/connected: {"threadId": "01a0cef7-9cc1-7cf0-869e-233c11278782", "environmentId": "user-pc"}
+  cmd: "/usr/bin/zsh -lc 'sleep 12 && echo slept-ok'" | exit 0 | status completed | slept-ok | 
+  final: slept-ok
+  VERDICT command output survived: True
+  environment/status: {"status": "ready"}
+  -- fresh turn on the same thread:
+  VERDICT fresh turn works: True | fresh-ok
+===== N2 network blip 35 s (beyond window), then fresh turn
+  [disrupt] killing bridge [1475818]; restarting after 35 s
+  [disrupt] bridge restarted: True
+  turn took 38.3 s
+  event thread/environment/disconnected: {"threadId": "01a0cef8-0a4f-7962-b5db-7b0a937f17e6", "environmentId": "user-pc"}
+  event thread/environment/disconnected: {"threadId": "01a0cef7-9cc1-7cf0-869e-233c11278782", "environmentId": "user-pc"}
+  final: exec_command failed: CreateProcess { message: "Rejected(\"Failed to create unified exec process: exec-server transport disconnected; failed to resume exec-server session: recovery timed out after 25s\")" }
+  VERDICT command output survived: False
+  environment/status: {"status": "disconnected", "error": "exec-server transport disconnected; failed to resume exec-server session: recovery timed out after 25s"}
+  -- fresh turn on the same thread:
+  VERDICT fresh turn works: True | fresh-ok
+===== N3 exec-server restart after 5 s, then fresh turn
+  [disrupt] killing exec-server [1475068]; new one after 5 s
+  [disrupt] exec-server restarted: True
+  turn took 11.6 s
+  event thread/environment/disconnected: {"threadId": "01a0cef8-b580-7dc3-a52f-fe7d9e4567a0", "environmentId": "user-pc"}
+  event thread/environment/disconnected: {"threadId": "01a0cef8-0a4f-7962-b5db-7b0a937f17e6", "environmentId": "user-pc"}
+  event thread/environment/disconnected: {"threadId": "01a0cef7-9cc1-7cf0-869e-233c11278782", "environmentId": "user-pc"}
+  final: ```text exec_command failed: CreateProcess { message: "Rejected(\"Failed to create unified exec process: exec-server transport disconnected; failed to resume exec-server session: exec-server rejected request (-32600): un
+  VERDICT command output survived: False
+  environment/status: {"status": "disconnected", "error": "exec-server transport disconnected; failed to resume exec-server session: exec-server rejected request (-32600): unknown session id b218e927-61ba-4001-8ff0-ca999e7720a8"}
+  -- fresh turn on the same thread:
+  VERDICT fresh turn works: True | fresh-ok
+cleanup done

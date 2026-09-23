@@ -1,0 +1,186 @@
+[sandbox] listening ws://127.0.0.1:47002
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] connection closed
+[sandbox] upstream=ws://127.0.0.1:47001 counts={'requests': 51, 'notifications_up': 1, 'notifications_down': 0, 'requests_from_executor': 0}
+[sandbox] RTT per request method (n, median ms, p90 ms, max ms):
+  environmentConfig/read           n=   2 med=    2.33 p90=    2.33 max=    2.33
+  fs/getMetadata                   n=  47 med=    5.16 p90=   44.19 max=   45.43
+  fs/readFile                      n=   1 med=    0.51 p90=    0.51 max=    0.51
+  initialize                       n=   1 med=    1.09 p90=    1.09 max=    1.09
+[sandbox] listening ws://127.0.0.1:47002
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] connection closed
+[sandbox] upstream=ws://127.0.0.1:47001 counts={'requests': 69, 'notifications_up': 1, 'notifications_down': 6, 'requests_from_executor': 0}
+[sandbox] RTT per request method (n, median ms, p90 ms, max ms):
+  environment/status               n=   1 med=    0.49 p90=    0.49 max=    0.49
+  environmentConfig/read           n=   1 med=    2.74 p90=    2.74 max=    2.74
+  fs/getMetadata                   n=  61 med=    2.85 p90=   42.13 max=   42.29
+  fs/readFile                      n=   1 med=    0.62 p90=    0.62 max=    0.62
+  initialize                       n=   1 med=    0.58 p90=    0.58 max=    0.58
+  process/start                    n=   2 med=    4.08 p90=    4.08 max=    4.08
+  process/terminate                n=   2 med=    0.53 p90=    0.53 max=    0.53
+[sandbox] listening ws://127.0.0.1:47002
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] error: [Errno 111] Connect call failed ('127.0.0.1', 47001)
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] connection closed
+[sandbox] app-server connected, dialing ws://127.0.0.1:47001
+[sandbox] connection closed
+[sandbox] upstream=ws://127.0.0.1:47001 counts={'requests': 92, 'notifications_up': 2, 'notifications_down': 6, 'requests_from_executor': 0}
+[sandbox] RTT per request method (n, median ms, p90 ms, max ms):
+  environmentConfig/read           n=   1 med=    2.52 p90=    2.52 max=    2.52
+  fs/getMetadata                   n=  83 med=   40.86 p90=   42.56 max=   45.39
+  fs/readFile                      n=   1 med=    0.66 p90=    0.66 max=    0.66
+  initialize                       n=   3 med=    0.49 p90=    0.56 max=    0.56
+  process/start                    n=   2 med=    4.04 p90=    4.04 max=    4.04
+  process/terminate                n=   2 med=    0.56 p90=    0.56 max=    0.56

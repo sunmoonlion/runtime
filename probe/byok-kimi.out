@@ -1,0 +1,24 @@
+initialize: {"userAgent": "probe-byok/0.155.1 (Ubuntu 24.4.0; x86_64) vscode/3.17.8 (probe-byok; 0.0.1)", "codexHome": "/home/zym/.codex-probe-kimi", "platformFamily": "unix", "platformOs": "linux"}
+environment/add: {}
+===== K1 control: local env, Kimi
+  cmd: "/usr/bin/zsh -lc 'echo PROBE_SIDE=$PROBE_SIDE && pwd'" | exit 0 | PROBE_SIDE=app-server | /home/zym/worktrees/fable/runtime/probe/cloud-ws | 
+  note: ('turn/completed', '{"threadId": "01a0cef0-dfac-7a12-961e-1937ed685c90", "turn": {"id": "01a0cef0-e039-7640-bf0a-703c4efc8c91", "items": [{"type": "agentMessage", "id": "msg_5Xxe3nDfgHqeqtu3SE4idunQ", "text": "Output verbatim:\\n\\n```\\nPROBE_SIDE=app-server\\n/home/zym/worktrees/fa')
+  final: Output verbatim:  ``` PROBE_SIDE=app-server /home/zym/worktrees/fable/runtime/probe/cloud-ws ```
+  usage: {"threadId": "01a0cef0-dfac-7a12-961e-1937ed685c90", "turnId": "01a0cef0-e039-7640-bf0a-703c4efc8c91", "tokenUsage": {"total": {"totalTokens": 9537, "inputTokens": 9463, "cachedInputTokens": 0, "cacheWriteInputTokens": 9216, "outputTokens": 74, "reasoningOutputTokens": 15}, "last": {"totalTokens": 9537, "inputTokens": 9463, "cachedInputTokens": 0, "cacheWriteInputTokens": 9216, "outputTokens": 74,
+  VERDICT K1 model+tool call works: True
+===== K2 remote env, workspace-write, apply_patch + command
+  cmd: "/usr/bin/zsh -lc 'echo PROBE_SIDE=$PROBE_SIDE && cat PROBE_KIMI_1790178287.txt'" | exit 0 | PROBE_SIDE=exec-server | written-by-kimi | 
+  note: ('fileChange', {'status': 'completed', 'changes': [{'path': '/home/zym/worktrees/fable/runtime/probe/user-ws/PROBE_KIMI_1790178287.txt', 'kind': {'type': 'add'}, 'diff': 'written-by-kimi\n'}]})
+  note: ('turn/completed', '{"threadId": "01a0cef1-1615-75a2-b690-3eb16f85a180", "turn": {"id": "01a0cef1-16a3-7eb3-b905-78de88e1c06a", "items": [{"type": "agentMessage", "id": "msg_vVOE8gYipShsMdQLHBOBEPSk", "text": "**Step 1** \\u2014 `apply_patch` output:\\n```\\nSuccess. Updated the fol')
+  final: **Step 1** — `apply_patch` output: ``` Success. Updated the following files: A PROBE_KIMI_1790178287.txt ```  **Step 2** — command output: ``` PROBE_SIDE=exec-server written-by-kimi ```
+  usage: {"threadId": "01a0cef1-1615-75a2-b690-3eb16f85a180", "turnId": "01a0cef1-16a3-7eb3-b905-78de88e1c06a", "tokenUsage": {"total": {"totalTokens": 9742, "inputTokens": 9658, "cachedInputTokens": 0, "cacheWriteInputTokens": 9472, "outputTokens": 84, "reasoningOutputTokens": 4}, "last": {"totalTokens": 9742, "inputTokens": 9658, "cachedInputTokens": 0, "cacheWriteInputTokens": 9472, "outputTokens": 84, 
+  VERDICT K2a file written in user-ws via apply_patch: True
+  VERDICT K2b command ran on exec-server side: True
+===== K3 remote env, on-request, write outside cwd
+  SERVER REQUEST: item/commandExecution/requestApproval {"environmentId": "user-pc", "command": "/usr/bin/zsh -lc 'touch /home/zym/probe-kimi-outside-1790178287.txt && echo touched'", "cwd": "/home/zym/worktrees/fable/runtime/probe/user-ws", "reason": "Allow writing a file outside the workspace (/home/zym)?", "kind": "command"}
+  cmd: "/usr/bin/zsh -lc 'touch /home/zym/probe-kimi-outside-1790178287.txt && echo touched'" | exit 0 | touched | 
+  note: ('turn/completed', '{"threadId": "01a0cef1-7826-7051-992e-bbce9166d79c", "turn": {"id": "01a0cef1-788d-73b2-8b6e-27cdb494b7dc", "items": [{"type": "agentMessage", "id": "msg_gjSYHHVchMXzB3Ql8Qyt7JCQ", "text": "Output verbatim:\\n\\n```\\ntouched\\n```\\n\\nThe command succeeded (exit c')
+  final: Output verbatim:  ``` touched ```  The command succeeded (exit code 0) after approval, creating `/home/zym/probe-kimi-outside-1790178287.txt`.
+  usage: {"threadId": "01a0cef1-7826-7051-992e-bbce9166d79c", "turnId": "01a0cef1-788d-73b2-8b6e-27cdb494b7dc", "tokenUsage": {"total": {"totalTokens": 10480, "inputTokens": 10355, "cachedInputTokens": 8960, "cacheWriteInputTokens": 1280, "outputTokens": 125, "reasoningOutputTokens": 9}, "last": {"totalTokens": 10480, "inputTokens": 10355, "cachedInputTokens": 8960, "cacheWriteInputTokens": 1280, "outputTo
+  approval requests: 1 ['user-pc']
+  VERDICT K3 approval carried environmentId and file created after accept: True

@@ -8,7 +8,7 @@ cd "$(dirname "$0")/.." || exit 2
 source scripts/env-header.sh
 set -o pipefail
 K8S="${K8S_REPO:-$(cd .. && pwd)/k8s}"; PY="${PY:-$PWD/.venv/bin/python}"; ORCH_HOME="${ORCH_HOME:-$HOME/.codex-probe}"
-RELAY_PORT=47100; BRIDGE_PORT=47002; USER_ID=local; AGENT_TOKEN=agent-secret; SANDBOX_TOKEN=sandbox-secret
+RELAY_PORT="${RELAY_PORT:-47100}"; BRIDGE_PORT="${BRIDGE_PORT:-47002}"; USER_ID=local; AGENT_TOKEN=agent-secret; SANDBOX_TOKEN=sandbox-secret
 AGENT_HOME="$(mktemp -d /tmp/sunmoon-agent-it.XXXXXX)"; ROOT="$PWD/probe/user-ws"; mkdir -p "$ROOT"
 pids=(); cleanup() { for p in "${pids[@]}"; do kill "$p" 2>/dev/null; done; pgrep -f "[c]odex app-server" | xargs -r kill 2>/dev/null; rm -rf "$AGENT_HOME"; }
 trap cleanup EXIT

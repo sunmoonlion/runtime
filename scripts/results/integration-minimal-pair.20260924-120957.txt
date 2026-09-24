@@ -1,0 +1,101 @@
+===== 环境 =====
+主机        VM-0-13-ubuntu
+时间        2026-09-24T12:09:57+08:00
+工位        fable
+系统        Linux 6.8.0-88-generic x86_64
+内存        3.6Gi 总 / 2.0Gi 可用
+磁盘        24G 可用 / 59% 已用
+Python      Python 3.13.9
+Node        v25.2.1
+uv          uv 0.11.7 (x86_64-unknown-linux-gnu)
+Codex       codex-cli 0.155.1  CODEX_HOME=未设
+k8s                    379861e1  fable
+info-app               244f724  fable
+  info-backend         e5156a0  
+investment-app         e768128  fable
+  investment-backend   01d0974  fable
+knowledge-app          c6781d8  fable
+  knowledge-backend    2b4ee8c  fable
+tpl-app                27d45da  fable
+  tpl-backend          6674125  
+runtime                bc45052  fable
+===== 开始 =====
+--- 依赖
+codex(随包) 0.155.1  ORCH_HOME=/home/zym/.codex-probe  ROOT=/home/zym/worktrees/fable/runtime/probe/user-ws
+--- 1. 会合点
+{"ok": true, "relay": "relay-v1", "proto": 1, "agents": 0, "paired": 0, "rejected": 0, "agent_up": 0}
+--- 2. 本地代理（外沙箱 + 过滤），白名单只有 /home/zym/worktrees/fable/runtime/probe/user-ws
+  VERDICT 代理连上会合点                                pass
+  VERDICT exec-server 在外沙箱里启动                    pass
+--- 3. 沙箱侧桥
+--- 4. app-server 经整条链跑 turn（L1 danger 应被拒；L3 workspace-write 应写成）
+probe exit=0
+===== L1 danger-full-access, write outside cwd: sandbox=danger-full-access cwd=/home/zym/worktrees/fable/runtime/probe/user-ws
+[2m2026-09-24T04:10:05.578951Z[0m [31mERROR[0m [2mcodex_core::tools::router[0m[2m:[0m [3merror[0m[2m=[0mexec_command failed: CreateProcess { message: "Rejected(\"Failed to create unified exec process: exec-se
+  final: exec_command failed: CreateProcess { message: "Rejected(\"Failed to create unified exec process: exec-server rejected request (-32001): sunmoon-agent local ceiling: sandbox mode danger-full-access exceeds local 
+  VERDICT L1 (file outside cwd created although executor config says read-only): False
+===== L3 workspace-write, write inside cwd (executor requirements say read-only only): sandbox=workspace-write cwd=/home/zym/worktrees/fable/runtime/probe/user-ws
+  cmd: "/usr/bin/zsh -lc 'echo L3 > PROBE_L3_1790222999.txt && cat PROBE_L3_1790222999.txt'" | exit 0 | status completed | L3 | 
+  final: L3
+  VERDICT L3 (inside write succeeded despite executor requirements.toml read-only): True
+  VERDICT workspace-write 的 turn 在执行端写成（L3）  pass
+  VERDICT danger-full-access 未能写出白名单（L1）     pass
+  VERDICT 拒绝来自协议过滤（错误文本含 local ceiling） pass
+  VERDICT 会合点记录了配对                             fail
+--- 5. 代理状态
+{
+  "version": "0.1.0",
+  "pid": 95883,
+  "codex": "0.155.1",
+  "execServer": {
+    "url": "ws://127.0.0.1:42447",
+    "alive": true,
+    "sandboxed": true,
+    "generation": 1
+  },
+  "relay": {
+    "url": "ws://127.0.0.1:47100",
+    "status": "connected",
+    "lastError": ""
+  },
+  "ceiling": {
+    "sandbox": "workspace-write",
+    "network": false
+  },
+  "roots": [
+    "/home/zym/worktrees/fable/runtime/probe/user-ws"
+  ],
+  "bridge": {
+    "connections": 1,
+    "active": 1,
+    "forwardedUp": 93,
+    "forwardedDown": 95,
+    "denied": 1,
+    "lastDenial": {
+      "method": "process/start",
+      "reason": "sandbox mode danger-full-access exceeds local ceiling workspace-write",
+      "at": "2026-09-24T04:10:05.577Z"
+    }
+  },
+  "at": "2026-09-24T04:10:23.580Z"
+}--- 日志尾部
+[it-relay]
+2026-09-24 12:09:59,773 INFO connection open
+2026-09-24 12:09:59,781 INFO paired user=local conn=b34d1cb9
+2026-09-24 12:10:26,156 INFO connection closed
+2026-09-24 12:10:26,165 INFO connection closed
+2026-09-24 12:10:26,172 INFO closed user=local conn=b34d1cb9 after 26.4s
+[it-agent]
+{"t":"2026-09-24T04:09:58.586Z","level":"info","msg":"relay connected","relay":"relay-v1"}
+{"t":"2026-09-24T04:09:59.779Z","level":"info","msg":"stream bridged","conn":"b34d1cb9","local":"ws://127.0.0.1:42447"}
+{"t":"2026-09-24T04:10:05.577Z","level":"warn","msg":"denied by local ceiling","method":"process/start","reason":"sandbox mode danger-full-access exceeds local ceiling workspace-write"}
+{"t":"2026-09-24T04:10:26.166Z","level":"info","msg":"stream closed","conn":"b34d1cb9","why":"relay side close 1000"}
+{"t":"2026-09-24T04:10:26.169Z","level":"info","msg":"stream closed","conn":"b34d1cb9","why":"exec-server side close 1006"}
+[it-bridge]
+2026-09-24 12:09:59,754 INFO connection open
+2026-09-24 12:09:59,755 INFO app-server connected; dialing ws://127.0.0.1:47100/sandbox
+2026-09-24 12:09:59,783 INFO paired conn=b34d1cb9
+2026-09-24 12:10:26,148 INFO connection closed
+2026-09-24 12:10:26,161 INFO stream closed
+结论：fail
+exit=1

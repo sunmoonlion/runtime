@@ -1,0 +1,29 @@
+﻿**********************
+Windows PowerShell 脚本开始
+开始时间: 20260924113759
+用户名: ZYMUN\zymun
+RunAs 用户: ZYMUN\zymun
+配置名称: 
+计算机: ZYMUN (Microsoft Windows NT 10.0.26200.0)
+主机应用程序: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File C:\Users\zymun\AppData\Local\Temp\codex-probe-sandbox-setup-20260924.ps1
+进程 ID: 13624
+PSVersion: 5.1.26100.9444
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.9444
+BuildVersion: 10.0.26100.9444
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+已启动脚本，输出文件为 C:\Users\zymun\AppData\Local\Temp\codex-probe-sandbox-setup-20260924.log
+Setting up Windows sandbox for C:\Users\zymun\.codex-probe
+Windows elevated sandbox setup completed for zymun at C:\Users\zymun\.codex-probe.
+Setting up Windows sandbox for C:\Users\zymun\.codex-probe-exec
+Windows elevated sandbox setup completed for zymun at C:\Users\zymun\.codex-probe-exec.
+**********************
+Windows PowerShell 脚本结束
+结束时间: 20260924113802
+**********************
+
+exit=0

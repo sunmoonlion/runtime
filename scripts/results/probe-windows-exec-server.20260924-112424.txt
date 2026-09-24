@@ -1,0 +1,50 @@
+Request: 2026-09-24-01-probe-windows-exec-server
+Target: cdef67137daa6d3d94607c83b3e910f79aff96cd
+Windows native temporary checkout; original test script unchanged.
+
+ORCH_HOME=C:\Users\zymun\.codex-probe
+Logged in using ChatGPT
+Note: switching to '98b58d884da93d816b7a4a6fc2c07c21d057917e'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+RUN_DIR=C:\Users\zymun\AppData\Local\Temp\codex-windows-probe-20260924-112424
+cdef67137daa6d3d94607c83b3e910f79aff96cd
+Executing unchanged scripts/probe-windows-exec-server.ps1
+===== 鐜 =====
+涓绘満        ZYMUN
+鏃堕棿        2026-09-24T11:25:46.1441265+08:00
+绯荤粺        Microsoft Windows NT 10.0.26200.0  PowerShell 5.1.26100.9444
+鍐呭瓨        76.3 GB 鍙敤
+Python      Python 3.13.15
+Node        v24.19.0
+Codex       codex-cli 0.155.1
+鏉€姣?       Windows Defender, 火绒安全软件
+runtime     cdef671  
+===== 寮€濮?=====
+--- 1. 璧?exec-server
+Start-Process : This command cannot be run due to the error: %1 is not a valid Win32 application.
+At C:\Users\zymun\AppData\Local\Temp\codex-windows-probe-20260924-112424\scripts\probe-windows-exec-server.ps1:27 char:
+7
++ $es = Start-Process -FilePath "codex" -ArgumentList "exec-server","-- ...
++       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [Start-Process], InvalidOperationException
+    + FullyQualifiedErrorId : InvalidOperationException,Microsoft.PowerShell.Commands.StartProcessCommand
+ 
+exec-server pid  閫€鍑轰簡鍚?   鐩戝惉 47001: False
+缁撹锛歠ail锛坋xec-server 娌℃湁鐩戝惉锛涚湅涓婇潰鐨勬棩蹇椾笌鏉€姣掕褰曪級
+
+exit=5

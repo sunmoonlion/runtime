@@ -1,0 +1,29 @@
+Windows exec-server（D11）修复后重跑
+结论：pass（Windows 原生启动和 L2/L3；本次显式使用 47011）。
+基线：runtime 98b58d884da93d816b7a4a6fc2c07c21d057917e。
+已授权本地修复：scripts/probe-windows-exec-server.ps1、probe/probe_local_ceiling.py。
+精确受测补丁：probe-windows-exec-server.20260924-113849.patch。
+完整原始输出：probe-windows-exec-server.20260924-113849.txt。
+官方沙箱初始化输出：probe-windows-exec-server.20260924-113849.setup.txt。
+
+修复内容：
+- 通过 npm 包公开的 bin.codex 入口与 Node 启动 exec-server；同一命令传入 Python 启动 app-server。
+- PowerShell 5.1 中文编码修正；环境与 Git 读取失败明确报错，保留完整日志。
+- EXEC_PORT 默认仍为 47001，可显式配置；EXEC_URL 传入 Python，避免两端使用不同端口。
+- 完整判定 L2/L3 与 Python 退出码；异常不算通过；finally 清理本次进程树。
+- 在所有者批准的 Windows 管理员初始化中，为 .codex-probe 和 .codex-probe-exec 启用官方 elevated 沙箱。
+
+实际证据：
+- 原生 Windows、PowerShell 5.1、Node 24.19.0、Python 3.13.15、Codex CLI 0.155.1。
+- exec-server 成功监听 ws://127.0.0.1:47011，environment/add 与 environment/info 成功。
+- L2 命令实际执行，New-Item 对 C:\Users\zymun\probe-ceiling-L2-1790221136.txt 报 PermissionDenied，文件未创建；VERDICT L2=True。
+- L3 的 Set-Content/Get-Content 实际执行成功，输出 L3，文件存在；VERDICT L3=True。
+- Python exit=0，探针 exit=0；exec-server 进程树已清理。
+
+覆盖与限制：
+查了：修复后的原生 Windows 启动、已登录编排端、无登录执行端、elevated 沙箱下的上述两个写入用例、进程清理。
+没查（环境事实）：默认 47001 的监听；它被 Cursor 进程 12492 占用，本次未改变或终止 Cursor，改用获准的 47011。
+没查：其他 Windows 沙箱模式、跨机器延迟及更广泛权限边界。
+不能外推：原脚本 L3 文案提及 requirements.toml，但本次执行端设置是 config.toml 的 read-only；不据此声明 requirements.toml 的约束有效或无效。
+此前 fail / undecidable 原件全部保留。未同步、未提交、未推送；修复代码与结果由所有者回传。
+exit=0

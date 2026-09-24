@@ -1,0 +1,80 @@
+Request: 2026-09-24-01-probe-windows-exec-server
+Target: 98b58d884da93d816b7a4a6fc2c07c21d057917e
+Windows native temporary checkout with the Windows launcher fix applied; source patch is recorded alongside this result.
+
+ORCH_HOME=C:\Users\zymun\.codex-probe
+Logged in using ChatGPT
+EXEC_PORT=47011 (47001 is occupied by Cursor)
+Note: switching to '98b58d884da93d816b7a4a6fc2c07c21d057917e'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+RUN_DIR=C:\Users\zymun\AppData\Local\Temp\codex-windows-probe-20260924-113233
+98b58d884da93d816b7a4a6fc2c07c21d057917e
+Executing patched scripts/probe-windows-exec-server.ps1
+===== 环境 =====
+主机        ZYMUN
+时间        2026-09-24T11:33:34.2492490+08:00
+系统        Microsoft Windows NT 10.0.26200.0  PowerShell 5.1.26100.9444
+内存        76.4 GB 可用
+Python 3.13.15
+v24.19.0
+codex-cli 0.155.1
+Codex 启动参数 ["C:\\Program Files\\nodejs\\node.exe","C:\\Users\\zymun\\AppData\\Roaming\\npm\\node_modules\\@openai\\codex\\bin\\codex.js"]
+杀毒        Windows Defender, 火绒安全软件
+98b58d884da93d816b7a4a6fc2c07c21d057917e
+ M probe/probe_local_ceiling.py
+ M scripts/probe-windows-exec-server.ps1
+===== 开始 =====
+--- 1. 起 exec-server（ws://127.0.0.1:47011）
+exec-server launcher pid 29144 退出了吗: False 监听 47011: True
+--- 2. 沙箱案例 L2（写 cwd 之外，应被拒）与 L3（写 cwd 内，应成功）
+environment/add: {}
+L0 environment/info: {"shell": {"name": "powershell", "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"}, "cwd": "file:///C:/Users/zymun/AppData/Local/Temp/codex-windows-probe-20260924-113233"}
+===== L2 workspace-write, write outside cwd: sandbox=workspace-write cwd=C:\Users\zymun\AppData\Local\Temp\codex-windows-probe-20260924-113233\probe\user-ws
+python.exe : [2m2026-09-24T03:33:58.942020Z[0m [31mERROR[0m [2mcodex_core::tools::router[0m[2m:[0m [3merror[0
+m[2m=[0mexec_command failed: CreateProcess { message: "Rejected(\"`\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\Windo
+wsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"New-Item -ItemType File -Path 'C:\\\\\\\\Users\\\\\\\\z
+ymun\\\\\\\\probe-ceiling-L2-1790220817.txt' -Force | Out-Null; echo L2-touched\\\"` rejected: blocked by policy\")" }
+At C:\Users\zymun\AppData\Local\Temp\codex-windows-probe-20260924-113233\scripts\probe-windows-exec-server.ps1:95 char:
+9
++         & $python -u probe\probe_local_ceiling.py 2>&1 | Tee-Object - ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([2m2026-09-24T...by policy\")" }:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  note: ('turn/completed', '{"threadId": "01a0d179-e3bd-7a20-9da7-8669344e3f00", "turn": {"id": "01a0d179-e439-7450-9508-c612faef2ef6", "items": [{"type": "agentMessage", "id": "msg_0b9ba456aa2e9999016ab49a2996b887d085d89c0bcc1416ef", "text": "```text\\nexec_command failed: CreateProcess ')
+  final: ```text exec_command failed: CreateProcess { message: "Rejected(\"`\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"New-Item -ItemType File -Path 'C:\\\\\\\\Users\\\\\\\\zymun\\\\\\\\probe-ceiling-L2-1790220817.txt' -Force | Out-Null; 
+  VERDICT L2 (outside write blocked by sandbox): True
+===== L3 workspace-write, write inside cwd (executor requirements say read-only only): sandbox=workspace-write cwd=C:\Users\zymun\AppData\Local\Temp\codex-windows-probe-20260924-113233\probe\user-ws
+[2m2026-09-24T03:34:15.425346Z[0m [31mERROR[0m [2mcodex_core::tools::router[0m[2m:[0m [3merror[0m[2m=[0mexe
+c_command failed: CreateProcess { message: "Rejected(\"`\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\
+\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Set-Content -Path 'PROBE_L3_1790220817.txt' -Value 'L3'; Get-Content
+ 'PROBE_L3_1790220817.txt'\\\"` rejected: blocked by policy\")" }
+  note: ('turn/completed', '{"threadId": "01a0d17a-422f-7cd1-bef5-008e53c23693", "turn": {"id": "01a0d17a-42c8-7b20-9804-5139360960fa", "items": [{"type": "agentMessage", "id": "msg_0927119d2e633d8a016ab49a390aac87d090983b1cfe60482f", "text": "```text\\nexec_command failed: CreateProcess ')
+  final: ```text exec_command failed: CreateProcess { message: "Rejected(\"`\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\\\" -Command \\\"Set-Content -Path 'PROBE_L3_1790220817.txt' -Value 'L3'; Get-Content 'PROBE_L3_1790220817.txt'\\\"` rejected: blocked b
+  VERDICT L3 (inside write succeeded despite executor requirements.toml read-only): False
+python 退出码 0
+结论：undecidable（没有取得完整的 L2/L3 通过证据）
+--- 3. 收尾
+SUCCESS: The process with PID 9900 (child process of PID 29144) has been terminated.
+SUCCESS: The process with PID 25388 (child process of PID 29144) has been terminated.
+SUCCESS: The process with PID 29144 (child process of PID 9660) has been terminated.
+--- probe\es-windows.log（完整）
+ws://127.0.0.1:47011
+--- probe\es-windows.err.log（完整）
+
+exit=2

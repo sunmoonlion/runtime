@@ -1,0 +1,9 @@
+Request: 2026-09-24-01-probe-windows-exec-server
+Target: 98b58d884da93d816b7a4a6fc2c07c21d057917e
+Windows native temporary checkout with the Windows launcher fix applied; source patch is recorded alongside this result.
+
+ORCH_HOME=C:\Users\zymun\.codex-probe
+Logged in using ChatGPT
+Preflight failed: port 47001 already in use
+
+exit=4

@@ -1,0 +1,26 @@
+Windows exec-server（D11）重跑结论
+被测提交：cdef67137daa6d3d94607c83b3e910f79aff96cd
+实际执行：Windows PowerShell 5.1；Windows 原生临时 Git 检出；原始脚本未修改。
+临时目录：C:\Users\zymun\AppData\Local\Temp\codex-windows-probe-20260924-112424
+完整原始输出：probe-windows-exec-server.20260924-112424.txt
+ORCH_HOME：C:\Users\zymun\.codex-probe
+登录检查：Logged in using ChatGPT
+环境：Node 24.19.0、Python 3.13.15、Codex CLI 0.155.1。
+杀毒软件：Windows Defender、火绒安全软件（来自本次脚本输出）。
+
+总体结论：fail（原脚本启动检查失败）。
+1. exec-server 启动和监听 47001：fail。
+   scripts/probe-windows-exec-server.ps1 第 27 行 Start-Process -FilePath "codex" 报错：
+   This command cannot be run due to the error: %1 is not a valid Win32 application.
+   随后脚本报告监听 47001 为 False，并 exit 5。
+2. L2 / L3 workspace-write 沙箱：undecidable；未执行，无 VERDICT。
+   不能从启动器错误推断 Windows exec-server 本身不受支持或 Windows 沙箱无效。
+
+查了：固定提交、Windows 原生环境、登录状态、依赖版本、杀毒软件、原脚本启动流程和监听检查。
+没查（环境事实）：exec-server 成功启动后的实际行为、L2/L3 用例。
+没查（远端与授权）：模型调用是否可用；本次在启动器处停止。
+不能排除：Windows 启动命令解析或包装脚本导致启动失败；需要修正启动方式后再验证真正的 exec-server 与沙箱能力。
+附带观察：原始 .ps1 在 Windows PowerShell 5.1 下中文输出乱码，原始输出原样保留。
+未修改测试代码或判据；未提交、未推送；结果留给所有者回传。
+末行是本次探针运行的实际退出码。
+exit=5

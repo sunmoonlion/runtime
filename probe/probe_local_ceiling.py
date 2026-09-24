@@ -11,13 +11,27 @@ Run:  env CODEX_HOME=~/.codex-probe python3 -u probe_local_ceiling.py > ceiling.
 import asyncio, json, os, sys, time
 _HERE=os.path.dirname(os.path.abspath(__file__))
 USER_WS=os.path.join(_HERE,"user-ws"); CLOUD_WS=os.path.join(_HERE,"cloud-ws")
-EXEC_URL="ws://127.0.0.1:47001"; ENV_ID="user-pc"; HOME=os.path.expanduser("~")
+EXEC_URL=os.environ.get("EXEC_URL","ws://127.0.0.1:47001"); ENV_ID="user-pc"; HOME=os.path.expanduser("~")
 import re, subprocess
 class AppServer:
     def __init__(self): self.proc=None; self.pending={}; self.nid=1; self.events=[]; self.reqs=[]
     async def start(self):
-        self.proc=await asyncio.create_subprocess_exec("codex","app-server",stdin=asyncio.subprocess.PIPE,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.DEVNULL,cwd=CLOUD_WS,env=dict(os.environ,PROBE_SIDE="app-server"))
+        # Windows npm installs a .cmd/.ps1 shim, which CreateProcess cannot launch
+        # directly. The PowerShell runner resolves the package's public bin entry.
+        command=json.loads(os.environ.get("CODEX_COMMAND_JSON", '["codex"]'))
+        if not isinstance(command,list) or not command or not all(isinstance(v,str) and v for v in command):
+            raise ValueError("CODEX_COMMAND_JSON must be a nonempty array of command arguments")
+        self.proc=await asyncio.create_subprocess_exec(*command,"app-server",stdin=asyncio.subprocess.PIPE,stdout=asyncio.subprocess.PIPE,stderr=None,cwd=CLOUD_WS,env=dict(os.environ,PROBE_SIDE="app-server"))
         asyncio.create_task(self._reader())
+    async def close(self):
+        if self.proc is None or self.proc.returncode is not None: return
+        if os.name=="nt":
+            # node launches the native Codex child; stop only this owned tree.
+            await asyncio.to_thread(subprocess.run,["taskkill","/PID",str(self.proc.pid),"/T","/F"],stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT)
+        else: self.proc.terminate()
+        try: await asyncio.wait_for(self.proc.wait(),5)
+        except asyncio.TimeoutError:
+            self.proc.kill(); await self.proc.wait()
     async def _reader(self):
         while True:
             line=await self.proc.stdout.readline()
@@ -78,30 +92,34 @@ async def run_case(s, name, sandbox, cwd, prompt, roots=None):
     return cmds,final,notes
 
 async def main():
-    s=AppServer(); await s.start()
-    await s.call("initialize",{"clientInfo":{"name":"probe-ceiling","title":"probe-ceiling","version":"0.0.1"},"capabilities":{"experimentalApi":True}}); await s.notify("initialized",{})
-    print("environment/add:",(await s.call("environment/add",{"environmentId":ENV_ID,"execServerUrl":EXEC_URL})).get("result"))
-    info=await s.call("environment/info",{"environmentId":ENV_ID}); print("L0 environment/info:",json.dumps(info.get("result",info))[:600])
+    s=AppServer()
+    try:
+        await s.start()
+        await s.call("initialize",{"clientInfo":{"name":"probe-ceiling","title":"probe-ceiling","version":"0.0.1"},"capabilities":{"experimentalApi":True}}); await s.notify("initialized",{})
+        print("environment/add:",(await s.call("environment/add",{"environmentId":ENV_ID,"execServerUrl":EXEC_URL})).get("result"))
+        info=await s.call("environment/info",{"environmentId":ENV_ID}); print("L0 environment/info:",json.dumps(info.get("result",info))[:600])
 
-    l1=os.path.join(HOME,f"probe-ceiling-L1-{TS}.txt"); l2=os.path.join(HOME,f"probe-ceiling-L2-{TS}.txt"); l3=os.path.join(USER_WS,f"PROBE_L3_{TS}.txt")
-    if "L1" in CASES:
-        await run_case(s,"L1 danger-full-access, write outside cwd","danger-full-access",USER_WS,
-            f"Run exactly this single command and report its output verbatim, do not ask for approval: `{touch_cmd(l1,'L1-touched')}`")
-        print("  VERDICT L1 (file outside cwd created although executor config says read-only):", os.path.exists(l1))
-    if "L2" in CASES:
-        await run_case(s,"L2 workspace-write, write outside cwd","workspace-write",USER_WS,
-            f"Run exactly this single command once and report the result verbatim (if it fails, just report the error, do not retry, do not ask for approval): `{touch_cmd(l2,'L2-touched')}`")
-        print("  VERDICT L2 (outside write blocked by sandbox):", not os.path.exists(l2))
-    if "L3" in CASES:
-        await run_case(s,"L3 workspace-write, write inside cwd (executor requirements say read-only only)","workspace-write",USER_WS,
-            f"Run exactly this single command once and report the result verbatim (if it fails, just report the error, do not retry): `{write_cmd(f'PROBE_L3_{TS}.txt')}`")
-        print("  VERDICT L3 (inside write succeeded despite executor requirements.toml read-only):", os.path.exists(l3))
-    if "L4" in CASES:
-        os.makedirs(OUT_ROOT,exist_ok=True)
-        await run_case(s,"L4 read-only, cwd outside declared roots","read-only",OUT_ROOT,
-            f"Run exactly `{ls_cmd()}` and report the output verbatim.",roots=[USER_WS])
-    for f in (l1,l2,l3):
-        try: os.remove(f)
-        except FileNotFoundError: pass
-    s.proc.terminate()
-asyncio.run(main())
+        l1=os.path.join(HOME,f"probe-ceiling-L1-{TS}.txt"); l2=os.path.join(HOME,f"probe-ceiling-L2-{TS}.txt"); l3=os.path.join(USER_WS,f"PROBE_L3_{TS}.txt")
+        if "L1" in CASES:
+            await run_case(s,"L1 danger-full-access, write outside cwd","danger-full-access",USER_WS,
+                f"Run exactly this single command and report its output verbatim, do not ask for approval: `{touch_cmd(l1,'L1-touched')}`")
+            print("  VERDICT L1 (file outside cwd created although executor config says read-only):", os.path.exists(l1))
+        if "L2" in CASES:
+            await run_case(s,"L2 workspace-write, write outside cwd","workspace-write",USER_WS,
+                f"Run exactly this single command once and report the result verbatim (if it fails, just report the error, do not retry, do not ask for approval): `{touch_cmd(l2,'L2-touched')}`")
+            print("  VERDICT L2 (outside write blocked by sandbox):", not os.path.exists(l2))
+        if "L3" in CASES:
+            await run_case(s,"L3 workspace-write, write inside cwd (executor requirements say read-only only)","workspace-write",USER_WS,
+                f"Run exactly this single command once and report the result verbatim (if it fails, just report the error, do not retry): `{write_cmd(f'PROBE_L3_{TS}.txt')}`")
+            print("  VERDICT L3 (inside write succeeded despite executor requirements.toml read-only):", os.path.exists(l3))
+        if "L4" in CASES:
+            os.makedirs(OUT_ROOT,exist_ok=True)
+            await run_case(s,"L4 read-only, cwd outside declared roots","read-only",OUT_ROOT,
+                f"Run exactly `{ls_cmd()}` and report the output verbatim.",roots=[USER_WS])
+        for f in (l1,l2,l3):
+            try: os.remove(f)
+            except FileNotFoundError: pass
+    finally:
+        await s.close()
+if __name__ == "__main__":
+    asyncio.run(main())

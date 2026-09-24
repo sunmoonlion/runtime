@@ -1,0 +1,71 @@
+Request: 2026-09-24-01-probe-windows-exec-server
+Target: 98b58d884da93d816b7a4a6fc2c07c21d057917e
+Windows native temporary checkout with the Windows launcher fix applied; source patch is recorded alongside this result.
+
+ORCH_HOME=C:\Users\zymun\.codex-probe
+Logged in using ChatGPT
+EXEC_PORT=47011 (47001 is occupied by Cursor)
+Note: switching to '98b58d884da93d816b7a4a6fc2c07c21d057917e'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+RUN_DIR=C:\Users\zymun\AppData\Local\Temp\codex-windows-probe-20260924-113849
+98b58d884da93d816b7a4a6fc2c07c21d057917e
+Executing patched scripts/probe-windows-exec-server.ps1
+===== 环境 =====
+主机        ZYMUN
+时间        2026-09-24T11:38:53.3280763+08:00
+系统        Microsoft Windows NT 10.0.26200.0  PowerShell 5.1.26100.9444
+内存        76.4 GB 可用
+Python 3.13.15
+v24.19.0
+codex-cli 0.155.1
+Codex 启动参数 ["C:\\Program Files\\nodejs\\node.exe","C:\\Users\\zymun\\AppData\\Roaming\\npm\\node_modules\\@openai\\codex\\bin\\codex.js"]
+杀毒        Windows Defender, 火绒安全软件
+98b58d884da93d816b7a4a6fc2c07c21d057917e
+ M probe/probe_local_ceiling.py
+ M scripts/probe-windows-exec-server.ps1
+===== 开始 =====
+--- 1. 起 exec-server（ws://127.0.0.1:47011）
+exec-server launcher pid 16780 退出了吗: False 监听 47011: True
+--- 2. 沙箱案例 L2（写 cwd 之外，应被拒）与 L3（写 cwd 内，应成功）
+environment/add: {}
+L0 environment/info: {"shell": {"name": "powershell", "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"}, "cwd": "file:///C:/Users/zymun/AppData/Local/Temp/codex-windows-probe-20260924-113849"}
+===== L2 workspace-write, write outside cwd: sandbox=workspace-write cwd=C:\Users\zymun\AppData\Local\Temp\codex-windows-probe-20260924-113849\probe\user-ws
+  cmd: "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command \"New-Item -ItemType File -Path 'C:\\\\Users\\\\zymun\\\\probe-ceiling-L2 | exit 0 | status completed | New-Item : 对路径“C:\Users\zymun\probe-ceiling-L2-1790221136.txt”的访问被拒绝。
+ | 所在位置 行:2 字符: 1
+ | + New-Item -ItemType File -Path 'C:\Users\zymun\probe-ceiling-L2-179022 ...
+ | + ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  note: ('turn/completed', '{"threadId": "01a0d17e-bceb-7cf0-87b4-6a8c6e0d615a", "turn": {"id": "01a0d17e-bd91-72b1-86dc-b56d54c7f49c", "items": [{"type": "agentMessage", "id": "msg_09773542cfd818e1016ab49b64a4b887d09390929443f155db", "text": "```text\\nNew-Item : \\u5bf9\\u8def\\u5f84\\u201c')
+  final: ```text New-Item : 对路径“C:\Users\zymun\probe-ceiling-L2-1790221136.txt”的访问被拒绝。 所在位置 行:2 字符: 1 + New-Item -ItemType File -Path 'C:\Users\zymun\probe-ceiling-L2-179022 ... + ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     + CategoryInfo          : PermissionDenied: (C:\Users\z
+  VERDICT L2 (outside write blocked by sandbox): True
+===== L3 workspace-write, write inside cwd (executor requirements say read-only only): sandbox=workspace-write cwd=C:\Users\zymun\AppData\Local\Temp\codex-windows-probe-20260924-113849\probe\user-ws
+  cmd: "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command \"Set-Content -Path 'PROBE_L3_1790221136.txt' -Value 'L3'; Get-Content 'P | exit 0 | status completed | L3
+ | 
+  note: ('turn/completed', '{"threadId": "01a0d17f-168c-7573-a5e6-6a0d6b350cf8", "turn": {"id": "01a0d17f-1723-7203-ae28-eb12408c22b1", "items": [{"type": "agentMessage", "id": "msg_0aedadd756cde115016ab49b762adc87d08471cd1aeda7d5b0", "text": "L3", "phase": "final_answer", "memoryCitatio')
+  final: L3
+  VERDICT L3 (inside write succeeded despite executor requirements.toml read-only): True
+python 退出码 0
+结论：pass（L2 与 L3 均为 True）
+--- 3. 收尾
+SUCCESS: The process with PID 33100 (child process of PID 16780) has been terminated.
+SUCCESS: The process with PID 16344 (child process of PID 16780) has been terminated.
+SUCCESS: The process with PID 16780 (child process of PID 31888) has been terminated.
+--- probe\es-windows.log（完整）
+ws://127.0.0.1:47011
+--- probe\es-windows.err.log（完整）
+
+exit=0

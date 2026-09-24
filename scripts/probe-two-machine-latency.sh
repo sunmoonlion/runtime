@@ -2,10 +2,10 @@
 # 两机公网延迟探针——本地（用户机器角色）这一侧。
 # 起 codex exec-server（只绑 127.0.0.1）与 agent_bridge（出站连远程会合点），保持 DURATION 秒供远程跑 probe_relay_passthrough.py，
 # 然后收尾并打印 exec-server 日志尾部。RTT 表在远程侧的 bridge 日志里；这份输出只证明本地侧连上、命令在本地执行。
-# 用法：RELAY=ws://43.153.135.74:47100 USER_ID=luna DURATION=600 bash scripts/probe-two-machine-latency.sh
+# 用法：RELAY=ws://43.153.135.74:47100 USER_ID=local DURATION=600 bash scripts/probe-two-machine-latency.sh
 cd "$(dirname "$0")/.." || exit 2
 source scripts/env-header.sh
-RELAY="${RELAY:?需要 RELAY=ws://<远程IP>:47100}"; USER_ID="${USER_ID:-luna}"; DURATION="${DURATION:-600}"
+RELAY="${RELAY:?需要 RELAY=ws://<远程IP>:47100}"; USER_ID="${USER_ID:-local}"; DURATION="${DURATION:-600}"
 EXEC_HOME="${EXEC_HOME:-$HOME/.codex-probe-exec}"; PORT=47001
 echo "会合点 ${RELAY}  用户 ${USER_ID}  保持 ${DURATION}s  执行端 CODEX_HOME=${EXEC_HOME}"
 

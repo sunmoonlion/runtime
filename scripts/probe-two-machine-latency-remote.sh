@@ -2,10 +2,10 @@
 # 两机公网延迟探针——远程（沙箱 + 会合点角色）这一侧。所有者同意临时开放 47100 后由远程助手跑。
 # 起会合点（0.0.0.0:47100，无认证，跑完即停）与 sandbox_bridge（47002 → 会合点），等本地代理注册后跑 probe_relay_passthrough.py，
 # 打印 bridge 的 RTT 表；对照 probe/bridge-relay.log（回环）即公网开销。
-# 用法：USER_ID=luna ORCH_HOME=$HOME/.codex-probe bash scripts/probe-two-machine-latency-remote.sh
+# 用法：USER_ID=local ORCH_HOME=$HOME/.codex-probe bash scripts/probe-two-machine-latency-remote.sh
 cd "$(dirname "$0")/.." || exit 2
 source scripts/env-header.sh
-USER_ID="${USER_ID:-luna}"; ORCH_HOME="${ORCH_HOME:-$HOME/.codex-probe}"; PY=.venv/bin/python
+USER_ID="${USER_ID:-local}"; ORCH_HOME="${ORCH_HOME:-$HOME/.codex-probe}"; PY=.venv/bin/python
 [ -x "$PY" ] || { echo "缺 .venv"; exit 3; }
 for port in 47100 47002; do ss -ltn | grep -q ":${port} " && { echo "端口 ${port} 被占用"; exit 4; }; done
 setsid $PY probe/relay_dumb.py 47100 0.0.0.0 > probe/relay-two-machine.log 2>&1 < /dev/null &

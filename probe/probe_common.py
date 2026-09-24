@@ -50,3 +50,27 @@ def exec_server_pids():
     out=subprocess.run(["ss","-ltnp"],capture_output=True,text=True).stdout
     return sorted({int(m) for line in out.splitlines() if ":47001 " in line for m in re.findall(r"pid=(\d+)",line)})
 
+
+
+class AppServerWs(AppServer):
+    """同一套 call/turn API，但 app-server 在别处以 ws://…:47800 监听（沙箱镜像），握手带 Authorization: Bearer <能力令牌>。
+    需要 websockets（runtime/.venv）。"""
+    def __init__(self, url, token):
+        super().__init__(); self.url=url; self.token=token; self.ws=None
+    async def start(self):
+        import websockets
+        self.ws=await websockets.connect(self.url,additional_headers={"Authorization":f"Bearer {self.token}"},max_size=None,ping_interval=20)
+        asyncio.create_task(self._reader())
+    async def _reader(self):
+        async for line in self.ws:
+            try: msg=json.loads(line)
+            except Exception: continue
+            if "id" in msg and "method" in msg: self.reqs.append(msg); asyncio.create_task(self._srv(msg))
+            elif "id" in msg:
+                f=self.pending.pop(msg["id"],None); f and f.set_result(msg)
+            else:
+                self.events.append(msg)
+                if msg.get("method")=="turn/completed" and getattr(self,"done",None): self.done.set()
+    async def _send(self,o): await self.ws.send(json.dumps(o))
+    async def close(self):
+        if self.ws: await self.ws.close()

@@ -1,3 +1,9 @@
 .venv/
 __pycache__/
 *.pyc
+probe/it-*.log
+probe/it-*.out
+probe/it2-*.log
+probe/it2-*.out
+probe/es-skills.log
+probe/tap*.log

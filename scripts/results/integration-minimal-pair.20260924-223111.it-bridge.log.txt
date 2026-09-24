@@ -1,0 +1,10 @@
+2026-09-24 22:29:14,071 INFO server listening on 127.0.0.1:47002
+2026-09-24 22:29:14,071 INFO listening ws://127.0.0.1:47002 -> ws://127.0.0.1:47110
+2026-09-24 22:29:15,992 INFO connection open
+2026-09-24 22:29:15,993 INFO app-server connected; dialing ws://127.0.0.1:47110/sandbox
+2026-09-24 22:29:16,000 INFO paired conn=02198326
+2026-09-24 22:29:39,724 INFO connection closed
+2026-09-24 22:29:39,725 INFO stream closed
+
+artifact=complete probe log; integration command exit=1
+exit=1

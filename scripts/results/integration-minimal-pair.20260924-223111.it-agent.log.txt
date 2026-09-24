@@ -1,0 +1,13 @@
+{"t":"2026-09-24T14:29:13.553Z","level":"info","msg":"sunmoon-agent starting","version":"0.1.0","codex":"0.155.1","codexBin":"/home/zymun/worktrees/fable/runtime/agent/node_modules/.pnpm/@openai+codex@0.155.1-linux-x64/node_modules/@openai/codex/vendor/x86_64-unknown-linux-musl/bin/codex","bwrap":"/home/zymun/worktrees/fable/runtime/agent/node_modules/.pnpm/@openai+codex@0.155.1-linux-x64/node_modules/@openai/codex/vendor/x86_64-unknown-linux-musl/codex-resources/bwrap","platform":"linux"}
+{"t":"2026-09-24T14:29:13.559Z","level":"info","msg":"exec-server starting","port":42435,"sandboxed":true,"roots":["/home/zymun/worktrees/fable/runtime/probe/user-ws"],"generation":1}
+{"t":"2026-09-24T14:29:13.764Z","level":"info","msg":"exec-server ready","url":"ws://127.0.0.1:42435","generation":1}
+{"t":"2026-09-24T14:29:13.768Z","level":"info","msg":"status endpoint","url":"http://127.0.0.1:44181/"}
+{"t":"2026-09-24T14:29:13.775Z","level":"info","msg":"relay connected","relay":"relay-v1"}
+{"t":"2026-09-24T14:29:15.999Z","level":"info","msg":"stream bridged","conn":"02198326","local":"ws://127.0.0.1:42435"}
+{"t":"2026-09-24T14:29:39.729Z","level":"info","msg":"stream closed","conn":"02198326","why":"relay side close 1000"}
+{"t":"2026-09-24T14:29:39.729Z","level":"info","msg":"stream closed","conn":"02198326","why":"exec-server side close 1006"}
+{"t":"2026-09-24T14:29:39.787Z","level":"info","msg":"shutting down","sig":"SIGTERM"}
+{"t":"2026-09-24T14:29:39.789Z","level":"info","msg":"exec-server exited","code":null,"signal":"SIGTERM","generation":1}
+
+artifact=complete probe log; integration command exit=1
+exit=1

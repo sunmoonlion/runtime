@@ -1,0 +1,91 @@
+environment/add: {}
+L0 environment/info: {"shell": {"name": "zsh", "path": "/usr/bin/zsh"}, "cwd": "file:///home/zymun/worktrees/fable/runtime"}
+===== L1 danger-full-access, write outside cwd: sandbox=danger-full-access cwd=/home/zymun/worktrees/fable/runtime/probe/user-ws
+2026-09-24T14:29:17.028393Z ERROR codex_login::auth::manager: Failed to refresh token: 401 Unauthorized: {
+  "error": {
+    "message": "Could not validate your refresh token. Please try signing in again.",
+    "type": "invalid_request_error",
+    "param": null,
+    "code": "invalid_refresh_token"
+  }
+}
+2026-09-24T14:29:17.028552Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:17.041874Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:17.054169Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:17.112147Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:17.134261Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:17.148798Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:17.179344Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:18.158822Z ERROR codex_models_manager::manager: failed to refresh available models: unexpected status 401 Unauthorized: Could not parse your authentication token. Please try signing in again., url: https://chatgpt.com/backend-api/codex/models?client_version=0.155.1, cf-ray: a4027b02cc445c22-SJC, request id: req_b9ea84436c8c42c2b38cfbcba02f168d, auth error: 401, auth error code: unauthorized_unknown
+2026-09-24T14:29:18.187926Z ERROR codex_models_manager::manager: failed to refresh available models: unexpected status 401 Unauthorized: Could not parse your authentication token. Please try signing in again., url: https://chatgpt.com/backend-api/codex/models?client_version=0.155.1, cf-ray: a4027b02cfa1053e-SJC, request id: req_b9fbef32aa35409bb47f36f8ef0750b7, auth error: 401, auth error code: unauthorized_unknown
+2026-09-24T14:29:18.202875Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:18.240883Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:18.267806Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:18.299851Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:19.252625Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when UnexpectedServerResponse("HTTP 401: {\n  \"error\": {\n    \"message\": \"Could not parse your authentication token. Please try signing in again.\",\n    \"type\": null,\n    \"code\": \"unauthorized_unknown\",\n    \"param\": null\n  },\n  \"status\": 401\n}")
+2026-09-24T14:29:19.270438Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:19.284989Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:19.301451Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:19.504008Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when UnexpectedServerResponse("HTTP 401: {\n  \"error\": {\n    \"message\": \"Could not parse your authentication token. Please try signing in again.\",\n    \"type\": null,\n    \"code\": \"unauthorized_unknown\",\n    \"param\": null\n  },\n  \"status\": 401\n}")
+2026-09-24T14:29:20.239336Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://chatgpt.com/backend-api/codex/responses
+2026-09-24T14:29:20.267476Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:20.281449Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:20.295197Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:21.403329Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://chatgpt.com/backend-api/codex/responses
+2026-09-24T14:29:21.421752Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:21.658976Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when UnexpectedServerResponse("HTTP 401: {\n  \"error\": {\n    \"message\": \"Could not parse your authentication token. Please try signing in again.\",\n    \"type\": null,\n    \"code\": \"unauthorized_unknown\",\n    \"param\": null\n  },\n  \"status\": 401\n}")
+2026-09-24T14:29:22.479847Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:23.616592Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:24.489939Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:25.737330Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:25.749249Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:25.762168Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:26.879505Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://chatgpt.com/backend-api/codex/responses
+2026-09-24T14:29:26.910288Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:26.922913Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:26.935146Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:28.102392Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://chatgpt.com/backend-api/codex/responses
+  note: ('error', '{"error": {"message": "Your access token could not be refreshed. Please log out and sign in again.", "codexErrorInfo": "unauthorized", "additionalDetails": null, "misalignment": null}, "willRetry": false, "threadId": "01a0d3d2-1eec-7b30-b7f7-5a6fa2a9fdf1", "tu')
+  note: ('turn/completed', '{"threadId": "01a0d3d2-1eec-7b30-b7f7-5a6fa2a9fdf1", "turn": {"id": "01a0d3d2-1f2b-73f3-a083-d8cc66378355", "items": [], "itemsView": "notLoaded", "status": "failed", "error": {"message": "Your access token could not be refreshed. Please log out and sign in ag')
+  final: 
+  VERDICT L1 (file outside cwd created although executor config says read-only): False
+===== L3 workspace-write, write inside cwd (executor requirements say read-only only): sandbox=workspace-write cwd=/home/zymun/worktrees/fable/runtime/probe/user-ws
+2026-09-24T14:29:28.122999Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:28.156800Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:28.170671Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:29.203882Z ERROR codex_models_manager::manager: failed to refresh available models: unexpected status 401 Unauthorized: Could not parse your authentication token. Please try signing in again., url: https://chatgpt.com/backend-api/codex/models?client_version=0.155.1, cf-ray: a4027b477b67f555-SJC, request id: req_754cc484440344b68df05c6ceda5e29e, auth error: 401, auth error code: unauthorized_unknown
+2026-09-24T14:29:29.218514Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:29.268652Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:29.291548Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:29.331938Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:30.780531Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when UnexpectedServerResponse("HTTP 401: {\n  \"error\": {\n    \"message\": \"Could not parse your authentication token. Please try signing in again.\",\n    \"type\": null,\n    \"code\": \"unauthorized_unknown\",\n    \"param\": null\n  },\n  \"status\": 401\n}")
+2026-09-24T14:29:30.796564Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:30.813488Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:30.828560Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:31.110872Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when UnexpectedServerResponse("HTTP 401: {\n  \"error\": {\n    \"message\": \"Could not parse your authentication token. Please try signing in again.\",\n    \"type\": null,\n    \"code\": \"unauthorized_unknown\",\n    \"param\": null\n  },\n  \"status\": 401\n}")
+2026-09-24T14:29:31.743653Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://chatgpt.com/backend-api/codex/responses
+2026-09-24T14:29:31.772284Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:31.787138Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:31.801181Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:32.860306Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://chatgpt.com/backend-api/codex/responses
+2026-09-24T14:29:32.878191Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:33.116770Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when UnexpectedServerResponse("HTTP 401: {\n  \"error\": {\n    \"message\": \"Could not parse your authentication token. Please try signing in again.\",\n    \"type\": null,\n    \"code\": \"unauthorized_unknown\",\n    \"param\": null\n  },\n  \"status\": 401\n}")
+2026-09-24T14:29:33.795954Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:34.798140Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:35.824160Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:36.830838Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:36.844419Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:36.861101Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:38.650983Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://chatgpt.com/backend-api/codex/responses
+2026-09-24T14:29:38.680317Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:38.693255Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:38.708331Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+2026-09-24T14:29:39.702314Z ERROR codex_api::endpoint::responses_websocket: failed to connect to websocket: HTTP error: 401 Unauthorized, url: wss://chatgpt.com/backend-api/codex/responses
+  note: ('error', '{"error": {"message": "Your access token could not be refreshed. Please log out and sign in again.", "codexErrorInfo": "unauthorized", "additionalDetails": null, "misalignment": null}, "willRetry": false, "threadId": "01a0d3d2-49f4-7ae2-85c7-c168bb8448e0", "tu')
+  note: ('turn/completed', '{"threadId": "01a0d3d2-49f4-7ae2-85c7-c168bb8448e0", "turn": {"id": "01a0d3d2-4a3d-7bc1-90c3-83ef45de6f0a", "items": [], "itemsView": "notLoaded", "status": "failed", "error": {"message": "Your access token could not be refreshed. Please log out and sign in ag')
+  final: 
+  VERDICT L3 (inside write succeeded despite executor requirements.toml read-only): False
+2026-09-24T14:29:39.728913Z ERROR codex_login::auth::manager: Failed to refresh token: Your access token could not be refreshed. Please log out and sign in again.
+
+artifact=complete probe log; integration command exit=1
+exit=1

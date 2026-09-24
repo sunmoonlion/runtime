@@ -1,0 +1,20 @@
+2026-09-24 22:29:12,992 INFO server listening on 127.0.0.1:47110
+2026-09-24 22:29:12,992 INFO listening ws://127.0.0.1:47110 users=1
+2026-09-24 22:29:13,448 INFO HTTP response sent (200 OK)
+2026-09-24 22:29:13,449 INFO connection closed
+2026-09-24 22:29:13,769 INFO connection open
+2026-09-24 22:29:13,774 INFO agent up user=local codex=0.155.1 software=0.1.0
+2026-09-24 22:29:15,994 INFO connection open
+2026-09-24 22:29:15,998 INFO connection open
+2026-09-24 22:29:16,000 INFO paired user=local conn=02198326
+2026-09-24 22:29:39,725 INFO connection closed
+2026-09-24 22:29:39,728 INFO connection closed
+2026-09-24 22:29:39,728 INFO closed user=local conn=02198326 after 23.7s
+2026-09-24 22:29:39,787 INFO server closing
+2026-09-24 22:29:39,796 INFO connection closed
+2026-09-24 22:29:39,796 INFO agent down user=local
+2026-09-24 22:29:39,796 INFO server closed
+2026-09-24 22:29:39,796 INFO stopped
+
+artifact=complete probe log; integration command exit=1
+exit=1

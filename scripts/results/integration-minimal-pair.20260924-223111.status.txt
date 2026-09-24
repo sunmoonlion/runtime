@@ -1,0 +1,21 @@
+time=2026-09-24T22:31:11.617351+08:00
+task=03 integration-minimal-pair
+command_result=fail
+acceptance=undecidable (model authentication failure prevents behavioral verification)
+runtime=7d27b80974daed174d46f1a2a486fc836b952006
+k8s=7be0014616745714b12e038d3e3ad4bdeaf05319
+Revision advancement reviewed: runtime changes since 51b7a85 are reports/logs only; k8s relay-platform and sandbox-platform unchanged since 1157a763.
+Build and 27 unit tests: pass (integration-minimal-pair.20260924-220500.build-test-retry.txt).
+Original attempt: relay failed to bind 127.0.0.1:47100; integration-minimal-pair.20260924-222207.txt, exit=5.
+Port 47100 is used as a source port by an existing WSL/Cursor connection to Cursor's listening port 46435; no test relay listener existed. No Cursor process was stopped.
+Owner authorized temporary script copies using relay port 47110; original repository scripts and all assertions unchanged.
+Docker-to-host 47110 connectivity independently checked using existing node:24.18.0-alpine image; received inbox-local-port-ok, rc=0. Temporary listener and container removed automatically.
+Retry: integration-minimal-pair.20260924-223200.port47110.txt (actual start 22:29:12 +08:00 is recorded inside), exit=1.
+Agent connected: pass. Exec-server launched sandboxed: pass. Relay paired: pass.
+Model calls: HTTP 401 Unauthorized; token refresh failed: Your access token could not be refreshed. Please log out and sign in again.
+L3 write failed and local-ceiling assertion failed; L1 absence check printed pass but does not prove denial when model authentication failed. Do not treat the six checks as passed.
+Full underlying probe output preserved in integration-minimal-pair.20260924-223111.it-turns.out.txt and peer logs alongside it.
+Owner asked to renew ~/.codex-probe authentication; no authentication contents printed or copied into reports.
+04 acceptance=undecidable; not run because inbox explicitly requires 03 pass first. ~/.codex-probe-kimi/auth.json presence and mode 600 confirmed, but live validity not tested.
+Repository source, tests, commits, push and inbox/done untouched by this execution.
+exit=1

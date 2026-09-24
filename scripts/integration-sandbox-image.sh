@@ -7,7 +7,7 @@ cd "$(dirname "$0")/.." || exit 2
 source scripts/env-header.sh
 set -o pipefail
 K8S="${K8S_REPO:-$(cd .. && pwd)/k8s}"; PY="${PY:-$PWD/.venv/bin/python}"; IMAGE="${IMAGE:-sunmoon/sandbox:dev}"
-RELAY_PORT=47100; APP_PORT=47800; USER_ID=local; AGENT_TOKEN=agent-secret; SANDBOX_TOKEN=sandbox-secret
+RELAY_PORT="${RELAY_PORT:-47100}"; APP_PORT="${APP_PORT:-47800}"; USER_ID=local; AGENT_TOKEN=agent-secret; SANDBOX_TOKEN=sandbox-secret
 ROOT="$PWD/probe/user-ws"; mkdir -p "$ROOT"; AGENT_HOME="$(mktemp -d /tmp/sunmoon-agent-it.XXXXXX)"; TOKDIR="$(mktemp -d /tmp/sunmoon-tok.XXXXXX)"
 pids=(); cleanup() { docker rm -f sandbox-it >/dev/null 2>&1; for p in "${pids[@]}"; do kill "$p" 2>/dev/null; done; rm -rf "$AGENT_HOME" "$TOKDIR"; }
 trap cleanup EXIT

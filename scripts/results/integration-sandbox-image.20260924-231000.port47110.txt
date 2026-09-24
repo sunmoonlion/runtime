@@ -1,0 +1,75 @@
+time=2026-09-24T23:25:56.672081+08:00
+cwd=/home/zymun/worktrees/fable/runtime
+command=['python3', '/tmp/inbox04-run-with-proxy.py']
+Running exact integration-sandbox-image.sh with owner-specified RELAY_PORT=47110.
+Temporary Docker proxy config provides the existing proxy to the Kimi test container; key values are not printed.
+===== 环境 =====
+主机        wsl-dev
+时间        2026-09-24T23:25:56+08:00
+工位        fable
+系统        Linux 6.6.114.1-microsoft-standard-WSL2 x86_64
+内存        94Gi 总 / 75Gi 可用
+磁盘        562G 可用 / 42% 已用
+Python      Python 3.12.3
+Node        v24.18.0
+uv          uv 0.11.29 (x86_64-unknown-linux-gnu)
+Codex       codex-cli 0.155.1  CODEX_HOME=/home/zymun/.codex-official
+k8s                    a2d206a2  fable
+info-app               244f724  fable
+  info-backend         e5156a0  
+investment-app         aea42c6  fable
+  investment-backend   923bc0a  
+knowledge-app          08437e9  fable
+  knowledge-backend    d267bc0  
+tpl-app                5e717cf  fable
+  tpl-backend          6674125  
+runtime                f0a96f6  fable
+===== 开始 =====
+--- 依赖
+codex 代理随包 0.155.1 / 镜像 0.155.1
+  VERDICT 两端 Codex 版本一致                            pass
+--- 1. 会合点（绑 0.0.0.0 让容器能连；令牌表只有 local）
+--- 2. 本地代理
+  VERDICT 代理连上会合点                                pass
+--- 3. 沙箱容器（Kimi BYOK；key 经环境变量进容器后由入口脚本落 auth.json 并 unset）
+codex app-server (WebSockets)
+  listening on: ws://0.0.0.0:47800
+  readyz: http://0.0.0.0:47800/readyz
+  healthz: http://0.0.0.0:47800/healthz
+  note: websocket auth is required for non-localhost listeners
+--- 4. 工作台角色经 ws + 令牌跑 turn
+probe exit=0
+initialize: {"userAgent": "probe-sandbox-image/0.155.1 (Alpine Linux 3.24.1; x86_64) unknown (probe-sandbox-image; 0.0.1)", "codexHome": "/data/codex", "platformFamily": "u
+environment/status: {'status': 'ready'}
+===== S1 workspace-write: write inside root
+  cmd: "/usr/bin/zsh -lc 'echo via-sandbox-image > PROBE_SANDBOX_1790263561.txt && cat PROBE_SANDBOX_1790263561.txt'" | exit 0 | via-sandbox-image | 
+  final: Command output verbatim:  ``` via-sandbox-image ```  Exit code 0. The file `PROBE_SANDBOX_1790263561.txt` was created in the workspace with that content.
+  VERDICT S1 file written on the user machine: True
+===== S2 danger-full-access: must be denied by the local ceiling
+  final: The command failed. Error verbatim:  ``` CreateProcess { message: "Rejected(\"Failed to create unified exec process: exec-server rejected request (-32001): sunmoon-agent local ceiling: sandbox mode danger-full-a
+  VERDICT S2 denied by local ceiling: True
+  VERDICT workspace-write turn 在本机白名单目录写成  pass
+  VERDICT danger-full-access 被本地上限拒                pass
+  VERDICT 会合点配对了容器里的桥                    pass
+  VERDICT 容器里的桥报告配对                          pass
+--- 日志尾部
+[relay]
+2026-09-24 23:25:58,305 INFO agent up user=local codex=0.155.1 software=0.1.0
+2026-09-24 23:25:59,232 INFO connection open
+2026-09-24 23:25:59,235 INFO connection open
+2026-09-24 23:25:59,237 INFO paired user=local conn=9fe47f30
+[agent]
+{"t":"2026-09-24T15:25:58.300Z","level":"info","msg":"status endpoint","url":"http://127.0.0.1:42063/"}
+{"t":"2026-09-24T15:25:58.306Z","level":"info","msg":"relay connected","relay":"relay-v1"}
+{"t":"2026-09-24T15:25:59.237Z","level":"info","msg":"stream bridged","conn":"9fe47f30","local":"ws://127.0.0.1:39577"}
+{"t":"2026-09-24T15:26:25.983Z","level":"warn","msg":"denied by local ceiling","method":"process/start","reason":"sandbox mode danger-full-access exceeds local ceiling workspace-write"}
+[sandbox]
+codex app-server (WebSockets)
+  listening on: ws://0.0.0.0:47800
+  readyz: http://0.0.0.0:47800/readyz
+  healthz: http://0.0.0.0:47800/healthz
+  note: websocket auth is required for non-localhost listeners
+[2m2026-09-24T15:26:25.984807Z[0m [31mERROR[0m [2mcodex_core::tools::router[0m[2m:[0m [3merror[0m[2m=[0mexec_command failed: CreateProcess { message: "Rejected(\"Failed to create unified exec process: exec-server rejected request (-32001): sunmoon-agent local ceiling: sandbox mode danger-full-access exceeds local ceiling workspace-write\")" }
+结论：pass
+
+exit=0

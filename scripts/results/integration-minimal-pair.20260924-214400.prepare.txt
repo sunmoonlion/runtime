@@ -1,0 +1,13 @@
+time=2026-09-24T21:42:34.825050+08:00
+cwd=/home/zymun/worktrees/fable/runtime
+command=['bash', '-c', 'if [ ! -x .venv/bin/python ]; then uv venv .venv || exit; fi; uv pip install --python .venv/bin/python websockets && cd agent && pnpm install --frozen-lockfile && pnpm build && pnpm test']
+Using CPython 3.12.3 interpreter at: /usr/bin/python3
+Creating virtual environment at: .venv
+Activate with: source .venv/bin/activate
+error: Request failed after 3 retries in 31.0s
+  Caused by: Failed to fetch: `https://files.pythonhosted.org/packages/fb/05/9f82d090c8d2d861604147ef6dfb938a90b039f9358d5193f1df62558593/websockets-17.1-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata`
+  Caused by: error sending request for url (https://files.pythonhosted.org/packages/fb/05/9f82d090c8d2d861604147ef6dfb938a90b039f9358d5193f1df62558593/websockets-17.1-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata)
+  Caused by: client error (Connect)
+  Caused by: tls handshake eof
+
+exit=2

@@ -1,0 +1,25 @@
+03 本地执行阶段回传
+time=2026-09-24T22:12:18.980330+08:00
+runtime=51b7a859f00ebe8063a10be40bbd8d4f96370d18
+k8s=1157a763b14e4e65b7249e337c89f0d7d6804634
+k8s 相对待办所列 9a09b59c 只修改了 inbox 02/03/04，相关被测代码未变。
+verdict=undecidable（完整联调未运行）
+
+已完成：
+- runtime/.venv 创建，websockets 17.1 安装成功；PyPI 下载失败后使用清华索引。
+- pnpm 锁文件完整性检查通过，依赖安装成功，包含 Codex 0.155.1 本机二进制。
+- pnpm build 成功。
+- pnpm test：3 个测试文件、27 个用例全部通过，rc=0。
+- pnpm 12 要求批准 esbuild 安装脚本；本轮只批准 esbuild。安装器自动生成的 pnpm-workspace.yaml 已移到 /tmp 留存，源仓没有新增持久化依赖策略配置。
+
+安装恢复说明：npm 官方源/镜像源下载及短超时曾失败，原始日志均保留。最终用官方源、单请求 900000ms 超时完成下载；未修改 package.json 或锁文件。
+曾结束的两次安装任务日志 exit=-15，表示只对本次任务子进程发送 SIGTERM 后换参数重试，不是测试失败。
+
+成功的完整原始输出：integration-minimal-pair.20260924-220500.build-test-retry.txt
+以前的准备/重试输出同目录 integration-minimal-pair.20260924-214400.*、integration-minimal-pair.20260924-214900.build-test.txt、integration-minimal-pair.20260924-220000.build-test-retry.txt。
+
+待补前提：~/.codex-probe/auth.json 仍缺失。没有复制其他会话的凭据，也未启动真实模型联调。
+所以六项真实联调 VERDICT、WSL2 下实际 bwrap 嵌套链路尚未验证；不能以单测通过替代。
+04 同样等待 03 pass，且 ~/.codex-probe-kimi/auth.json 仍缺失。
+下列退出码仅为完整任务的前提未满足，构建与单测实际退出码为 0。
+exit=2

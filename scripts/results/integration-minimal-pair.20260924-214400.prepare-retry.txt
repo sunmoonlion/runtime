@@ -1,0 +1,214 @@
+time=2026-09-24T21:44:03.607964+08:00
+cwd=/home/zymun/worktrees/fable/runtime
+command=['bash', '-c', 'UV_DEFAULT_INDEX=https://pypi.tuna.tsinghua.edu.cn/simple uv pip install --python .venv/bin/python websockets && cd agent && pnpm install --frozen-lockfile && pnpm build && pnpm test']
+Resolved 1 package in 880ms
+Prepared 1 package in 170ms
+Installed 1 package in 6ms
+ + websockets==17.1
+? Verifying lockfile against supply-chain policies (113 entries)...
+Packages are hard linked from the content-addressable store to the virtual store.
+  Content-addressable store is at: /home/zymun/.local/share/pnpm/store/v11
+  Virtual store is at:             node_modules/.pnpm
+[WARN] GET https://registry.npmjs.org/tinyspy/-/tinyspy-4.0.6.tgz error (Failed to fetch https://registry.npmjs.org/tinyspy/-/tinyspy-4.0.6.tgz: error sending request for url (https://registry.npmjs.org/tinyspy/-/tinyspy-4.0.6.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/@napi-rs/lzma-linux-x64-gnu/-/lzma-linux-x64-gnu-1.5.1.tgz error (Failed to fetch https://registry.npmjs.org/@napi-rs/lzma-linux-x64-gnu/-/lzma-linux-x64-gnu-1.5.1.tgz: error sending request for url (https://registry.npmjs.org/@napi-rs/lzma-linux-x64-gnu/-/lzma-linux-x64-gnu-1.5.1.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/@vitest/snapshot/-/snapshot-3.2.7.tgz error (Failed to fetch https://registry.npmjs.org/@vitest/snapshot/-/snapshot-3.2.7.tgz: error sending request for url (https://registry.npmjs.org/@vitest/snapshot/-/snapshot-3.2.7.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/@types/node/-/node-22.20.4.tgz error (Failed to fetch https://registry.npmjs.org/@types/node/-/node-22.20.4.tgz: error sending request for url (https://registry.npmjs.org/@types/node/-/node-22.20.4.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/js-tokens/-/js-tokens-9.0.1.tgz error (Failed to fetch https://registry.npmjs.org/js-tokens/-/js-tokens-9.0.1.tgz: error sending request for url (https://registry.npmjs.org/js-tokens/-/js-tokens-9.0.1.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/tinypool/-/tinypool-1.1.1.tgz error (Failed to fetch https://registry.npmjs.org/tinypool/-/tinypool-1.1.1.tgz: error sending request for url (https://registry.npmjs.org/tinypool/-/tinypool-1.1.1.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/@openai/codex/-/codex-0.155.1.tgz error (Failed to fetch https://registry.npmjs.org/@openai/codex/-/codex-0.155.1.tgz: error sending request for url (https://registry.npmjs.org/@openai/codex/-/codex-0.155.1.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/@vitest/spy/-/spy-3.2.7.tgz error (Failed to fetch https://registry.npmjs.org/@vitest/spy/-/spy-3.2.7.tgz: error sending request for url (https://registry.npmjs.org/@vitest/spy/-/spy-3.2.7.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.28.2.tgz error (Failed to fetch https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.28.2.tgz: error sending request for url (https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.28.2.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/expect-type/-/expect-type-1.4.0.tgz error (Failed to fetch https://registry.npmjs.org/expect-type/-/expect-type-1.4.0.tgz: error sending request for url (https://registry.npmjs.org/expect-type/-/expect-type-1.4.0.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/rollup/-/rollup-4.63.4.tgz error (Failed to fetch https://registry.npmjs.org/rollup/-/rollup-4.63.4.tgz: error sending request for url (https://registry.npmjs.org/rollup/-/rollup-4.63.4.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/@vitest/mocker/-/mocker-3.2.7.tgz error (Failed to fetch https://registry.npmjs.org/@vitest/mocker/-/mocker-3.2.7.tgz: error sending request for url (https://registry.npmjs.org/@vitest/mocker/-/mocker-3.2.7.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/tinyexec/-/tinyexec-0.3.2.tgz error (Failed to fetch https://registry.npmjs.org/tinyexec/-/tinyexec-0.3.2.tgz: error sending request for url (https://registry.npmjs.org/tinyexec/-/tinyexec-0.3.2.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/@vitest/runner/-/runner-3.2.7.tgz error (Failed to fetch https://registry.npmjs.org/@vitest/runner/-/runner-3.2.7.tgz: error sending request for url (https://registry.npmjs.org/@vitest/runner/-/runner-3.2.7.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/vite-node/-/vite-node-3.2.4.tgz error (Failed to fetch https://registry.npmjs.org/vite-node/-/vite-node-3.2.4.tgz: error sending request for url (https://registry.npmjs.org/vite-node/-/vite-node-3.2.4.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/loupe/-/loupe-3.2.1.tgz error (Failed to fetch https://registry.npmjs.org/loupe/-/loupe-3.2.1.tgz: error sending request for url (https://registry.npmjs.org/loupe/-/loupe-3.2.1.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/nanoid/-/nanoid-3.3.19.tgz error (Failed to fetch https://registry.npmjs.org/nanoid/-/nanoid-3.3.19.tgz: error sending request for url (https://registry.npmjs.org/nanoid/-/nanoid-3.3.19.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/check-error/-/check-error-2.1.3.tgz error (Failed to fetch https://registry.npmjs.org/check-error/-/check-error-2.1.3.tgz: error sending request for url (https://registry.npmjs.org/check-error/-/check-error-2.1.3.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/strip-literal/-/strip-literal-3.1.0.tgz error (Failed to fetch https://registry.npmjs.org/strip-literal/-/strip-literal-3.1.0.tgz: error sending request for url (https://registry.npmjs.org/strip-literal/-/strip-literal-3.1.0.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/deep-eql/-/deep-eql-5.0.2.tgz error (Failed to fetch https://registry.npmjs.org/deep-eql/-/deep-eql-5.0.2.tgz: error sending request for url (https://registry.npmjs.org/deep-eql/-/deep-eql-5.0.2.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.6.0.tgz error (Failed to fetch https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.6.0.tgz: error sending request for url (https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.6.0.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/chai/-/chai-5.3.3.tgz error (Failed to fetch https://registry.npmjs.org/chai/-/chai-5.3.3.tgz: error sending request for url (https://registry.npmjs.org/chai/-/chai-5.3.3.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/esbuild/-/esbuild-0.28.2.tgz error (Failed to fetch https://registry.npmjs.org/esbuild/-/esbuild-0.28.2.tgz: error sending request for url (https://registry.npmjs.org/esbuild/-/esbuild-0.28.2.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/postcss/-/postcss-8.5.28.tgz error (Failed to fetch https://registry.npmjs.org/postcss/-/postcss-8.5.28.tgz: error sending request for url (https://registry.npmjs.org/postcss/-/postcss-8.5.28.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/@openai/codex/-/codex-0.155.1-linux-x64.tgz error (Failed to fetch https://registry.npmjs.org/@openai/codex/-/codex-0.155.1-linux-x64.tgz: error sending request for url (https://registry.npmjs.org/@openai/codex/-/codex-0.155.1-linux-x64.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/@vitest/pretty-format/-/pretty-format-3.2.7.tgz error (Failed to fetch https://registry.npmjs.org/@vitest/pretty-format/-/pretty-format-3.2.7.tgz: error sending request for url (https://registry.npmjs.org/@vitest/pretty-format/-/pretty-format-3.2.7.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/vitest/-/vitest-3.2.7.tgz error (Failed to fetch https://registry.npmjs.org/vitest/-/vitest-3.2.7.tgz: error sending request for url (https://registry.npmjs.org/vitest/-/vitest-3.2.7.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/picomatch/-/picomatch-4.0.7.tgz error (Failed to fetch https://registry.npmjs.org/picomatch/-/picomatch-4.0.7.tgz: error sending request for url (https://registry.npmjs.org/picomatch/-/picomatch-4.0.7.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/@rollup/rollup-linux-x64-gnu/-/rollup-linux-x64-gnu-4.63.4.tgz error (Failed to fetch https://registry.npmjs.org/@rollup/rollup-linux-x64-gnu/-/rollup-linux-x64-gnu-4.63.4.tgz: error sending request for url (https://registry.npmjs.org/@rollup/rollup-linux-x64-gnu/-/rollup-linux-x64-gnu-4.63.4.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/@vitest/utils/-/utils-3.2.7.tgz error (Failed to fetch https://registry.npmjs.org/@vitest/utils/-/utils-3.2.7.tgz: error sending request for url (https://registry.npmjs.org/@vitest/utils/-/utils-3.2.7.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/vite/-/vite-7.3.6.tgz error (Failed to fetch https://registry.npmjs.org/vite/-/vite-7.3.6.tgz: error sending request for url (https://registry.npmjs.org/vite/-/vite-7.3.6.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/@vitest/expect/-/expect-3.2.7.tgz error (Failed to fetch https://registry.npmjs.org/@vitest/expect/-/expect-3.2.7.tgz: error sending request for url (https://registry.npmjs.org/@vitest/expect/-/expect-3.2.7.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz error (Failed to fetch https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz: error sending request for url (https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/std-env/-/std-env-3.10.0.tgz error (Failed to fetch https://registry.npmjs.org/std-env/-/std-env-3.10.0.tgz: error sending request for url (https://registry.npmjs.org/std-env/-/std-env-3.10.0.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/es-module-lexer/-/es-module-lexer-1.7.0.tgz error (Failed to fetch https://registry.npmjs.org/es-module-lexer/-/es-module-lexer-1.7.0.tgz: error sending request for url (https://registry.npmjs.org/es-module-lexer/-/es-module-lexer-1.7.0.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/pathval/-/pathval-2.0.1.tgz error (Failed to fetch https://registry.npmjs.org/pathval/-/pathval-2.0.1.tgz: error sending request for url (https://registry.npmjs.org/pathval/-/pathval-2.0.1.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/tinyrainbow/-/tinyrainbow-2.0.0.tgz error (Failed to fetch https://registry.npmjs.org/tinyrainbow/-/tinyrainbow-2.0.0.tgz: error sending request for url (https://registry.npmjs.org/tinyrainbow/-/tinyrainbow-2.0.0.tgz): client error (Connect): tls handshake eof) — 1
+Will retry in 10s. 1 retries left.
+[WARN] GET https://registry.npmjs.org/js-tokens/-/js-tokens-9.0.1.tgz error (Failed to fetch https://registry.npmjs.org/js-tokens/-/js-tokens-9.0.1.tgz: error sending request for url (https://registry.npmjs.org/js-tokens/-/js-tokens-9.0.1.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/tinypool/-/tinypool-1.1.1.tgz error (Failed to fetch https://registry.npmjs.org/tinypool/-/tinypool-1.1.1.tgz: error sending request for url (https://registry.npmjs.org/tinypool/-/tinypool-1.1.1.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/@types/node/-/node-22.20.4.tgz error (Failed to fetch https://registry.npmjs.org/@types/node/-/node-22.20.4.tgz: error sending request for url (https://registry.npmjs.org/@types/node/-/node-22.20.4.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/@napi-rs/lzma-linux-x64-gnu/-/lzma-linux-x64-gnu-1.5.1.tgz error (Failed to fetch https://registry.npmjs.org/@napi-rs/lzma-linux-x64-gnu/-/lzma-linux-x64-gnu-1.5.1.tgz: error sending request for url (https://registry.npmjs.org/@napi-rs/lzma-linux-x64-gnu/-/lzma-linux-x64-gnu-1.5.1.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/@vitest/snapshot/-/snapshot-3.2.7.tgz error (Failed to fetch https://registry.npmjs.org/@vitest/snapshot/-/snapshot-3.2.7.tgz: error sending request for url (https://registry.npmjs.org/@vitest/snapshot/-/snapshot-3.2.7.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/tinyspy/-/tinyspy-4.0.6.tgz error (Failed to fetch https://registry.npmjs.org/tinyspy/-/tinyspy-4.0.6.tgz: error sending request for url (https://registry.npmjs.org/tinyspy/-/tinyspy-4.0.6.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.28.2.tgz error (Failed to fetch https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.28.2.tgz: error sending request for url (https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.28.2.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/expect-type/-/expect-type-1.4.0.tgz error (Failed to fetch https://registry.npmjs.org/expect-type/-/expect-type-1.4.0.tgz: error sending request for url (https://registry.npmjs.org/expect-type/-/expect-type-1.4.0.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/@openai/codex/-/codex-0.155.1.tgz error (Failed to fetch https://registry.npmjs.org/@openai/codex/-/codex-0.155.1.tgz: error sending request for url (https://registry.npmjs.org/@openai/codex/-/codex-0.155.1.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/nanoid/-/nanoid-3.3.19.tgz error (Failed to fetch https://registry.npmjs.org/nanoid/-/nanoid-3.3.19.tgz: error sending request for url (https://registry.npmjs.org/nanoid/-/nanoid-3.3.19.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/@vitest/spy/-/spy-3.2.7.tgz error (Failed to fetch https://registry.npmjs.org/@vitest/spy/-/spy-3.2.7.tgz: error sending request for url (https://registry.npmjs.org/@vitest/spy/-/spy-3.2.7.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/rollup/-/rollup-4.63.4.tgz error (Failed to fetch https://registry.npmjs.org/rollup/-/rollup-4.63.4.tgz: error sending request for url (https://registry.npmjs.org/rollup/-/rollup-4.63.4.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/vite-node/-/vite-node-3.2.4.tgz error (Failed to fetch https://registry.npmjs.org/vite-node/-/vite-node-3.2.4.tgz: error sending request for url (https://registry.npmjs.org/vite-node/-/vite-node-3.2.4.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/loupe/-/loupe-3.2.1.tgz error (Failed to fetch https://registry.npmjs.org/loupe/-/loupe-3.2.1.tgz: error sending request for url (https://registry.npmjs.org/loupe/-/loupe-3.2.1.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/strip-literal/-/strip-literal-3.1.0.tgz error (Failed to fetch https://registry.npmjs.org/strip-literal/-/strip-literal-3.1.0.tgz: error sending request for url (https://registry.npmjs.org/strip-literal/-/strip-literal-3.1.0.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/@vitest/runner/-/runner-3.2.7.tgz error (Failed to fetch https://registry.npmjs.org/@vitest/runner/-/runner-3.2.7.tgz: error sending request for url (https://registry.npmjs.org/@vitest/runner/-/runner-3.2.7.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/deep-eql/-/deep-eql-5.0.2.tgz error (Failed to fetch https://registry.npmjs.org/deep-eql/-/deep-eql-5.0.2.tgz: error sending request for url (https://registry.npmjs.org/deep-eql/-/deep-eql-5.0.2.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/@vitest/pretty-format/-/pretty-format-3.2.7.tgz error (Failed to fetch https://registry.npmjs.org/@vitest/pretty-format/-/pretty-format-3.2.7.tgz: error sending request for url (https://registry.npmjs.org/@vitest/pretty-format/-/pretty-format-3.2.7.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/postcss/-/postcss-8.5.28.tgz error (Failed to fetch https://registry.npmjs.org/postcss/-/postcss-8.5.28.tgz: error sending request for url (https://registry.npmjs.org/postcss/-/postcss-8.5.28.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/esbuild/-/esbuild-0.28.2.tgz error (Failed to fetch https://registry.npmjs.org/esbuild/-/esbuild-0.28.2.tgz: error sending request for url (https://registry.npmjs.org/esbuild/-/esbuild-0.28.2.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/chai/-/chai-5.3.3.tgz error (Failed to fetch https://registry.npmjs.org/chai/-/chai-5.3.3.tgz: error sending request for url (https://registry.npmjs.org/chai/-/chai-5.3.3.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/picomatch/-/picomatch-4.0.7.tgz error (Failed to fetch https://registry.npmjs.org/picomatch/-/picomatch-4.0.7.tgz: error sending request for url (https://registry.npmjs.org/picomatch/-/picomatch-4.0.7.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/check-error/-/check-error-2.1.3.tgz error (Failed to fetch https://registry.npmjs.org/check-error/-/check-error-2.1.3.tgz: error sending request for url (https://registry.npmjs.org/check-error/-/check-error-2.1.3.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/@vitest/expect/-/expect-3.2.7.tgz error (Failed to fetch https://registry.npmjs.org/@vitest/expect/-/expect-3.2.7.tgz: error sending request for url (https://registry.npmjs.org/@vitest/expect/-/expect-3.2.7.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/vite/-/vite-7.3.6.tgz error (Failed to fetch https://registry.npmjs.org/vite/-/vite-7.3.6.tgz: error sending request for url (https://registry.npmjs.org/vite/-/vite-7.3.6.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.6.0.tgz error (Failed to fetch https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.6.0.tgz: error sending request for url (https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.6.0.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/@openai/codex/-/codex-0.155.1-linux-x64.tgz error (Failed to fetch https://registry.npmjs.org/@openai/codex/-/codex-0.155.1-linux-x64.tgz: error sending request for url (https://registry.npmjs.org/@openai/codex/-/codex-0.155.1-linux-x64.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/@rollup/rollup-linux-x64-gnu/-/rollup-linux-x64-gnu-4.63.4.tgz error (Failed to fetch https://registry.npmjs.org/@rollup/rollup-linux-x64-gnu/-/rollup-linux-x64-gnu-4.63.4.tgz: error sending request for url (https://registry.npmjs.org/@rollup/rollup-linux-x64-gnu/-/rollup-linux-x64-gnu-4.63.4.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/tinyexec/-/tinyexec-0.3.2.tgz error (Failed to fetch https://registry.npmjs.org/tinyexec/-/tinyexec-0.3.2.tgz: error sending request for url (https://registry.npmjs.org/tinyexec/-/tinyexec-0.3.2.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/std-env/-/std-env-3.10.0.tgz error (Failed to fetch https://registry.npmjs.org/std-env/-/std-env-3.10.0.tgz: error sending request for url (https://registry.npmjs.org/std-env/-/std-env-3.10.0.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/@vitest/utils/-/utils-3.2.7.tgz error (Failed to fetch https://registry.npmjs.org/@vitest/utils/-/utils-3.2.7.tgz: error sending request for url (https://registry.npmjs.org/@vitest/utils/-/utils-3.2.7.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/vitest/-/vitest-3.2.7.tgz error (Failed to fetch https://registry.npmjs.org/vitest/-/vitest-3.2.7.tgz: error sending request for url (https://registry.npmjs.org/vitest/-/vitest-3.2.7.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/@vitest/mocker/-/mocker-3.2.7.tgz error (Failed to fetch https://registry.npmjs.org/@vitest/mocker/-/mocker-3.2.7.tgz: error sending request for url (https://registry.npmjs.org/@vitest/mocker/-/mocker-3.2.7.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz error (Failed to fetch https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz: error sending request for url (https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/tinyrainbow/-/tinyrainbow-2.0.0.tgz error (Failed to fetch https://registry.npmjs.org/tinyrainbow/-/tinyrainbow-2.0.0.tgz: error sending request for url (https://registry.npmjs.org/tinyrainbow/-/tinyrainbow-2.0.0.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/pathval/-/pathval-2.0.1.tgz error (Failed to fetch https://registry.npmjs.org/pathval/-/pathval-2.0.1.tgz: error sending request for url (https://registry.npmjs.org/pathval/-/pathval-2.0.1.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] GET https://registry.npmjs.org/es-module-lexer/-/es-module-lexer-1.7.0.tgz error (Failed to fetch https://registry.npmjs.org/es-module-lexer/-/es-module-lexer-1.7.0.tgz: error sending request for url (https://registry.npmjs.org/es-module-lexer/-/es-module-lexer-1.7.0.tgz): client error (Connect): tls handshake eof) — 2
+Will retry in 1m. 0 retries left.
+[WARN] Request took 83319ms: https://registry.npmjs.org/@rollup%2Frollup-linux-loong64-musl
+[WARN] Request took 83358ms: https://registry.npmjs.org/@rollup%2Frollup-linux-ppc64-musl
+[WARN] Request took 83368ms: https://registry.npmjs.org/@napi-rs%2Flzma-linux-x64-gnu
+[WARN] Request took 83369ms: https://registry.npmjs.org/@rollup%2Frollup-openharmony-arm64
+[WARN] Request took 83407ms: https://registry.npmjs.org/@rollup%2Frollup-linux-riscv64-musl
+[WARN] Request took 83459ms: https://registry.npmjs.org/@rollup%2Frollup-linux-ppc64-gnu
+[WARN] Request took 83519ms: https://registry.npmjs.org/@rollup%2Frollup-linux-riscv64-gnu
+[WARN] Request took 83530ms: https://registry.npmjs.org/@rollup%2Frollup-linux-s390x-gnu
+[WARN] Request took 83513ms: https://registry.npmjs.org/@rollup%2Frollup-win32-x64-msvc
+[WARN] Request took 83548ms: https://registry.npmjs.org/@rollup%2Frollup-linux-arm-musleabihf
+[WARN] Request took 83554ms: https://registry.npmjs.org/@rollup%2Frollup-win32-x64-gnu
+[WARN] Request took 83560ms: https://registry.npmjs.org/@rollup%2Frollup-linux-loong64-gnu
+[WARN] Request took 83577ms: https://registry.npmjs.org/@rollup%2Frollup-darwin-arm64
+[WARN] Request took 83610ms: https://registry.npmjs.org/@rollup%2Frollup-linux-arm-gnueabihf
+[WARN] Request took 83608ms: https://registry.npmjs.org/@rollup%2Frollup-linux-x64-musl
+[WARN] Request took 83643ms: https://registry.npmjs.org/@rollup%2Frollup-darwin-x64
+[WARN] Request took 83643ms: https://registry.npmjs.org/@rollup%2Frollup-linux-arm64-gnu
+[WARN] Request took 83652ms: https://registry.npmjs.org/@rollup%2Frollup-android-arm64
+[WARN] Request took 83656ms: https://registry.npmjs.org/@rollup%2Frollup-win32-ia32-msvc
+[WARN] Request took 83624ms: https://registry.npmjs.org/@vitest%2Fexpect
+[WARN] Request took 83660ms: https://registry.npmjs.org/@rollup%2Frollup-freebsd-x64
+[WARN] Request took 83673ms: https://registry.npmjs.org/@rollup%2Frollup-android-arm-eabi
+[WARN] Request took 83701ms: https://registry.npmjs.org/@rollup%2Frollup-freebsd-arm64
+[WARN] Request took 83721ms: https://registry.npmjs.org/@rollup%2Frollup-win32-arm64-msvc
+[WARN] Request took 83784ms: https://registry.npmjs.org/@rollup%2Frollup-linux-arm64-musl
+[WARN] Request took 83845ms: https://registry.npmjs.org/@rollup%2Frollup-linux-x64-gnu
+[WARN] Request took 84782ms: https://registry.npmjs.org/@openai%2Fcodex
+✓ Lockfile passes supply-chain policies (113 entries in 1m 25.8s)
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 58, reused 21, downloaded 34, added 53
+Progress: resolved 58, reused 21, downloaded 35, added 53
+Progress: resolved 58, reused 21, downloaded 36, added 54
+Packages: +58
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 58, reused 21, downloaded 36, added 57, done
+
+dependencies:
++ @openai/codex 0.155.1
++ ws 8.21.3
+
+devDependencies:
++ @types/node 22.20.4
++ @types/ws 8.18.1
++ typescript 5.9.3
++ vitest 3.2.7
+
+Error: ERR_PNPM_IGNORED_BUILDS
+
+  × installing dependencies
+  ╰─▶ Ignored build scripts: esbuild@0.28.2
+  help: Run "pnpm approve-builds" to pick which dependencies should be allowed
+        to run scripts.
+
+
+exit=1

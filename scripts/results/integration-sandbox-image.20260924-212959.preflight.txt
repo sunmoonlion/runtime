@@ -1,0 +1,12 @@
+收件箱 04 前置检查回传
+time=2026-09-24T21:41:19.450724+08:00
+verdict=undecidable
+expected=runtime 2eb5d4f; k8s eb28e5eb
+actual_runtime=51b7a859f00ebe8063a10be40bbd8d4f96370d18
+actual_k8s=1157a763b14e4e65b7249e337c89f0d7d6804634
+blockers=03 尚未 pass；指定 Kimi auth.json 存在=False。未复制或打印认证内容。
+待办的指定提交与当前工作区不一致。依据 switch-test/README.md：核提交号，对不上就停。
+本次未执行目标脚本，未切换、同步或修改源码，未运行隔离旧提交替代验收。
+所有者已回复：02—04 仍需本轮完成，我来补齐条件。等待对应条件补齐后执行。
+下列退出码仅代表此次前置检查未满足条件，不是未执行目标脚本的退出码。
+exit=2

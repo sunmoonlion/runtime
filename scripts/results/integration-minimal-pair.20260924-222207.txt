@@ -1,0 +1,58 @@
+time=2026-09-24T22:22:07.225331+08:00
+cwd=/home/zymun/worktrees/fable/runtime
+command=['bash', 'scripts/integration-minimal-pair.sh']
+===== 环境 =====
+主机        wsl-dev
+时间        2026-09-24T22:22:07+08:00
+工位        fable
+系统        Linux 6.6.114.1-microsoft-standard-WSL2 x86_64
+内存        94Gi 总 / 75Gi 可用
+磁盘        563G 可用 / 42% 已用
+Python      Python 3.12.3
+Node        v24.18.0
+uv          uv 0.11.29 (x86_64-unknown-linux-gnu)
+Codex       codex-cli 0.155.1  CODEX_HOME=/home/zymun/.codex-official
+k8s                    1157a763  fable
+info-app               244f724  fable
+  info-backend         e5156a0  
+investment-app         7b5b205  fable
+  investment-backend   e5084f8  
+knowledge-app          08437e9  fable
+  knowledge-backend    d267bc0  
+tpl-app                74ff0c5  fable
+  tpl-backend          6674125  
+runtime                51b7a85  fable
+===== 开始 =====
+--- 依赖
+codex(随包) 0.155.1  ORCH_HOME=/home/zymun/.codex-probe  ROOT=/home/zymun/worktrees/fable/runtime/probe/user-ws
+--- 1. 会合点
+curl: (7) Failed to connect to 127.0.0.1 port 47100 after 0 ms: Couldn't connect to server
+会合点没起来
+Traceback (most recent call last):
+  File "/home/zymun/worktrees/fable/k8s/sunmoonai/relay-platform/relay/relay.py", line 219, in <module>
+    asyncio.run(main())
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/zymun/worktrees/fable/k8s/sunmoonai/relay-platform/relay/relay.py", line 212, in main
+    async with serve(relay.handler, host, port, max_size=None, ping_interval=20, ping_timeout=20, process_request=relay.process_request):
+  File "/home/zymun/worktrees/fable/runtime/.venv/lib/python3.12/site-packages/websockets/asyncio/server.py", line 462, in __aenter__
+    return await self
+           ^^^^^^^^^^
+  File "/home/zymun/worktrees/fable/runtime/.venv/lib/python3.12/site-packages/websockets/asyncio/server.py", line 451, in _await
+    self.server = await self.create_server()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zymun/worktrees/fable/runtime/.venv/lib/python3.12/site-packages/websockets/asyncio/server.py", line 672, in create_server
+    return await loop.create_server(protocol_factory, host, port, **kwargs)  # type: ignore[arg-type]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 1572, in create_server
+    raise OSError(err.errno, msg) from None
+OSError: [Errno 98] error while attempting to bind on address ('127.0.0.1', 47100): address already in use
+
+exit=5

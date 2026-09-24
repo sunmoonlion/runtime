@@ -1,0 +1,197 @@
+time=2026-09-24T22:08:58.224342+08:00
+cwd=/home/zymun/worktrees/fable/runtime
+command=['bash', 'scripts/probe-two-machine-latency.sh']
+===== 环境 =====
+主机        wsl-dev
+时间        2026-09-24T22:08:58+08:00
+工位        fable
+系统        Linux 6.6.114.1-microsoft-standard-WSL2 x86_64
+内存        94Gi 总 / 75Gi 可用
+磁盘        563G 可用 / 42% 已用
+Python      Python 3.12.3
+Node        v24.18.0
+uv          uv 0.11.29 (x86_64-unknown-linux-gnu)
+Codex       codex-cli 0.155.1  CODEX_HOME=/home/zymun/.codex-official
+k8s                    1157a763  fable
+info-app               244f724  fable
+  info-backend         e5156a0  
+investment-app         7b5b205  fable
+  investment-backend   e5084f8  
+knowledge-app          08437e9  fable
+  knowledge-backend    d267bc0  
+tpl-app                74ff0c5  fable
+  tpl-backend          6674125  
+runtime                51b7a85  fable
+===== 开始 =====
+会合点 ws://43.153.135.74:47100  用户 local  保持 600s  执行端 CODEX_HOME=/home/zymun/.codex-probe-exec
+--- 依赖
+websockets 17.1
+codex-cli 0.155.1
+--- 起 exec-server
+LISTEN 0      128         127.0.0.1:47001      0.0.0.0:*    users:(("codex",pid=1666833,fd=10))
+--- 起 agent_bridge（出站到会合点），保持 600s；远程在这段时间里跑 probe_relay_passthrough.py
+[agent] control up
+[agent] conn=0f10c9ac bridged to ws://127.0.0.1:47001
+[agent] control error: no close frame received or sent
+[agent] conn=0f10c9ac closed
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: timed out during opening handshake
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: timed out during opening handshake
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: timed out during opening handshake
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: timed out during opening handshake
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: timed out during opening handshake
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: timed out during opening handshake
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: timed out during opening handshake
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: timed out during opening handshake
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: timed out during opening handshake
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: timed out during opening handshake
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: timed out during opening handshake
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: timed out during opening handshake
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: timed out during opening handshake
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: timed out during opening handshake
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: did not receive a valid HTTP response
+[agent] control error: timed out during opening handshake
+[agent] control error: [Errno 111] Connect call failed ('43.153.135.74', 47100)
+[agent] control error: [Errno 111] Connect call failed ('43.153.135.74', 47100)
+[agent] control error: [Errno 111] Connect call failed ('43.153.135.74', 47100)
+[agent] control error: [Errno 111] Connect call failed ('43.153.135.74', 47100)
+[agent] control error: [Errno 111] Connect call failed ('43.153.135.74', 47100)
+[agent] control error: [Errno 111] Connect call failed ('43.153.135.74', 47100)
+[agent] control error: [Errno 111] Connect call failed ('43.153.135.74', 47100)
+[agent] control error: [Errno 111] Connect call failed ('43.153.135.74', 47100)
+[agent] control error: [Errno 111] Connect call failed ('43.153.135.74', 47100)
+[agent] control error: [Errno 111] Connect call failed ('43.153.135.74', 47100)
+[agent] control error: [Errno 111] Connect call failed ('43.153.135.74', 47100)
+[agent] control error: [Errno 111] Connect call failed ('43.153.135.74', 47100)
+[agent] control error: [Errno 111] Connect call failed ('43.153.135.74', 47100)
+[agent] control error: [Errno 111] Connect call failed ('43.153.135.74', 47100)
+[agent] control error: [Errno 111] Connect call failed ('43.153.135.74', 47100)
+[agent] control error: [Errno 111] Connect call failed ('43.153.135.74', 47100)
+[agent] control error: [Errno 111] Connect call failed ('43.153.135.74', 47100)
+[agent] control error: [Errno 111] Connect call failed ('43.153.135.74', 47100)
+[agent] control error: [Errno 111] Connect call failed ('43.153.135.74', 47100)
+agent_bridge 退出码 124（124 = 到时正常结束）
+--- 收尾
+停 exec-server pid 1666833
+--- exec-server 日志尾部（看有没有来自远程的 process 启动记录）
+ws://127.0.0.1:47001
+桥接过的连接数 2
+结论：本地侧 pass（RTT 表看远程侧）
+
+exit=0

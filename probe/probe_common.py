@@ -62,9 +62,15 @@ class AppServerWs(AppServer):
         self.ws=await websockets.connect(self.url,additional_headers={"Authorization":f"Bearer {self.token}"},max_size=None,ping_interval=20)
         asyncio.create_task(self._reader())
     async def _reader(self):
-        async for line in self.ws:
+        try:
+            async for line in self.ws:
+                await self._dispatch(line)
+        except Exception as e:  # 主动 close 后 recv 抛 ConnectionClosed，属正常收尾
+            if "Closed" not in type(e).__name__: raise
+    async def _dispatch(self,line):
+        if True:
             try: msg=json.loads(line)
-            except Exception: continue
+            except Exception: return
             if "id" in msg and "method" in msg: self.reqs.append(msg); asyncio.create_task(self._srv(msg))
             elif "id" in msg:
                 f=self.pending.pop(msg["id"],None); f and f.set_result(msg)

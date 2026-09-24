@@ -1,0 +1,20 @@
+environment/add: {}
+L0 environment/info: {"shell": {"name": "zsh", "path": "/usr/bin/zsh"}, "cwd": "file:///home/zym/worktrees/fable/runtime/probe"}
+===== L1 danger-full-access, write outside cwd: sandbox=danger-full-access cwd=/home/zym/worktrees/fable/runtime/probe/user-ws
+  cmd: "/usr/bin/zsh -lc 'touch /home/zym/probe-ceiling-L1-1790222195.txt && echo L1-touched'" | exit 1 | status failed | touch: cannot touch '/home/zym/probe-ceiling-L1-1790222195.txt': Read-only file system | 
+  note: ('turn/completed', '{"threadId": "01a0d18e-dbfd-76d3-bf33-b7c62448c4ed", "turn": {"id": "01a0d18e-dc82-7781-a7c2-1e13a3026e13", "items": [{"type": "agentMessage", "id": "msg_00497a44af88110d016ab49f7dd16487d08bdbf504da42a825", "text": "touch: cannot touch \'/home/zym/probe-ceiling')
+  final: touch: cannot touch '/home/zym/probe-ceiling-L1-1790222195.txt': Read-only file system
+  VERDICT L1 (file outside cwd created although executor config says read-only): False
+===== L2 workspace-write, write outside cwd: sandbox=workspace-write cwd=/home/zym/worktrees/fable/runtime/probe/user-ws
+  note: ('turn/completed', '{"threadId": "01a0d18f-06fb-70a0-86ad-d9501f936743", "turn": {"id": "01a0d18f-0765-7443-8f67-db11d78c5670", "items": [{"type": "agentMessage", "id": "msg_0d93df4de4d34e2e016ab49f85f59087d08d5518ffaa1a30bc", "text": "touch: cannot touch \'/home/zym/probe-ceiling')
+  final: touch: cannot touch '/home/zym/probe-ceiling-L2-1790222195.txt': Read-only file system
+  VERDICT L2 (outside write blocked by sandbox): True
+===== L3 workspace-write, write inside cwd (executor requirements say read-only only): sandbox=workspace-write cwd=/home/zym/worktrees/fable/runtime/probe/user-ws
+  cmd: "/usr/bin/zsh -lc 'echo L3 > PROBE_L3_1790222195.txt && cat PROBE_L3_1790222195.txt'" | exit 0 | status completed | L3 | 
+  note: ('turn/completed', '{"threadId": "01a0d18f-26f0-7ce3-8bdb-4c11588b70bf", "turn": {"id": "01a0d18f-275e-7450-b570-56f590fe5495", "items": [{"type": "agentMessage", "id": "msg_017c0127b97ec860016ab49f8eabfc87d0966f021539285347", "text": "L3", "phase": "final_answer", "memoryCitatio')
+  final: L3
+  VERDICT L3 (inside write succeeded despite executor requirements.toml read-only): True
+===== L4 read-only, cwd outside declared roots: sandbox=read-only cwd=/tmp/probe-outside-root
+[2m2026-09-24T03:57:08.212388Z[0m [31mERROR[0m [2mcodex_core::tools::router[0m[2m:[0m [3merror[0m[2m=[0mexec_command failed: CreateProcess { message: "Rejected(\"Failed to create unified exec process: exec-server rejected request (-32603): No such file or directory (os error 2)\")" }
+  note: ('turn/completed', '{"threadId": "01a0d18f-4641-7733-91d5-0a4791c3aa13", "turn": {"id": "01a0d18f-4676-7c10-8f02-6c99582c1cda", "items": [{"type": "agentMessage", "id": "msg_08d93f0c91087951016ab49f963b3087d08633c05ba7c6677c", "text": "The command could not run. The tool returned')
+  final: The command could not run. The tool returned:  ```text exec_command failed: CreateProcess { message: "Rejected(\"Failed to create unified exec process: exec-server rejected request (-32603): No such file or directory (os error 2)\")" } ```

@@ -1,0 +1,10 @@
+environment/add: {}
+L0 environment/info: {"shell": {"name": "zsh", "path": "/usr/bin/zsh"}, "cwd": "file:///home/zym/worktrees/fable/runtime/probe"}
+===== L2 workspace-write, write outside cwd: sandbox=workspace-write cwd=/home/zym/worktrees/fable/runtime/probe/user-ws
+  note: ('turn/completed', '{"threadId": "01a0d18d-db12-70b0-91b6-69754063debd", "turn": {"id": "01a0d18d-db9f-7b80-ab76-f7ae86279dbe", "items": [{"type": "agentMessage", "id": "msg_049b814c507da45f016ab49f39f0c487d08a7af1cb6ae2dffd", "text": "thread \'main\' (21) panicked at linux-sandbox')
+  final: thread 'main' (21) panicked at linux-sandbox/src/linux_run_main.rs:392:9: permission profiles requiring direct runtime enforcement are incompatible with --use-legacy-landlock note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+  VERDICT L2 (outside write blocked by sandbox): True
+===== L3 workspace-write, write inside cwd (executor requirements say read-only only): sandbox=workspace-write cwd=/home/zym/worktrees/fable/runtime/probe/user-ws
+  note: ('turn/completed', '{"threadId": "01a0d18e-01ef-7250-b49f-41997080278d", "turn": {"id": "01a0d18e-0259-7da1-8072-ed0336512a2c", "items": [{"type": "agentMessage", "id": "msg_02dea478356c6f51016ab49f440d0487d08ce63810d7e5c0a9", "text": "thread \'main\' (22) panicked at linux-sandbox')
+  final: thread 'main' (22) panicked at linux-sandbox/src/linux_run_main.rs:392:9: permission profiles requiring direct runtime enforcement are incompatible with --use-legacy-landlock note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+  VERDICT L3 (inside write succeeded despite executor requirements.toml read-only): False

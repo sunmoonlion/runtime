@@ -1,0 +1,17 @@
+environment/add: {}
+L0 environment/info: {"shell": {"name": "zsh", "path": "/usr/bin/zsh"}, "cwd": "file:///home/zym/worktrees/fable/runtime/probe"}
+===== L1 danger-full-access, write outside cwd: sandbox=danger-full-access cwd=/home/zym/worktrees/fable/runtime/probe/user-ws
+  cmd: "/usr/bin/zsh -lc 'touch /home/zym/probe-ceiling-L1-1790221819.txt && echo L1-touched'" | exit 1 | status failed | touch: cannot touch '/home/zym/probe-ceiling-L1-1790221819.txt': Read-only file system | 
+  note: ('turn/completed', '{"threadId": "01a0d189-2102-7bc1-bc5d-f1f51c7c20c4", "turn": {"id": "01a0d189-218f-7580-a563-bb5e60bb50b5", "items": [{"type": "agentMessage", "id": "msg_064d21d3bf4b0864016ab49e03528087d09e112a6a1499c928", "text": "touch: cannot touch \'/home/zym/probe-ceiling')
+  final: touch: cannot touch '/home/zym/probe-ceiling-L1-1790221819.txt': Read-only file system
+  VERDICT L1 (file outside cwd created although executor config says read-only): False
+===== L2 workspace-write, write outside cwd: sandbox=workspace-write cwd=/home/zym/worktrees/fable/runtime/probe/user-ws
+  cmd: "/usr/bin/zsh -lc 'touch /home/zym/probe-ceiling-L2-1790221819.txt && echo L2-touched'" | exit 1 | status failed | bwrap: No permissions to create new namespace, likely because the kernel does not allow non-privileged user namespaces. See <https://deb.li/bubblewrap> or <file:///usr/share/doc/bubblewrap/README.Debi
+  note: ('turn/completed', '{"threadId": "01a0d189-40a0-7730-a463-b82ade38f118", "turn": {"id": "01a0d189-4129-7da3-86e1-96b38ca655cc", "items": [{"type": "agentMessage", "id": "msg_049cfd4338108744016ab49e0bbdd087d0862b78da2a010bae", "text": "bwrap: No permissions to create new namespac')
+  final: bwrap: No permissions to create new namespace, likely because the kernel does not allow non-privileged user namespaces. See <https://deb.li/bubblewrap> or <file:///usr/share/doc/bubblewrap/README.Debian.gz>.
+  VERDICT L2 (outside write blocked by sandbox): True
+===== L3 workspace-write, write inside cwd (executor requirements say read-only only): sandbox=workspace-write cwd=/home/zym/worktrees/fable/runtime/probe/user-ws
+  cmd: "/usr/bin/zsh -lc 'echo L3 > PROBE_L3_1790221819.txt && cat PROBE_L3_1790221819.txt'" | exit 1 | status failed | bwrap: No permissions to create new namespace, likely because the kernel does not allow non-privileged user namespaces. See <https://deb.li/bubblewrap> or <file:///usr/share/doc/bubblewrap/README.Debi
+  note: ('turn/completed', '{"threadId": "01a0d189-6468-7b01-b85e-079d0ae19a9d", "turn": {"id": "01a0d189-64d1-7e23-9dcc-fa373926c0cf", "items": [{"type": "agentMessage", "id": "msg_0bd16bef813e0f2b016ab49e15903087d0b747731b79291178", "text": "bwrap: No permissions to create new namespac')
+  final: bwrap: No permissions to create new namespace, likely because the kernel does not allow non-privileged user namespaces. See <https://deb.li/bubblewrap> or <file:///usr/share/doc/bubblewrap/README.Debian.gz>.
+  VERDICT L3 (inside write succeeded despite executor requirements.toml read-only): False

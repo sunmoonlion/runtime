@@ -1,0 +1,15 @@
+environment/add: {}
+L0 environment/info: {"shell": {"name": "zsh", "path": "/usr/bin/zsh"}, "cwd": "file:///home/zym/worktrees/fable/runtime/probe"}
+===== L1 danger-full-access, write outside cwd: sandbox=danger-full-access cwd=/home/zym/worktrees/fable/runtime/probe/user-ws
+  cmd: "/usr/bin/zsh -lc 'touch /home/zym/probe-ceiling-L1-1790222078.txt && echo L1-touched'" | exit 1 | status failed | touch: cannot touch '/home/zym/probe-ceiling-L1-1790222078.txt': Read-only file system | 
+  note: ('turn/completed', '{"threadId": "01a0d18d-12d6-7292-832f-237a229dd9e0", "turn": {"id": "01a0d18d-135d-74c2-b20a-199c57066410", "items": [{"type": "agentMessage", "id": "msg_058249f6721ccbec016ab49f07930487d094bf38e7918c313a", "text": "touch: cannot touch \'/home/zym/probe-ceiling')
+  final: touch: cannot touch '/home/zym/probe-ceiling-L1-1790222078.txt': Read-only file system
+  VERDICT L1 (file outside cwd created although executor config says read-only): False
+===== L2 workspace-write, write outside cwd: sandbox=workspace-write cwd=/home/zym/worktrees/fable/runtime/probe/user-ws
+  note: ('turn/completed', '{"threadId": "01a0d18d-3930-7b00-b69f-23d055fa31b5", "turn": {"id": "01a0d18d-399c-7370-bfb7-35337e7dd20e", "items": [{"type": "agentMessage", "id": "msg_0283a7188f555fab016ab49f13829887d091fb6654572bd30c", "text": "```text\\nthread \'main\' (22) panicked at linu')
+  final: ```text thread 'main' (22) panicked at linux-sandbox/src/linux_run_main.rs:392:9: permission profiles requiring direct runtime enforcement are incompatible with --use-legacy-landlock note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace ```
+  VERDICT L2 (outside write blocked by sandbox): True
+===== L3 workspace-write, write inside cwd (executor requirements say read-only only): sandbox=workspace-write cwd=/home/zym/worktrees/fable/runtime/probe/user-ws
+  note: ('turn/completed', '{"threadId": "01a0d18d-6fd7-7802-9dba-36f339f9eeba", "turn": {"id": "01a0d18d-7047-7dd1-b310-1393ca053271", "items": [{"type": "agentMessage", "id": "msg_08e7a980ccfa0378016ab49f1ee1c087d0962b972f8c7040da", "text": "thread \'main\' (31) panicked at linux-sandbox')
+  final: thread 'main' (31) panicked at linux-sandbox/src/linux_run_main.rs:392:9: permission profiles requiring direct runtime enforcement are incompatible with --use-legacy-landlock note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+  VERDICT L3 (inside write succeeded despite executor requirements.toml read-only): False

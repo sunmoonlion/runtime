@@ -1,0 +1,15 @@
+environment/add: {}
+L0 environment/info: {"shell": {"name": "zsh", "path": "/usr/bin/zsh"}, "cwd": "file:///home/zym/worktrees/fable/runtime/probe"}
+===== L1 danger-full-access, write outside cwd: sandbox=danger-full-access cwd=/home/zym/worktrees/fable/runtime/probe/user-ws
+  cmd: "/usr/bin/zsh -lc 'touch /home/zym/probe-ceiling-L1-1790221975.txt && echo L1-touched'" | exit 1 | status failed | touch: cannot touch '/home/zym/probe-ceiling-L1-1790221975.txt': Permission denied | 
+  note: ('turn/completed', '{"threadId": "01a0d18b-8208-7623-8f8a-c7d4fe4451ce", "turn": {"id": "01a0d18b-828b-7100-88a3-c26a399df35d", "items": [{"type": "agentMessage", "id": "msg_0f0c07b14f581180016ab49e9fd70487d0813b977f346b6223", "text": "touch: cannot touch \'/home/zym/probe-ceiling')
+  final: touch: cannot touch '/home/zym/probe-ceiling-L1-1790221975.txt': Permission denied
+  VERDICT L1 (file outside cwd created although executor config says read-only): False
+===== L2 workspace-write, write outside cwd: sandbox=workspace-write cwd=/home/zym/worktrees/fable/runtime/probe/user-ws
+  note: ('turn/completed', '{"threadId": "01a0d18b-a3c3-7ae1-a55d-6170b1222c23", "turn": {"id": "01a0d18b-a42e-7520-a4f4-b5abe437ca53", "items": [{"type": "agentMessage", "id": "msg_018af671238aff4e016ab49eaa452087d0a7f20b46d9cb15bd", "text": "bwrap: Failed to make / slave: Operation not')
+  final: bwrap: Failed to make / slave: Operation not permitted
+  VERDICT L2 (outside write blocked by sandbox): True
+===== L3 workspace-write, write inside cwd (executor requirements say read-only only): sandbox=workspace-write cwd=/home/zym/worktrees/fable/runtime/probe/user-ws
+  note: ('turn/completed', '{"threadId": "01a0d18b-cbc8-7263-acd2-4caf743151a0", "turn": {"id": "01a0d18b-cc32-75f2-a13f-642f3926574c", "items": [{"type": "agentMessage", "id": "msg_0a5942d430ce8762016ab49eb247a087d09b4b49c708253e14", "text": "bwrap: Failed to make / slave: Operation not')
+  final: bwrap: Failed to make / slave: Operation not permitted
+  VERDICT L3 (inside write succeeded despite executor requirements.toml read-only): False

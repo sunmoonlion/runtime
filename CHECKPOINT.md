@@ -25,7 +25,9 @@
 5. Windows：探针 pass；代理启动方式（原生 exe、动态端口、一次提权初始化）未实现；
 6. 勾选上送知识服务（`F-AGENT-08`）未做；开机自启（`F-AGENT-09`）未做；
 7. 网络硬禁（`--unshare-net` + unix socket）未做，网络上限只有协议过滤 + Codex 自身策略；
-8. 两机公网延迟实测等所有者开 47100（switch-test inbox 02）。
+8. 两机公网延迟实测等所有者开 47100（switch-test inbox 02）；
+9. `F-AGENT-10`：从用户 `~/.codex/config.toml` 合并 HTTP 型 `[mcp_servers]` 到 `codex-home/config.toml`（本机确认、列出条目）；其余不读。执行端家已与 `~/.codex` 隔离（`config.codexHome` 默认 `~/.sunmoon-agent/codex-home`），合并功能未做；
+10. `sunmoon-data` skill 与知识服务 MCP 配置进沙箱镜像入口脚本（属 k8s `sandbox-platform`，随 `0006` 一起做）。
 
 ## 怎么跑
 

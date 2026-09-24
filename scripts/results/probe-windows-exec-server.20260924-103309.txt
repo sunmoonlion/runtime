@@ -1,0 +1,46 @@
+请求：2026-09-24-01-probe-windows-exec-server.md
+被测仓：runtime
+要求提交 / 实际提交：cdef67137daa6d3d94607c83b3e910f79aff96cd
+分支：fable
+结论：undecidable
+执行范围：从 WSL 调用 Windows PowerShell 5.1，只读检查 Windows 测试环境。
+指定测试脚本 scripts/probe-windows-exec-server.ps1 尚未执行；script_exit=not-run。
+以下为两次成功调用 Windows PowerShell 的完整输出；未读取凭据正文。
+最初沙箱内调用被 WSL 互操作限制阻止，经宿主执行授权后完成下列检查。
+
+===== 第一次环境检查：退出码 1 =====
+5.1.26100.9444
+ORCH_HOME=
+USERPROFILE=C:\Users\zymun
+
+Name       Source
+----       ------
+python.exe C:\Users\zymun\AppData\Local\Microsoft\WindowsApps\python.exe
+git.exe    C:\Program Files\Git\cmd\git.exe
+
+===== 第二次环境检查：退出码 0 =====
+=== Windows prerequisites ===
+Host=ZYMUN
+Time=2026-09-24T10:32:14.7046715+08:00
+ORCH_HOME=
+codex=MISSING
+node=MISSING
+python=C:\Users\zymun\AppData\Local\Microsoft\WindowsApps\python.exe
+py=MISSING
+git=C:\Program Files\Git\cmd\git.exe
+Exists C:\Users\zymun\AppData\Roaming\npm\codex.cmd = False
+Exists C:\Program Files\nodejs\node.exe = False
+Exists C:\Users\zymun\.codex-probe\auth.json = False
+Exists C:\Users\zymun\.codex-probe\config.toml = False
+python_exit=9009
+Antivirus=Windows Defender
+
+===== 覆盖与阻塞 =====
+查了：Windows PowerShell 可调用；PATH 中无 codex/node/py；python 为 WindowsApps 路径且调用返回 9009；ORCH_HOME 未设置；常用 npm/Node 安装路径及独立测试配置/登录文件不存在；杀毒软件为 Windows Defender。
+没查（环境事实）：Codex 0.155.1 的 exec-server 启动、47001 监听、L2/L3 沙箱用例；缺少可用 Windows 测试环境，不能执行。
+没查（远端与授权）：模型调用与编排端登录有效性。
+不能排除：Windows 其他未枚举目录存在安装或独立测试登录目录，PATH 与常用路径的检查不能证明整机从未安装。
+恢复条件：提供或准备 Windows 原生 Codex 0.155.1、Python 3.10+，以及有登录态的独立 ORCH_HOME，再按原脚本执行。未安装软件、复制凭据或改动脚本与判据。
+第二条两机公网延迟请求：所有者确认“尚未确认，先不跑第二条”；未启动本地桥接，待远程开放与启动前提满足后执行。
+末行 exit 是第二次环境检查的退出码，不是指定测试脚本的退出码，也不表示测试通过。
+exit=0

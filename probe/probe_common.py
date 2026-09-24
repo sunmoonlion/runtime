@@ -1,7 +1,7 @@
 """Shared probe harness: JSON-RPC client for `codex app-server` over stdio (copied from probe_c_phases.py, kept in sync by hand)."""
 import asyncio, json, os, re, subprocess
 _HERE=os.path.dirname(os.path.abspath(__file__))
-USER_WS=os.path.join(_HERE,"user-ws"); CLOUD_WS=os.path.join(_HERE,"cloud-ws")
+USER_WS=os.environ.get("USER_WS") or os.path.join(_HERE,"user-ws"); CLOUD_WS=os.path.join(_HERE,"cloud-ws")  # 两机测试时 USER_WS=本地侧路径
 EXEC_URL="ws://127.0.0.1:47001"; ENV_ID="user-pc"; HOME=os.path.expanduser("~")
 class AppServer:
     def __init__(self): self.proc=None; self.pending={}; self.nid=1; self.events=[]; self.reqs=[]

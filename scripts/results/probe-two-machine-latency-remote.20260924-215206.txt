@@ -1,0 +1,56 @@
+===== 环境 =====
+主机        VM-0-13-ubuntu
+时间        2026-09-24T21:52:06+08:00
+工位        fable
+系统        Linux 6.8.0-88-generic x86_64
+内存        3.6Gi 总 / 1.7Gi 可用
+磁盘        17G 可用 / 71% 已用
+Python      Python 3.13.9
+Node        v25.2.1
+uv          uv 0.11.7 (x86_64-unknown-linux-gnu)
+Codex       codex-cli 0.155.1  CODEX_HOME=未设
+k8s                    1157a763  fable
+info-app               244f724  fable
+  info-backend         e5156a0  
+investment-app         7b5b205  fable
+  investment-backend   e5084f8  fable
+knowledge-app          08437e9  fable
+  knowledge-backend    d267bc0  fable
+tpl-app                74ff0c5  fable
+  tpl-backend          6674125  
+runtime                51b7a85  fable
+===== 开始 =====
+--- 等本地代理注册（最多 10800s）
+--- 本地代理已注册，跑透传探针
+environment/add: {}
+environment/status: {'status': 'pending'} (34 ms)
+===== R1 read-only echo
+  final: The command could not run: `exec-server` reported “No such file or directory (os error 2).” No command output was produced.
+  turn wall time: 18.2 s
+===== R2 workspace-write apply_patch+cat
+  note: ('fileChange', {'status': 'failed', 'changes': [{'path': '/home/zym/worktrees/fable/runtime/probe/user-ws/PROBE_RELAY_1790258943.txt', 'kind': {'type': 'add'}, 'diff': 'via-relay\n'}]})
+  note: ('fileChange', {'status': 'failed', 'changes': [{'path': '/home/zym/worktrees/fable/runtime/probe/user-ws/PROBE_RELAY_1790258943.txt', 'kind': {'type': 'add'}, 'diff': 'via-relay\n'}]})
+  final: ```text Failed to write file /home/zym/worktrees/fable/runtime/probe/user-ws/PROBE_RELAY_1790258943.txt ```  ```text exec_command failed: CreateProcess { messag
+  turn wall time: 23.7 s
+  VERDICT file written through the path: False
+--- 收尾并打印 RTT 表
+[sandbox] listening ws://127.0.0.1:47002
+[sandbox] app-server connected, dialing ws://127.0.0.1:47100/sandbox?user=local
+[sandbox] connection closed
+[sandbox] upstream=ws://127.0.0.1:47100/sandbox?user=local counts={'requests': 68, 'notifications_up': 1, 'notifications_down': 0, 'requests_from_executor': 0}
+[sandbox] RTT per request method (n, median ms, p90 ms, max ms):
+  environmentConfig/read           n=   3 med=  500.23 p90=  692.91 max=  692.91
+  fs/getMetadata                   n=  58 med=  421.87 p90=  817.26 max=  818.44
+  fs/readFile                      n=   2 med=  631.99 p90=  631.99 max=  631.99
+  fs/writeFile                     n=   2 med=  676.53 p90=  676.53 max=  676.53
+  initialize                       n=   1 med= 3668.91 p90= 3668.91 max= 3668.91
+  process/start                    n=   2 med=  966.32 p90=  966.32 max=  966.32
+--- 回环对照（probe/bridge-relay.log）
+[sandbox] RTT per request method (n, median ms, p90 ms, max ms):
+  environmentConfig/read           n=   3 med=    3.38 p90=    6.39 max=    6.39
+  fs/getMetadata                   n=  81 med=    8.28 p90=   43.03 max=   47.66
+  fs/readFile                      n=   3 med=    2.05 p90=   47.21 max=   47.21
+  fs/writeFile                     n=   1 med=   45.57 p90=   45.57 max=   45.57
+  initialize                       n=   1 med=   32.79 p90=   32.79 max=   32.79
+  process/start                    n=   2 med=    5.42 p90=    5.42 max=    5.42
+  process/terminate                n=   2 med=    2.85 p90=    2.85 max=    2.85

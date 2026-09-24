@@ -5,12 +5,13 @@ Three outbound client kinds (all connect TO the relay; nothing connects to them)
   /sandbox?user=U          sandbox stream; each is paired with a fresh agent data stream.
 Pipes messages both ways (text/binary preserved). Logs per-JSON-RPC-request RTT observed at the relay
 (request seen sandbox->agent, response with same id seen agent->sandbox) to measure how many round trips a tool call costs.
-Run: .venv/bin/python relay_dumb.py [port]   (default 47100)
+Run: .venv/bin/python relay_dumb.py [port] [host]   (default 47100 127.0.0.1; host 0.0.0.0 only for the two-machine probe, unauthenticated!)
 """
 import asyncio, json, sys, time, uuid
 from urllib.parse import urlparse, parse_qs
 import websockets
 PORT=int(sys.argv[1]) if len(sys.argv)>1 else 47100
+HOST=sys.argv[2] if len(sys.argv)>2 else "127.0.0.1"
 agents={}          # user -> control ws
 waiting={}         # conn_id -> Future[agent data ws]
 stats=[]           # (method, rtt_ms)
@@ -54,8 +55,8 @@ async def handler(ws):
     else: await ws.close(code=1008)
 
 async def main():
-    async with websockets.serve(handler,"127.0.0.1",PORT,max_size=None,ping_interval=20):
-        print(f"[relay] listening ws://127.0.0.1:{PORT}",flush=True)
+    async with websockets.serve(handler,HOST,PORT,max_size=None,ping_interval=20):
+        print(f"[relay] listening ws://{HOST}:{PORT}",flush=True)
         try: await asyncio.Future()
         finally: pass
 try: asyncio.run(main())

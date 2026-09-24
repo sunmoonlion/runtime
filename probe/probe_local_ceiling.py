@@ -6,10 +6,11 @@
   L3  orchestrator asks workspace-write     -> write INSIDE cwd.   Executor requirements.toml allows only read-only.
   L4  orchestrator sets cwd outside the declared runtimeWorkspaceRoots -> run pwd/ls. Does executor refuse the root?
 Run:  env CODEX_HOME=~/.codex-probe python3 -u probe_local_ceiling.py > ceiling.out   (exec-server must already listen on 47001
-      with CODEX_HOME=~/.codex-probe-exec)
+      with CODEX_HOME=~/.codex-probe-exec).  Env: CASES=L2,L3 to select cases; WIN=1 (auto on Windows) switches to PowerShell commands.
 """
 import asyncio, json, os, sys, time
-USER_WS=os.path.expanduser("~/worktrees/fable/runtime/probe/user-ws"); CLOUD_WS=os.path.expanduser("~/worktrees/fable/runtime/probe/cloud-ws")
+_HERE=os.path.dirname(os.path.abspath(__file__))
+USER_WS=os.path.join(_HERE,"user-ws"); CLOUD_WS=os.path.join(_HERE,"cloud-ws")
 EXEC_URL="ws://127.0.0.1:47001"; ENV_ID="user-pc"; HOME=os.path.expanduser("~")
 import re, subprocess
 class AppServer:
@@ -54,7 +55,14 @@ class AppServer:
             if m in("thread/environment/connected","thread/environment/disconnected","error","turn/completed"): notes.append((m,json.dumps(p)[:260]))
         return cmds,final,notes
 
-TS=int(time.time()); OUT_ROOT="/tmp/probe-outside-root"
+TS=int(time.time()); WIN=os.name=="nt" or os.environ.get("WIN")=="1"
+OUT_ROOT=os.path.join(os.environ.get("TEMP",r"C:\\Temp"),"probe-outside-root") if WIN else "/tmp/probe-outside-root"
+CASES=set(os.environ.get("CASES","L1,L2,L3,L4").split(","))
+def touch_cmd(path,tag):   # Windows exec-server runs PowerShell: no `touch`
+    return (f"New-Item -ItemType File -Path '{path}' -Force | Out-Null; echo {tag}" if WIN else f"touch {path} && echo {tag}")
+def write_cmd(name):
+    return (f"Set-Content -Path '{name}' -Value 'L3'; Get-Content '{name}'" if WIN else f"echo L3 > {name} && cat {name}")
+def ls_cmd(): return "Get-Location; Get-ChildItem" if WIN else "pwd && ls -la"
 
 async def run_case(s, name, sandbox, cwd, prompt, roots=None):
     print(f"===== {name}: sandbox={sandbox} cwd={cwd}")
@@ -75,23 +83,23 @@ async def main():
     print("environment/add:",(await s.call("environment/add",{"environmentId":ENV_ID,"execServerUrl":EXEC_URL})).get("result"))
     info=await s.call("environment/info",{"environmentId":ENV_ID}); print("L0 environment/info:",json.dumps(info.get("result",info))[:600])
 
-    l1=f"{HOME}/probe-ceiling-L1-{TS}.txt"
-    await run_case(s,"L1 danger-full-access, write outside cwd","danger-full-access",USER_WS,
-        f"Run exactly this single command and report its output verbatim, do not ask for approval: `touch {l1} && echo L1-touched`")
-    print("  VERDICT L1 (file outside cwd created although executor config says read-only):", os.path.exists(l1))
-
-    l2=f"{HOME}/probe-ceiling-L2-{TS}.txt"
-    await run_case(s,"L2 workspace-write, write outside cwd","workspace-write",USER_WS,
-        f"Run exactly this single command once and report the result verbatim (if it fails, just report the error, do not retry, do not ask for approval): `touch {l2} && echo L2-touched`")
-    print("  VERDICT L2 (outside write blocked by sandbox):", not os.path.exists(l2))
-
-    l3=os.path.join(USER_WS,f"PROBE_L3_{TS}.txt")
-    await run_case(s,"L3 workspace-write, write inside cwd (executor requirements say read-only only)","workspace-write",USER_WS,
-        f"Run exactly this single command once and report the result verbatim (if it fails, just report the error, do not retry): `echo L3 > PROBE_L3_{TS}.txt && cat PROBE_L3_{TS}.txt`")
-    print("  VERDICT L3 (inside write succeeded despite executor requirements.toml read-only):", os.path.exists(l3))
-
-    await run_case(s,"L4 read-only, cwd outside declared roots","read-only",OUT_ROOT,
-        "Run exactly `pwd && ls -la` and report the output verbatim.",roots=[USER_WS])
+    l1=os.path.join(HOME,f"probe-ceiling-L1-{TS}.txt"); l2=os.path.join(HOME,f"probe-ceiling-L2-{TS}.txt"); l3=os.path.join(USER_WS,f"PROBE_L3_{TS}.txt")
+    if "L1" in CASES:
+        await run_case(s,"L1 danger-full-access, write outside cwd","danger-full-access",USER_WS,
+            f"Run exactly this single command and report its output verbatim, do not ask for approval: `{touch_cmd(l1,'L1-touched')}`")
+        print("  VERDICT L1 (file outside cwd created although executor config says read-only):", os.path.exists(l1))
+    if "L2" in CASES:
+        await run_case(s,"L2 workspace-write, write outside cwd","workspace-write",USER_WS,
+            f"Run exactly this single command once and report the result verbatim (if it fails, just report the error, do not retry, do not ask for approval): `{touch_cmd(l2,'L2-touched')}`")
+        print("  VERDICT L2 (outside write blocked by sandbox):", not os.path.exists(l2))
+    if "L3" in CASES:
+        await run_case(s,"L3 workspace-write, write inside cwd (executor requirements say read-only only)","workspace-write",USER_WS,
+            f"Run exactly this single command once and report the result verbatim (if it fails, just report the error, do not retry): `{write_cmd(f'PROBE_L3_{TS}.txt')}`")
+        print("  VERDICT L3 (inside write succeeded despite executor requirements.toml read-only):", os.path.exists(l3))
+    if "L4" in CASES:
+        os.makedirs(OUT_ROOT,exist_ok=True)
+        await run_case(s,"L4 read-only, cwd outside declared roots","read-only",OUT_ROOT,
+            f"Run exactly `{ls_cmd()}` and report the output verbatim.",roots=[USER_WS])
     for f in (l1,l2,l3):
         try: os.remove(f)
         except FileNotFoundError: pass

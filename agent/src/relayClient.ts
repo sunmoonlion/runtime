@@ -14,6 +14,8 @@ export interface RelayClientOptions {
   localUrl: () => string; // exec-server 的当前地址（重启后端口可能变）
   ceiling: () => Ceiling;
   roots: () => readonly string[];
+  /** 被会合点拒绝（令牌无效、被吊销、被同用户的新代理顶掉）时调用一次；之后不会再重连。 */
+  onRejected?: (reason: string) => void;
 }
 
 export interface BridgeStats {
@@ -38,6 +40,14 @@ export class RelayClient {
   start(): void {
     this.stopped = false;
     this.connectControl();
+  }
+
+  private rejectedNotified = false;
+
+  private notifyRejected(): void {
+    if (this.rejectedNotified) return;
+    this.rejectedNotified = true;
+    try { this.opts.onRejected?.(this.lastError); } catch (e) { log("error", "onRejected handler failed", { error: String(e) }); }
   }
 
   stop(): void {
@@ -72,6 +82,7 @@ export class RelayClient {
         this.status = "rejected"; this.lastError = msg.reason;
         log("error", "relay rejected us — not retrying until config changes", { reason: msg.reason });
         this.stopped = true; ws.close();
+        this.notifyRejected();
       } else if (msg.type === "open") {
         this.openStream(msg.conn);
       } else if (msg.type === "ping") {
@@ -97,6 +108,7 @@ export class RelayClient {
         log("error", code === 4000
           ? "another agent for this user connected to the relay; this one stops (run only one agent per user)"
           : "relay revoked this agent's token; re-run init with a new token", { code });
+        this.notifyRejected();
       }
       onDown(`close ${code}`);
     });

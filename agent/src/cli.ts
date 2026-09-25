@@ -27,6 +27,9 @@ function args(flag: string, argv: string[]): string[] {
   return out;
 }
 
+/** 被会合点拒绝（令牌无效、被吊销、被同用户的新代理顶掉）后退出用的码；换令牌后重新 init 再 start。 */
+const EXIT_REJECTED = 3;
+
 async function main(argv: string[]): Promise<number> {
   const cmd = argv[0];
   // 任何子命令带 --help / -h 都只打印用法：以前 `start --help` 会忽略参数、真的起一个代理（KIND 09 实测）
@@ -77,9 +80,12 @@ async function start(cfg: AgentConfig): Promise<number> {
   log("info", "sunmoon-agent starting", { version: VERSION, codex: codex.version, codexBin: codex.codexBin, bwrap: codex.bwrap, platform: process.platform });
   const es = new ExecServer({ codexBin: codex.codexBin, bwrap: codex.bwrap, outerSandbox: cfg.outerSandbox, roots: cfg.roots, codexHome: cfg.codexHome, port: cfg.execPort });
   await es.start();
+  // 被会合点拒绝就退出（退出码 3），不挂着一个连不上的进程：开机自启、托盘、systemd 都能据此看出出错（KIND 12 实测）
+  let onRejected: (reason: string) => void = () => {};
   const relay = new RelayClient({
     relayUrl: cfg.relayUrl, userId: cfg.userId, token: cfg.token, codexVersion: codex.version, softwareVersion: VERSION,
     localUrl: () => es.url, ceiling: () => cfg.ceiling, roots: () => cfg.roots,
+    onRejected: (reason) => onRejected(reason),
   });
   relay.start();
 
@@ -99,14 +105,20 @@ async function start(cfg: AgentConfig): Promise<number> {
   const sp = srv.address(); log("info", "status endpoint", { url: `http://127.0.0.1:${typeof sp === "object" && sp ? sp.port : statusPort}/` });
 
   return new Promise<number>((resolve) => {
-    const shutdown = async (sig: string) => {
-      log("info", "shutting down", { sig });
-      clearInterval(timer); relay.stop(); srv.close(); await es.stop();
-      try { fs.unlinkSync(STATUS_PATH); } catch {}
-      resolve(0);
+    let done = false;
+    const shutdown = async (why: string, code: number) => {
+      if (done) return;
+      done = true;
+      log(code === 0 ? "info" : "error", "shutting down", { why, exitCode: code });
+      clearInterval(timer);
+      if (code !== 0) writeStatus(); // 保留最后状态（含被拒原因），便于用户与托盘查看
+      relay.stop(); srv.close(); await es.stop();
+      if (code === 0) { try { fs.unlinkSync(STATUS_PATH); } catch {} }
+      resolve(code);
     };
-    process.once("SIGINT", () => void shutdown("SIGINT"));
-    process.once("SIGTERM", () => void shutdown("SIGTERM"));
+    onRejected = (reason) => void shutdown(`relay rejected: ${reason}`, EXIT_REJECTED);
+    process.once("SIGINT", () => void shutdown("SIGINT", 0));
+    process.once("SIGTERM", () => void shutdown("SIGTERM", 0));
   });
 }
 
@@ -115,7 +127,7 @@ function usage(): void {
   init --relay ws://HOST:PORT --user ID --token T [--root DIR]... [--port N] [--no-outer-sandbox]
   roots list | add DIR | remove DIR
   ceiling show | set [--sandbox read-only|workspace-write|danger-full-access] [--network on|off]
-  start
+  start      前台运行；被会合点拒绝（令牌无效、被吊销、被同用户的新代理顶掉）时退出，退出码 3
   status`);
 }
 

@@ -112,6 +112,34 @@ describe("RelayClient", () => {
     expect(client.status).toBe("rejected"); expect(client.lastError).toBe("bad token");
   });
 
+  it("calls onRejected once when the relay rejects the hello", async () => {
+    await relay.close(); relay = new FakeRelay("bad token"); await relay.start();
+    const seen: string[] = [];
+    makeClient({ onRejected: (r) => seen.push(r) });
+    for (let i = 0; i < 50 && seen.length === 0; i++) await sleep(20);
+    await sleep(200);
+    expect(seen).toEqual(["bad token"]);
+  });
+
+  it("calls onRejected once when replaced by a newer agent (4000)", async () => {
+    const seen: string[] = [];
+    makeClient({ onRejected: (r) => seen.push(r) });
+    for (let i = 0; i < 50 && client.status !== "connected"; i++) await sleep(20);
+    relay.agentCtrl!.close(4000, "x");
+    for (let i = 0; i < 50 && seen.length === 0; i++) await sleep(20);
+    await sleep(200);
+    expect(seen).toEqual(["replaced by a newer agent for this user"]);
+  });
+
+  it("does not call onRejected on an ordinary disconnect", async () => {
+    const seen: string[] = [];
+    makeClient({ onRejected: (r) => seen.push(r) });
+    for (let i = 0; i < 50 && client.status !== "connected"; i++) await sleep(20);
+    relay.agentCtrl!.terminate();
+    await sleep(400);
+    expect(seen).toEqual([]);
+  });
+
   for (const [code, reason] of [[4000, "replaced by a newer agent for this user"], [4003, "token revoked"]] as const) {
     it(`does not reconnect after close ${code} (${reason})`, async () => {
       makeClient();

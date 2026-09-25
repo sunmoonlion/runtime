@@ -112,6 +112,18 @@ describe("RelayClient", () => {
     expect(client.status).toBe("rejected"); expect(client.lastError).toBe("bad token");
   });
 
+  for (const [code, reason] of [[4000, "replaced by a newer agent for this user"], [4003, "token revoked"]] as const) {
+    it(`does not reconnect after close ${code} (${reason})`, async () => {
+      makeClient();
+      for (let i = 0; i < 50 && client.status !== "connected"; i++) await sleep(20);
+      relay.agentCtrl!.close(code, "x");
+      for (let i = 0; i < 50 && client.status !== "rejected"; i++) await sleep(20);
+      expect(client.status).toBe("rejected"); expect(client.lastError).toBe(reason);
+      await sleep(1500);
+      expect(relay.hellos.filter((h) => h.path === "/agent").length).toBe(1);
+    });
+  }
+
   it("reconnects the control channel after the relay drops it", async () => {
     makeClient();
     for (let i = 0; i < 50 && client.status !== "connected"; i++) await sleep(20);

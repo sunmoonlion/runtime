@@ -87,7 +87,19 @@ export class RelayClient {
       setTimeout(() => this.connectControl(), this.backoff);
       this.backoff = Math.min(30000, this.backoff * 2);
     };
-    ws.on("close", (code) => onDown(`close ${code}`));
+    ws.on("close", (code) => {
+      // 4000 = 同一用户有更新的代理连上来，会合点把我们顶掉了；4003 = 令牌被吊销。
+      // 这两种都不重连：重连只会把对方再顶掉，两个代理每秒互踢（KIND 09 实测）
+      if ((code === 4000 || code === 4003) && this.ctrl === ws) {
+        this.status = "rejected";
+        this.lastError = code === 4000 ? "replaced by a newer agent for this user" : "token revoked";
+        this.stopped = true;
+        log("error", code === 4000
+          ? "another agent for this user connected to the relay; this one stops (run only one agent per user)"
+          : "relay revoked this agent's token; re-run init with a new token", { code });
+      }
+      onDown(`close ${code}`);
+    });
     ws.on("error", (e) => { this.lastError = String(e.message ?? e); onDown(`error ${this.lastError}`); });
   }
 

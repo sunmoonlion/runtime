@@ -29,7 +29,8 @@ function args(flag: string, argv: string[]): string[] {
 
 async function main(argv: string[]): Promise<number> {
   const cmd = argv[0];
-  if (!cmd || cmd === "help" || cmd === "--help") { usage(); return 0; }
+  // 任何子命令带 --help / -h 都只打印用法：以前 `start --help` 会忽略参数、真的起一个代理（KIND 09 实测）
+  if (!cmd || cmd === "help" || argv.includes("--help") || argv.includes("-h")) { usage(); return 0; }
   if (cmd === "--version") { console.log(VERSION); return 0; }
 
   if (cmd === "init") {

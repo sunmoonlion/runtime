@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // sunmoon-agent：本地代理的命令行。
-//   init --relay URL --user ID --token T [--root DIR ...]   写配置
+//   init --relay URL --user ID --token T [--root DIR ...] [--name 机器名]   写配置（机器名默认主机名，网页「我的机器」里显示）
 //   roots add|remove|list DIR                                白名单（改完要重启 start，外沙箱的 bind 在启动时定）
 //   ceiling show|set --sandbox MODE --network on|off         本地上限（本机改，仅本机生效）
 //   start                                                    前台运行：起 exec-server + 出站桥；状态写 status.json
@@ -14,7 +14,7 @@ import { log } from "./log.js";
 import { locateCodex } from "./paths.js";
 import { RelayClient } from "./relayClient.js";
 
-const VERSION = "0.1.0";
+const VERSION = "0.2.0";
 const STATUS_PATH = path.join(CONFIG_DIR, "status.json");
 
 function arg(flag: string, argv: string[]): string | undefined {
@@ -42,6 +42,7 @@ async function main(argv: string[]): Promise<number> {
     cfg.userId = arg("--user", argv) ?? cfg.userId;
     cfg.token = arg("--token", argv) ?? cfg.token;
     cfg.roots = args("--root", argv).map((r) => path.resolve(r));
+    const name = arg("--name", argv); if (name) cfg.machineName = name;
     const port = arg("--port", argv); if (port) cfg.execPort = Number(port);
     if (argv.includes("--no-outer-sandbox")) cfg.outerSandbox = false;
     saveConfig(cfg);
@@ -77,14 +78,14 @@ async function main(argv: string[]): Promise<number> {
 async function start(cfg: AgentConfig): Promise<number> {
   if (cfg.roots.length === 0) log("warn", "白名单为空：任何 process/start 都会被拒；用 sunmoon-agent roots add <目录>");
   const codex = locateCodex();
-  log("info", "sunmoon-agent starting", { version: VERSION, codex: codex.version, codexBin: codex.codexBin, bwrap: codex.bwrap, platform: process.platform });
+  log("info", "sunmoon-agent starting", { version: VERSION, machine: cfg.machineName, codex: codex.version, codexBin: codex.codexBin, bwrap: codex.bwrap, platform: process.platform });
   const es = new ExecServer({ codexBin: codex.codexBin, bwrap: codex.bwrap, outerSandbox: cfg.outerSandbox, roots: cfg.roots, codexHome: cfg.codexHome, port: cfg.execPort });
   await es.start();
   // 被会合点拒绝就退出（退出码 3），不挂着一个连不上的进程：开机自启、托盘、systemd 都能据此看出出错（KIND 12 实测）
   let onRejected: (reason: string) => void = () => {};
   const relay = new RelayClient({
     relayUrl: cfg.relayUrl, userId: cfg.userId, token: cfg.token, codexVersion: codex.version, softwareVersion: VERSION,
-    localUrl: () => es.url, ceiling: () => cfg.ceiling, roots: () => cfg.roots,
+    localUrl: () => es.url, ceiling: () => cfg.ceiling, roots: () => cfg.roots, machineName: () => cfg.machineName,
     onRejected: (reason) => onRejected(reason),
   });
   relay.start();
@@ -124,7 +125,7 @@ async function start(cfg: AgentConfig): Promise<number> {
 
 function usage(): void {
   console.log(`sunmoon-agent ${VERSION}
-  init --relay ws://HOST:PORT --user ID --token T [--root DIR]... [--port N] [--no-outer-sandbox]
+  init --relay ws://HOST:PORT --user ID --token T [--root DIR]... [--name 机器名] [--port N] [--no-outer-sandbox]
   roots list | add DIR | remove DIR
   ceiling show | set [--sandbox read-only|workspace-write|danger-full-access] [--network on|off]
   start      前台运行；被会合点拒绝（令牌无效、被吊销、被同用户的新代理顶掉）时退出，退出码 3

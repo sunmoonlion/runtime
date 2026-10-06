@@ -78,6 +78,23 @@ describe("RelayClient", () => {
     expect(relay.hellos[0]).toMatchObject({ path: "/agent", type: "hello", role: "agent", user: "u1", token: "t1", codex: "0.155.1", proto: 1 });
   });
 
+  it("reports the machine (name, whitelisted roots, ceiling) in the control hello only", async () => {
+    makeClient({ machineName: () => "laptop" });
+    for (let i = 0; i < 50 && client.status !== "connected"; i++) await sleep(20);
+    const ctrl = relay.hellos.find((h) => h.path === "/agent");
+    expect(ctrl.machine.name).toBe("laptop");
+    expect(ctrl.machine.roots).toEqual([ROOT]);
+    expect(ctrl.machine.ceiling).toMatchObject({ sandbox: expect.any(String), network: expect.any(Boolean) });
+    await relay.connectSandbox();
+    expect(relay.hellos.find((h) => h.path === "/agent-data")?.machine).toBeUndefined();
+  });
+
+  it("stays compatible when no machine name is given: the hello carries no machine", async () => {
+    makeClient();
+    for (let i = 0; i < 50 && client.status !== "connected"; i++) await sleep(20);
+    expect(relay.hellos[0].machine).toBeUndefined();
+  });
+
   it("opens a data stream on 'open', forwards allowed requests to exec-server and responses back", async () => {
     makeClient();
     for (let i = 0; i < 50 && client.status !== "connected"; i++) await sleep(20);

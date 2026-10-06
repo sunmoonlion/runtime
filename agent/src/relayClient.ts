@@ -14,6 +14,8 @@ export interface RelayClientOptions {
   localUrl: () => string; // exec-server 的当前地址（重启后端口可能变）
   ceiling: () => Ceiling;
   roots: () => readonly string[];
+  /** 这台机器的名字（网页「我的机器」里显示）；不给就不上报机器信息 */
+  machineName?: () => string;
   /** 被会合点拒绝（令牌无效、被吊销、被同用户的新代理顶掉）时调用一次；之后不会再重连。 */
   onRejected?: (reason: string) => void;
 }
@@ -70,7 +72,11 @@ export class RelayClient {
     const ws = new WebSocket(this.controlUrl(), { maxPayload: 0 });
     this.ctrl = ws;
     ws.on("open", () => {
-      ws.send(hello({ role: "agent", user: this.opts.userId, token: this.opts.token, codex: this.opts.codexVersion, software: this.opts.softwareVersion }));
+      // 机器信息只在控制通道的 hello 里报一次：白名单和上限改了要重启 start，重启就会重报
+      const machine = this.opts.machineName
+        ? { name: this.opts.machineName(), roots: [...this.opts.roots()], ceiling: { ...this.opts.ceiling() } }
+        : undefined;
+      ws.send(hello({ role: "agent", user: this.opts.userId, token: this.opts.token, codex: this.opts.codexVersion, software: this.opts.softwareVersion, ...(machine ? { machine } : {}) }));
     });
     ws.on("message", (data) => {
       let msg: ControlMessage;

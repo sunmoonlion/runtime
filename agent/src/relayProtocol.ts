@@ -15,6 +15,18 @@ export interface Hello {
   software: string;
   /** 数据流才有 */
   conn?: string;
+  /**
+   * 控制通道才有：这台机器叫什么、白名单里有哪些目录、它自己定的上限。
+   * 会合点原样记下，工作台据此登记「我的机器」并知道它在不在线。只用来显示和登记，不是授权依据：
+   * 能动哪些目录始终由本机的过滤和外沙箱拦。
+   */
+  machine?: MachineInfo;
+}
+
+export interface MachineInfo {
+  name: string;
+  roots: string[];
+  ceiling: { sandbox: string; network: boolean };
 }
 
 export type ControlMessage =

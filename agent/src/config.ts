@@ -19,6 +19,8 @@ export interface AgentConfig {
   codexHome: string;
   /** 是否启用 OS 外沙箱（Linux bwrap）；关掉只剩协议过滤，仅供调试 */
   outerSandbox: boolean;
+  /** 这台机器在网页「我的机器」里显示的名字；默认用主机名。同一个用户的两台机器要不同名 */
+  machineName: string;
 }
 
 export const CONFIG_DIR = process.env.SUNMOON_AGENT_HOME ?? path.join(os.homedir(), ".sunmoon-agent");
@@ -34,6 +36,7 @@ export function defaultConfig(): AgentConfig {
     execPort: 0,
     codexHome: path.join(CONFIG_DIR, "codex-home"),
     outerSandbox: true,
+    machineName: os.hostname().slice(0, 128) || "my-pc",
   };
 }
 
@@ -54,6 +57,7 @@ export function saveConfig(cfg: AgentConfig, file = CONFIG_PATH): void {
 export function validate(cfg: AgentConfig): void {
   if (!/^wss?:\/\//.test(cfg.relayUrl)) throw new Error(`relayUrl 必须是 ws:// 或 wss://：${cfg.relayUrl}`);
   if (!cfg.userId) throw new Error("userId 不能为空");
+  if (!cfg.machineName || cfg.machineName.length > 128) throw new Error("machineName 要有，且不超过 128 个字符");
   for (const r of cfg.roots) {
     if (!path.isAbsolute(r)) throw new Error(`白名单根必须是绝对路径：${r}`);
   }

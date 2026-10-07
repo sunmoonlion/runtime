@@ -13,6 +13,8 @@ import { ExecServer } from "./execServer.js";
 import { log } from "./log.js";
 import { locateCodex } from "./paths.js";
 import { RelayClient } from "./relayClient.js";
+import { detectWindowsSandbox } from "./windowsBootstrap.js";
+import { type WindowsHelper, assertWindowsHome, locateWindowsHelper, pinWindowsDirectories, runSandboxProbe } from "./windowsRuntime.js";
 import { canonicalPath } from "./pathuri.js";
 
 const VERSION = "0.2.0";
@@ -45,7 +47,8 @@ async function main(argv: string[]): Promise<number> {
     cfg.roots = args("--root", argv).map((r) => path.resolve(r));
     const name = arg("--name", argv); if (name) cfg.machineName = name;
     const port = arg("--port", argv); if (port) cfg.execPort = Number(port);
-    if (argv.includes("--no-outer-sandbox")) cfg.outerSandbox = false;
+    if (argv.includes("--no-outer-sandbox") && process.platform !== "win32") cfg.outerSandbox = false;
+    if (process.platform === "win32") { cfg.windowsSandbox = await detectWindowsSandbox(cfg.codexHome, cfg.roots); console.log(`Windows sandbox: ${cfg.windowsSandbox.mode} (real process/start verified)`); }
     saveConfig(cfg);
     console.log(`已写 ${CONFIG_PATH}`);
     return 0;
@@ -80,19 +83,31 @@ async function start(cfg: AgentConfig): Promise<number> {
   if (cfg.roots.length === 0) log("warn", "白名单为空：任何 process/start 都会被拒；用 sunmoon-agent roots add <目录>");
   const codex = locateCodex();
   log("info", "sunmoon-agent starting", { version: VERSION, machine: cfg.machineName, codex: codex.version, codexBin: codex.codexBin, bwrap: codex.bwrap, platform: process.platform });
-  const es = new ExecServer({ codexBin: codex.codexBin, bwrap: codex.bwrap, outerSandbox: cfg.outerSandbox, roots: cfg.roots, codexHome: cfg.codexHome, port: cfg.execPort });
-  await es.start();
+  let releaseRoots: (() => void) | undefined;
+  let windows: { home: string; helper: WindowsHelper; mode: "elevated" | "unelevated" } | undefined;
+  if (process.platform === "win32") {
+    if (!cfg.windowsSandbox) throw new Error("Run init to detect Windows sandbox capability");
+    assertWindowsHome(cfg.codexHome, cfg.roots);
+    windows = { home: cfg.codexHome, helper: locateWindowsHelper(), mode: cfg.windowsSandbox.mode };
+    releaseRoots = await pinWindowsDirectories(windows.helper, [...cfg.roots, cfg.codexHome], cfg.codexHome);
+    log("info", "Windows inner sandbox and strict protocol filter; no OS outer sandbox", { mode: windows.mode });
+  }
+  const es = new ExecServer({ codexBin: codex.codexBin, bwrap: codex.bwrap, outerSandbox: cfg.outerSandbox, roots: cfg.roots, codexHome: cfg.codexHome, port: cfg.execPort, windowsMode: cfg.windowsSandbox?.mode });
+  try {
+    await es.start();
+    if (windows && !await runSandboxProbe(es.url, cfg.codexHome, cfg.roots[0] ?? cfg.codexHome, windows.mode)) throw new Error("Configured Windows sandbox is no longer usable; run init");
+  } catch (error) { await es.stop(); releaseRoots?.(); throw error; }
   // 被会合点拒绝就退出（退出码 3），不挂着一个连不上的进程：开机自启、托盘、systemd 都能据此看出出错（KIND 12 实测）
   let onRejected: (reason: string) => void = () => {};
   const relay = new RelayClient({
-    relayUrl: cfg.relayUrl, userId: cfg.userId, token: cfg.token, codexVersion: codex.version, softwareVersion: VERSION,
+    windows, relayUrl: cfg.relayUrl, userId: cfg.userId, token: cfg.token, codexVersion: codex.version, softwareVersion: VERSION,
     localUrl: () => es.url, ceiling: () => cfg.ceiling, roots: () => cfg.roots, machineName: () => cfg.machineName,
     onRejected: (reason) => onRejected(reason),
   });
   relay.start();
 
   const writeStatus = () => {
-    const st = { version: VERSION, pid: process.pid, codex: codex.version, execServer: { url: es.url, alive: es.alive, sandboxed: es.sandboxed, generation: es.generation }, relay: { url: cfg.relayUrl, status: relay.status, lastError: relay.lastError }, ceiling: cfg.ceiling, roots: cfg.roots, bridge: relay.stats, at: new Date().toISOString() };
+    const st = { version: VERSION, pid: process.pid, codex: codex.version, execServer: { url: es.url, alive: es.alive, sandboxed: es.sandboxed, generation: es.generation, ...(windows ? { protection: "inner-sandbox+strict-protocol", windowsSandbox: cfg.windowsSandbox } : {}) }, relay: { url: cfg.relayUrl, status: relay.status, lastError: relay.lastError }, ceiling: cfg.ceiling, roots: cfg.roots, bridge: relay.stats, at: new Date().toISOString() };
     fs.mkdirSync(CONFIG_DIR, { recursive: true, mode: 0o700 });
     fs.writeFileSync(STATUS_PATH, JSON.stringify(st, null, 2));
     return st;
@@ -114,7 +129,7 @@ async function start(cfg: AgentConfig): Promise<number> {
       log(code === 0 ? "info" : "error", "shutting down", { why, exitCode: code });
       clearInterval(timer);
       if (code !== 0) writeStatus(); // 保留最后状态（含被拒原因），便于用户与托盘查看
-      relay.stop(); srv.close(); await es.stop();
+      relay.stop(); srv.close(); await es.stop(); releaseRoots?.();
       if (code === 0) { try { fs.unlinkSync(STATUS_PATH); } catch {} }
       resolve(code);
     };

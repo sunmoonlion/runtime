@@ -23,7 +23,7 @@ describe("wrapCommand", () => {
     expect(wrapCommand(["c"], { enabled: false, bwrap: "/x/bwrap", roots: [], codexHome: "/h" }, "linux")).toEqual({ argv: ["c"], sandboxed: false });
     expect(wrapCommand(["c"], { enabled: true, bwrap: null, roots: [], codexHome: "/h" }, "linux")).toEqual({ argv: ["c"], sandboxed: false });
   });
-  it.each([true, false])("Windows fails closed even when outerSandbox=%s", enabled => {
-    expect(() => wrapCommand(["codex.exe", "exec-server"], { enabled, bwrap: null, roots: ["C:\\work"], codexHome: "C:\\agent-home" }, "win32")).toThrow(/CreateRestrictedToken failed: 87/);
+  it.each([true, false])("Windows always uses the admitted inner sandbox path; outerSandbox=%s is ignored", enabled => {
+    expect(wrapCommand(["codex.exe", "exec-server"], { enabled, bwrap: null, roots: ["C:\\work"], codexHome: "C:\\agent-home" }, "win32")).toEqual({ argv: ["codex.exe", "exec-server"], sandboxed: false });
   });
 });

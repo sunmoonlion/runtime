@@ -1,6 +1,6 @@
 // `<子命令> --help` 只打印用法、立即退出，不启动代理（以前 start --help 会真的起一个 exec-server 并连会合点）
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, rmSync, readFileSync, existsSync } from "node:fs";
+import { mkdtempSync, mkdirSync, rmSync, readFileSync, existsSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -22,8 +22,8 @@ describe("cli --help", () => {
   }
 });
 
-describe.skipIf(process.platform !== "win32")("Windows CLI before sandbox admission", () => {
-  it("supports configuration commands but refuses start before any relay connection", () => {
+describe.skipIf(process.platform !== "win32")("Windows CLI capability admission", () => {
+  it("supports configuration commands and refuses start without a recorded capability probe", () => {
     const home = mkdtempSync(path.join(tmpdir(), "agent-cli-"));
     const workspace = path.join(home, "workspace");
     mkdirSync(workspace);
@@ -38,10 +38,13 @@ describe.skipIf(process.platform !== "win32")("Windows CLI before sandbox admiss
       expect(run("ceiling", "set", "--sandbox", "read-only", "--network", "off").status).toBe(0);
       expect(JSON.parse(run("ceiling", "show").stdout)).toEqual({ sandbox: "read-only", network: false });
       expect(run("status").status).toBe(1);
+      const cfg = JSON.parse(readFileSync(path.join(home, "config.json"), "utf8"));
+      expect(cfg.windowsSandbox.mode).toBe("unelevated"); expect(cfg.windowsSandbox.probe).toBe("process/start");
+      delete cfg.windowsSandbox; writeFileSync(path.join(home, "config.json"), JSON.stringify(cfg));
       const start = run("start");
       expect(start.error).toBeUndefined();
       expect(start.status).toBe(1);
-      expect(start.stdout + start.stderr).toContain("CreateRestrictedToken failed: 87");
+      expect(start.stdout + start.stderr).toContain("Run init to detect Windows sandbox capability");
       expect(start.stdout + start.stderr).not.toMatch(/exec-server starting|relay connected/);
       expect(existsSync(path.join(home, "status.json"))).toBe(false);
       expect(existsSync(path.join(home, "codex-home", "auth.json"))).toBe(false);

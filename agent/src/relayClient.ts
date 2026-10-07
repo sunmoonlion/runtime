@@ -1,11 +1,14 @@
 // 出站桥：一条控制 WS 到会合点；每收到 open 就开一条数据流到会合点、一条本地 WS 到 exec-server，两头对接。
 // 沙箱→执行端方向的每个 JSON-RPC 请求过一遍协议过滤；越界的回错误、不转发。断线指数退避重连；exec-server 不动。
 import WebSocket from "ws";
+import { WindowsBridge } from "./windowsBridge.js";
+import type { WindowsMode, WindowsHelper } from "./windowsRuntime.js";
 import { decide, denialResponse, type Ceiling } from "./filter.js";
 import { log } from "./log.js";
 import { hello, type ControlMessage } from "./relayProtocol.js";
 
 export interface RelayClientOptions {
+  windows?: { home: string; helper: WindowsHelper; mode: WindowsMode };
   relayUrl: string;
   userId: string;
   token: string;
@@ -31,6 +34,7 @@ export interface BridgeStats {
 
 export class RelayClient {
   private ctrl: WebSocket | null = null;
+  private streams = new Set<() => void>();
   private stopped = false;
   private backoff = 1000;
   readonly stats: BridgeStats = { connections: 0, active: 0, forwardedUp: 0, forwardedDown: 0, denied: 0 };
@@ -56,6 +60,7 @@ export class RelayClient {
     this.stopped = true;
     this.ctrl?.close();
     this.ctrl = null;
+    for (const close of this.streams) close();
   }
 
   private controlUrl(): string {
@@ -123,30 +128,57 @@ export class RelayClient {
 
   private openStream(conn: string): void {
     this.stats.connections += 1; this.stats.active += 1;
-    const up = new WebSocket(this.dataUrl(conn), { maxPayload: 0 });
+    const up = new WebSocket(this.dataUrl(conn), { maxPayload: this.opts.windows ? 12 * 1024 * 1024 : 0 });
+    const windows = this.opts.windows ? new WindowsBridge({ ...this.opts.windows, roots: this.opts.roots(), ceiling: this.opts.ceiling(), url: this.opts.localUrl }) : null;
+    let chain = Promise.resolve();
+    let pendingFrames = 0, pendingBytes = 0;
+    const forward = (data: WebSocket.RawData, binary: boolean) => {
+      if (!windows) { this.forwardUp(data, binary, up, local); return; }
+      chain = chain.then(async () => {
+        if (finished) return;
+        const result = await windows.receive(String(data), binary);
+        if (result.reason) {
+          this.stats.denied += 1; this.stats.lastDenial = { method: result.method, reason: result.reason, at: new Date().toISOString() };
+          log("warn", "denied by local ceiling", { method: result.method, reason: result.reason });
+        }
+        if (result.response && up.readyState === WebSocket.OPEN) up.send(result.response);
+        if (result.forward && local.readyState === WebSocket.OPEN) { this.stats.forwardedUp += 1; local.send(result.forward); }
+      }).catch(() => finish("Windows stream failed")).finally(() => { pendingFrames--; pendingBytes -= Buffer.byteLength(String(data)); });
+    };
     const local = new WebSocket(this.opts.localUrl(), { maxPayload: 0 });
     const queueUp: Array<{ data: WebSocket.RawData; isBinary: boolean }> = [];
     let localReady = false;
+    let finished = false;
+    const stopStream = () => finish("agent stopped");
     const finish = (why: string) => {
+      if (finished) return; finished = true; this.streams.delete(stopStream);
+      void windows?.close();
       if (this.stats.active > 0) this.stats.active -= 1;
       log("info", "stream closed", { conn, why });
       try { up.close(); } catch {}
       try { local.close(); } catch {}
     };
+    this.streams.add(stopStream);
     up.on("open", () => {
       up.send(hello({ role: "agent", user: this.opts.userId, token: this.opts.token, codex: this.opts.codexVersion, software: this.opts.softwareVersion, conn }));
     });
     local.on("open", () => {
       localReady = true;
-      for (const q of queueUp) this.forwardUp(q.data, q.isBinary, up, local);
+      for (const q of queueUp) forward(q.data, q.isBinary);
       queueUp.length = 0;
       log("info", "stream bridged", { conn, local: this.opts.localUrl() });
     });
     up.on("message", (data, isBinary) => {
+      if (finished) return;
+      if (windows) {
+        pendingFrames++; pendingBytes += Buffer.byteLength(String(data));
+        if (pendingFrames > 128 || pendingBytes > 24 * 1024 * 1024) { finish("Windows request queue limit"); return; }
+      }
       if (!localReady) { queueUp.push({ data, isBinary }); return; }
-      this.forwardUp(data, isBinary, up, local);
+      forward(data, isBinary);
     });
     local.on("message", (data, isBinary) => {
+      if (!isBinary) windows?.observe(String(data));
       this.stats.forwardedDown += 1;
       if (up.readyState === WebSocket.OPEN) up.send(data, { binary: isBinary });
     });

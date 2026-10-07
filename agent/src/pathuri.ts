@@ -14,7 +14,7 @@ export function uriToPath(uri: string, platform: NodeJS.Platform = process.platf
   }
 }
 
-/** 规范化后判断 target 是否等于 root 或位于 root 之下（纯字符串判断，不解析符号链接；符号链接由外沙箱兜底）。 */
+/** 仅规范化并判断词法目录边界；真实路径/链接由平台沙箱与 Windows 文件助手处理。 */
 export function canonicalPath(value: string, platform: NodeJS.Platform = process.platform): string | null {
   if (typeof value !== "string" || /[\x00-\x1f]/.test(value)) return null;
   const paths = platform === "win32" ? path.win32 : path.posix;
@@ -25,7 +25,7 @@ export function canonicalPath(value: string, platform: NodeJS.Platform = process
     // aliases are refused rather than guessed; OS sandbox covers symlinks.
     if (!/^[a-z]:\\/i.test(normal) || normal.slice(2).includes(":")) return null;
     if (normal.slice(3).split("\\").some(p => p !== "." && p !== ".." &&
-        (/[. ]$/.test(p) || /[<>"|?*]/.test(p) || /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(p)))) return null;
+        (/[. ]$/.test(p) || /~[0-9]/.test(p) || /[<>"|?*]/.test(p) || /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(p)))) return null;
     return paths.normalize(normal).toLowerCase();
   }
   return paths.normalize(value);

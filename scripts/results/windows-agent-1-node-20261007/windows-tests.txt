@@ -1,0 +1,59 @@
+
+> @sunmoon/agent@0.2.0 build C:\Users\zymun\sunmoon-probe-runs\windows-agent-1-final-20261007\product\agent
+> tsc -p tsconfig.json
+
+
+> @sunmoon/agent@0.2.0 typecheck C:\Users\zymun\sunmoon-probe-runs\windows-agent-1-final-20261007\product\agent
+> tsc -p tsconfig.json --noEmit
+
+
+ RUN  v3.2.7 C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-final-20261007/product/agent
+
+ ✓ test/outerSandbox.test.ts (5 tests) 4ms
+ ✓ test/filter.test.ts (19 tests) 5ms
+ ✓ test/windowsFilter.test.ts (24 tests) 8ms
+ ✓ test/windowsPolicy.test.ts (18 tests) 10ms
+{"t":"2026-10-07T13:43:32.615Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T13:43:32.652Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T13:43:32.678Z","level":"info","msg":"stream bridged","conn":"c492ab1a","local":"ws://127.0.0.1:59165"}
+{"t":"2026-10-07T13:43:32.678Z","level":"info","msg":"stream closed","conn":"c492ab1a","why":"agent stopped"}
+{"t":"2026-10-07T13:43:32.682Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T13:43:32.709Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T13:43:32.738Z","level":"info","msg":"stream bridged","conn":"dbe398b8","local":"ws://127.0.0.1:59177"}
+{"t":"2026-10-07T13:43:32.799Z","level":"info","msg":"stream closed","conn":"dbe398b8","why":"agent stopped"}
+{"t":"2026-10-07T13:43:32.803Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T13:43:32.831Z","level":"info","msg":"stream bridged","conn":"36c67f0e","local":"ws://127.0.0.1:59183"}
+{"t":"2026-10-07T13:43:32.893Z","level":"info","msg":"stream closed","conn":"36c67f0e","why":"agent stopped"}
+{"t":"2026-10-07T13:43:33.159Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T13:43:33.424Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T13:43:33.861Z","level":"info","msg":"relay connected","relay":"fake"}
+ ✓ test/cli.test.ts (5 tests) 2611ms
+   ✓ Windows CLI capability admission > supports configuration commands and refuses start without a recorded capability probe  2142ms
+{"t":"2026-10-07T13:43:35.425Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T13:43:36.988Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T13:43:38.020Z","level":"info","msg":"relay connected","relay":"fake"}
+ ✓ test/windowsNative.test.ts (14 tests) 5440ms
+   ✓ native Windows adversarial admission > elevated OS sandbox blocks ordinary Node writes after a directory swap  762ms
+   ✓ native Windows adversarial admission > probes an existing elevated setup and runs the protected file helper under it  2258ms
+   ✓ native Windows adversarial admission > rejects precreated native symbolic links as an ordinary user  486ms
+   ✓ native Windows adversarial admission > pins sandbox roots against replacement throughout command launch  400ms
+ ✓ test/relayClient.test.ts (12 tests) 5467ms
+   ✓ RelayClient > does not call onRejected on an ordinary disconnect  437ms
+   ✓ RelayClient > does not reconnect after close 4000 (replaced by a newer agent for this user)  1564ms
+   ✓ RelayClient > does not reconnect after close 4003 (token revoked)  1563ms
+   ✓ RelayClient > reconnects the control channel after the relay drops it  1067ms
+ ✓ test/windowsLifecycle.test.ts (1 test) 44820ms
+   ✓ Windows CLI real lifecycle + loopback relay > initializes, filter{"t":"2026-10-07T13:43:32.893Z","level":"warn","msg":"denied by local ceiling","method":"process/start","reason":"sandbox mode danger-full-access exceeds local ceiling workspace-write"}
+{"t":"2026-10-07T13:43:32.897Z","level":"error","msg":"relay rejected us — not retrying until config changes","reason":"bad token"}
+{"t":"2026-10-07T13:43:32.927Z","level":"error","msg":"relay rejected us — not retrying until config changes","reason":"bad token"}
+{"t":"2026-10-07T13:43:33.188Z","level":"error","msg":"another agent for this user connected to the relay; this one stops (run only one agent per user)","code":4000}
+{"t":"2026-10-07T13:43:33.451Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-07T13:43:33.889Z","level":"error","msg":"another agent for this user connected to the relay; this one stops (run only one agent per user)","code":4000}
+{"t":"2026-10-07T13:43:35.452Z","level":"error","msg":"relay revoked this agent's token; re-run init with a new token","code":4003}
+{"t":"2026-10-07T13:43:37.017Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+s, runs commands, survives 20s relay loss, reports revocation and cleans executor tree  44819ms
+
+ Test Files  8 passed (8)
+      Tests  98 passed (98)
+   Start at  21:43:31
+   Duration  45.94s (transform 909ms, setup 0ms, collect 1.52s, tests 58.36s, environment 1ms, prepare 1.12s)

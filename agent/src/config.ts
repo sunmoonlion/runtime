@@ -1,10 +1,12 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import type { WindowsCapability } from "./windowsBootstrap.js";
 import type { Ceiling } from "./filter.js";
 import { canonicalPath } from "./pathuri.js";
 
 export interface AgentConfig {
+  windowsSandbox?: WindowsCapability;
   /** 会合点地址，如 wss://edge.example.com/relay 或 ws://127.0.0.1:47100 */
   relayUrl: string;
   /** 用户标识（会合点按它配对） */
@@ -62,6 +64,8 @@ export function validate(cfg: AgentConfig): void {
   for (const r of cfg.roots) {
     if (canonicalPath(r) === null) throw new Error(`白名单根必须是受支持的本地绝对路径：${r}`);
   }
+  if (cfg.windowsSandbox && !["unelevated", "elevated"].includes(cfg.windowsSandbox.mode)) throw new Error("Invalid Windows sandbox mode");
+  if (typeof cfg.ceiling.network !== "boolean") throw new Error("ceiling.network must be boolean");
   if (!["read-only", "workspace-write", "danger-full-access"].includes(cfg.ceiling.sandbox)) throw new Error(`ceiling.sandbox 非法：${cfg.ceiling.sandbox}`);
   if (!Number.isInteger(cfg.execPort) || cfg.execPort < 0 || cfg.execPort > 65535) throw new Error(`execPort 非法：${cfg.execPort}`);
 }

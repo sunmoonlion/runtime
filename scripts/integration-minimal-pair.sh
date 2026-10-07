@@ -10,7 +10,7 @@ set -o pipefail
 K8S="${K8S_REPO:-$(cd .. && pwd)/k8s}"; PY="${PY:-$PWD/.venv/bin/python}"; ORCH_HOME="${ORCH_HOME:-$HOME/.codex-probe}"
 RELAY_PORT="${RELAY_PORT:-47100}"; BRIDGE_PORT="${BRIDGE_PORT:-47002}"; USER_ID=local; AGENT_TOKEN=agent-secret; SANDBOX_TOKEN=sandbox-secret
 AGENT_HOME="$(mktemp -d /tmp/sunmoon-agent-it.XXXXXX)"; ROOT="$PWD/probe/user-ws"; mkdir -p "$ROOT"
-pids=(); cleanup() { for p in "${pids[@]}"; do kill "$p" 2>/dev/null; done; pgrep -f "[c]odex app-server" | xargs -r kill 2>/dev/null; rm -rf "$AGENT_HOME"; }
+pids=(); cleanup() { for p in "${pids[@]}"; do kill -- "-$p" 2>/dev/null || true; done; rm -rf "$AGENT_HOME"; }
 trap cleanup EXIT
 fail=0; verdict() { printf '  VERDICT %-52s %s\n' "$1" "$2"; [ "$2" = pass ] || fail=1; }
 
@@ -20,6 +20,7 @@ echo "--- 依赖"
 [ -f "$K8S/sunmoonai/relay-platform/relay/relay.py" ] || { echo "找不到会合点代码：$K8S"; exit 3; }
 [ -f "$ORCH_HOME/auth.json" ] || { echo "编排端 $ORCH_HOME 没有登录态"; exit 3; }
 for port in $RELAY_PORT $BRIDGE_PORT; do ss -ltn | grep -q ":$port " && { echo "端口 $port 被占用"; exit 4; }; done
+export CODEX_COMMAND_JSON=$(node --input-type=module -e 'import {locateCodex} from "./agent/dist/paths.js"; console.log(JSON.stringify([locateCodex().codexBin]))')
 CODEX_VERSION=$(node -e "console.log(require('./agent/node_modules/@openai/codex/package.json').version)")
 echo "codex(随包) $CODEX_VERSION  ORCH_HOME=$ORCH_HOME  ROOT=$ROOT"
 
@@ -43,10 +44,21 @@ RELAY_URL="ws://127.0.0.1:$RELAY_PORT" RELAY_USER=$USER_ID RELAY_TOKEN=$SANDBOX_
 for i in $(seq 1 20); do ss -ltn | grep -q ":$BRIDGE_PORT " && break; sleep 0.5; done
 
 echo "--- 4. app-server 经整条链跑 turn（L1 danger 应被拒；L3 workspace-write 应写成）"
-env CODEX_HOME="$ORCH_HOME" PROBE_SIDE=app-server EXEC_URL="ws://127.0.0.1:$BRIDGE_PORT" CASES=L1,L3 timeout 400 python3 -u probe/probe_local_ceiling.py > probe/it-turns.out 2>&1
+setsid env CODEX_HOME="$ORCH_HOME" PROBE_SIDE=app-server EXEC_URL="ws://127.0.0.1:$BRIDGE_PORT" CASES=L1,L3 timeout 400 python3 -u probe/probe_local_ceiling.py > probe/it-turns.out 2>&1 &
+probe_pid=$!; pids+=("$probe_pid")
+wait "$probe_pid"
 echo "probe exit=$?"; grep -E "=====|cmd:|final:|VERDICT|ERROR" probe/it-turns.out | cut -c1-220
 grep -q "VERDICT L3 .*: True" probe/it-turns.out && verdict "workspace-write 的 turn 在执行端写成（L3）" pass || verdict "workspace-write 的 turn 在执行端写成（L3）" fail
-grep -q "VERDICT L1 .*: False" probe/it-turns.out && verdict "danger-full-access 未能写出白名单（L1）" pass || verdict "danger-full-access 未能写出白名单（L1）" fail
+# Protocol rejection happens BEFORE a child exists. In that case the probe's
+# process-result verdict is None, so require the actual bridge denial as well.
+if grep -q "VERDICT L1 .*: False" probe/it-turns.out || {
+  grep -q "VERDICT L1 .*: None" probe/it-turns.out &&
+  grep -q '\"msg\":\"denied by local ceiling\".*\"method\":\"process/start\".*sandbox mode danger-full-access exceeds local ceiling workspace-write' probe/it-agent.log;
+}; then
+  verdict "danger-full-access 未能写出白名单（L1）" pass
+else
+  verdict "danger-full-access 未能写出白名单（L1）" fail
+fi
 grep -q "local ceiling" probe/it-turns.out && verdict "拒绝来自协议过滤（错误文本含 local ceiling）" pass || verdict "拒绝来自协议过滤（错误文本含 local ceiling）" fail
 grep -q 'paired user=' probe/it-relay.log && verdict "会合点记录了配对" pass || verdict "会合点记录了配对" fail
 

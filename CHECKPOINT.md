@@ -1,6 +1,29 @@
 # CHECKPOINT（runtime 仓，分支 luna）
 
-## 当前工作：Windows 代理第 1 段——未完成，沙箱组合阻塞（2026-10-07）
+## 当前停点：Windows 代理第 1 段完成开发自检，交远程审读（2026-10-07）
+
+本轮基线 `36ec68be9a47386b3a39f387a3a12cd5fe9785d7`；采用所有者确认的
+“内层沙箱 + 严格协议过滤”，文件助手使用本机 Node，不依赖 Python、不编译自有 exe。
+只修改 runtime/luna，无 fetch/pull/rebase/push，不进入第 2 段。
+
+| 顺序 | 当前结果 |
+| --- | --- |
+| 1 边界实现 | 逐项核对 process 权限、方法允许清单、FS 读白名单；Node 文件助手由 Codex sandbox 承载 |
+| 2 原生攻击 | 普通用户/elevated 对照、联接/符号/硬链接/别名/检查后替换通过；普通 Node 写入由 OS 沙箱阻止外部路径 |
+| 3 CLI/生命周期 | init 实际探测并优先可用 elevated；真实启停、20 秒重连、4003 拒绝及子孙进程清理通过 |
+| 4 回归/现网 | Windows 98 passed；Linux 82 passed、16 Windows 用例 skipped；原 Linux 模型链路 pass。所有者已确认网页在线，最终 Node 版本也重连现网并恢复原 Linux 代理 |
+| 5 交付 | 报告、原始状态和测试结果入仓；清理本轮临时凭据及试验副本；本地提交后等待审读 |
+
+本机 Smart App Control = On，代码完整性状态原值均为 2，自编译未签名 helper 曾被
+应用控制拦截。没有改动系统保护。后续打包使用官方 Node + JS + 官方 Codex，禁止自编译 exe。
+
+结果：[windows-agent-1.20261007-2150.md](scripts/results/windows-agent-1.20261007-2150.md)。
+安装器/托盘/开机恢复、Windows 10/干净机、MCP、抬高权限交互、真实网页轮换令牌等未做；
+明确方法/路径支持范围及其他限制见报告，不将本段说成整个产品已交付。
+
+## 历史：上一提交的受阻停点
+
+以下保留上一提交的事实作为背景，不能当成本轮完成状态。
 
 任务：k8s `switch-test/luna-task-windows-agent.md`；反馈 `luna-feedback.md`（k8s `6ded692ea7a8d5175f5253e4b28a938bb342e3ea`）。本单元基线 `e9f194b3d4178021f035cc81aeb1ed265299970c`；本提交只含 runtime、分支 luna，未 fetch/pull/rebase/push。第 0 段报告和证据保留。
 

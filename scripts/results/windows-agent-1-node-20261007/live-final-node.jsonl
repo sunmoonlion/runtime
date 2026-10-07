@@ -1,0 +1,4 @@
+{"started":true,"pid":27176}
+{"connected":true,"pid":27176,"mode":"unelevated","protection":"inner-sandbox+strict-protocol","at":"2026-10-07T13:45:49.469Z"}
+{"ended":true,"connected":true,"code":3,"at":"2026-10-07T13:45:51.324Z"}
+{"linuxRestored":true,"pid":3370429,"at":"2026-10-07T13:45:55.951Z"}

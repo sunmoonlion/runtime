@@ -1,0 +1,47 @@
+$ vitest run
+
+ RUN  v3.2.7 /home/zymun/worktrees/luna/runtime/agent
+
+ ✓ test/outerSandbox.test.ts (5 tests) 4ms
+ ✓ test/windowsFilter.test.ts (24 tests) 11ms
+ ✓ test/filter.test.ts (19 tests) 5ms
+{"t":"2026-10-07T12:17:45.497Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T12:17:45.515Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T12:17:45.537Z","level":"info","msg":"stream bridged","conn":"6a50cf71","local":"ws://127.0.0.1:36147"}
+{"t":"2026-10-07T12:17:45.540Z","level":"info","msg":"stream closed","conn":"6a50cf71","why":"exec-server side close 1006"}
+{"t":"2026-10-07T12:17:45.540Z","level":"info","msg":"stream closed","conn":"6a50cf71","why":"relay side close 1006"}
+{"t":"2026-10-07T12:17:45.542Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T12:17:45.561Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T12:17:45.583Z","level":"info","msg":"stream bridged","conn":"334db88a","local":"ws://127.0.0.1:34105"}
+{"t":"2026-10-07T12:17:45.638Z","level":"info","msg":"stream closed","conn":"334db88a","why":"exec-server side close 1006"}
+{"t":"2026-10-07T12:17:45.638Z","level":"info","msg":"stream closed","conn":"334db88a","why":"relay side close 1006"}
+{"t":"2026-10-07T12:17:45.638Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T12:17:45.658Z","level":"info","msg":"stream bridged","conn":"faa34375","local":"ws://127.0.0.1:46435"}
+ ✓ test/cli.test.ts (4 tests) 251ms
+{"t":"2026-10-07T12:17:45.710Z","level":"warn","msg":"denied by local ceiling","method":"process/start","reason":"sandbox mode danger-full-access exceeds local ceiling workspace-write"}
+{"t":"2026-10-07T12:17:45.712Z","level":"info","msg":"stream closed","conn":"faa34375","why":"exec-server side close 1006"}
+{"t":"2026-10-07T12:17:45.712Z","level":"info","msg":"stream closed","conn":"faa34375","why":"relay side close 1006"}
+{"t":"2026-10-07T12:17:45.713Z","level":"error","msg":"relay rejected us — not retrying until config changes","reason":"bad token"}
+{"t":"2026-10-07T12:17:45.734Z","level":"error","msg":"relay rejected us — not retrying until config changes","reason":"bad token"}
+{"t":"2026-10-07T12:17:45.956Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T12:17:45.976Z","level":"error","msg":"another agent for this user connected to the relay; this one stops (run only one agent per user)","code":4000}
+{"t":"2026-10-07T12:17:46.199Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T12:17:46.219Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-07T12:17:46.621Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T12:17:46.641Z","level":"error","msg":"another agent for this user connected to the relay; this one stops (run only one agent per user)","code":4000}
+{"t":"2026-10-07T12:17:48.164Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T12:17:48.185Z","level":"error","msg":"relay revoked this agent's token; re-run init with a new token","code":4003}
+{"t":"2026-10-07T12:17:49.709Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T12:17:49.729Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-07T12:17:50.730Z","level":"info","msg":"relay connected","relay":"fake"}
+ ✓ test/relayClient.test.ts (12 tests) 5261ms
+   ✓ RelayClient > does not call onRejected on an ordinary disconnect  423ms
+   ✓ RelayClient > does not reconnect after close 4000 (replaced by a newer agent for this user)  1544ms
+   ✓ RelayClient > does not reconnect after close 4003 (token revoked)  1544ms
+   ✓ RelayClient > reconnects the control channel after the relay drops it  1036ms
+
+ Test Files  5 passed (5)
+      Tests  64 passed (64)
+   Start at  20:17:45
+   Duration  5.55s (transform 204ms, setup 0ms, collect 337ms, tests 5.53s, environment 1ms, prepare 287ms)
+

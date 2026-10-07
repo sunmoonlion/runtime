@@ -1,6 +1,6 @@
 // 本地上限的协议过滤层（security.md「本地上限」第二层）。
 // 只看沙箱→执行端方向的 JSON-RPC 请求；越出上限的直接回错误、不转发。外沙箱（第一层）是兜底，这里负责干净的拒绝与可观测。
-// 字段名来自 codex-rs exec-server-protocol 与 2026-09-24 抓到的真实帧（runtime/probe/frames.jsonl）。
+// Windows 字段以 2026-10-07 原生探针真实帧为准（runtime/probe/frames.jsonl）。
 import { isUnderAny, uriToPath } from "./pathuri.js";
 
 export type SandboxMode = "read-only" | "workspace-write" | "danger-full-access";
@@ -43,7 +43,7 @@ export function requestedNetwork(params: any): boolean {
   return net !== "restricted";
 }
 
-export function decide(frame: any, ceiling: Ceiling, roots: readonly string[]): Decision {
+export function decide(frame: any, ceiling: Ceiling, roots: readonly string[], platform: NodeJS.Platform = process.platform): Decision {
   const method: string | undefined = frame?.method;
   if (!method || !("id" in (frame ?? {}))) return { allow: true, kind: "other" }; // 通知与响应一律放行
   const p = frame.params ?? {};
@@ -56,20 +56,20 @@ export function decide(frame: any, ceiling: Ceiling, roots: readonly string[]): 
     if (!ceiling.network && requestedNetwork(p)) {
       return { allow: false, kind: "process", reason: "network access exceeds local ceiling (network disabled)" };
     }
-    const cwd = uriToPath(p.cwd ?? "");
-    if (!cwd || !isUnderAny(cwd, roots)) {
+    const cwd = uriToPath(p.cwd ?? "", platform);
+    if (!cwd || !isUnderAny(cwd, roots, platform)) {
       return { allow: false, kind: "process", reason: `cwd ${p.cwd} is outside the whitelisted roots` };
     }
     const wsRoots: string[] = p.sandbox?.workspaceRoots ?? [];
     for (const r of wsRoots) {
-      const rp = uriToPath(r);
-      if (!rp || !isUnderAny(rp, roots)) {
+      const rp = uriToPath(r, platform);
+      if (!rp || !isUnderAny(rp, roots, platform)) {
         return { allow: false, kind: "process", reason: `workspace root ${r} is outside the whitelisted roots` };
       }
     }
     if (p.sandbox?.cwd) {
-      const scwd = uriToPath(p.sandbox.cwd);
-      if (!scwd || !isUnderAny(scwd, roots)) {
+      const scwd = uriToPath(p.sandbox.cwd, platform);
+      if (!scwd || !isUnderAny(scwd, roots, platform)) {
         return { allow: false, kind: "process", reason: `sandbox cwd ${p.sandbox.cwd} is outside the whitelisted roots` };
       }
     }
@@ -82,8 +82,8 @@ export function decide(frame: any, ceiling: Ceiling, roots: readonly string[]): 
     }
     const targets = method === "fs/copy" ? [p.destination_path ?? p.destinationPath] : [p.path];
     for (const t of targets) {
-      const tp = uriToPath(t ?? "");
-      if (!tp || !isUnderAny(tp, roots)) {
+      const tp = uriToPath(t ?? "", platform);
+      if (!tp || !isUnderAny(tp, roots, platform)) {
         return { allow: false, kind: "fs-write", reason: `${method} target ${t} is outside the whitelisted roots` };
       }
     }

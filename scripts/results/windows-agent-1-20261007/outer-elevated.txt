@@ -1,0 +1,41 @@
+OUTSIDE_ROOT=C:\sunmoon-process-probe-1d45b38eaca84cd0bfacf72a8eac5cb9
+===== 环境 =====
+主机        ZYMUN
+时间        2026-10-07T20:11:53.8464947+08:00
+系统        Microsoft Windows NT 10.0.26200.0  PowerShell 5.1.26100.9444
+内存        63.7 GB 可用
+Python 3.13.15
+v24.19.0
+codex-cli 0.155.1
+Sandbox mode elevated; administrator=False; outer=True
+Codex 启动参数 ["C:\\Users\\zymun\\AppData\\Roaming\\npm\\node_modules\\@openai\\codex\\node_modules\\@openai\\codex-win32-x64\\vendor\\x86_64-pc-windows-msvc\\bin\\codex.exe","-c","windows.sandbox=\"elevated\""]
+杀毒        Windows Defender
+Source baseline e9f194b3d4178021f035cc81aeb1ed265299970c (copied to native Windows storage)
+Source SHA256 6d794e218335b0ee3dece88d3bc53421c03d5ee378675990191d7c5232e76d5d C:\Users\zymun\sunmoon-probe-runs\windows-agent-1-20261007\outer-elevated\scripts\probe-windows-exec-server.ps1
+Source SHA256 873ed84a52e3be834918b57870dae6ff5cdeec07a9d6e35ccda677218fb86aec C:\Users\zymun\sunmoon-probe-runs\windows-agent-1-20261007\outer-elevated\probe\probe_local_ceiling.py
+Source SHA256 cda0040d16b820ae1bf934cd3f419df3cc315519907dd7d3f78f1f4dac8620c3 C:\Users\zymun\sunmoon-probe-runs\windows-agent-1-20261007\outer-elevated\probe\probe_windows_process.mjs
+===== 开始 =====
+Executor home C:\Users\zymun\.codex-probe-exec; auth.json absent; no setup command executed
+--- 1. 起 exec-server（ws://127.0.0.1:57525）
+Executor argv ["-c","permissions.probe_outer={filesystem={\":root\"=\"read\",\"C:\\\\Users\\\\zymun\\\\sunmoon-probe-runs\\\\windows-agent-1-20261007\\\\outer-elevated\\\\probe\\\\user-ws\"=\"write\",\"C:\\\\Users\\\\zymun\\\\.codex-probe-exec\"=\"write\"},network={enabled=true}}","-c","windows.sandbox=\"elevated\"","sandbox","--permission-profile","probe_outer","-C","C:\\Users\\zymun\\sunmoon-probe-runs\\windows-agent-1-20261007\\outer-elevated\\probe\\user-ws","--","C:\\Users\\zymun\\AppData\\Roaming\\npm\\node_modules\\@openai\\codex\\node_modules\\@openai\\codex-win32-x64\\vendor\\x86_64-pc-windows-msvc\\bin\\codex.exe","exec-server","--listen","ws://127.0.0.1:57525"]
+exec-server launcher pid 26260 退出了吗: False 监听 57525: True
+{"control":"outside-cwd","ordinaryUserWrite":true,"target":"C:\\Users\\zymun\\sunmoon-process-16804-1791375117087.txt"}
+{"control":"outside-profile","ordinaryUserWrite":true,"target":"C:\\sunmoon-process-probe-1d45b38eaca84cd0bfacf72a8eac5cb9\\sunmoon-process-16804-1791375117087.txt"}
+{"control":"inside","ordinaryUserWrite":true,"target":"C:\\Users\\zymun\\sunmoon-probe-runs\\windows-agent-1-20261007\\outer-elevated\\probe\\user-ws\\sunmoon-process-16804-1791375117087.txt"}
+{"direction":"request","frame":{"id":1,"method":"initialize","params":{"clientName":"sunmoon-process-probe"}}}
+{"direction":"response","frame":{"id":1,"result":{"sessionId":"4b3bfceb-019e-48dd-a04f-f1f72d6a042f","environmentInfo":{"shell":{"name":"powershell","path":"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"},"executorVersion":"0.155.1","cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/outer-elevated/probe/user-ws","platformOs":"windows","temporaryDirectories":["file:///C:/Users/zymun/AppData/Local/Temp"],"tempDir":"file:///C:/Users/zymun/AppData/Local/Temp","capabilities":{"networkProxyLaunch":true,"capabilityDiscoverySandbox":true,"environmentConfigRead":true,"httpHeaderEnvVars":true,"sandboxedFileStreaming":true,"shellSnapshotV2":false}}}}}
+{"direction":"request","frame":{"method":"initialized","params":{}}}
+{"direction":"request","frame":{"id":2,"method":"process/start","params":{"processId":"sunmoon-process-16804-1791375117087-0","tty":false,"env":{"SystemRoot":"C:\\Windows","ComSpec":"C:\\Windows\\system32\\cmd.exe","TEMP":"C:\\Users\\zymun\\AppData\\Local\\Temp","TMP":"C:\\Users\\zymun\\AppData\\Local\\Temp","USERPROFILE":"C:\\Users\\zymun","CODEX_HOME":"C:\\Users\\zymun\\.codex-probe-exec"},"enforceManagedNetwork":false,"managedNetwork":null,"argv":["C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","-NoProfile","-NonInteractive","-Command","$ErrorActionPreference='Stop'; Set-Content -LiteralPath 'C:\\Users\\zymun\\sunmoon-process-16804-1791375117087.txt' -Value 'sunmoon-process-16804-1791375117087' -NoNewline; Write-Output 'sunmoon-process-16804-1791375117087'"],"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/outer-elevated/probe/user-ws","sandbox":{"permissions":{"type":"managed","file_system":{"type":"restricted","entries":[{"path":{"type":"special","value":{"kind":"root"}},"access":"read"},{"path":{"type":"special","value":{"kind":"project_roots"}},"access":"write"}]},"network":"restricted"},"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/outer-elevated/probe/user-ws","workspaceRoots":["file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/outer-elevated/probe/user-ws"],"windowsSandboxLevel":"elevated","useLegacyLandlock":false}}}}
+{"verdict":"undecidable","error":"RPC timeout"}
+--- 3. 收尾
+SUCCESS: The process with PID 28316 (child process of PID 4712) has been terminated.
+SUCCESS: The process with PID 4712 (child process of PID 8516) has been terminated.
+SUCCESS: The process with PID 9772 (child process of PID 26260) has been terminated.
+SUCCESS: The process with PID 8516 (child process of PID 26260) has been terminated.
+SUCCESS: The process with PID 26260 (child process of PID 31372) has been terminated.
+--- probe\es-windows.log（完整）
+ws://127.0.0.1:57525
+--- probe\es-windows.err.log（完整）
+WARNING: failed to clean up stale arg0 temp dirs: 拒绝访问。 (os error 5)
+WARNING: proceeding, even though we could not create PATH aliases: 拒绝访问。 (os error 5) at path "C:\\Users\\zymun\\.codex-probe-exec\\tmp\\arg0\\codex-arg0vS1QDo"
+RUN_EXIT=255

@@ -20,7 +20,10 @@ describe("buildBwrapArgv", () => {
 
 describe("wrapCommand", () => {
   it("does not wrap when disabled or when there is no bwrap", () => {
-    expect(wrapCommand(["c"], { enabled: false, bwrap: "/x/bwrap", roots: [], codexHome: "/h" })).toEqual({ argv: ["c"], sandboxed: false });
-    expect(wrapCommand(["c"], { enabled: true, bwrap: null, roots: [], codexHome: "/h" })).toEqual({ argv: ["c"], sandboxed: false });
+    expect(wrapCommand(["c"], { enabled: false, bwrap: "/x/bwrap", roots: [], codexHome: "/h" }, "linux")).toEqual({ argv: ["c"], sandboxed: false });
+    expect(wrapCommand(["c"], { enabled: true, bwrap: null, roots: [], codexHome: "/h" }, "linux")).toEqual({ argv: ["c"], sandboxed: false });
+  });
+  it.each([true, false])("Windows fails closed even when outerSandbox=%s", enabled => {
+    expect(() => wrapCommand(["codex.exe", "exec-server"], { enabled, bwrap: null, roots: ["C:\\work"], codexHome: "C:\\agent-home" }, "win32")).toThrow(/CreateRestrictedToken failed: 87/);
   });
 });

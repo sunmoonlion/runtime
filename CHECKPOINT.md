@@ -1,17 +1,29 @@
 # CHECKPOINT（runtime 仓，分支 luna）
 
-> 接手的人先读这里。规则：`k8s/sunmoonai/docs/dev-investment-agent/turn/imp/`。更新于 2026-10-07。
+## 当前工作：Windows 代理第 1 段——未完成，沙箱组合阻塞（2026-10-07）
 
-## 当前停点：Windows 代理阶段 0，待所有者同步及远程审读
+任务：k8s `switch-test/luna-task-windows-agent.md`；反馈 `luna-feedback.md`（k8s `6ded692ea7a8d5175f5253e4b28a938bb342e3ea`）。本单元基线 `e9f194b3d4178021f035cc81aeb1ed265299970c`；本提交只含 runtime、分支 luna，未 fetch/pull/rebase/push。第 0 段报告和证据保留。
 
-任务：k8s `sunmoonai/docs/dev-investment-agent/switch-test/luna-task-windows-agent.md`，任务版本 `c77e2536`；runtime 开工基线 `bdcddddb2ff10e4f678c5f7c83a6cf2cf8878afe`。
-只改本仓探针和文档，没有改代理产品代码、其他仓、会合点或已运行服务。未 fetch/pull/rebase/push。
+**停在第 1 段安全准入，不能标通过，也不能进入第 2 段。**
+结果与复现：[windows-agent-1.20261007-2025.md](scripts/results/windows-agent-1.20261007-2025.md)。
 
-- **问题 1 undecidable**：普通 Windows + unelevated + 新执行端家、不跑 setup；模型认证 HTTP 403 阻止实际 L2/L3 命令，不能记通过。
-- **问题 2 pass（文件写边界）**：整个 exec-server 包进原生 Codex 外层沙箱后，cwd 内文件写成功，两个外部目标权限拒绝；无外层时三个目标都写成功。完整真实帧已入仓。
-- 复现入口仍是 `scripts/probe-windows-exec-server.ps1`，加 `SANDBOX_MODE` 和可选本机探针；报告及限制见 [REPORT-2026-10-07-windows-unelevated.md](probe/REPORT-2026-10-07-windows-unelevated.md)，操作见 [README-windows-probe.md](scripts/README-windows-probe.md)。
-- **先停在这里**：任务要求每阶段本地提交后交远程审读。阶段 1 尚未开始。需要补内层 process/start / 外层嵌套执行、干净 Windows 主机覆盖，不能把本次本机文件探针称为完整代理验收。
-- 后续任务以 2026-10-07 交接为准：只做 Windows 10/11，Linux 保持开发联调，macOS 不做；不进行 runtime 仓改名。下面是保留的 2026-09-24 实现背景。
+| 顺序 | 已做与剩余 |
+| --- | --- |
+| 1 内层 + 嵌套探针 | 内层 unelevated 新家无 setup 三项通过；已有 elevated 家三项通过，whoami 确认 `codexsandboxoffline`。外层中的 unelevated 嵌套两次返回 `CreateRestrictedToken failed: 87`；elevated 嵌套超时。只保留外层的诊断对照通过，不能当产品替代方案 |
+| 2 代理适配 | 已补 Windows 路径规范化、真实帧 fixture、大小写去重、失败时阻止 Windows start；**自动模式探测、完整启动/进程树生命周期尚未完成**，不可绕过门禁连接现网 |
+| 3 回归 | Windows Node 24.19.0 / pnpm 10.24.0：build/typecheck，65 测试通过。Linux Node 24.18.0：build/typecheck，64 通过、1 Windows 专用用例跳过。旧 Linux 模型联调未重跑，不以单元测试替代 |
+| 4 现网与网页 | 所有者已授权临时替换并恢复；本次因准入阻塞**未执行替换**。原 Linux agent 仍在线；未轮换令牌、未改现网。任务端口 30471 与私有配置 30443 不一致，后续联调前核实 |
+| 5 交回 | 证据、源码、限制与清理记录一起本地提交，由所有者同步给远程审读。需要先解决/审定沙箱承载方案，不能顺手改设计或降级保护 |
+
+关键事实：直接 exec-server 使用 `initialize {clientName}` + `initialized`，`environment/add` 属于 app-server；`unelevated` 配置对应协议 `restricted-token`；真实字段是 `dataBase64`。受限 PowerShell 不能用任意 .NET 方法写文件，探针改 `Set-Content` 后才形成有效证据。
+
+`arg0/PATH os error 5` 在成功和失败组均出现；仅说明不是足以解释全部失败的条件，尚未证明所有 PATH 命令不受影响。没有请求模型服务，也没有绕过阶段 0 的认证地区限制。
+
+遵守 C-C7/C-C8（公开协议、固定 0.155.1）、C-A7（能力不足不启用）、C-A11（本地上限）、F-AGENT-10（执行端无凭据）；依 IMP 规范，设计组合问题交回审读，不在实现中擅自去掉任一层。安装器/托盘/MCP/自动更新仍不在本段。
+
+后续顺序：先审本报告及最小复现 → 在固定协议/版本约束下确认可行的双层承载方式 → 完成 init 实际探测和生命周期 → Windows 本地组合全通过 → 使用已有授权临时替换现网 agent、验网页并恢复 → 第 1 段正式交审。Windows 10 / 干净机器在第 3 段验证。
+
+以下保留原实现背景；旧“Windows 已 pass”仅指 2026-09-24 内层探针，不能扩大为本段完整代理可用。
 
 ## 这个仓是什么
 

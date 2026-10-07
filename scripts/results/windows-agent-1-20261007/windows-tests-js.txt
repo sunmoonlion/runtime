@@ -1,0 +1,112 @@
+SOURCE_SHA256 be841bc0ced7589607af6d340d33672e6b0b3f83a521c34cb360c7110c3b6a82 agent\package.json
+SOURCE_SHA256 8cfbd5aef122e57912b4eee9c99c3bdefbd9cdb83f076a24eba9949d5c70d4c7 agent\pnpm-lock.yaml
+SOURCE_SHA256 a8dbaf09fa36dd9d340ed79ee1b110240dd5dea0f269582f26a1136a2e745bbd agent\pnpm-workspace.yaml
+SOURCE_SHA256 ada679e3bc1466b2a0ad87c528876d277e26b264e0907680dd38c311477d9053 agent\tsconfig.json
+SOURCE_SHA256 0b9fb789f6b42cf7342c9b408584463b454efc2b624b79dc5aae46aff8e0e030 agent\src\cli.ts
+SOURCE_SHA256 fc4dbbd6532bb7e2768d19c2caef012d4d2ee86dccd991d7f3bf6fed5a763e0d agent\src\config.ts
+SOURCE_SHA256 d51a7cc19a9d4828ef34072da2b7d345aab5b30d208283f8228be243f149df16 agent\src\execServer.ts
+SOURCE_SHA256 3440f74e33fc4a857367b49fa7913dd446e3bfdb73c7a7cfb655098e677dc1f4 agent\src\filter.ts
+SOURCE_SHA256 a509850d78cb3509019f51d1bbbb31e50504d66e4be14cb58b8ece6b659b2bf6 agent\src\log.ts
+SOURCE_SHA256 6621fcfc73fd468c4f827b0d5aadffaa154c9d86f4b0b0dbad380c955aedb462 agent\src\outerSandbox.ts
+SOURCE_SHA256 6f7935aa9115ee7e17336d0110a9bac4e6ccb2704963a62b452ba1571576d351 agent\src\paths.ts
+SOURCE_SHA256 19b35298666ecab4ba43b099756ca14f4ffe93935ba25d3c14bde6ef762c7662 agent\src\pathuri.ts
+SOURCE_SHA256 3655538fd7705179e3cd42ba169a61a373407aa298af59fe9f06188c761d914f agent\src\relayClient.ts
+SOURCE_SHA256 a61342b673add133ab0f72b0f53c4cd8f95fc41c0f91c8bd25f82e1987c5016d agent\src\relayProtocol.ts
+SOURCE_SHA256 488fda90ffdfeb52b41ff9203b78033b52dc23633c0b03093dd0fa5cb24e750e agent\test\cli.test.ts
+SOURCE_SHA256 b9302307da323b8c068d5d8709eb2ebc2759b212fdcd0fcf27af7658d1387892 agent\test\filter.test.ts
+SOURCE_SHA256 cccd615338fcedda0ea8b0bd11ba7e2ca1f8e642235fddf06cd7e517f3024c10 agent\test\outerSandbox.test.ts
+SOURCE_SHA256 222be8b219f84e2429f9167741463ec61c2d34cdb28e0ea6b160508fa9c38613 agent\test\relayClient.test.ts
+SOURCE_SHA256 4a40cceaee5b23f4d6495d09ed352e12fc915e32f1d824664eddce1c69319980 agent\test\windowsFilter.test.ts
+SOURCE_SHA256 610ebb18d735bab85d1dc3797652af61a3116477e8d49aec9cf7b3d9c798e869 probe\frames.jsonl
+v24.19.0
+10.24.0
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +58
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+   ╭──────────────────────────────────────────────╮
+   │                                              │
+   │     Update available! 10.24.0 → 12.9.1.      │
+   │     Changelog: https://pnpm.io/v/12.9.1      │
+   │   To update, run: corepack use pnpm@12.9.1   │
+   │                                              │
+   ╰──────────────────────────────────────────────╯
+
+Progress: resolved 58, reused 0, downloaded 55, added 54
+Progress: resolved 58, reused 0, downloaded 57, added 57
+Progress: resolved 58, reused 0, downloaded 58, added 57
+Progress: resolved 58, reused 0, downloaded 58, added 58, done
+
+dependencies:
++ @openai/codex 0.155.1
++ ws 8.21.3
+
+devDependencies:
++ @types/node 22.20.4
++ @types/ws 8.18.1
++ typescript 5.9.3
++ vitest 3.2.7
+
+Done in 10.4s using pnpm v10.24.0
+
+> @sunmoon/agent@0.2.0 build C:\Users\zymun\sunmoon-probe-runs\windows-agent-1-20261007\agent-tests-js\agent
+> tsc -p tsconfig.json
+
+
+> @sunmoon/agent@0.2.0 typecheck C:\Users\zymun\sunmoon-probe-runs\windows-agent-1-20261007\agent-tests-js\agent
+> tsc -p tsconfig.json --noEmit
+
+
+> @sunmoon/agent@0.2.0 test C:\Users\zymun\sunmoon-probe-runs\windows-agent-1-20261007\agent-tests-js\agent
+> vitest run
+
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mC:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/agent-tests-js/agent[39m
+
+ [32m✓[39m test/outerSandbox.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/filter.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/windowsFilter.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+{"t":"2026-10-07T12:20:49.116Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T12:20:49.149Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T12:20:49.177Z","level":"info","msg":"stream bridged","conn":"9ff37829","local":"ws://127.0.0.1:58325"}
+{"t":"2026-10-07T12:20:49.181Z","level":"info","msg":"stream closed","conn":"9ff37829","why":"exec-server side close 1006"}
+{"t":"2026-10-07T12:20:49.181Z","level":"info","msg":"stream closed","conn":"9ff37829","why":"relay side close 1006"}
+{"t":"2026-10-07T12:20:49.182Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T12:20:49.208Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T12:20:49.238Z","level":"info","msg":"stream bridged","conn":"f213531c","local":"ws://127.0.0.1:58333"}
+{"t":"2026-10-07T12:20:49.302Z","level":"info","msg":"stream closed","conn":"f213531c","why":"exec-server side close 1006"}
+{"t":"2026-10-07T12:20:49.302Z","level":"info","msg":"stream closed","conn":"f213531c","why":"relay side close 1006"}
+{"t":"2026-10-07T12:20:49.303Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T12:20:49.332Z","level":"info","msg":"stream bridged","conn":"962170c8","local":"ws://127.0.0.1:58338"}
+{"t":"2026-10-07T12:20:49.391Z","level":"warn","msg":"denied by local ceiling","method":"process/start","reason":"sandbox mode danger-full-access exceeds local ceiling workspace-write"}
+{"t":"2026-10-07T12:20:49.397Z","level":"info","msg":"stream closed","conn":"962170c8","why":"exec-server side close 1006"}
+{"t":"2026-10-07T12:20:49.397Z","level":"info","msg":"stream closed","conn":"962170c8","why":"relay side close 1006"}
+{"t":"2026-10-07T12:20:49.398Z","level":"error","msg":"relay rejected us — not retrying until config changes","reason":"bad token"}
+{"t":"2026-10-07T12:20:49.428Z","level":"error","msg":"relay rejected us — not retrying until config changes","reason":"bad token"}
+{"t":"2026-10-07T12:20:49.664Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T12:20:49.692Z","level":"error","msg":"another agent for this user connected to the relay; this one stops (run only one agent per user)","code":4000}
+{"t":"2026-10-07T12:20:49.928Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T12:20:49.956Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-07T12:20:50.369Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T12:20:50.397Z","level":"error","msg":"another agent for this user connected to the relay; this one stops (run only one agent per user)","code":4000}
+ [32m✓[39m test/cli.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1628[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows CLI before sandbox admission[2m > [22msupports configuration commands but refuses start before any relay connection [33m 1160[2mms[22m[39m
+{"t":"2026-10-07T12:20:51.936Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T12:20:51.964Z","level":"error","msg":"relay revoked this agent's token; re-run init with a new token","code":4003}
+{"t":"2026-10-07T12:20:53.510Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-07T12:20:53.537Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-07T12:20:54.541Z","level":"info","msg":"relay connected","relay":"fake"}
+ [32m✓[39m test/relayClient.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 5483[2mms[22m[39m
+   [33m[2m✓[22m[39m RelayClient[2m > [22mdoes not call onRejected on an ordinary disconnect [33m 441[2mms[22m[39m
+   [33m[2m✓[22m[39m RelayClient[2m > [22mdoes not reconnect after close 4000 (replaced by a newer agent for this user) [33m 1567[2mms[22m[39m
+   [33m[2m✓[22m[39m RelayClient[2m > [22mdoes not reconnect after close 4003 (token revoked) [33m 1574[2mms[22m[39m
+   [33m[2m✓[22m[39m RelayClient[2m > [22mreconnects the control channel after the relay drops it [33m 1064[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[32m65 passed[39m[22m[90m (65)[39m
+[2m   Start at [22m 20:20:46
+[2m   Duration [22m 7.96s[2m (transform 5.32s, setup 0ms, collect 5.57s, tests 7.13s, environment 1ms, prepare 806ms)[22m
+
+NATIVE_WINDOWS_CHECKS_PASS
+RUN_EXIT=0

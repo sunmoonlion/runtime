@@ -13,6 +13,7 @@ import { ExecServer } from "./execServer.js";
 import { log } from "./log.js";
 import { locateCodex } from "./paths.js";
 import { RelayClient } from "./relayClient.js";
+import { canonicalPath } from "./pathuri.js";
 
 const VERSION = "0.2.0";
 const STATUS_PATH = path.join(CONFIG_DIR, "status.json");
@@ -54,8 +55,8 @@ async function main(argv: string[]): Promise<number> {
   if (cmd === "roots") {
     const sub = argv[1]; const dir = argv[2] ? path.resolve(argv[2]) : "";
     if (sub === "list") { cfg.roots.forEach((r) => console.log(r)); return 0; }
-    if (sub === "add") { if (!fs.existsSync(dir)) { console.error(`目录不存在：${dir}`); return 2; } if (!cfg.roots.includes(dir)) cfg.roots.push(dir); saveConfig(cfg); console.log(`已加入白名单：${dir}（重启 start 生效）`); return 0; }
-    if (sub === "remove") { cfg.roots = cfg.roots.filter((r) => r !== dir); saveConfig(cfg); console.log(`已移出白名单：${dir}（重启 start 生效）`); return 0; }
+    if (sub === "add") { if (!argv[2] || canonicalPath(dir) === null || !fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) { console.error(`不是支持的本地目录：${dir}`); return 2; } if (!cfg.roots.some(r => canonicalPath(r) === canonicalPath(dir))) cfg.roots.push(dir); saveConfig(cfg); console.log(`已加入白名单：${dir}（重启 start 生效）`); return 0; }
+    if (sub === "remove") { if (!argv[2]) { usage(); return 2; } cfg.roots = cfg.roots.filter((r) => canonicalPath(r) !== canonicalPath(dir)); saveConfig(cfg); console.log(`已移出白名单：${dir}（重启 start 生效）`); return 0; }
     usage(); return 2;
   }
   if (cmd === "ceiling") {

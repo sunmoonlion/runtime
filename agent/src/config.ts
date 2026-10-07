@@ -2,6 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type { Ceiling } from "./filter.js";
+import { canonicalPath } from "./pathuri.js";
 
 export interface AgentConfig {
   /** 会合点地址，如 wss://edge.example.com/relay 或 ws://127.0.0.1:47100 */
@@ -59,7 +60,7 @@ export function validate(cfg: AgentConfig): void {
   if (!cfg.userId) throw new Error("userId 不能为空");
   if (!cfg.machineName || cfg.machineName.length > 128) throw new Error("machineName 要有，且不超过 128 个字符");
   for (const r of cfg.roots) {
-    if (!path.isAbsolute(r)) throw new Error(`白名单根必须是绝对路径：${r}`);
+    if (canonicalPath(r) === null) throw new Error(`白名单根必须是受支持的本地绝对路径：${r}`);
   }
   if (!["read-only", "workspace-write", "danger-full-access"].includes(cfg.ceiling.sandbox)) throw new Error(`ceiling.sandbox 非法：${cfg.ceiling.sandbox}`);
   if (!Number.isInteger(cfg.execPort) || cfg.execPort < 0 || cfg.execPort > 65535) throw new Error(`execPort 非法：${cfg.execPort}`);

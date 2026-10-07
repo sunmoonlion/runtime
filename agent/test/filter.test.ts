@@ -1,12 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { decide, denialResponse, requestedMode, requestedNetwork } from "../src/filter.js";
-import { isUnder, uriToPath } from "../src/pathuri.js";
+import { decide as decideForPlatform, denialResponse, requestedMode, requestedNetwork } from "../src/filter.js";
+import { isUnder as isUnderForPlatform, uriToPath as uriToPathForPlatform } from "../src/pathuri.js";
+
+const decide: typeof decideForPlatform = (frame, ceiling, roots) => decideForPlatform(frame, ceiling, roots, "linux");
+const isUnder = (target: string, root: string) => isUnderForPlatform(target, root, "linux");
+const uriToPath = (uri: string) => uriToPathForPlatform(uri, "linux");
 
 const ROOT = "/home/u/research/proj";
 const roots = [ROOT];
 const ws = (p: string) => `file://${p}`;
 
-// 2026-09-24 抓到的真实帧形状（runtime/probe/frames.jsonl）
+// Linux 模式与过滤回归；Windows 真实帧见 windowsFilter.test.ts。
 const dangerStart = { id: 42, method: "process/start", params: { processId: "1", argv: ["/bin/sh", "-lc", "touch /home/u/x"], cwd: ws(ROOT), sandbox: null, enforceManagedNetwork: false, managedNetwork: null } };
 const workspaceWriteStart = {
   id: 82, method: "process/start", params: {
@@ -73,8 +77,8 @@ describe("decide: fs and http", () => {
     expect(decide({ id: 2, method: "fs/getMetadata", params: { path: ws("/home/u/.codex/config.toml"), sandbox: null } }, c, roots).allow).toBe(true);
   });
   it("allows writes inside, denies outside", () => {
-    expect(decide({ id: 3, method: "fs/writeFile", params: { path: ws(ROOT + "/a.txt"), data_base64: "" } }, c, roots).allow).toBe(true);
-    expect(decide({ id: 4, method: "fs/writeFile", params: { path: ws("/home/u/a.txt"), data_base64: "" } }, c, roots).allow).toBe(false);
+    expect(decide({ id: 3, method: "fs/writeFile", params: { path: ws(ROOT + "/a.txt"), dataBase64: "" } }, c, roots).allow).toBe(true);
+    expect(decide({ id: 4, method: "fs/writeFile", params: { path: ws("/home/u/a.txt"), dataBase64: "" } }, c, roots).allow).toBe(false);
     expect(decide({ id: 5, method: "fs/copy", params: { source_path: ws("/etc/hosts"), destination_path: ws("/tmp/x") } }, c, roots).allow).toBe(false);
     expect(decide({ id: 6, method: "fs/remove", params: { path: ws(ROOT + "/old") } }, c, roots).allow).toBe(true);
   });

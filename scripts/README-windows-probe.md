@@ -31,7 +31,7 @@ New-Item -ItemType Directory -Force scripts\results | Out-Null
 ```powershell
 $env:ORCH_HOME = Join-Path $env:USERPROFILE '.codex-probe' # 已独立登录的测试家
 $env:PROBE_OUTER_SANDBOX = '0'
-Remove-Item Env:PROBE_FS_ONLY, Env:PROBE_START_ONLY -ErrorAction SilentlyContinue
+Remove-Item Env:PROBE_FS_ONLY, Env:PROBE_START_ONLY, Env:PROBE_PROCESS_ONLY, Env:PROBE_PROCESS_POLICY -ErrorAction SilentlyContinue
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\probe-windows-exec-server.ps1
 $probeExit = $LASTEXITCODE
 ```
@@ -44,7 +44,7 @@ L2 同时检查用户目录内、cwd 外的文件和 `L2_OUTSIDE_ROOT` 内的文
 ## 2. 不依赖模型的外层边界探针
 
 ```powershell
-Remove-Item Env:ORCH_HOME, Env:PROBE_START_ONLY -ErrorAction SilentlyContinue
+Remove-Item Env:ORCH_HOME, Env:PROBE_START_ONLY, Env:PROBE_PROCESS_ONLY, Env:PROBE_PROCESS_POLICY -ErrorAction SilentlyContinue
 $env:PROBE_FS_ONLY = '1'
 $env:PROBE_OUTER_SANDBOX = '1'
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\probe-windows-exec-server.ps1
@@ -55,7 +55,7 @@ $probeExit = $LASTEXITCODE
 无第三方依赖、不请求模型、不携带凭据。真实握手为 `initialize {clientName}`，随后 `initialized` 通知；写请求字段为 `dataBase64`。
 请求使用 `sandbox:null`，验证的是**包住整个 exec-server 的 OS 层**，不是请求自带的沙箱。
 
-脚本生成 named permission profile，仅允许测试工作目录和独立执行端家写入，其他目录只读；允许联网以使用回环 WebSocket，**不声称提供网络硬隔离**。
+脚本通过 `-c` 传入 named permission profile，不覆盖已有配置；仅允许测试工作目录和独立执行端家写入，其他目录只读；允许联网以使用回环 WebSocket，**不声称提供网络硬隔离**。
 实际命令形状：
 
 ```text
@@ -68,6 +68,39 @@ codex.exe sandbox --permission-profile probe_outer -C <probe\user-ws> -- codex.e
 对照运行：仅改 `$env:PROBE_OUTER_SANDBOX = '0'` 后重复同一入口。
 此时应看到 `mode=unwrapped-control`，三个写入都成功。对照退出 `0` 表示基线可写，**不是安全隔离通过**。
 外层运行应看到 `mode=outer-boundary`：目录内成功，目录外两处均明确拒绝，文件不存在。
+
+## 3. 直接进程请求与嵌套执行（第 1 段）
+
+```powershell
+Remove-Item Env:ORCH_HOME, Env:PROBE_START_ONLY, Env:PROBE_FS_ONLY, Env:PROBE_PROCESS_POLICY -ErrorAction SilentlyContinue
+$env:PROBE_PROCESS_ONLY = '1'
+$env:SANDBOX_MODE = 'unelevated'
+$env:PROBE_OUTER_SANDBOX = '0'
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\probe-windows-exec-server.ps1
+# 再用新执行端家复测外层内的嵌套；不要与上述运行并发占用同一端口。
+$env:PROBE_OUTER_SANDBOX = '1'
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\probe-windows-exec-server.ps1
+```
+
+仅复测历史上已经 setup 的执行端家时，使用 `SANDBOX_MODE=elevated`。
+脚本不执行 setup、不复制沙箱账号材料；`.codex-probe-exec` 必须预先独立准备且不含 auth.json。
+模式是显式请求值；不要仅凭它或 `sandboxType=windowsRestrictedToken` 宣称实际运行身份为 elevated。
+
+`probe/probe_windows_process.mjs` 使用 `initialize/initialized` 后直接 `process/start`。
+`environment/add` 属于上游 app-server，与本机 exec-server 握手是两个接口。
+真实请求包含 `tty:false`、白名单 env、`permissions`、`workspaceRoots`、
+`windowsSandboxLevel`；配置里的 `unelevated` 对应 wire 值 `restricted-token`。
+命令用 PowerShell `Set-Content`，不使用 ConstrainedLanguage 禁止的任意 .NET 方法调用。
+先做普通用户可写对照，再检查实际 process/exited、权限错误和文件内容。
+三项中没有真实子进程结果就记 undecidable，不把“文件没生成”当作拒绝通过。
+
+`PROBE_PROCESS_POLICY=outer-only-control` 是**诊断对照**：仅在外层已启用时发送
+`sandbox:null`，用于分离外层执行能力与内层创建失败；其通过不能替代双层组合验收，
+也不能用来改写产品请求、丢弃只读或网络权限要求。测试后删除此环境变量。
+
+当前结论：内层三项通过；unelevated 外层中的嵌套启动可重复报
+`CreateRestrictedToken failed: 87`；elevated 外层尝试超时。
+具体帧和限制见 `scripts/results/windows-agent-1.*.md`，不是 Windows 上线通过记录。
 
 ## 结果和收尾
 

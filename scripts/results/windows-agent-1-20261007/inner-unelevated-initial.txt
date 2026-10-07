@@ -1,0 +1,43 @@
+OUTSIDE_ROOT=C:\sunmoon-process-probe-0a6dcfed2d4f443f9943e39afda094b2
+===== ���� =====
+����        ZYMUN
+ʱ��        2026-10-07T20:01:52.8081707+08:00
+ϵͳ        Microsoft Windows NT 10.0.26200.0  PowerShell 5.1.26100.9444
+�ڴ�        63.9 GB ����
+Python 3.13.15
+v24.19.0
+codex-cli 0.155.1
+Sandbox mode unelevated; administrator=False; outer=False
+Codex �������� ["C:\\Users\\zymun\\AppData\\Roaming\\npm\\node_modules\\@openai\\codex\\node_modules\\@openai\\codex-win32-x64\\vendor\\x86_64-pc-windows-msvc\\bin\\codex.exe","-c","windows.sandbox=\"unelevated\""]
+ɱ��        Windows Defender
+Source baseline e9f194b3d4178021f035cc81aeb1ed265299970c (copied to native Windows storage)
+Source SHA256 0455692b3d8ae7242dfe0459cedaf05145c7789b2b4500cc41720e4d62a1f585 C:\Users\zymun\sunmoon-probe-runs\windows-agent-1-20261007\inner-unelevated-initial\scripts\probe-windows-exec-server.ps1
+Source SHA256 873ed84a52e3be834918b57870dae6ff5cdeec07a9d6e35ccda677218fb86aec C:\Users\zymun\sunmoon-probe-runs\windows-agent-1-20261007\inner-unelevated-initial\probe\probe_local_ceiling.py
+Source SHA256 4eb9153bd4134c0772eefa3d74ca147658422f5169922e51130f7ed8e6761c0a C:\Users\zymun\sunmoon-probe-runs\windows-agent-1-20261007\inner-unelevated-initial\probe\probe_windows_process.mjs
+===== ��ʼ =====
+Executor home C:\Users\zymun\.codex-probe-exec-unelevated-11ee225429954867a4a7b9eb5cb7931e; auth.json absent; no setup command executed
+--- 1. �� exec-server��ws://127.0.0.1:57948��
+Executor argv ["exec-server","--listen","ws://127.0.0.1:57948"]
+exec-server launcher pid 27172 �˳�����: False ���� 57948: True
+{"control":"outside-cwd","ordinaryUserWrite":true,"target":"C:\\Users\\zymun\\sunmoon-process-16204-1791374515933.txt"}
+{"control":"outside-profile","ordinaryUserWrite":true,"target":"C:\\sunmoon-process-probe-0a6dcfed2d4f443f9943e39afda094b2\\sunmoon-process-16204-1791374515933.txt"}
+{"control":"inside","ordinaryUserWrite":true,"target":"C:\\Users\\zymun\\sunmoon-probe-runs\\windows-agent-1-20261007\\inner-unelevated-initial\\probe\\user-ws\\sunmoon-process-16204-1791374515933.txt"}
+{"direction":"request","frame":{"id":1,"method":"initialize","params":{"clientName":"sunmoon-process-probe"}}}
+{"direction":"response","frame":{"id":1,"result":{"sessionId":"806a2b4d-1ff3-480b-9dff-d5bf1fdf2ca3","environmentInfo":{"shell":{"name":"powershell","path":"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"},"executorVersion":"0.155.1","cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/inner-unelevated-initial","userHomeDir":"file:///C:/Users/zymun","platformOs":"windows","temporaryDirectories":["file:///C:/Users/zymun/AppData/Local/Temp"],"tempDir":"file:///C:/Users/zymun/AppData/Local/Temp","capabilities":{"networkProxyLaunch":true,"capabilityDiscoverySandbox":true,"environmentConfigRead":true,"httpHeaderEnvVars":true,"sandboxedFileStreaming":true,"shellSnapshotV2":false}}}}}
+{"direction":"request","frame":{"method":"initialized","params":{}}}
+{"direction":"request","frame":{"id":2,"method":"process/start","params":{"processId":"sunmoon-process-16204-1791374515933-0","argv":["C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","-NoProfile","-NonInteractive","-Command","$ErrorActionPreference='Stop'; [IO.File]::WriteAllText('C:\\Users\\zymun\\sunmoon-process-16204-1791374515933.txt', 'sunmoon-process-16204-1791374515933'); Write-Output 'sunmoon-process-16204-1791374515933'"],"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/inner-unelevated-initial/probe/user-ws","sandbox":{"permissions":{"type":"managed","file_system":{"type":"restricted","entries":[{"path":{"type":"special","value":{"kind":"root"}},"access":"read"},{"path":{"type":"special","value":{"kind":"project_roots"}},"access":"write"}]},"network":"restricted"},"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/inner-unelevated-initial/probe/user-ws","workspaceRoots":["file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/inner-unelevated-initial/probe/user-ws"],"windowsSandboxLevel":"unelevated","useLegacyLandlock":false}}}}
+{"direction":"response","frame":{"error":{"code":-32602,"message":"unknown variant `unelevated`, expected one of `disabled`, `restricted-token`, `elevated`"},"id":2}}
+{"case":{"name":"outside-cwd","shouldWrite":false,"exists":false,"response":{"error":{"code":-32602,"message":"unknown variant `unelevated`, expected one of `disabled`, `restricted-token`, `elevated`"},"id":2},"events":[],"verdict":"undecidable"}}
+{"direction":"request","frame":{"id":3,"method":"process/start","params":{"processId":"sunmoon-process-16204-1791374515933-1","argv":["C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","-NoProfile","-NonInteractive","-Command","$ErrorActionPreference='Stop'; [IO.File]::WriteAllText('C:\\sunmoon-process-probe-0a6dcfed2d4f443f9943e39afda094b2\\sunmoon-process-16204-1791374515933.txt', 'sunmoon-process-16204-1791374515933'); Write-Output 'sunmoon-process-16204-1791374515933'"],"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/inner-unelevated-initial/probe/user-ws","sandbox":{"permissions":{"type":"managed","file_system":{"type":"restricted","entries":[{"path":{"type":"special","value":{"kind":"root"}},"access":"read"},{"path":{"type":"special","value":{"kind":"project_roots"}},"access":"write"}]},"network":"restricted"},"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/inner-unelevated-initial/probe/user-ws","workspaceRoots":["file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/inner-unelevated-initial/probe/user-ws"],"windowsSandboxLevel":"unelevated","useLegacyLandlock":false}}}}
+{"direction":"response","frame":{"error":{"code":-32602,"message":"unknown variant `unelevated`, expected one of `disabled`, `restricted-token`, `elevated`"},"id":3}}
+{"case":{"name":"outside-profile","shouldWrite":false,"exists":false,"response":{"error":{"code":-32602,"message":"unknown variant `unelevated`, expected one of `disabled`, `restricted-token`, `elevated`"},"id":3},"events":[],"verdict":"undecidable"}}
+{"direction":"request","frame":{"id":4,"method":"process/start","params":{"processId":"sunmoon-process-16204-1791374515933-2","argv":["C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","-NoProfile","-NonInteractive","-Command","$ErrorActionPreference='Stop'; [IO.File]::WriteAllText('C:\\Users\\zymun\\sunmoon-probe-runs\\windows-agent-1-20261007\\inner-unelevated-initial\\probe\\user-ws\\sunmoon-process-16204-1791374515933.txt', 'sunmoon-process-16204-1791374515933'); Write-Output 'sunmoon-process-16204-1791374515933'"],"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/inner-unelevated-initial/probe/user-ws","sandbox":{"permissions":{"type":"managed","file_system":{"type":"restricted","entries":[{"path":{"type":"special","value":{"kind":"root"}},"access":"read"},{"path":{"type":"special","value":{"kind":"project_roots"}},"access":"write"}]},"network":"restricted"},"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/inner-unelevated-initial/probe/user-ws","workspaceRoots":["file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/inner-unelevated-initial/probe/user-ws"],"windowsSandboxLevel":"unelevated","useLegacyLandlock":false}}}}
+{"direction":"response","frame":{"error":{"code":-32602,"message":"unknown variant `unelevated`, expected one of `disabled`, `restricted-token`, `elevated`"},"id":4}}
+{"case":{"name":"inside","shouldWrite":true,"exists":false,"response":{"error":{"code":-32602,"message":"unknown variant `unelevated`, expected one of `disabled`, `restricted-token`, `elevated`"},"id":4},"events":[],"verdict":"undecidable"}}
+--- 3. ��β
+SUCCESS: The process with PID 5324 (child process of PID 27172) has been terminated.
+SUCCESS: The process with PID 27172 (child process of PID 24544) has been terminated.
+--- probe\es-windows.log��������
+ws://127.0.0.1:57948
+--- probe\es-windows.err.log��������
+RUN_EXIT=2

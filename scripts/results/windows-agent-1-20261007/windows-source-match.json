@@ -1,0 +1,82 @@
+[
+  {
+    "path": "agent/package.json",
+    "matches": true
+  },
+  {
+    "path": "agent/pnpm-lock.yaml",
+    "matches": true
+  },
+  {
+    "path": "agent/pnpm-workspace.yaml",
+    "matches": true
+  },
+  {
+    "path": "agent/tsconfig.json",
+    "matches": true
+  },
+  {
+    "path": "agent/src/cli.ts",
+    "matches": true
+  },
+  {
+    "path": "agent/src/config.ts",
+    "matches": true
+  },
+  {
+    "path": "agent/src/execServer.ts",
+    "matches": true
+  },
+  {
+    "path": "agent/src/filter.ts",
+    "matches": true
+  },
+  {
+    "path": "agent/src/log.ts",
+    "matches": true
+  },
+  {
+    "path": "agent/src/outerSandbox.ts",
+    "matches": true
+  },
+  {
+    "path": "agent/src/paths.ts",
+    "matches": true
+  },
+  {
+    "path": "agent/src/pathuri.ts",
+    "matches": true
+  },
+  {
+    "path": "agent/src/relayClient.ts",
+    "matches": true
+  },
+  {
+    "path": "agent/src/relayProtocol.ts",
+    "matches": true
+  },
+  {
+    "path": "agent/test/cli.test.ts",
+    "matches": true
+  },
+  {
+    "path": "agent/test/filter.test.ts",
+    "matches": true
+  },
+  {
+    "path": "agent/test/outerSandbox.test.ts",
+    "matches": true
+  },
+  {
+    "path": "agent/test/relayClient.test.ts",
+    "matches": true
+  },
+  {
+    "path": "agent/test/windowsFilter.test.ts",
+    "matches": true
+  },
+  {
+    "path": "probe/frames.jsonl",
+    "matches": true
+  }
+]

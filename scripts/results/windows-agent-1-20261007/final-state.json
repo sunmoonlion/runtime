@@ -1,0 +1,14 @@
+{
+  "powershellSyntax": {
+    "Errors": 0,
+    "SHA256": "9428375a139ac6a3b5494132e0acc21e3882e6162c6ed4ce596f4f2ea4c5f55d"
+  },
+  "originalAgent": {
+    "pid": 146081,
+    "processExists": true,
+    "relayStatus": "connected",
+    "statusAt": "2026-10-07T12:27:56.253Z",
+    "replacementAttempted": false
+  },
+  "checkedAt": "2026-10-07T12:27:57.276706+00:00"
+}

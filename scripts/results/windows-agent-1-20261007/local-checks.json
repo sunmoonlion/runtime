@@ -1,0 +1,19 @@
+{
+  "javascriptSyntax": {
+    "exitCode": 0,
+    "output": ""
+  },
+  "diffWhitespace": {
+    "exitCode": 0,
+    "output": ""
+  },
+  "credentialPatternScan": {
+    "filesScanned": 34,
+    "findings": [],
+    "scope": "changed and new runtime files; heuristic, not a guarantee"
+  },
+  "lockfileUnchanged": true,
+  "sourceBranch": "luna",
+  "sourceBaseline": "e9f194b3d4178021f035cc81aeb1ed265299970c",
+  "powershellUtf8Bom": true
+}

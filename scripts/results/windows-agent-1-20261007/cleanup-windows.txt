@@ -1,0 +1,43 @@
+{
+    "Protected":  [
+                      {
+                          "Exists":  true,
+                          "Path":  "C:\\Users\\zymun\\.codex"
+                      },
+                      {
+                          "Exists":  true,
+                          "Path":  "C:\\Users\\zymun\\.codex-probe"
+                      },
+                      {
+                          "Exists":  true,
+                          "Path":  "C:\\Users\\zymun\\.codex-probe-exec"
+                      }
+                  ],
+    "ProbePortsClosed":  true,
+    "PowerShellSyntax":  "pass",
+    "ProbeProcessesAbsent":  true,
+    "Removed":  [
+                    "C:\\Users\\zymun\\.codex-probe-exec-unelevated-0a0bc50503b0438aa52a45b7dfb38d95",
+                    "C:\\Users\\zymun\\.codex-probe-exec-unelevated-11ee225429954867a4a7b9eb5cb7931e",
+                    "C:\\Users\\zymun\\.codex-probe-exec-unelevated-237ffcce71154b4e881dfdd0345a63bf",
+                    "C:\\Users\\zymun\\.codex-probe-exec-unelevated-6aae891a8dcf45b9afde209db2b3bae9",
+                    "C:\\Users\\zymun\\.codex-probe-exec-unelevated-a0fc5d8b6d79430db6ccf00e74e164f3",
+                    "C:\\Users\\zymun\\.codex-probe-exec-unelevated-c56059a9bc6645139408582b6d2ec911",
+                    "C:\\Users\\zymun\\.codex-probe-exec-unelevated-c853fe3a595546f6adc4787d557696a7",
+                    "C:\\Users\\zymun\\.codex-probe-exec-unelevated-d537a5976030446a8abf4a992b6b90d1",
+                    "C:\\sunmoon-process-probe-0a6dcfed2d4f443f9943e39afda094b2",
+                    "C:\\sunmoon-process-probe-1d45b38eaca84cd0bfacf72a8eac5cb9",
+                    "C:\\sunmoon-process-probe-3e06e4233f4048cbad323abd2529d585",
+                    "C:\\sunmoon-process-probe-4c1043ffa7b342b89ce7ccf113e567fc",
+                    "C:\\sunmoon-process-probe-5977173f0eb9410a960858e1a2685441",
+                    "C:\\sunmoon-process-probe-5e87e453db1247acb5dab7ec581b737d",
+                    "C:\\sunmoon-process-probe-7e46955e5e0147cea033557701e5d409",
+                    "C:\\sunmoon-process-probe-b1a4708263474f7ebf8392b89dc02071",
+                    "C:\\sunmoon-process-probe-b969d22516ae4dc2989a59054c95e363",
+                    "C:\\sunmoon-process-probe-c7e3d67da10648189233407638b19768",
+                    "C:\\sunmoon-process-probe-f74dd8cc890a4128ba36633a3a132680",
+                    "C:\\Users\\zymun\\sunmoon-probe-runs\\windows-agent-1-20261007"
+                ]
+}
+
+RUN_EXIT=0

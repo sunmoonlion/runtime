@@ -1,0 +1,43 @@
+OUTSIDE_ROOT=C:\sunmoon-process-probe-b1a4708263474f7ebf8392b89dc02071
+===== 环境 =====
+主机        ZYMUN
+时间        2026-10-07T20:02:38.3941116+08:00
+系统        Microsoft Windows NT 10.0.26200.0  PowerShell 5.1.26100.9444
+内存        63.6 GB 可用
+Python 3.13.15
+v24.19.0
+codex-cli 0.155.1
+Sandbox mode unelevated; administrator=False; outer=False
+Codex 启动参数 ["C:\\Users\\zymun\\AppData\\Roaming\\npm\\node_modules\\@openai\\codex\\node_modules\\@openai\\codex-win32-x64\\vendor\\x86_64-pc-windows-msvc\\bin\\codex.exe","-c","windows.sandbox=\"unelevated\""]
+杀毒        Windows Defender
+Source baseline e9f194b3d4178021f035cc81aeb1ed265299970c (copied to native Windows storage)
+Source SHA256 0455692b3d8ae7242dfe0459cedaf05145c7789b2b4500cc41720e4d62a1f585 C:\Users\zymun\sunmoon-probe-runs\windows-agent-1-20261007\inner-restricted-token\scripts\probe-windows-exec-server.ps1
+Source SHA256 873ed84a52e3be834918b57870dae6ff5cdeec07a9d6e35ccda677218fb86aec C:\Users\zymun\sunmoon-probe-runs\windows-agent-1-20261007\inner-restricted-token\probe\probe_local_ceiling.py
+Source SHA256 babe7df0b8dcffb8a0f65845b9808a9ac269151097868f9c874f5f6a47238f0a C:\Users\zymun\sunmoon-probe-runs\windows-agent-1-20261007\inner-restricted-token\probe\probe_windows_process.mjs
+===== 开始 =====
+Executor home C:\Users\zymun\.codex-probe-exec-unelevated-237ffcce71154b4e881dfdd0345a63bf; auth.json absent; no setup command executed
+--- 1. 起 exec-server（ws://127.0.0.1:57982）
+Executor argv ["exec-server","--listen","ws://127.0.0.1:57982"]
+exec-server launcher pid 21304 退出了吗: False 监听 57982: True
+{"control":"outside-cwd","ordinaryUserWrite":true,"target":"C:\\Users\\zymun\\sunmoon-process-16376-1791374561318.txt"}
+{"control":"outside-profile","ordinaryUserWrite":true,"target":"C:\\sunmoon-process-probe-b1a4708263474f7ebf8392b89dc02071\\sunmoon-process-16376-1791374561318.txt"}
+{"control":"inside","ordinaryUserWrite":true,"target":"C:\\Users\\zymun\\sunmoon-probe-runs\\windows-agent-1-20261007\\inner-restricted-token\\probe\\user-ws\\sunmoon-process-16376-1791374561318.txt"}
+{"direction":"request","frame":{"id":1,"method":"initialize","params":{"clientName":"sunmoon-process-probe"}}}
+{"direction":"response","frame":{"id":1,"result":{"sessionId":"086110b7-4ec6-446c-a811-e291082af83a","environmentInfo":{"shell":{"name":"powershell","path":"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"},"executorVersion":"0.155.1","cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/inner-restricted-token","userHomeDir":"file:///C:/Users/zymun","platformOs":"windows","temporaryDirectories":["file:///C:/Users/zymun/AppData/Local/Temp"],"tempDir":"file:///C:/Users/zymun/AppData/Local/Temp","capabilities":{"networkProxyLaunch":true,"capabilityDiscoverySandbox":true,"environmentConfigRead":true,"httpHeaderEnvVars":true,"sandboxedFileStreaming":true,"shellSnapshotV2":false}}}}}
+{"direction":"request","frame":{"method":"initialized","params":{}}}
+{"direction":"request","frame":{"id":2,"method":"process/start","params":{"processId":"sunmoon-process-16376-1791374561318-0","argv":["C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","-NoProfile","-NonInteractive","-Command","$ErrorActionPreference='Stop'; [IO.File]::WriteAllText('C:\\Users\\zymun\\sunmoon-process-16376-1791374561318.txt', 'sunmoon-process-16376-1791374561318'); Write-Output 'sunmoon-process-16376-1791374561318'"],"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/inner-restricted-token/probe/user-ws","sandbox":{"permissions":{"type":"managed","file_system":{"type":"restricted","entries":[{"path":{"type":"special","value":{"kind":"root"}},"access":"read"},{"path":{"type":"special","value":{"kind":"project_roots"}},"access":"write"}]},"network":"restricted"},"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/inner-restricted-token/probe/user-ws","workspaceRoots":["file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/inner-restricted-token/probe/user-ws"],"windowsSandboxLevel":"restricted-token","useLegacyLandlock":false}}}}
+{"direction":"response","frame":{"error":{"code":-32602,"message":"missing field `env`"},"id":2}}
+{"case":{"name":"outside-cwd","shouldWrite":false,"exists":false,"response":{"error":{"code":-32602,"message":"missing field `env`"},"id":2},"events":[],"verdict":"undecidable"}}
+{"direction":"request","frame":{"id":3,"method":"process/start","params":{"processId":"sunmoon-process-16376-1791374561318-1","argv":["C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","-NoProfile","-NonInteractive","-Command","$ErrorActionPreference='Stop'; [IO.File]::WriteAllText('C:\\sunmoon-process-probe-b1a4708263474f7ebf8392b89dc02071\\sunmoon-process-16376-1791374561318.txt', 'sunmoon-process-16376-1791374561318'); Write-Output 'sunmoon-process-16376-1791374561318'"],"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/inner-restricted-token/probe/user-ws","sandbox":{"permissions":{"type":"managed","file_system":{"type":"restricted","entries":[{"path":{"type":"special","value":{"kind":"root"}},"access":"read"},{"path":{"type":"special","value":{"kind":"project_roots"}},"access":"write"}]},"network":"restricted"},"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/inner-restricted-token/probe/user-ws","workspaceRoots":["file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/inner-restricted-token/probe/user-ws"],"windowsSandboxLevel":"restricted-token","useLegacyLandlock":false}}}}
+{"direction":"response","frame":{"error":{"code":-32602,"message":"missing field `env`"},"id":3}}
+{"case":{"name":"outside-profile","shouldWrite":false,"exists":false,"response":{"error":{"code":-32602,"message":"missing field `env`"},"id":3},"events":[],"verdict":"undecidable"}}
+{"direction":"request","frame":{"id":4,"method":"process/start","params":{"processId":"sunmoon-process-16376-1791374561318-2","argv":["C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe","-NoProfile","-NonInteractive","-Command","$ErrorActionPreference='Stop'; [IO.File]::WriteAllText('C:\\Users\\zymun\\sunmoon-probe-runs\\windows-agent-1-20261007\\inner-restricted-token\\probe\\user-ws\\sunmoon-process-16376-1791374561318.txt', 'sunmoon-process-16376-1791374561318'); Write-Output 'sunmoon-process-16376-1791374561318'"],"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/inner-restricted-token/probe/user-ws","sandbox":{"permissions":{"type":"managed","file_system":{"type":"restricted","entries":[{"path":{"type":"special","value":{"kind":"root"}},"access":"read"},{"path":{"type":"special","value":{"kind":"project_roots"}},"access":"write"}]},"network":"restricted"},"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/inner-restricted-token/probe/user-ws","workspaceRoots":["file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1-20261007/inner-restricted-token/probe/user-ws"],"windowsSandboxLevel":"restricted-token","useLegacyLandlock":false}}}}
+{"direction":"response","frame":{"error":{"code":-32602,"message":"missing field `env`"},"id":4}}
+{"case":{"name":"inside","shouldWrite":true,"exists":false,"response":{"error":{"code":-32602,"message":"missing field `env`"},"id":4},"events":[],"verdict":"undecidable"}}
+--- 3. 收尾
+SUCCESS: The process with PID 29200 (child process of PID 21304) has been terminated.
+SUCCESS: The process with PID 21304 (child process of PID 4004) has been terminated.
+--- probe\es-windows.log（完整）
+ws://127.0.0.1:57982
+--- probe\es-windows.err.log（完整）
+RUN_EXIT=2

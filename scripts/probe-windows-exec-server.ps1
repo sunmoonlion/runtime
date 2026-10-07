@@ -29,8 +29,8 @@ function Resolve-CodexLauncher {
 $sandboxMode = if ($env:SANDBOX_MODE) { $env:SANDBOX_MODE } else { "elevated" }
 if ($sandboxMode -notin @("elevated", "unelevated")) { throw "Invalid SANDBOX_MODE" }
 $outerSandbox = $env:PROBE_OUTER_SANDBOX -eq "1"
-if ($outerSandbox -and $sandboxMode -ne "unelevated") { throw "Outer probe requires SANDBOX_MODE=unelevated" }
-if ($env:PROBE_START_ONLY -eq "1" -and $env:PROBE_FS_ONLY -eq "1") { throw "Choose only one probe mode" }
+$probeModes = @($env:PROBE_START_ONLY, $env:PROBE_FS_ONLY, $env:PROBE_PROCESS_ONLY) | Where-Object { $_ -eq "1" }
+if (@($probeModes).Count -gt 1) { throw "Choose only one probe mode" }
 
 # Start-Process in Windows PowerShell 5.1 takes a command line, not an argv array.
 function Quote-NativeArgument([string] $Value) {
@@ -85,18 +85,24 @@ try {
     }
     $sources = @($PSCommandPath, (Join-Path (Get-Location) 'probe\probe_local_ceiling.py'))
     if ($env:PROBE_FS_ONLY -eq "1") { $sources += Join-Path (Get-Location) 'probe\probe_windows_fs.mjs' }
+    if ($env:PROBE_PROCESS_ONLY -eq "1") { $sources += Join-Path (Get-Location) 'probe\probe_windows_process.mjs' }
     foreach ($source in $sources) {
         $hash = Get-FileHash -LiteralPath $source -Algorithm SHA256
         Write-Output "Source SHA256 $($hash.Hash.ToLowerInvariant()) $($hash.Path)"
     }
     Write-Output "===== 开始 ====="
-    if ($env:PROBE_START_ONLY -ne "1" -and $env:PROBE_FS_ONLY -ne "1" -and
+    if ($env:PROBE_START_ONLY -ne "1" -and $env:PROBE_FS_ONLY -ne "1" -and $env:PROBE_PROCESS_ONLY -ne "1" -and
         (-not $env:ORCH_HOME -or -not (Test-Path -LiteralPath $env:ORCH_HOME -PathType Container))) {
         throw "Missing ORCH_HOME (authenticated orchestration CODEX_HOME)"
     }
     $execHome = if ($sandboxMode -eq "unelevated") {
         Join-Path $env:USERPROFILE (".codex-probe-exec-unelevated-" + [guid]::NewGuid().ToString('N'))
     } else { Join-Path $env:USERPROFILE ".codex-probe-exec" }
+    if ($sandboxMode -eq "elevated" -and
+        (-not (Test-Path -LiteralPath (Join-Path $execHome '.sandbox') -PathType Container) -or
+         -not (Test-Path -LiteralPath (Join-Path $execHome '.sandbox-secrets') -PathType Container))) {
+        throw "Elevated probe requires an existing setup home; it must not provision sandbox accounts"
+    }
     if ($env:ORCH_HOME -and [IO.Path]::GetFullPath($execHome).TrimEnd('\') -eq [IO.Path]::GetFullPath($env:ORCH_HOME).TrimEnd('\')) {
         throw "Executor and orchestrator homes must be separate"
     }
@@ -108,11 +114,6 @@ try {
     $config = Join-Path $execHome "config.toml"
     if (-not (Test-Path -LiteralPath $config)) {
         $configText = "sandbox_mode = `"read-only`"`napproval_policy = `"never`"`n[windows]`nsandbox = `"$sandboxMode`"`n"
-        if ($outerSandbox) {
-            $workspaceKey = ConvertTo-Json -InputObject (Join-Path (Get-Location) 'probe\user-ws') -Compress
-            $homeKey = ConvertTo-Json -InputObject $execHome -Compress
-            $configText += "[permissions.probe_outer.filesystem]`n`":root`" = `"read`"`n$workspaceKey = `"write`"`n$homeKey = `"write`"`n[permissions.probe_outer.network]`nenabled = true`n"
-        }
         [IO.File]::WriteAllText($config, $configText, (New-Object System.Text.UTF8Encoding))
     }
     Write-Output "Executor home $execHome; auth.json absent; no setup command executed"
@@ -125,7 +126,12 @@ try {
     if ($outerSandbox) {
         # 0.155.1 on Windows exposes `sandbox [COMMAND]`, not `sandbox windows`.
         # Permit loopback for the bridge; this probe does not claim network isolation.
-        $serverArgs = @("sandbox", "--permission-profile", "probe_outer",
+        # CLI overrides also let the already-setup elevated home participate
+        # without changing its existing configuration or copying setup secrets.
+        $workspaceKey = ConvertTo-Json -InputObject (Join-Path (Get-Location) 'probe\user-ws') -Compress
+        $homeKey = ConvertTo-Json -InputObject $execHome -Compress
+        $profile = "permissions.probe_outer={filesystem={`":root`"=`"read`",$workspaceKey=`"write`",$homeKey=`"write`"},network={enabled=true}}"
+        $serverArgs = @("-c", $profile, "-c", "windows.sandbox=`"$sandboxMode`"", "sandbox", "--permission-profile", "probe_outer",
             "-C", (Join-Path (Get-Location) 'probe\user-ws'), "--", $program, "exec-server", "--listen", $env:EXEC_URL)
     }
     $serverCommandLine = ($serverArgs | ForEach-Object { Quote-NativeArgument $_ }) -join ' '
@@ -146,6 +152,9 @@ try {
     } elseif ($env:PROBE_START_ONLY -eq "1") {
         Write-Output "Startup: pass; boundary: undecidable (PROBE_START_ONLY; no model or write requests)"
         $exitCode = 2
+    } elseif ($env:PROBE_PROCESS_ONLY -eq "1") {
+        & node.exe (Join-Path (Get-Location) 'probe\probe_windows_process.mjs')
+        $exitCode = $LASTEXITCODE
     } elseif ($env:PROBE_FS_ONLY -eq "1") {
         if (-not $env:L2_OUTSIDE_ROOT) { throw "FS probe requires a dedicated L2_OUTSIDE_ROOT outside USERPROFILE" }
         & node.exe (Join-Path (Get-Location) 'probe\probe_windows_fs.mjs')

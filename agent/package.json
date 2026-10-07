@@ -5,7 +5,7 @@
   "private": true,
   "type": "module",
   "bin": { "sunmoon-agent": "./dist/cli.js" },
-  "engines": { "node": ">=20" },
+  "engines": { "node": ">=20.13" },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",

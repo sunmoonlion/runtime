@@ -11,7 +11,7 @@ import { createRequire } from 'node:module';
 import { locateCodex } from '../agent/dist/paths.js';
 import { freeLoopbackPort, waitForPort } from '../agent/dist/execServer.js';
 import { WindowsBridge } from '../agent/dist/windowsBridge.js';
-import { locateWindowsHelper, killWindowsTree, windowsEnvironment } from '../agent/dist/windowsRuntime.js';
+import { locateWindowsHelper, killWindowsTree, windowsEnvironment, WindowsTemporary } from '../agent/dist/windowsRuntime.js';
 const require = createRequire(new URL('../agent/package.json', import.meta.url));
 const { WebSocket, WebSocketServer } = require('ws');
 if (process.platform !== 'win32' || !process.env.SUNMOON_PROBE_OUTPUT) throw new Error('Native Windows and SUNMOON_PROBE_OUTPUT required');
@@ -47,7 +47,9 @@ fs.writeFileSync(path.join(clientHome, 'config.toml'), `model="capture-only"\nmo
 const codex = locateCodex();
 if (codex.version !== '0.155.1') throw new Error('Fixed 0.155.1 required');
 const port = await freeLoopbackPort(), url = `ws://127.0.0.1:${port}`;
-const executor = spawn(codex.codexBin, ['exec-server', '--listen', url], { cwd: home, env: windowsEnvironment(home), windowsHide: true, stdio: ['pipe', 'ignore', 'ignore'] });
+const temporary = await WindowsTemporary.create(home, [root], locateWindowsHelper());
+const executorEnvironment = windowsEnvironment(home, {}, process.env, temporary.directory);
+const executor = spawn(codex.codexBin, ['exec-server', '--listen', url], { cwd: home, env: executorEnvironment, windowsHide: true, stdio: ['pipe', 'ignore', 'ignore'] });
 const frames = [], calls = [], notifications = [], bridges = new Set(), downstream = new Set();
 let server, client, lines, seq = 0, createdFile = null;
 const pending = new Map();
@@ -69,7 +71,7 @@ try {
   server = new WebSocketServer({ host: '127.0.0.1', port: 0 });
   await new Promise(r => server.once('listening', r));
   server.on('connection', up => {
-    const bridge = new WindowsBridge({ roots: [root], home, mode: 'unelevated', helper: locateWindowsHelper(), ceiling: { sandbox: 'workspace-write', network: false }, url: () => url });
+    const bridge = new WindowsBridge({ roots: [root], home, mode: 'unelevated', helper: locateWindowsHelper(), ceiling: { sandbox: 'workspace-write', network: false }, url: () => url, temporary, executorEnvironment: () => executorEnvironment });
     bridges.add(bridge);
     const local = new WebSocket(url); downstream.add(local);
     const ready = new Promise(r => local.once('open', r));
@@ -107,7 +109,7 @@ try {
   for (const c of server?.clients ?? []) c.terminate();
   for (const c of downstream) c.terminate();
   await Promise.all([...bridges].map(b => b.close()));
-  server?.close(); model.closeAllConnections(); model.close(); await killWindowsTree(executor);
+  server?.close(); model.closeAllConnections(); model.close(); await killWindowsTree(executor); await temporary.close();
   fs.mkdirSync(output, { recursive: true });
   createdFile = fs.existsSync(path.join(root, 'client-created.txt')) ? fs.readFileSync(path.join(root, 'client-created.txt'), 'utf8').trim() : null;
   fs.writeFileSync(path.join(output, 'client-bridge.json'), JSON.stringify({ version: codex.version, calls, frames, modelRequests, writable, excludeTemp, createdFile, notifications }, null, 2) + '\n');

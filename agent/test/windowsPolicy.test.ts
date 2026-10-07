@@ -24,6 +24,16 @@ const clientFrame = () => {
   return f;
 };
 describe("Windows strict protocol policy", () => {
+  it("requires owned temp context, exact special shape and writable ceiling", () => {
+    for (const kind of ["tmpdir", "slash_tmp"]) {
+      const f: any = frame(); const entry = { path: { type: "special", value: { kind } as any }, access: "write" };
+      f.params.sandbox.permissions.file_system.entries.push(entry);
+      expect(windowsDecision(f, ceiling, [root], home, "C:\\Owned").allow).toBe(true);
+      expect(windowsDecision(f, { ...ceiling, sandbox: "read-only" }, [root], home, "C:\\Owned").allow).toBe(false);
+      entry.path.value.subpath = ".."; expect(windowsDecision(f, ceiling, [root], home, "C:\\Owned").allow).toBe(false);
+    }
+    for (const key of ["TEMP", "Tmp", "tmpdir"]) { const f: any = frame(); f.params.env[key] = "C:\\Elsewhere"; expect(windowsDecision(f, ceiling, [root], home, "C:\\Owned").allow).toBe(false); }
+  });
   it("accepts captured client metadata and strips only validated generated annotations", () => {
     const f = clientFrame(); expect(check(f).allow).toBe(true);
     expect(Object.keys(f.params.env).filter(k => !isClientWindowsEnvAnnotation(f.params, k))).toEqual(["TERM"]);

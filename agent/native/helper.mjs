@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import readline from 'node:readline';
+import os from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 if (process.platform !== 'win32') throw new Error('Windows only');
 const normal = p => {
@@ -29,6 +30,11 @@ if (process.argv[2] === '--pin-directory') {
 } else {
   const cfg = JSON.parse(Buffer.from(process.argv[2], 'base64').toString('utf8'));
   const handles = new Map();
+  const missing = (error, kind) => {
+    const response = cfg.notFound?.[kind];
+    if (error.code === 'ENOENT' && response?.code === -32004) return Object.assign(error, { rpcCode: response.code, rpcMessage: response.message });
+    return error;
+  };
   const policy = (p, write = false) => {
     normal(p);
     if (!(write ? cfg.roots : cfg.reads).some(r => under(p, r)) || cfg.deniedReads.some(r => under(p, r))) throw new Error('outside roots');
@@ -40,18 +46,33 @@ if (process.argv[2] === '--pin-directory') {
   };
   function inDirectory(dir, fn) {
     const old = process.cwd();
-    try { process.chdir(dir); inspectDirectory(dir); const a = fs.statSync('.', { bigint: true }), b = fs.statSync(dir, { bigint: true }); if (a.dev !== b.dev || a.ino !== b.ino) throw new Error('directory identity refused'); return fn(); }
+    try {
+      try { process.chdir(dir); }
+      catch (error) {
+        if (error.code !== 'ENOENT' || path.dirname(dir) === dir) throw error;
+        // Validate/pin the nearest existing ancestor before treating absence as
+        // benign. A dangling link or alias must remain a policy refusal.
+        return inDirectory(path.dirname(dir), () => {
+          try { info(dir); } catch (absent) { throw missing(absent, 'directory'); }
+          throw error;
+        });
+      }
+      inspectDirectory(dir); const a = fs.statSync('.', { bigint: true }), b = fs.statSync(dir, { bigint: true }); if (a.dev !== b.dev || a.ino !== b.ino) throw new Error('directory identity refused'); return fn();
+    }
     finally { process.chdir(old); }
   }
   function info(p) {
-    const s = fs.lstatSync(p);
+    let s; try { s = fs.lstatSync(p); } catch (error) { throw missing(error, 'file'); }
     if (s.isSymbolicLink() || (!s.isDirectory() && (!s.isFile() || s.nlink !== 1))) throw new Error('link or special file refused');
     return s;
   }
   function openRead(p) {
     policy(p);
     return inDirectory(path.dirname(p), () => {
-      const fd = fs.openSync(p, 'r');
+      info(p);
+      let fd;
+      try { fd = fs.openSync(p, 'r'); }
+      catch (error) { info(p); throw error; }
       try {
         const opened = fs.fstatSync(fd, { bigint: true }), named = fs.lstatSync(p, { bigint: true });
         if (!opened.isFile() || opened.nlink !== 1n || !named.isFile() || named.isSymbolicLink() || named.nlink !== 1n || opened.dev !== named.dev || opened.ino !== named.ino || normal(fs.realpathSync(p)) !== normal(p)) throw new Error('file identity refused');
@@ -116,6 +137,15 @@ if (process.argv[2] === '--pin-directory') {
   function dispatch(method, p) {
     const target = p.path ? local(p.path, ['fs/writeFile', 'fs/createDirectory', 'fs/remove'].includes(method)) : null;
     switch (method) {
+      case 'environmentConfig/read': {
+        const selection = v => Array.isArray(v) && v.length === 1 && Array.isArray(v[0]) && v[0].length === 1 && v[0][0] === 'mcp_servers';
+        if (!selection(p.configPaths) || !selection(p.requirementsPaths)) throw new Error('config projection refused');
+        // Only our current generated, credential-free file. No generic loader
+        // that could merge .codex, global config or requirements from elsewhere.
+        const text = read(path.join(cfg.home, 'config.toml')).toString('utf8');
+        if (!/^sandbox_mode\s*=\s*"read-only"\s+approval_policy\s*=\s*"never"\s+\[windows\]\s+sandbox\s*=\s*"(?:unelevated|elevated)"\s*$/.test(text)) throw new Error('executor config differs from owned stage-1 schema');
+        return { userHomeDir: pathToFileURL(os.homedir()).href, codexHomeDir: pathToFileURL(cfg.home).href, hostname: os.hostname(), config: { layers: [], cloudInsertionIndex: 0 }, requirements: { layers: [], cloudInsertionIndex: 0 } };
+      }
       case 'fs/readFile': return { dataBase64: read(target).toString('base64') };
       case 'fs/writeFile': {
         if (typeof p.dataBase64 !== 'string') throw new Error('invalid base64');

@@ -1,0 +1,1524 @@
+{
+  "version": "0.155.1",
+  "calls": [
+    {
+      "method": "initialize",
+      "response": {
+        "id": 1,
+        "result": {
+          "userAgent": "sunmoon-windows-client-bridge/0.155.1 (Windows 10.0.26200; x86_64) unknown (sunmoon-windows-client-bridge; 0.1.0)",
+          "codexHome": "C:\\Users\\zymun\\sunmoon-client-bridge-giq0Ug\\client-home",
+          "platformFamily": "windows",
+          "platformOs": "windows"
+        }
+      }
+    },
+    {
+      "method": "environment/add",
+      "response": {
+        "id": 2,
+        "result": {}
+      }
+    },
+    {
+      "method": "environment/info",
+      "response": {
+        "id": 3,
+        "result": {
+          "shell": {
+            "name": "powershell",
+            "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+          },
+          "cwd": "file:///C:/Users/zymun/sunmoon-client-bridge-giq0Ug/executor-home"
+        }
+      }
+    },
+    {
+      "method": "thread/start",
+      "response": {
+        "id": 4,
+        "result": {
+          "thread": {
+            "id": "01a11717-cd84-72d1-8a19-22bed82f48f3",
+            "environments": [
+              {
+                "environmentId": "native-probe",
+                "cwd": "C:\\Users\\zymun\\sunmoon-client-bridge-giq0Ug\\workspace",
+                "runtimeWorkspaceRoots": [
+                  "C:\\Users\\zymun\\sunmoon-client-bridge-giq0Ug\\workspace"
+                ]
+              }
+            ],
+            "extra": null,
+            "sessionId": "01a11717-cd84-72d1-8a19-22bed82f48f3",
+            "forkedFromId": null,
+            "parentThreadId": null,
+            "preview": "",
+            "ephemeral": false,
+            "section": null,
+            "sectionEnteredAt": null,
+            "projectId": null,
+            "historyMode": "paginated",
+            "modelProvider": "probe",
+            "model": "capture-only",
+            "reasoningEffort": null,
+            "createdAt": 1791388798,
+            "updatedAt": 1791388798,
+            "recencyAt": 1791388798,
+            "status": {
+              "type": "idle"
+            },
+            "path": "C:\\Users\\zymun\\sunmoon-client-bridge-giq0Ug\\client-home\\sessions\\2026\\10\\07\\rollout-2026-10-07T23-59-58-01a11717-cd84-72d1-8a19-22bed82f48f3.jsonl",
+            "cwd": "C:\\Users\\zymun\\sunmoon-client-bridge-giq0Ug\\workspace",
+            "cliVersion": "0.155.1",
+            "originator": "sunmoon-windows-client-bridge",
+            "source": "vscode",
+            "canAcceptDirectInput": true,
+            "threadSource": null,
+            "agentNickname": null,
+            "agentRole": null,
+            "gitInfo": null,
+            "name": null,
+            "daybreakEnabled": null,
+            "turns": []
+          },
+          "model": "capture-only",
+          "modelProvider": "probe",
+          "serviceTier": null,
+          "cwd": "C:\\Users\\zymun\\sunmoon-client-bridge-giq0Ug\\workspace",
+          "runtimeWorkspaceRoots": [
+            "C:\\Users\\zymun\\sunmoon-client-bridge-giq0Ug\\workspace"
+          ],
+          "instructionSources": [],
+          "approvalPolicy": "never",
+          "approvalsReviewer": "user",
+          "sandbox": {
+            "type": "workspaceWrite",
+            "writableRoots": [],
+            "networkAccess": false,
+            "excludeTmpdirEnvVar": false,
+            "excludeSlashTmp": false
+          },
+          "activePermissionProfile": null,
+          "reasoningEffort": null,
+          "multiAgentMode": "explicitRequestOnly"
+        }
+      }
+    },
+    {
+      "method": "turn/start",
+      "response": {
+        "id": 5,
+        "result": {
+          "turn": {
+            "id": "01a11717-ce3d-7280-9bf7-b00afd240135",
+            "items": [],
+            "itemsView": "notLoaded",
+            "status": "inProgress",
+            "error": null,
+            "startedAt": null,
+            "completedAt": null,
+            "durationMs": null
+          }
+        }
+      }
+    }
+  ],
+  "frames": [
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 1,
+        "method": "initialize",
+        "params": {
+          "clientName": "codex-environment",
+          "resumeSessionId": null
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 1,
+        "result": {
+          "sessionId": "0ace1f82-f911-4a08-97f5-a3db31c27ee3",
+          "environmentInfo": {
+            "shell": {
+              "name": "powershell",
+              "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+            },
+            "executorVersion": "0.155.1",
+            "cwd": "file:///C:/Users/zymun/sunmoon-client-bridge-giq0Ug/executor-home",
+            "userHomeDir": "file:///C:/Users/zymun",
+            "platformOs": "windows",
+            "temporaryDirectories": [
+              "file:///C:/Users/zymun/AppData/Local/sunmoon-agent/tmp/executor-cHPIO5"
+            ],
+            "tempDir": "file:///C:/Users/zymun/AppData/Local/sunmoon-agent/tmp/executor-cHPIO5",
+            "capabilities": {
+              "networkProxyLaunch": true,
+              "capabilityDiscoverySandbox": true,
+              "environmentConfigRead": true,
+              "httpHeaderEnvVars": true,
+              "sandboxedFileStreaming": true,
+              "shellSnapshotV2": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "method": "initialized",
+        "params": {}
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 2,
+        "method": "environment/info",
+        "params": null
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 2,
+        "result": {
+          "shell": {
+            "name": "powershell",
+            "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+          },
+          "executorVersion": "0.155.1",
+          "cwd": "file:///C:/Users/zymun/sunmoon-client-bridge-giq0Ug/executor-home",
+          "userHomeDir": "file:///C:/Users/zymun",
+          "platformOs": "windows",
+          "temporaryDirectories": [
+            "file:///C:/Users/zymun/AppData/Local/sunmoon-agent/tmp/executor-cHPIO5"
+          ],
+          "tempDir": "file:///C:/Users/zymun/AppData/Local/sunmoon-agent/tmp/executor-cHPIO5",
+          "capabilities": {
+            "networkProxyLaunch": true,
+            "capabilityDiscoverySandbox": true,
+            "environmentConfigRead": true,
+            "httpHeaderEnvVars": true,
+            "sandboxedFileStreaming": true,
+            "shellSnapshotV2": false
+          }
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 3,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/Users/zymun/sunmoon-client-bridge-giq0Ug/workspace/.git",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 3,
+        "error": {
+          "code": -32004,
+          "message": "系统找不到指定的文件。 (os error 2)"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 4,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/Users/zymun/sunmoon-client-bridge-giq0Ug/.git",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "direction": "denial",
+      "method": "fs/getMetadata",
+      "reason": "filesystem path outside the whitelisted roots"
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 4,
+        "error": {
+          "code": -32001,
+          "message": "sunmoon-agent local ceiling: filesystem path outside the whitelisted roots"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 5,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/Users/zymun/.git",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "direction": "denial",
+      "method": "fs/getMetadata",
+      "reason": "filesystem path outside the whitelisted roots"
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 5,
+        "error": {
+          "code": -32001,
+          "message": "sunmoon-agent local ceiling: filesystem path outside the whitelisted roots"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 6,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/Users/.git",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "direction": "denial",
+      "method": "fs/getMetadata",
+      "reason": "filesystem path outside the whitelisted roots"
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 6,
+        "error": {
+          "code": -32001,
+          "message": "sunmoon-agent local ceiling: filesystem path outside the whitelisted roots"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 7,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/.git",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "direction": "denial",
+      "method": "fs/getMetadata",
+      "reason": "filesystem path outside the whitelisted roots"
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 7,
+        "error": {
+          "code": -32001,
+          "message": "sunmoon-agent local ceiling: filesystem path outside the whitelisted roots"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 8,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/Users/zymun/sunmoon-client-bridge-giq0Ug/workspace/AGENTS.override.md",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 8,
+        "error": {
+          "code": -32004,
+          "message": "系统找不到指定的文件。 (os error 2)"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 9,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/Users/zymun/sunmoon-client-bridge-giq0Ug/workspace/.agents/skills",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 9,
+        "error": {
+          "code": -32004,
+          "message": "系统找不到指定的路径。 (os error 3)"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 10,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/Users/zymun/sunmoon-client-bridge-giq0Ug/workspace/AGENTS.md",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 10,
+        "error": {
+          "code": -32004,
+          "message": "系统找不到指定的文件。 (os error 2)"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 11,
+        "method": "environmentConfig/read",
+        "params": {
+          "cwd": "file:///C:/Users/zymun/sunmoon-client-bridge-giq0Ug/workspace",
+          "configPaths": [
+            [
+              "mcp_servers"
+            ]
+          ],
+          "requirementsPaths": [
+            [
+              "mcp_servers"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 11,
+        "result": {
+          "userHomeDir": "file:///C:/Users/zymun",
+          "codexHomeDir": "file:///C:/Users/zymun/sunmoon-client-bridge-giq0Ug/executor-home",
+          "hostname": "zymun",
+          "config": {
+            "layers": [],
+            "cloudInsertionIndex": 0
+          },
+          "requirements": {
+            "layers": [],
+            "cloudInsertionIndex": 0
+          }
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 12,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/Users/zymun/sunmoon-client-bridge-giq0Ug/workspace/.git",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 12,
+        "error": {
+          "code": -32004,
+          "message": "系统找不到指定的文件。 (os error 2)"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 13,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/Users/zymun/sunmoon-client-bridge-giq0Ug/.git",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "direction": "denial",
+      "method": "fs/getMetadata",
+      "reason": "filesystem path outside the whitelisted roots"
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 13,
+        "error": {
+          "code": -32001,
+          "message": "sunmoon-agent local ceiling: filesystem path outside the whitelisted roots"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 14,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/Users/zymun/.git",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "direction": "denial",
+      "method": "fs/getMetadata",
+      "reason": "filesystem path outside the whitelisted roots"
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 14,
+        "error": {
+          "code": -32001,
+          "message": "sunmoon-agent local ceiling: filesystem path outside the whitelisted roots"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 15,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/Users/.git",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "direction": "denial",
+      "method": "fs/getMetadata",
+      "reason": "filesystem path outside the whitelisted roots"
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 15,
+        "error": {
+          "code": -32001,
+          "message": "sunmoon-agent local ceiling: filesystem path outside the whitelisted roots"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 16,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/.git",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "direction": "denial",
+      "method": "fs/getMetadata",
+      "reason": "filesystem path outside the whitelisted roots"
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 16,
+        "error": {
+          "code": -32001,
+          "message": "sunmoon-agent local ceiling: filesystem path outside the whitelisted roots"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 17,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/Users/zymun/sunmoon-client-bridge-giq0Ug/workspace/.agents/skills",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 17,
+        "error": {
+          "code": -32004,
+          "message": "系统找不到指定的路径。 (os error 3)"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 18,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/Users/zymun/sunmoon-client-bridge-giq0Ug/workspace/.git",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 18,
+        "error": {
+          "code": -32004,
+          "message": "系统找不到指定的文件。 (os error 2)"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 19,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/Users/zymun/sunmoon-client-bridge-giq0Ug/.git",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "direction": "denial",
+      "method": "fs/getMetadata",
+      "reason": "filesystem path outside the whitelisted roots"
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 19,
+        "error": {
+          "code": -32001,
+          "message": "sunmoon-agent local ceiling: filesystem path outside the whitelisted roots"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 20,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/Users/zymun/.git",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "direction": "denial",
+      "method": "fs/getMetadata",
+      "reason": "filesystem path outside the whitelisted roots"
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 20,
+        "error": {
+          "code": -32001,
+          "message": "sunmoon-agent local ceiling: filesystem path outside the whitelisted roots"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 21,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/Users/.git",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "direction": "denial",
+      "method": "fs/getMetadata",
+      "reason": "filesystem path outside the whitelisted roots"
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 21,
+        "error": {
+          "code": -32001,
+          "message": "sunmoon-agent local ceiling: filesystem path outside the whitelisted roots"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 22,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/.git",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "direction": "denial",
+      "method": "fs/getMetadata",
+      "reason": "filesystem path outside the whitelisted roots"
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 22,
+        "error": {
+          "code": -32001,
+          "message": "sunmoon-agent local ceiling: filesystem path outside the whitelisted roots"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 23,
+        "method": "process/start",
+        "params": {
+          "processId": "77257-34f34e5e-16ea-4210-8001-6f19b916f22d",
+          "metadata": {
+            "threadId": "01a11717-cd84-72d1-8a19-22bed82f48f3",
+            "toolCallId": "call_probe"
+          },
+          "argv": [
+            "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+            "-Command",
+            "try { [Console]::OutputEncoding=[System.Text.Encoding]::UTF8 } catch {}\nSet-Content -LiteralPath client-created.txt -Value 'client probe OK' -NoNewline"
+          ],
+          "cwd": "file:///C:/Users/zymun/sunmoon-client-bridge-giq0Ug/workspace",
+          "envPolicy": {
+            "inherit": "all",
+            "ignoreDefaultExcludes": true,
+            "exclude": [
+              "CODEX_PERMISSION_PROFILE",
+              "CODEX_VERSION",
+              "CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS",
+              "CODEX_PLUGIN_METRICS_OUTPUT"
+            ],
+            "set": {},
+            "includeOnly": []
+          },
+          "env": {
+            "LC_ALL": "[REDACTED]",
+            "CODEX_THREAD_ID": "01a11717-cd84-72d1-8a19-22bed82f48f3",
+            "LC_CTYPE": "[REDACTED]",
+            "CODEX_CI": "1",
+            "LANG": "[REDACTED]",
+            "CODEX_SESSION_ID": "01a11717-cd84-72d1-8a19-22bed82f48f3",
+            "GH_PAGER": "[REDACTED]",
+            "COLORTERM": "[REDACTED]",
+            "NO_COLOR": "[REDACTED]",
+            "CODEX_SANDBOX_NETWORK_DISABLED": "1",
+            "PAGER": "[REDACTED]",
+            "CODEX_VERSION": "0.155.1",
+            "TERM": "[REDACTED]",
+            "GIT_PAGER": "[REDACTED]"
+          },
+          "tty": false,
+          "pipeStdin": false,
+          "arg0": null,
+          "sandbox": {
+            "permissions": {
+              "type": "managed",
+              "file_system": {
+                "type": "restricted",
+                "entries": [
+                  {
+                    "path": {
+                      "type": "special",
+                      "value": {
+                        "kind": "root"
+                      }
+                    },
+                    "access": "read"
+                  },
+                  {
+                    "path": {
+                      "type": "special",
+                      "value": {
+                        "kind": "project_roots"
+                      }
+                    },
+                    "access": "write"
+                  },
+                  {
+                    "path": {
+                      "type": "special",
+                      "value": {
+                        "kind": "slash_tmp"
+                      }
+                    },
+                    "access": "write"
+                  },
+                  {
+                    "path": {
+                      "type": "special",
+                      "value": {
+                        "kind": "tmpdir"
+                      }
+                    },
+                    "access": "write"
+                  },
+                  {
+                    "path": {
+                      "type": "special",
+                      "value": {
+                        "kind": "project_roots",
+                        "subpath": ".git"
+                      }
+                    },
+                    "access": "read",
+                    "missing_path_behavior": "skip"
+                  },
+                  {
+                    "path": {
+                      "type": "special",
+                      "value": {
+                        "kind": "project_roots",
+                        "subpath": ".agents"
+                      }
+                    },
+                    "access": "read",
+                    "missing_path_behavior": "skip"
+                  },
+                  {
+                    "path": {
+                      "type": "special",
+                      "value": {
+                        "kind": "project_roots",
+                        "subpath": ".codex"
+                      }
+                    },
+                    "access": "read",
+                    "missing_path_behavior": "skip"
+                  }
+                ]
+              },
+              "network": "restricted"
+            },
+            "cwd": "file:///C:/Users/zymun/sunmoon-client-bridge-giq0Ug/workspace",
+            "workspaceRoots": [
+              "file:///C:/Users/zymun/sunmoon-client-bridge-giq0Ug/workspace"
+            ],
+            "windowsSandboxLevel": "restricted-token",
+            "windowsSandboxPrivateDesktop": true,
+            "windowsSandboxProxySettingsMode": "reconcile",
+            "useLegacyLandlock": false
+          },
+          "enforceManagedNetwork": false,
+          "managedNetwork": null
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 23,
+        "result": {
+          "processId": "77257-34f34e5e-16ea-4210-8001-6f19b916f22d",
+          "sandboxType": "windowsRestrictedToken"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "method": "process/exited",
+        "params": {
+          "processId": "77257-34f34e5e-16ea-4210-8001-6f19b916f22d",
+          "seq": 1,
+          "exitCode": 0,
+          "sandboxDenied": false
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "method": "process/closed",
+        "params": {
+          "processId": "77257-34f34e5e-16ea-4210-8001-6f19b916f22d",
+          "seq": 2
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "request",
+      "frame": {
+        "id": 24,
+        "method": "process/terminate",
+        "params": {
+          "processId": "77257-34f34e5e-16ea-4210-8001-6f19b916f22d"
+        }
+      }
+    },
+    {
+      "source": "probe/windows-client-bridge.mjs",
+      "version": "0.155.1",
+      "clientPlatform": "win32",
+      "writable": true,
+      "excludeTemp": false,
+      "direction": "response",
+      "frame": {
+        "id": 24,
+        "result": {
+          "running": false
+        }
+      }
+    }
+  ],
+  "modelRequests": 2,
+  "writable": true,
+  "excludeTemp": false,
+  "createdFile": "client probe OK",
+  "notifications": [
+    {
+      "method": "remoteControl/status/changed",
+      "params": {
+        "status": "disabled",
+        "serverName": "zymun",
+        "installationId": "75e6434f-541e-43c8-8241-307a65e34f61",
+        "environmentId": null
+      },
+      "emittedAtMs": 1791388798309
+    },
+    {
+      "method": "thread/started",
+      "params": {
+        "thread": {
+          "id": "01a11717-cd84-72d1-8a19-22bed82f48f3",
+          "environments": [
+            {
+              "environmentId": "native-probe",
+              "cwd": "C:\\Users\\zymun\\sunmoon-client-bridge-giq0Ug\\workspace",
+              "runtimeWorkspaceRoots": [
+                "C:\\Users\\zymun\\sunmoon-client-bridge-giq0Ug\\workspace"
+              ]
+            }
+          ],
+          "extra": null,
+          "sessionId": "01a11717-cd84-72d1-8a19-22bed82f48f3",
+          "forkedFromId": null,
+          "parentThreadId": null,
+          "preview": "",
+          "ephemeral": false,
+          "section": null,
+          "sectionEnteredAt": null,
+          "projectId": null,
+          "historyMode": "paginated",
+          "modelProvider": "probe",
+          "model": "capture-only",
+          "reasoningEffort": null,
+          "createdAt": 1791388798,
+          "updatedAt": 1791388798,
+          "recencyAt": 1791388798,
+          "status": {
+            "type": "idle"
+          },
+          "path": "C:\\Users\\zymun\\sunmoon-client-bridge-giq0Ug\\client-home\\sessions\\2026\\10\\07\\rollout-2026-10-07T23-59-58-01a11717-cd84-72d1-8a19-22bed82f48f3.jsonl",
+          "cwd": "C:\\Users\\zymun\\sunmoon-client-bridge-giq0Ug\\workspace",
+          "cliVersion": "0.155.1",
+          "originator": "sunmoon-windows-client-bridge",
+          "source": "vscode",
+          "canAcceptDirectInput": true,
+          "threadSource": null,
+          "agentNickname": null,
+          "agentRole": null,
+          "gitInfo": null,
+          "name": null,
+          "daybreakEnabled": null,
+          "turns": []
+        }
+      },
+      "emittedAtMs": 1791388798524
+    },
+    {
+      "method": "warning",
+      "params": {
+        "threadId": "01a11717-cd84-72d1-8a19-22bed82f48f3",
+        "message": "Model metadata for `capture-only` not found. Defaulting to fallback metadata; this can degrade performance and cause issues."
+      },
+      "emittedAtMs": 1791388798537
+    },
+    {
+      "method": "thread/status/changed",
+      "params": {
+        "threadId": "01a11717-cd84-72d1-8a19-22bed82f48f3",
+        "status": {
+          "type": "active",
+          "activeFlags": []
+        }
+      },
+      "emittedAtMs": 1791388798563
+    },
+    {
+      "method": "turn/started",
+      "params": {
+        "threadId": "01a11717-cd84-72d1-8a19-22bed82f48f3",
+        "turn": {
+          "id": "01a11717-ce3d-7280-9bf7-b00afd240135",
+          "items": [],
+          "itemsView": "notLoaded",
+          "status": "inProgress",
+          "error": null,
+          "startedAt": 1791388798,
+          "completedAt": null,
+          "durationMs": null
+        }
+      },
+      "emittedAtMs": 1791388798563
+    },
+    {
+      "method": "item/started",
+      "params": {
+        "item": {
+          "type": "userMessage",
+          "id": "01a11717-ce73-7222-b43d-14075ddd70e2",
+          "clientId": null,
+          "content": [
+            {
+              "type": "text",
+              "text": "Create the owned probe file.",
+              "text_elements": []
+            }
+          ]
+        },
+        "threadId": "01a11717-cd84-72d1-8a19-22bed82f48f3",
+        "turnId": "01a11717-ce3d-7280-9bf7-b00afd240135",
+        "startedAtMs": 1791388798579
+      },
+      "emittedAtMs": 1791388798579
+    },
+    {
+      "method": "item/completed",
+      "params": {
+        "item": {
+          "type": "userMessage",
+          "id": "01a11717-ce73-7222-b43d-14075ddd70e2",
+          "clientId": null,
+          "content": [
+            {
+              "type": "text",
+              "text": "Create the owned probe file.",
+              "text_elements": []
+            }
+          ]
+        },
+        "threadId": "01a11717-cd84-72d1-8a19-22bed82f48f3",
+        "turnId": "01a11717-ce3d-7280-9bf7-b00afd240135",
+        "completedAtMs": 1791388798579
+      },
+      "emittedAtMs": 1791388798581
+    },
+    {
+      "method": "item/started",
+      "params": {
+        "item": {
+          "type": "commandExecution",
+          "id": "call_probe",
+          "pluginId": null,
+          "scriptPath": null,
+          "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command \"Set-Content -LiteralPath client-created.txt -Value 'client probe OK' -NoNewline\"",
+          "cwd": "C:\\Users\\zymun\\sunmoon-client-bridge-giq0Ug\\workspace",
+          "processId": "77257",
+          "source": "unifiedExecStartup",
+          "status": "inProgress",
+          "commandActions": [
+            {
+              "type": "unknown",
+              "command": "Set-Content -LiteralPath client-created.txt -Value 'client probe OK' -NoNewline"
+            }
+          ],
+          "aggregatedOutput": null,
+          "exitCode": null,
+          "durationMs": null
+        },
+        "threadId": "01a11717-cd84-72d1-8a19-22bed82f48f3",
+        "turnId": "01a11717-ce3d-7280-9bf7-b00afd240135",
+        "startedAtMs": 1791388798913
+      },
+      "emittedAtMs": 1791388798915
+    },
+    {
+      "method": "item/completed",
+      "params": {
+        "item": {
+          "type": "commandExecution",
+          "id": "call_probe",
+          "pluginId": null,
+          "scriptPath": null,
+          "command": "\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\" -Command \"Set-Content -LiteralPath client-created.txt -Value 'client probe OK' -NoNewline\"",
+          "cwd": "C:\\Users\\zymun\\sunmoon-client-bridge-giq0Ug\\workspace",
+          "processId": "77257",
+          "source": "unifiedExecStartup",
+          "status": "completed",
+          "commandActions": [
+            {
+              "type": "unknown",
+              "command": "Set-Content -LiteralPath client-created.txt -Value 'client probe OK' -NoNewline"
+            }
+          ],
+          "aggregatedOutput": null,
+          "exitCode": 0,
+          "durationMs": 125
+        },
+        "threadId": "01a11717-cd84-72d1-8a19-22bed82f48f3",
+        "turnId": "01a11717-ce3d-7280-9bf7-b00afd240135",
+        "completedAtMs": 1791388799038
+      },
+      "emittedAtMs": 1791388799040
+    },
+    {
+      "method": "thread/tokenUsage/updated",
+      "params": {
+        "threadId": "01a11717-cd84-72d1-8a19-22bed82f48f3",
+        "turnId": "01a11717-ce3d-7280-9bf7-b00afd240135",
+        "tokenUsage": {
+          "total": {
+            "totalTokens": 2,
+            "inputTokens": 1,
+            "cachedInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 1,
+            "reasoningOutputTokens": 0
+          },
+          "last": {
+            "totalTokens": 2,
+            "inputTokens": 1,
+            "cachedInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 1,
+            "reasoningOutputTokens": 0
+          },
+          "modelContextWindow": 258400
+        }
+      },
+      "emittedAtMs": 1791388799048
+    },
+    {
+      "method": "account/rateLimits/updated",
+      "params": {
+        "rateLimits": {
+          "limitId": "codex",
+          "limitName": null,
+          "normalModelSlug": null,
+          "primary": null,
+          "secondary": null,
+          "credits": null,
+          "individualLimit": null,
+          "spendControlReached": null,
+          "planType": null,
+          "rateLimitReachedType": null
+        }
+      },
+      "emittedAtMs": 1791388799048
+    },
+    {
+      "method": "item/started",
+      "params": {
+        "item": {
+          "type": "agentMessage",
+          "id": "msg_probe",
+          "text": "Probe finished.",
+          "phase": null,
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        },
+        "threadId": "01a11717-cd84-72d1-8a19-22bed82f48f3",
+        "turnId": "01a11717-ce3d-7280-9bf7-b00afd240135",
+        "startedAtMs": 1791388799053
+      },
+      "emittedAtMs": 1791388799054
+    },
+    {
+      "method": "item/completed",
+      "params": {
+        "item": {
+          "type": "agentMessage",
+          "id": "msg_probe",
+          "text": "Probe finished.",
+          "phase": null,
+          "memoryCitation": null,
+          "delivery": null,
+          "questions": null
+        },
+        "threadId": "01a11717-cd84-72d1-8a19-22bed82f48f3",
+        "turnId": "01a11717-ce3d-7280-9bf7-b00afd240135",
+        "completedAtMs": 1791388799054
+      },
+      "emittedAtMs": 1791388799056
+    },
+    {
+      "method": "thread/tokenUsage/updated",
+      "params": {
+        "threadId": "01a11717-cd84-72d1-8a19-22bed82f48f3",
+        "turnId": "01a11717-ce3d-7280-9bf7-b00afd240135",
+        "tokenUsage": {
+          "total": {
+            "totalTokens": 4,
+            "inputTokens": 2,
+            "cachedInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 2,
+            "reasoningOutputTokens": 0
+          },
+          "last": {
+            "totalTokens": 2,
+            "inputTokens": 1,
+            "cachedInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+            "outputTokens": 1,
+            "reasoningOutputTokens": 0
+          },
+          "modelContextWindow": 258400
+        }
+      },
+      "emittedAtMs": 1791388799060
+    },
+    {
+      "method": "account/rateLimits/updated",
+      "params": {
+        "rateLimits": {
+          "limitId": "codex",
+          "limitName": null,
+          "normalModelSlug": null,
+          "primary": null,
+          "secondary": null,
+          "credits": null,
+          "individualLimit": null,
+          "spendControlReached": null,
+          "planType": null,
+          "rateLimitReachedType": null
+        }
+      },
+      "emittedAtMs": 1791388799060
+    },
+    {
+      "method": "thread/status/changed",
+      "params": {
+        "threadId": "01a11717-cd84-72d1-8a19-22bed82f48f3",
+        "status": {
+          "type": "idle"
+        }
+      },
+      "emittedAtMs": 1791388799063
+    },
+    {
+      "method": "turn/completed",
+      "params": {
+        "threadId": "01a11717-cd84-72d1-8a19-22bed82f48f3",
+        "turn": {
+          "id": "01a11717-ce3d-7280-9bf7-b00afd240135",
+          "items": [
+            {
+              "type": "agentMessage",
+              "id": "msg_probe",
+              "text": "Probe finished.",
+              "phase": null,
+              "memoryCitation": null,
+              "delivery": null,
+              "questions": null
+            }
+          ],
+          "itemsView": "summary",
+          "status": "completed",
+          "error": null,
+          "startedAt": 1791388798,
+          "completedAt": 1791388799,
+          "durationMs": 524
+        }
+      },
+      "emittedAtMs": 1791388799063
+    }
+  ]
+}

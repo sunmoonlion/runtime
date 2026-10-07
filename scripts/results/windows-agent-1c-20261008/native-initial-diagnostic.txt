@@ -1,0 +1,30 @@
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +58
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 58, reused 58, downloaded 0, added 58, done
+
+dependencies:
++ @openai/codex 0.155.1
++ ws 8.21.3
+
+devDependencies:
++ @types/node 22.20.4
++ @types/ws 8.18.1
++ typescript 5.9.3
++ vitest 3.2.7
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: esbuild.                                            │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 901ms using pnpm v10.24.0
+
+> @sunmoon/agent@0.2.0 build C:\Users\zymun\sunmoon-probe-runs\windows-agent-1c-20261007\agent
+> tsc -p tsconfig.json
+
+[{"case":"fs/getMetadata:missing.txt","response":{"error":{"code":-32004,"message":"系统找不到指定的文件。 (os error 2)"},"id":2}},{"case":"fs/getMetadata:absent/child.txt","response":{"error":{"code":-32004,"message":"系统找不到指定的路径。 (os error 3)"},"id":3}},{"case":"fs/readFile:missing.txt","response":{"error":{"code":-32004,"message":"系统找不到指定的文件。 (os error 2)"},"id":4}},{"case":"fs/readFile:absent/child.txt","response":{"error":{"code":-32004,"message":"系统找不到指定的路径。 (os error 3)"},"id":5}},{"case":"environmentConfig/read","cwd":"C:\\Users\\zymun\\sunmoon-contract-1c-BVyY1x\\workspace","response":{"id":6,"result":{"userHomeDir":"file:///C:/Users/zymun","codexHomeDir":"file:///C:/Users/zymun/sunmoon-contract-1c-BVyY1x/home","hostname":"zymun","config":{"layers":[{"source":"user (C:\\Users\\zymun\\sunmoon-contract-1c-BVyY1x\\home\\config.toml)","baseDir":"file:///C:/Users/zymun/sunmoon-contract-1c-BVyY1x/home","toml":"[mcp_servers.home_canary]\nurl = \"https://home-canary.invalid/mcp\"\n"}],"cloudInsertionIndex":0},"requirements":{"layers":[],"cloudInsertionIndex":0}}}},{"case":"environmentConfig/read","cwd":"C:\\Users\\zymun\\sunmoon-contract-1c-BVyY1x\\home","response":{"id":7,"result":{"userHomeDir":"file:///C:/Users/zymun","codexHomeDir":"file:///C:/Users/zymun/sunmoon-contract-1c-BVyY1x/home","hostname":"zymun","config":{"layers":[{"source":"user (C:\\Users\\zymun\\sunmoon-contract-1c-BVyY1x\\home\\config.toml)","baseDir":"file:///C:/Users/zymun/sunmoon-contract-1c-BVyY1x/home","toml":"[mcp_servers.home_canary]\nurl = \"https://home-canary.invalid/mcp\"\n"}],"cloudInsertionIndex":0},"requirements":{"layers":[],"cloudInsertionIndex":0}}}},{"case":"tmpdir","response":{"error":{"code":-32602,"message":"failed to prepare process sandbox: windows unelevated restricted-token sandbox cannot enforce split writable root sets directly; refusing to run unsandboxed"},"id":8},"files":[{"path":"C:\\Users\\zymun\\sunmoon-contract-1c-BVyY1x\\temp\\tmpdir.txt","exists":false},{"path":"C:\\Users\\zymun\\sunmoon-contract-1c-BVyY1x\\workspace\\tmpdir.txt","exists":false}]},{"case":"terminate-after-close","processId":"special-tmpdir","response":{"id":9,"result":{"running":false}}},{"case":"slash_tmp","response":{"id":10,"result":{"processId":"special-slash_tmp","sandboxType":"windowsRestrictedToken"}},"files":[{"path":"C:\\Users\\zymun\\sunmoon-contract-1c-BVyY1x\\temp\\slash_tmp.txt","exists":false},{"path":"C:\\Users\\zymun\\sunmoon-contract-1c-BVyY1x\\workspace\\slash_tmp.txt","exists":false}],"exited":{"method":"process/exited","params":{"processId":"special-slash_tmp","seq":6,"exitCode":134,"sandboxDenied":false}}},{"case":"terminate-after-close","processId":"special-slash_tmp","response":{"id":11,"result":{"running":false}}},{"case":"terminate-unknown","response":{"id":12,"result":{"running":false}}}]

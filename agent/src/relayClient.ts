@@ -2,13 +2,13 @@
 // 沙箱→执行端方向的每个 JSON-RPC 请求过一遍协议过滤；越界的回错误、不转发。断线指数退避重连；exec-server 不动。
 import WebSocket from "ws";
 import { WindowsBridge } from "./windowsBridge.js";
-import type { WindowsMode, WindowsHelper } from "./windowsRuntime.js";
+import type { WindowsMode, WindowsHelper, WindowsTemporary } from "./windowsRuntime.js";
 import { decide, denialResponse, type Ceiling } from "./filter.js";
 import { log } from "./log.js";
 import { hello, type ControlMessage } from "./relayProtocol.js";
 
 export interface RelayClientOptions {
-  windows?: { home: string; helper: WindowsHelper; mode: WindowsMode };
+  windows?: { home: string; helper: WindowsHelper; mode: WindowsMode; temporary: WindowsTemporary; executorEnvironment: () => NodeJS.ProcessEnv };
   relayUrl: string;
   userId: string;
   token: string;

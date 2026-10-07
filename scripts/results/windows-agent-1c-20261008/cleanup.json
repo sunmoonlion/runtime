@@ -1,0 +1,13 @@
+{
+  "windows_live_agent_stopped": true,
+  "removed": [
+    "windows-agent-1c-20261007 (including private token config)",
+    "windows-agent-1b-20261007 owned README workspace"
+  ],
+  "owned_temp_parent_remaining": [],
+  "preserved": [
+    "original Linux config and agent",
+    "existing elevated setup",
+    "other user files"
+  ]
+}

@@ -4,7 +4,7 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import fs from "node:fs";
 import net from "node:net";
-import { killWindowsTree, windowsEnvironment, type WindowsMode } from "./windowsRuntime.js";
+import { killWindowsTree, windowsEnvironment, type WindowsMode, type WindowsTemporary } from "./windowsRuntime.js";
 import { log } from "./log.js";
 import { wrapCommand } from "./outerSandbox.js";
 
@@ -17,6 +17,7 @@ export interface ExecServerOptions {
   port: number; // 0 = 自动
   env?: Record<string, string>;
   windowsMode?: WindowsMode;
+  windowsTemporary?: WindowsTemporary;
 }
 
 export async function freeLoopbackPort(): Promise<number> {
@@ -53,6 +54,7 @@ export class ExecServer {
   port = 0;
   sandboxed = false;
   generation = 0;
+  windowsEnv: NodeJS.ProcessEnv = {};
   private starting: Promise<void> | null = null;
   constructor(private readonly opts: ExecServerOptions) {}
 
@@ -75,7 +77,9 @@ export class ExecServer {
     fs.mkdirSync(this.opts.codexHome, { recursive: true, mode: 0o700 });
     const cfg = `${this.opts.codexHome}/config.toml`;
     if (process.platform === "win32") {
-      if (!this.opts.windowsMode) throw new Error("Windows sandbox capability probe required; run init");
+      if (!this.opts.windowsMode || !this.opts.windowsTemporary) throw new Error("Windows sandbox capability and owned temporary directory required; run init");
+      this.opts.windowsTemporary.assert();
+      this.windowsEnv = windowsEnvironment(this.opts.codexHome, {}, process.env, this.opts.windowsTemporary.directory);
       fs.writeFileSync(cfg, `sandbox_mode = "read-only"\napproval_policy = "never"\n[windows]\nsandbox = "${this.opts.windowsMode}"\n`, { mode: 0o600 });
     } else if (!fs.existsSync(cfg)) fs.writeFileSync(cfg, 'sandbox_mode = "read-only"\napproval_policy = "never"\n', { mode: 0o600 });
     this.port = this.opts.port || (await freeLoopbackPort());
@@ -89,7 +93,7 @@ export class ExecServer {
       stdio: ["pipe", "pipe", "pipe"],
       windowsHide: true,
       cwd: process.platform === "win32" ? this.opts.codexHome : undefined,
-      env: process.platform === "win32" ? windowsEnvironment(this.opts.codexHome) : { ...process.env, ...(this.opts.env ?? {}), CODEX_HOME: this.opts.codexHome },
+      env: process.platform === "win32" ? this.windowsEnv : { ...process.env, ...(this.opts.env ?? {}), CODEX_HOME: this.opts.codexHome },
     });
     this.child = child;
     child.stdout?.on("data", (d) => log("debug", "exec-server stdout", { line: String(d).trimEnd() }));

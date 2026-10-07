@@ -9,7 +9,7 @@ import { isUnder, canonicalPath } from "./pathuri.js";
 import { isReservedWindowsEnv } from "./windowsPolicy.js";
 
 export type WindowsMode = "elevated" | "unelevated";
-export function windowsEnvironment(home: string, overrides: Record<string, string> = {}, inherited: NodeJS.ProcessEnv = process.env): Record<string, string> {
+export function windowsEnvironment(home: string, overrides: Record<string, string> = {}, inherited: NodeJS.ProcessEnv = process.env, temporary?: string): Record<string, string> {
   // Windows keys are case-insensitive. Canonicalize before merging so PATH
   // really overrides Path; Node otherwise chooses one of the duplicate keys.
   const result: Record<string, string> = {};
@@ -21,7 +21,7 @@ export function windowsEnvironment(home: string, overrides: Record<string, strin
     }
     result[key.toUpperCase()] = value;
   }
-  return { ...result, CODEX_HOME: home };
+  return { ...result, CODEX_HOME: home, ...(temporary ? { TEMP: temporary, TMP: temporary, TMPDIR: temporary } : {}) };
 }
 export function assertWindowsHome(home: string, roots: readonly string[]): void {
   if (canonicalPath(home, "win32") === null) throw new Error("Windows executor home must be on a local drive");
@@ -83,7 +83,7 @@ export class LocalRpc {
   close(): void { this.ws.terminate(); }
 }
 
-export async function runSandboxProbe(url: string, home: string, cwd: string, mode: WindowsMode): Promise<boolean> {
+export async function runSandboxProbe(url: string, home: string, cwd: string, mode: WindowsMode, temporary?: string): Promise<boolean> {
   const rpc = await LocalRpc.connect(url); const processId = `probe-${randomUUID()}`;
   let result: any;
   let timer: NodeJS.Timeout | undefined;
@@ -91,7 +91,7 @@ export async function runSandboxProbe(url: string, home: string, cwd: string, mo
     const closed = new Promise<any>((resolve, reject) => { timer = setTimeout(() => reject(new Error("sandbox probe timeout")), 12000); rpc.listeners.add(f => { if (f.method === "process/exited" && f.params.processId === processId) { clearTimeout(timer); resolve(f.params); } }); });
     void closed.catch(() => {});
     // Probe real launch with the isolated home; no setup/UAC or model request.
-    const response = await rpc.call("process/start", { processId, tty: false, env: windowsEnvironment(home), argv: [process.execPath, "-e", "process.stdout.write('sunmoon-sandbox-probe')"], cwd: pathToFileURL(cwd).href, sandbox: windowsProfile(cwd, [cwd], mode, false), enforceManagedNetwork: false, managedNetwork: null });
+    const response = await rpc.call("process/start", { processId, tty: false, env: windowsEnvironment(home, {}, process.env, temporary), argv: [process.execPath, "-e", "process.stdout.write('sunmoon-sandbox-probe')"], cwd: pathToFileURL(cwd).href, sandbox: windowsProfile(cwd, [cwd], mode, false), enforceManagedNetwork: false, managedNetwork: null });
     if (response.error) { closed.catch(() => {}); return false; }
     result = await closed;
     return response.result?.sandboxType === "windowsRestrictedToken" && result.exitCode === 0;
@@ -106,10 +106,10 @@ export function locateWindowsHelper(): WindowsHelper {
 }
 
 /** CLI configuration is generated locally; no shell, remote profile or executable. */
-export function windowsHelperArgs(home: string, roots: readonly string[], mode: WindowsMode, writable: boolean, helper: WindowsHelper): string[] {
+export function windowsHelperArgs(home: string, roots: readonly string[], mode: WindowsMode, writable: boolean, helper: WindowsHelper, notFound?: { file: any; directory: any }): string[] {
   const entries = ['":root"="read"', ...(writable ? roots.map(r => `${JSON.stringify(r)}="write"`) : [])];
   const profile = `permissions.sunmoon_files={filesystem={${entries.join(",")}},network={enabled=false}}`;
-  const config = Buffer.from(JSON.stringify({ roots: writable ? roots : [], reads: [...roots, home], deniedReads: [path.join(home, ".sandbox-secrets"), path.join(home, "auth.json")] })).toString("base64");
+  const config = Buffer.from(JSON.stringify({ home, notFound, roots: writable ? roots : [], reads: [...roots, home], deniedReads: [path.join(home, ".sandbox-secrets"), path.join(home, "auth.json")] })).toString("base64");
   return ["-c", profile, "-c", `windows.sandbox="${mode}"`, "sandbox", "--permission-profile", "sunmoon_files", "-C", roots[0] ?? home, "--", helper.node, helper.script, config];
 }
 
@@ -118,11 +118,24 @@ export class WindowsFiles {
   private seq = 0;
   private buffer = "";
   private stopped = false;
+  private starting?: Promise<void>;
   private pending = new Map<number, { resolve: (v: any) => void; reject: (e: Error) => void; timer: NodeJS.Timeout }>();
-  constructor(private opts: { url: () => string; home: string; roots: readonly string[]; mode: WindowsMode; writable: boolean; helper: WindowsHelper }) {}
-  private start(): void {
+  constructor(private opts: { url: () => string; home: string; roots: readonly string[]; mode: WindowsMode; writable: boolean; helper: WindowsHelper; temporary?: string }) {}
+  private async start(): Promise<void> {
     const o = this.opts;
-    this.child = spawn(locateCodex().codexBin, windowsHelperArgs(o.home, o.roots, o.mode, o.writable, o.helper), { cwd: o.roots[0] ?? o.home, env: windowsEnvironment(o.home), stdio: ["pipe", "pipe", "pipe"], windowsHide: true });
+    // Capture localized Windows messages from the pinned executor, rather than
+    // baking this development machine's language into distributed code.
+    const rpc = await LocalRpc.connect(o.url());
+    let notFound: { file: any; directory: any };
+    try {
+      const absent = path.join(o.home, `.sunmoon-not-found-${randomUUID()}`);
+      const file = (await rpc.call("fs/getMetadata", { path: pathToFileURL(absent).href, sandbox: null })).error;
+      const directory = (await rpc.call("fs/readFile", { path: pathToFileURL(path.join(absent, "child")).href, sandbox: null })).error;
+      if ([file, directory].some(e => e?.code !== -32004 || typeof e.message !== "string")) throw new Error("Unexpected executor not-found contract");
+      notFound = { file: { code: file.code, message: file.message }, directory: { code: directory.code, message: directory.message } };
+    } finally { rpc.close(); }
+    if (this.stopped) throw new Error("filesystem worker closed");
+    this.child = spawn(locateCodex().codexBin, windowsHelperArgs(o.home, o.roots, o.mode, o.writable, o.helper, notFound), { cwd: o.roots[0] ?? o.home, env: windowsEnvironment(o.home, {}, process.env, o.temporary), stdio: ["pipe", "pipe", "pipe"], windowsHide: true });
     this.child.stdout!.on("data", d => {
       this.buffer += String(d);
       if (this.buffer.length > 16 * 1024 * 1024) { void this.close(); return; }
@@ -139,7 +152,9 @@ export class WindowsFiles {
   }
   async call(method: string, params: any): Promise<any> {
     if (this.stopped) throw new Error("filesystem worker closed");
-    if (!this.child) this.start();
+    if (!this.starting) this.starting = this.start();
+    await this.starting;
+    if (this.stopped) throw new Error("filesystem worker closed");
     const id = ++this.seq;
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => { this.pending.delete(id); reject(new Error("filesystem worker timeout")); void this.close(); }, 15000);
@@ -156,7 +171,8 @@ export class WindowsFiles {
 
 /** A Windows current-directory handle prevents renaming it or its ancestors.
  * This local guard only pins a directory; all remote FS operations run sandboxed. */
-export async function pinWindowsDirectories(helper: WindowsHelper, dirs: readonly string[], home: string): Promise<() => void> {
+export type WindowsDirectoryGuard = (() => void) & { assert: () => void; close: () => Promise<void> };
+export async function pinWindowsDirectories(helper: WindowsHelper, dirs: readonly string[], home: string): Promise<WindowsDirectoryGuard> {
   const children: ChildProcess[] = [];
   const release = () => { for (const c of children) c.stdin?.end(); };
   try {
@@ -172,5 +188,48 @@ export async function pinWindowsDirectories(helper: WindowsHelper, dirs: readonl
       if (canonicalPath(fs.realpathSync.native(dir), "win32") !== canonicalPath(dir, "win32")) throw new Error("directory guard path alias");
     }
   } catch (error) { release(); for (const c of children) await killWindowsTree(c); throw error; }
-  return release;
+  return Object.assign(release, {
+    assert: () => { if (children.some(c => c.exitCode !== null || c.signalCode !== null)) throw new Error("Windows directory guard stopped"); },
+    close: async () => { release(); for (const c of children) await killWindowsTree(c); },
+  });
+}
+
+/** One agent-owned temp directory for one executor lifetime. Never sweep the
+ * parent: other running agents may own siblings. Stop executor before close. */
+export class WindowsTemporary {
+  private constructor(readonly directory: string, private guard: WindowsDirectoryGuard, private identity: { dev: bigint; ino: bigint }) {}
+  static async create(home: string, roots: readonly string[], helper: WindowsHelper): Promise<WindowsTemporary> {
+    const local = process.env.LOCALAPPDATA;
+    if (process.platform !== "win32" || !local || canonicalPath(local, "win32") === null) throw new Error("Windows LOCALAPPDATA required");
+    const parent = path.join(local, "sunmoon-agent", "tmp");
+    if (roots.some(root => isUnder(parent, root, "win32") || isUnder(root, parent, "win32"))) throw new Error("Temporary storage overlaps project roots");
+    // Pin the existing ancestor before creating descendants. Reparse aliases
+    // in the parent are checked again by the directory guard before use.
+    const ancestor = await pinWindowsDirectories(helper, [local], home);
+    let directory: string | undefined;
+    try {
+      for (const candidate of [path.dirname(parent), parent]) {
+        try { const s = fs.lstatSync(candidate); if (!s.isDirectory() || s.isSymbolicLink()) throw new Error("Temporary storage parent alias refused"); }
+        catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
+      }
+      fs.mkdirSync(parent, { recursive: true });
+      const parentGuard = await pinWindowsDirectories(helper, [parent], home);
+      try {
+        directory = fs.mkdtempSync(path.join(parent, "executor-"));
+        const guard = await pinWindowsDirectories(helper, [directory], home);
+        return new WindowsTemporary(directory, guard, fs.statSync(directory, { bigint: true }));
+      } finally { await parentGuard.close(); }
+    } catch (error) { if (directory) fs.rmSync(directory, { recursive: true, force: true }); throw error; }
+    finally { await ancestor.close(); }
+  }
+  assert(environment?: NodeJS.ProcessEnv): void {
+    this.guard.assert();
+    const s = fs.lstatSync(this.directory, { bigint: true });
+    if (!s.isDirectory() || s.isSymbolicLink() || s.dev !== this.identity.dev || s.ino !== this.identity.ino || canonicalPath(fs.realpathSync.native(this.directory), "win32") !== canonicalPath(this.directory, "win32")) throw new Error("Owned temporary directory changed");
+    if (environment && ["TEMP", "TMP", "TMPDIR"].some(k => environment[k] !== this.directory || Object.keys(environment).some(other => other !== k && other.toUpperCase() === k))) throw new Error("Executor temporary environment changed");
+  }
+  async close(): Promise<void> {
+    this.assert(); await this.guard.close();
+    fs.rmSync(this.directory, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+  }
 }

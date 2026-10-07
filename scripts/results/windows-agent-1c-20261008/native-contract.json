@@ -1,0 +1,1489 @@
+{
+  "version": "0.155.1",
+  "results": [
+    {
+      "case": "fs/getMetadata:missing.txt",
+      "response": {
+        "error": {
+          "code": -32004,
+          "message": "系统找不到指定的文件。 (os error 2)"
+        },
+        "id": 2
+      }
+    },
+    {
+      "case": "fs/getMetadata:absent/child.txt",
+      "response": {
+        "error": {
+          "code": -32004,
+          "message": "系统找不到指定的路径。 (os error 3)"
+        },
+        "id": 3
+      }
+    },
+    {
+      "case": "fs/readFile:missing.txt",
+      "response": {
+        "error": {
+          "code": -32004,
+          "message": "系统找不到指定的文件。 (os error 2)"
+        },
+        "id": 4
+      }
+    },
+    {
+      "case": "fs/readFile:absent/child.txt",
+      "response": {
+        "error": {
+          "code": -32004,
+          "message": "系统找不到指定的路径。 (os error 3)"
+        },
+        "id": 5
+      }
+    },
+    {
+      "case": "environmentConfig/read",
+      "cwd": "C:\\Users\\zymun\\sunmoon-contract-1c-t2OsWg\\workspace",
+      "response": {
+        "id": 6,
+        "result": {
+          "userHomeDir": "file:///C:/Users/zymun",
+          "codexHomeDir": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/home",
+          "hostname": "zymun",
+          "config": {
+            "layers": [
+              {
+                "source": "user (C:\\Users\\zymun\\sunmoon-contract-1c-t2OsWg\\home\\config.toml)",
+                "baseDir": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/home",
+                "toml": "[mcp_servers.home_canary]\nurl = \"https://home-canary.invalid/mcp\"\n"
+              }
+            ],
+            "cloudInsertionIndex": 0
+          },
+          "requirements": {
+            "layers": [],
+            "cloudInsertionIndex": 0
+          }
+        }
+      }
+    },
+    {
+      "case": "environmentConfig/read",
+      "cwd": "C:\\Users\\zymun\\sunmoon-contract-1c-t2OsWg\\home",
+      "response": {
+        "id": 7,
+        "result": {
+          "userHomeDir": "file:///C:/Users/zymun",
+          "codexHomeDir": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/home",
+          "hostname": "zymun",
+          "config": {
+            "layers": [
+              {
+                "source": "user (C:\\Users\\zymun\\sunmoon-contract-1c-t2OsWg\\home\\config.toml)",
+                "baseDir": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/home",
+                "toml": "[mcp_servers.home_canary]\nurl = \"https://home-canary.invalid/mcp\"\n"
+              }
+            ],
+            "cloudInsertionIndex": 0
+          },
+          "requirements": {
+            "layers": [],
+            "cloudInsertionIndex": 0
+          }
+        }
+      }
+    },
+    {
+      "case": "environmentConfig/empty-owned",
+      "response": {
+        "id": 8,
+        "result": {
+          "userHomeDir": "file:///C:/Users/zymun",
+          "codexHomeDir": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/home",
+          "hostname": "zymun",
+          "config": {
+            "layers": [],
+            "cloudInsertionIndex": 0
+          },
+          "requirements": {
+            "layers": [],
+            "cloudInsertionIndex": 0
+          }
+        }
+      }
+    },
+    {
+      "case": "project-only",
+      "response": {
+        "id": 9,
+        "result": {
+          "processId": "special-project-only",
+          "sandboxType": "windowsRestrictedToken"
+        }
+      },
+      "files": [
+        {
+          "path": "C:\\Users\\zymun\\sunmoon-contract-1c-t2OsWg\\temp\\project-only.txt",
+          "exists": false
+        },
+        {
+          "path": "C:\\Users\\zymun\\sunmoon-contract-1c-t2OsWg\\workspace\\project-only.txt",
+          "exists": true
+        },
+        {
+          "path": "C:\\Users\\zymun\\sunmoon-contract-1c-t2OsWg\\project-only-outside.txt",
+          "exists": false
+        },
+        {
+          "path": "C:\\Users\\zymun\\AppData\\Local\\Temp\\sunmoon-1c-sunmoon-contract-1c-t2OsWg-project-only.txt",
+          "exists": false
+        }
+      ],
+      "exited": {
+        "method": "process/exited",
+        "params": {
+          "processId": "special-project-only",
+          "seq": 5,
+          "exitCode": 0,
+          "sandboxDenied": false
+        }
+      }
+    },
+    {
+      "case": "terminate-after-close",
+      "processId": "special-project-only",
+      "response": {
+        "id": 10,
+        "result": {
+          "running": false
+        }
+      }
+    },
+    {
+      "case": "tmpdir",
+      "response": {
+        "id": 11,
+        "result": {
+          "processId": "special-tmpdir",
+          "sandboxType": "windowsRestrictedToken"
+        }
+      },
+      "files": [
+        {
+          "path": "C:\\Users\\zymun\\sunmoon-contract-1c-t2OsWg\\temp\\tmpdir.txt",
+          "exists": true
+        },
+        {
+          "path": "C:\\Users\\zymun\\sunmoon-contract-1c-t2OsWg\\workspace\\tmpdir.txt",
+          "exists": true
+        },
+        {
+          "path": "C:\\Users\\zymun\\sunmoon-contract-1c-t2OsWg\\tmpdir-outside.txt",
+          "exists": false
+        },
+        {
+          "path": "C:\\Users\\zymun\\AppData\\Local\\Temp\\sunmoon-1c-sunmoon-contract-1c-t2OsWg-tmpdir.txt",
+          "exists": false
+        }
+      ],
+      "exited": {
+        "method": "process/exited",
+        "params": {
+          "processId": "special-tmpdir",
+          "seq": 5,
+          "exitCode": 0,
+          "sandboxDenied": false
+        }
+      }
+    },
+    {
+      "case": "terminate-after-close",
+      "processId": "special-tmpdir",
+      "response": {
+        "id": 12,
+        "result": {
+          "running": false
+        }
+      }
+    },
+    {
+      "case": "slash_tmp",
+      "response": {
+        "id": 13,
+        "result": {
+          "processId": "special-slash_tmp",
+          "sandboxType": "windowsRestrictedToken"
+        }
+      },
+      "files": [
+        {
+          "path": "C:\\Users\\zymun\\sunmoon-contract-1c-t2OsWg\\temp\\slash_tmp.txt",
+          "exists": false
+        },
+        {
+          "path": "C:\\Users\\zymun\\sunmoon-contract-1c-t2OsWg\\workspace\\slash_tmp.txt",
+          "exists": true
+        },
+        {
+          "path": "C:\\Users\\zymun\\sunmoon-contract-1c-t2OsWg\\slash_tmp-outside.txt",
+          "exists": false
+        },
+        {
+          "path": "C:\\Users\\zymun\\AppData\\Local\\Temp\\sunmoon-1c-sunmoon-contract-1c-t2OsWg-slash_tmp.txt",
+          "exists": false
+        }
+      ],
+      "exited": {
+        "method": "process/exited",
+        "params": {
+          "processId": "special-slash_tmp",
+          "seq": 5,
+          "exitCode": 0,
+          "sandboxDenied": false
+        }
+      }
+    },
+    {
+      "case": "terminate-after-close",
+      "processId": "special-slash_tmp",
+      "response": {
+        "id": 14,
+        "result": {
+          "running": false
+        }
+      }
+    },
+    {
+      "case": "both",
+      "response": {
+        "id": 15,
+        "result": {
+          "processId": "special-both",
+          "sandboxType": "windowsRestrictedToken"
+        }
+      },
+      "files": [
+        {
+          "path": "C:\\Users\\zymun\\sunmoon-contract-1c-t2OsWg\\temp\\both.txt",
+          "exists": true
+        },
+        {
+          "path": "C:\\Users\\zymun\\sunmoon-contract-1c-t2OsWg\\workspace\\both.txt",
+          "exists": true
+        },
+        {
+          "path": "C:\\Users\\zymun\\sunmoon-contract-1c-t2OsWg\\both-outside.txt",
+          "exists": false
+        },
+        {
+          "path": "C:\\Users\\zymun\\AppData\\Local\\Temp\\sunmoon-1c-sunmoon-contract-1c-t2OsWg-both.txt",
+          "exists": false
+        }
+      ],
+      "exited": {
+        "method": "process/exited",
+        "params": {
+          "processId": "special-both",
+          "seq": 5,
+          "exitCode": 0,
+          "sandboxDenied": false
+        }
+      }
+    },
+    {
+      "case": "terminate-after-close",
+      "processId": "special-both",
+      "response": {
+        "id": 16,
+        "result": {
+          "running": false
+        }
+      }
+    },
+    {
+      "case": "terminate-unknown",
+      "response": {
+        "id": 17,
+        "result": {
+          "running": false
+        }
+      }
+    }
+  ],
+  "frames": [
+    {
+      "direction": "request",
+      "frame": {
+        "id": 1,
+        "method": "initialize",
+        "params": {
+          "clientName": "sunmoon-1c-native",
+          "resumeSessionId": null
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "id": 1,
+        "result": {
+          "sessionId": "4427c822-d709-4e1f-a2c2-a0854662215f",
+          "environmentInfo": {
+            "shell": {
+              "name": "powershell",
+              "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+            },
+            "executorVersion": "0.155.1",
+            "cwd": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/home",
+            "userHomeDir": "file:///C:/Users/zymun",
+            "platformOs": "windows",
+            "temporaryDirectories": [
+              "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/temp"
+            ],
+            "tempDir": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/temp",
+            "capabilities": {
+              "networkProxyLaunch": true,
+              "capabilityDiscoverySandbox": true,
+              "environmentConfigRead": true,
+              "httpHeaderEnvVars": true,
+              "sandboxedFileStreaming": true,
+              "shellSnapshotV2": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "direction": "request",
+      "frame": {
+        "id": 2,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/workspace/missing.txt",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "error": {
+          "code": -32004,
+          "message": "系统找不到指定的文件。 (os error 2)"
+        },
+        "id": 2
+      }
+    },
+    {
+      "direction": "request",
+      "frame": {
+        "id": 3,
+        "method": "fs/getMetadata",
+        "params": {
+          "path": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/workspace/absent/child.txt",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "error": {
+          "code": -32004,
+          "message": "系统找不到指定的路径。 (os error 3)"
+        },
+        "id": 3
+      }
+    },
+    {
+      "direction": "request",
+      "frame": {
+        "id": 4,
+        "method": "fs/readFile",
+        "params": {
+          "path": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/workspace/missing.txt",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "error": {
+          "code": -32004,
+          "message": "系统找不到指定的文件。 (os error 2)"
+        },
+        "id": 4
+      }
+    },
+    {
+      "direction": "request",
+      "frame": {
+        "id": 5,
+        "method": "fs/readFile",
+        "params": {
+          "path": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/workspace/absent/child.txt",
+          "sandbox": null
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "error": {
+          "code": -32004,
+          "message": "系统找不到指定的路径。 (os error 3)"
+        },
+        "id": 5
+      }
+    },
+    {
+      "direction": "request",
+      "frame": {
+        "id": 6,
+        "method": "environmentConfig/read",
+        "params": {
+          "cwd": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/workspace",
+          "configPaths": [
+            [
+              "mcp_servers"
+            ]
+          ],
+          "requirementsPaths": [
+            [
+              "mcp_servers"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "id": 6,
+        "result": {
+          "userHomeDir": "file:///C:/Users/zymun",
+          "codexHomeDir": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/home",
+          "hostname": "zymun",
+          "config": {
+            "layers": [
+              {
+                "source": "user (C:\\Users\\zymun\\sunmoon-contract-1c-t2OsWg\\home\\config.toml)",
+                "baseDir": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/home",
+                "toml": "[mcp_servers.home_canary]\nurl = \"https://home-canary.invalid/mcp\"\n"
+              }
+            ],
+            "cloudInsertionIndex": 0
+          },
+          "requirements": {
+            "layers": [],
+            "cloudInsertionIndex": 0
+          }
+        }
+      }
+    },
+    {
+      "direction": "request",
+      "frame": {
+        "id": 7,
+        "method": "environmentConfig/read",
+        "params": {
+          "cwd": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/home",
+          "configPaths": [
+            [
+              "mcp_servers"
+            ]
+          ],
+          "requirementsPaths": [
+            [
+              "mcp_servers"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "id": 7,
+        "result": {
+          "userHomeDir": "file:///C:/Users/zymun",
+          "codexHomeDir": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/home",
+          "hostname": "zymun",
+          "config": {
+            "layers": [
+              {
+                "source": "user (C:\\Users\\zymun\\sunmoon-contract-1c-t2OsWg\\home\\config.toml)",
+                "baseDir": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/home",
+                "toml": "[mcp_servers.home_canary]\nurl = \"https://home-canary.invalid/mcp\"\n"
+              }
+            ],
+            "cloudInsertionIndex": 0
+          },
+          "requirements": {
+            "layers": [],
+            "cloudInsertionIndex": 0
+          }
+        }
+      }
+    },
+    {
+      "direction": "request",
+      "frame": {
+        "id": 8,
+        "method": "environmentConfig/read",
+        "params": {
+          "cwd": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/workspace",
+          "configPaths": [
+            [
+              "mcp_servers"
+            ]
+          ],
+          "requirementsPaths": [
+            [
+              "mcp_servers"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "id": 8,
+        "result": {
+          "userHomeDir": "file:///C:/Users/zymun",
+          "codexHomeDir": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/home",
+          "hostname": "zymun",
+          "config": {
+            "layers": [],
+            "cloudInsertionIndex": 0
+          },
+          "requirements": {
+            "layers": [],
+            "cloudInsertionIndex": 0
+          }
+        }
+      }
+    },
+    {
+      "direction": "request",
+      "frame": {
+        "id": 9,
+        "method": "process/start",
+        "params": {
+          "processId": "special-project-only",
+          "argv": [
+            "C:\\Program Files\\nodejs\\node.exe",
+            "-e",
+            "const fs=require('fs');for(const p of [\"C:\\\\Users\\\\zymun\\\\sunmoon-contract-1c-t2OsWg\\\\temp\\\\project-only.txt\",\"C:\\\\Users\\\\zymun\\\\sunmoon-contract-1c-t2OsWg\\\\workspace\\\\project-only.txt\",\"C:\\\\Users\\\\zymun\\\\sunmoon-contract-1c-t2OsWg\\\\project-only-outside.txt\",\"C:\\\\Users\\\\zymun\\\\AppData\\\\Local\\\\Temp\\\\sunmoon-1c-sunmoon-contract-1c-t2OsWg-project-only.txt\"]){try{fs.writeFileSync(p,'owned');console.log(JSON.stringify({path:p,written:true}))}catch(e){console.log(JSON.stringify({path:p,code:e.code}))}}"
+          ],
+          "cwd": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/workspace",
+          "env": {
+            "ALLUSERSPROFILE": "[REDACTED]",
+            "APPDATA": "[REDACTED]",
+            "CHROME_CRASHPAD_PIPE_NAME": "[REDACTED]",
+            "COMMONPROGRAMFILES": "[REDACTED]",
+            "COMMONPROGRAMFILES(X86)": "[REDACTED]",
+            "COMMONPROGRAMW6432": "[REDACTED]",
+            "COMPUTERNAME": "[REDACTED]",
+            "COMSPEC": "[REDACTED]",
+            "COREPACK_ENABLE_AUTO_PIN": "[REDACTED]",
+            "COREPACK_ENABLE_PROJECT_SPEC": "[REDACTED]",
+            "COREPACK_HOME": "[REDACTED]",
+            "COREPACK_NPM_REGISTRY": "[REDACTED]",
+            "CURSOR_LAYOUT": "[REDACTED]",
+            "CURSOR_WORKSPACE_LABEL": "[REDACTED]",
+            "DRIVERDATA": "[REDACTED]",
+            "EFC_26292_1262719628": "[REDACTED]",
+            "EFC_26292_1592913036": "[REDACTED]",
+            "EFC_26292_2283032206": "[REDACTED]",
+            "EFC_26292_3789132940": "[REDACTED]",
+            "EFC_26292_4126798990": "[REDACTED]",
+            "ELECTRON_RUN_AS_NODE": "[REDACTED]",
+            "HOMEDRIVE": "[REDACTED]",
+            "HOMEPATH": "[REDACTED]",
+            "LOCALAPPDATA": "[REDACTED]",
+            "LOGONSERVER": "[REDACTED]",
+            "NUMBER_OF_PROCESSORS": "[REDACTED]",
+            "ONEDRIVE": "[REDACTED]",
+            "ONEDRIVECONSUMER": "[REDACTED]",
+            "OS": "[REDACTED]",
+            "PATH": "[REDACTED]",
+            "PATHEXT": "[REDACTED]",
+            "PROCESSOR_ARCHITECTURE": "[REDACTED]",
+            "PROCESSOR_IDENTIFIER": "[REDACTED]",
+            "PROCESSOR_LEVEL": "[REDACTED]",
+            "PROCESSOR_REVISION": "[REDACTED]",
+            "PROGRAMDATA": "[REDACTED]",
+            "PROGRAMFILES": "[REDACTED]",
+            "PROGRAMFILES(X86)": "[REDACTED]",
+            "PROGRAMW6432": "[REDACTED]",
+            "PSMODULEPATH": "[REDACTED]",
+            "PUBLIC": "[REDACTED]",
+            "RLSSVCPORT": "[REDACTED]",
+            "SESSIONNAME": "[REDACTED]",
+            "SYSTEMDRIVE": "[REDACTED]",
+            "SYSTEMROOT": "[REDACTED]",
+            "TEMP": "[REDACTED]",
+            "TMP": "[REDACTED]",
+            "USERDOMAIN": "[REDACTED]",
+            "USERDOMAIN_ROAMINGPROFILE": "[REDACTED]",
+            "USERNAME": "[REDACTED]",
+            "USERPROFILE": "[REDACTED]",
+            "VSCODE_CODE_CACHE_PATH": "[REDACTED]",
+            "VSCODE_CRASH_REPORTER_PROCESS_TYPE": "[REDACTED]",
+            "VSCODE_CWD": "[REDACTED]",
+            "VSCODE_ESM_ENTRYPOINT": "[REDACTED]",
+            "VSCODE_HANDLES_UNCAUGHT_ERRORS": "[REDACTED]",
+            "VSCODE_IPC_HOOK": "[REDACTED]",
+            "VSCODE_NLS_CONFIG": "[REDACTED]",
+            "VSCODE_PID": "[REDACTED]",
+            "VSCODE_PROCESS_TITLE": "[REDACTED]",
+            "WINDIR": "[REDACTED]",
+            "CODEX_HOME": "[REDACTED]",
+            "TMPDIR": "[REDACTED]"
+          },
+          "tty": false,
+          "sandbox": {
+            "permissions": {
+              "type": "managed",
+              "file_system": {
+                "type": "restricted",
+                "entries": [
+                  {
+                    "path": {
+                      "type": "special",
+                      "value": {
+                        "kind": "root"
+                      }
+                    },
+                    "access": "read"
+                  },
+                  {
+                    "path": {
+                      "type": "special",
+                      "value": {
+                        "kind": "project_roots"
+                      }
+                    },
+                    "access": "write"
+                  }
+                ]
+              },
+              "network": "restricted"
+            },
+            "cwd": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/workspace",
+            "workspaceRoots": [
+              "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/workspace"
+            ],
+            "windowsSandboxLevel": "restricted-token",
+            "useLegacyLandlock": false
+          }
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "id": 9,
+        "result": {
+          "processId": "special-project-only",
+          "sandboxType": "windowsRestrictedToken"
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/output",
+        "params": {
+          "processId": "special-project-only",
+          "seq": 1,
+          "stream": "stdout",
+          "chunk": "eyJwYXRoIjoiQzpcXFVzZXJzXFx6eW11blxcc3VubW9vbi1jb250cmFjdC0xYy10Mk9zV2dcXHRlbXBcXHByb2plY3Qtb25seS50eHQiLCJjb2RlIjoiRVBFUk0ifQo="
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/output",
+        "params": {
+          "processId": "special-project-only",
+          "seq": 2,
+          "stream": "stdout",
+          "chunk": "eyJwYXRoIjoiQzpcXFVzZXJzXFx6eW11blxcc3VubW9vbi1jb250cmFjdC0xYy10Mk9zV2dcXHdvcmtzcGFjZVxccHJvamVjdC1vbmx5LnR4dCIsIndyaXR0ZW4iOnRydWV9Cg=="
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/output",
+        "params": {
+          "processId": "special-project-only",
+          "seq": 3,
+          "stream": "stdout",
+          "chunk": "eyJwYXRoIjoiQzpcXFVzZXJzXFx6eW11blxcc3VubW9vbi1jb250cmFjdC0xYy10Mk9zV2dcXHByb2plY3Qtb25seS1vdXRzaWRlLnR4dCIsImNvZGUiOiJFUEVSTSJ9Cg=="
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/output",
+        "params": {
+          "processId": "special-project-only",
+          "seq": 4,
+          "stream": "stdout",
+          "chunk": "eyJwYXRoIjoiQzpcXFVzZXJzXFx6eW11blxcQXBwRGF0YVxcTG9jYWxcXFRlbXBcXHN1bm1vb24tMWMtc3VubW9vbi1jb250cmFjdC0xYy10Mk9zV2ctcHJvamVjdC1vbmx5LnR4dCIsImNvZGUiOiJFUEVSTSJ9Cg=="
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/exited",
+        "params": {
+          "processId": "special-project-only",
+          "seq": 5,
+          "exitCode": 0,
+          "sandboxDenied": false
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/closed",
+        "params": {
+          "processId": "special-project-only",
+          "seq": 6
+        }
+      }
+    },
+    {
+      "direction": "request",
+      "frame": {
+        "id": 10,
+        "method": "process/terminate",
+        "params": {
+          "processId": "special-project-only"
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "id": 10,
+        "result": {
+          "running": false
+        }
+      }
+    },
+    {
+      "direction": "request",
+      "frame": {
+        "id": 11,
+        "method": "process/start",
+        "params": {
+          "processId": "special-tmpdir",
+          "argv": [
+            "C:\\Program Files\\nodejs\\node.exe",
+            "-e",
+            "const fs=require('fs');for(const p of [\"C:\\\\Users\\\\zymun\\\\sunmoon-contract-1c-t2OsWg\\\\temp\\\\tmpdir.txt\",\"C:\\\\Users\\\\zymun\\\\sunmoon-contract-1c-t2OsWg\\\\workspace\\\\tmpdir.txt\",\"C:\\\\Users\\\\zymun\\\\sunmoon-contract-1c-t2OsWg\\\\tmpdir-outside.txt\",\"C:\\\\Users\\\\zymun\\\\AppData\\\\Local\\\\Temp\\\\sunmoon-1c-sunmoon-contract-1c-t2OsWg-tmpdir.txt\"]){try{fs.writeFileSync(p,'owned');console.log(JSON.stringify({path:p,written:true}))}catch(e){console.log(JSON.stringify({path:p,code:e.code}))}}"
+          ],
+          "cwd": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/workspace",
+          "env": {
+            "ALLUSERSPROFILE": "[REDACTED]",
+            "APPDATA": "[REDACTED]",
+            "CHROME_CRASHPAD_PIPE_NAME": "[REDACTED]",
+            "COMMONPROGRAMFILES": "[REDACTED]",
+            "COMMONPROGRAMFILES(X86)": "[REDACTED]",
+            "COMMONPROGRAMW6432": "[REDACTED]",
+            "COMPUTERNAME": "[REDACTED]",
+            "COMSPEC": "[REDACTED]",
+            "COREPACK_ENABLE_AUTO_PIN": "[REDACTED]",
+            "COREPACK_ENABLE_PROJECT_SPEC": "[REDACTED]",
+            "COREPACK_HOME": "[REDACTED]",
+            "COREPACK_NPM_REGISTRY": "[REDACTED]",
+            "CURSOR_LAYOUT": "[REDACTED]",
+            "CURSOR_WORKSPACE_LABEL": "[REDACTED]",
+            "DRIVERDATA": "[REDACTED]",
+            "EFC_26292_1262719628": "[REDACTED]",
+            "EFC_26292_1592913036": "[REDACTED]",
+            "EFC_26292_2283032206": "[REDACTED]",
+            "EFC_26292_3789132940": "[REDACTED]",
+            "EFC_26292_4126798990": "[REDACTED]",
+            "ELECTRON_RUN_AS_NODE": "[REDACTED]",
+            "HOMEDRIVE": "[REDACTED]",
+            "HOMEPATH": "[REDACTED]",
+            "LOCALAPPDATA": "[REDACTED]",
+            "LOGONSERVER": "[REDACTED]",
+            "NUMBER_OF_PROCESSORS": "[REDACTED]",
+            "ONEDRIVE": "[REDACTED]",
+            "ONEDRIVECONSUMER": "[REDACTED]",
+            "OS": "[REDACTED]",
+            "PATH": "[REDACTED]",
+            "PATHEXT": "[REDACTED]",
+            "PROCESSOR_ARCHITECTURE": "[REDACTED]",
+            "PROCESSOR_IDENTIFIER": "[REDACTED]",
+            "PROCESSOR_LEVEL": "[REDACTED]",
+            "PROCESSOR_REVISION": "[REDACTED]",
+            "PROGRAMDATA": "[REDACTED]",
+            "PROGRAMFILES": "[REDACTED]",
+            "PROGRAMFILES(X86)": "[REDACTED]",
+            "PROGRAMW6432": "[REDACTED]",
+            "PSMODULEPATH": "[REDACTED]",
+            "PUBLIC": "[REDACTED]",
+            "RLSSVCPORT": "[REDACTED]",
+            "SESSIONNAME": "[REDACTED]",
+            "SYSTEMDRIVE": "[REDACTED]",
+            "SYSTEMROOT": "[REDACTED]",
+            "TEMP": "[REDACTED]",
+            "TMP": "[REDACTED]",
+            "USERDOMAIN": "[REDACTED]",
+            "USERDOMAIN_ROAMINGPROFILE": "[REDACTED]",
+            "USERNAME": "[REDACTED]",
+            "USERPROFILE": "[REDACTED]",
+            "VSCODE_CODE_CACHE_PATH": "[REDACTED]",
+            "VSCODE_CRASH_REPORTER_PROCESS_TYPE": "[REDACTED]",
+            "VSCODE_CWD": "[REDACTED]",
+            "VSCODE_ESM_ENTRYPOINT": "[REDACTED]",
+            "VSCODE_HANDLES_UNCAUGHT_ERRORS": "[REDACTED]",
+            "VSCODE_IPC_HOOK": "[REDACTED]",
+            "VSCODE_NLS_CONFIG": "[REDACTED]",
+            "VSCODE_PID": "[REDACTED]",
+            "VSCODE_PROCESS_TITLE": "[REDACTED]",
+            "WINDIR": "[REDACTED]",
+            "CODEX_HOME": "[REDACTED]",
+            "TMPDIR": "[REDACTED]"
+          },
+          "tty": false,
+          "sandbox": {
+            "permissions": {
+              "type": "managed",
+              "file_system": {
+                "type": "restricted",
+                "entries": [
+                  {
+                    "path": {
+                      "type": "special",
+                      "value": {
+                        "kind": "root"
+                      }
+                    },
+                    "access": "read"
+                  },
+                  {
+                    "path": {
+                      "type": "special",
+                      "value": {
+                        "kind": "project_roots"
+                      }
+                    },
+                    "access": "write"
+                  },
+                  {
+                    "path": {
+                      "type": "special",
+                      "value": {
+                        "kind": "tmpdir"
+                      }
+                    },
+                    "access": "write"
+                  }
+                ]
+              },
+              "network": "restricted"
+            },
+            "cwd": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/workspace",
+            "workspaceRoots": [
+              "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/workspace"
+            ],
+            "windowsSandboxLevel": "restricted-token",
+            "useLegacyLandlock": false
+          }
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "id": 11,
+        "result": {
+          "processId": "special-tmpdir",
+          "sandboxType": "windowsRestrictedToken"
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/output",
+        "params": {
+          "processId": "special-tmpdir",
+          "seq": 1,
+          "stream": "stdout",
+          "chunk": "eyJwYXRoIjoiQzpcXFVzZXJzXFx6eW11blxcc3VubW9vbi1jb250cmFjdC0xYy10Mk9zV2dcXHRlbXBcXHRtcGRpci50eHQiLCJ3cml0dGVuIjp0cnVlfQo="
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/output",
+        "params": {
+          "processId": "special-tmpdir",
+          "seq": 2,
+          "stream": "stdout",
+          "chunk": "eyJwYXRoIjoiQzpcXFVzZXJzXFx6eW11blxcc3VubW9vbi1jb250cmFjdC0xYy10Mk9zV2dcXHdvcmtzcGFjZVxcdG1wZGlyLnR4dCIsIndyaXR0ZW4iOnRydWV9Cg=="
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/output",
+        "params": {
+          "processId": "special-tmpdir",
+          "seq": 3,
+          "stream": "stdout",
+          "chunk": "eyJwYXRoIjoiQzpcXFVzZXJzXFx6eW11blxcc3VubW9vbi1jb250cmFjdC0xYy10Mk9zV2dcXHRtcGRpci1vdXRzaWRlLnR4dCIsImNvZGUiOiJFUEVSTSJ9Cg=="
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/output",
+        "params": {
+          "processId": "special-tmpdir",
+          "seq": 4,
+          "stream": "stdout",
+          "chunk": "eyJwYXRoIjoiQzpcXFVzZXJzXFx6eW11blxcQXBwRGF0YVxcTG9jYWxcXFRlbXBcXHN1bm1vb24tMWMtc3VubW9vbi1jb250cmFjdC0xYy10Mk9zV2ctdG1wZGlyLnR4dCIsImNvZGUiOiJFUEVSTSJ9Cg=="
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/exited",
+        "params": {
+          "processId": "special-tmpdir",
+          "seq": 5,
+          "exitCode": 0,
+          "sandboxDenied": false
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/closed",
+        "params": {
+          "processId": "special-tmpdir",
+          "seq": 6
+        }
+      }
+    },
+    {
+      "direction": "request",
+      "frame": {
+        "id": 12,
+        "method": "process/terminate",
+        "params": {
+          "processId": "special-tmpdir"
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "id": 12,
+        "result": {
+          "running": false
+        }
+      }
+    },
+    {
+      "direction": "request",
+      "frame": {
+        "id": 13,
+        "method": "process/start",
+        "params": {
+          "processId": "special-slash_tmp",
+          "argv": [
+            "C:\\Program Files\\nodejs\\node.exe",
+            "-e",
+            "const fs=require('fs');for(const p of [\"C:\\\\Users\\\\zymun\\\\sunmoon-contract-1c-t2OsWg\\\\temp\\\\slash_tmp.txt\",\"C:\\\\Users\\\\zymun\\\\sunmoon-contract-1c-t2OsWg\\\\workspace\\\\slash_tmp.txt\",\"C:\\\\Users\\\\zymun\\\\sunmoon-contract-1c-t2OsWg\\\\slash_tmp-outside.txt\",\"C:\\\\Users\\\\zymun\\\\AppData\\\\Local\\\\Temp\\\\sunmoon-1c-sunmoon-contract-1c-t2OsWg-slash_tmp.txt\"]){try{fs.writeFileSync(p,'owned');console.log(JSON.stringify({path:p,written:true}))}catch(e){console.log(JSON.stringify({path:p,code:e.code}))}}"
+          ],
+          "cwd": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/workspace",
+          "env": {
+            "ALLUSERSPROFILE": "[REDACTED]",
+            "APPDATA": "[REDACTED]",
+            "CHROME_CRASHPAD_PIPE_NAME": "[REDACTED]",
+            "COMMONPROGRAMFILES": "[REDACTED]",
+            "COMMONPROGRAMFILES(X86)": "[REDACTED]",
+            "COMMONPROGRAMW6432": "[REDACTED]",
+            "COMPUTERNAME": "[REDACTED]",
+            "COMSPEC": "[REDACTED]",
+            "COREPACK_ENABLE_AUTO_PIN": "[REDACTED]",
+            "COREPACK_ENABLE_PROJECT_SPEC": "[REDACTED]",
+            "COREPACK_HOME": "[REDACTED]",
+            "COREPACK_NPM_REGISTRY": "[REDACTED]",
+            "CURSOR_LAYOUT": "[REDACTED]",
+            "CURSOR_WORKSPACE_LABEL": "[REDACTED]",
+            "DRIVERDATA": "[REDACTED]",
+            "EFC_26292_1262719628": "[REDACTED]",
+            "EFC_26292_1592913036": "[REDACTED]",
+            "EFC_26292_2283032206": "[REDACTED]",
+            "EFC_26292_3789132940": "[REDACTED]",
+            "EFC_26292_4126798990": "[REDACTED]",
+            "ELECTRON_RUN_AS_NODE": "[REDACTED]",
+            "HOMEDRIVE": "[REDACTED]",
+            "HOMEPATH": "[REDACTED]",
+            "LOCALAPPDATA": "[REDACTED]",
+            "LOGONSERVER": "[REDACTED]",
+            "NUMBER_OF_PROCESSORS": "[REDACTED]",
+            "ONEDRIVE": "[REDACTED]",
+            "ONEDRIVECONSUMER": "[REDACTED]",
+            "OS": "[REDACTED]",
+            "PATH": "[REDACTED]",
+            "PATHEXT": "[REDACTED]",
+            "PROCESSOR_ARCHITECTURE": "[REDACTED]",
+            "PROCESSOR_IDENTIFIER": "[REDACTED]",
+            "PROCESSOR_LEVEL": "[REDACTED]",
+            "PROCESSOR_REVISION": "[REDACTED]",
+            "PROGRAMDATA": "[REDACTED]",
+            "PROGRAMFILES": "[REDACTED]",
+            "PROGRAMFILES(X86)": "[REDACTED]",
+            "PROGRAMW6432": "[REDACTED]",
+            "PSMODULEPATH": "[REDACTED]",
+            "PUBLIC": "[REDACTED]",
+            "RLSSVCPORT": "[REDACTED]",
+            "SESSIONNAME": "[REDACTED]",
+            "SYSTEMDRIVE": "[REDACTED]",
+            "SYSTEMROOT": "[REDACTED]",
+            "TEMP": "[REDACTED]",
+            "TMP": "[REDACTED]",
+            "USERDOMAIN": "[REDACTED]",
+            "USERDOMAIN_ROAMINGPROFILE": "[REDACTED]",
+            "USERNAME": "[REDACTED]",
+            "USERPROFILE": "[REDACTED]",
+            "VSCODE_CODE_CACHE_PATH": "[REDACTED]",
+            "VSCODE_CRASH_REPORTER_PROCESS_TYPE": "[REDACTED]",
+            "VSCODE_CWD": "[REDACTED]",
+            "VSCODE_ESM_ENTRYPOINT": "[REDACTED]",
+            "VSCODE_HANDLES_UNCAUGHT_ERRORS": "[REDACTED]",
+            "VSCODE_IPC_HOOK": "[REDACTED]",
+            "VSCODE_NLS_CONFIG": "[REDACTED]",
+            "VSCODE_PID": "[REDACTED]",
+            "VSCODE_PROCESS_TITLE": "[REDACTED]",
+            "WINDIR": "[REDACTED]",
+            "CODEX_HOME": "[REDACTED]",
+            "TMPDIR": "[REDACTED]"
+          },
+          "tty": false,
+          "sandbox": {
+            "permissions": {
+              "type": "managed",
+              "file_system": {
+                "type": "restricted",
+                "entries": [
+                  {
+                    "path": {
+                      "type": "special",
+                      "value": {
+                        "kind": "root"
+                      }
+                    },
+                    "access": "read"
+                  },
+                  {
+                    "path": {
+                      "type": "special",
+                      "value": {
+                        "kind": "project_roots"
+                      }
+                    },
+                    "access": "write"
+                  },
+                  {
+                    "path": {
+                      "type": "special",
+                      "value": {
+                        "kind": "slash_tmp"
+                      }
+                    },
+                    "access": "write"
+                  }
+                ]
+              },
+              "network": "restricted"
+            },
+            "cwd": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/workspace",
+            "workspaceRoots": [
+              "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/workspace"
+            ],
+            "windowsSandboxLevel": "restricted-token",
+            "useLegacyLandlock": false
+          }
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "id": 13,
+        "result": {
+          "processId": "special-slash_tmp",
+          "sandboxType": "windowsRestrictedToken"
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/output",
+        "params": {
+          "processId": "special-slash_tmp",
+          "seq": 1,
+          "stream": "stdout",
+          "chunk": "eyJwYXRoIjoiQzpcXFVzZXJzXFx6eW11blxcc3VubW9vbi1jb250cmFjdC0xYy10Mk9zV2dcXHRlbXBcXHNsYXNoX3RtcC50eHQiLCJjb2RlIjoiRVBFUk0ifQo="
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/output",
+        "params": {
+          "processId": "special-slash_tmp",
+          "seq": 2,
+          "stream": "stdout",
+          "chunk": "eyJwYXRoIjoiQzpcXFVzZXJzXFx6eW11blxcc3VubW9vbi1jb250cmFjdC0xYy10Mk9zV2dcXHdvcmtzcGFjZVxcc2xhc2hfdG1wLnR4dCIsIndyaXR0ZW4iOnRydWV9Cg=="
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/output",
+        "params": {
+          "processId": "special-slash_tmp",
+          "seq": 3,
+          "stream": "stdout",
+          "chunk": "eyJwYXRoIjoiQzpcXFVzZXJzXFx6eW11blxcc3VubW9vbi1jb250cmFjdC0xYy10Mk9zV2dcXHNsYXNoX3RtcC1vdXRzaWRlLnR4dCIsImNvZGUiOiJFUEVSTSJ9Cg=="
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/output",
+        "params": {
+          "processId": "special-slash_tmp",
+          "seq": 4,
+          "stream": "stdout",
+          "chunk": "eyJwYXRoIjoiQzpcXFVzZXJzXFx6eW11blxcQXBwRGF0YVxcTG9jYWxcXFRlbXBcXHN1bm1vb24tMWMtc3VubW9vbi1jb250cmFjdC0xYy10Mk9zV2ctc2xhc2hfdG1wLnR4dCIsImNvZGUiOiJFUEVSTSJ9Cg=="
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/exited",
+        "params": {
+          "processId": "special-slash_tmp",
+          "seq": 5,
+          "exitCode": 0,
+          "sandboxDenied": false
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/closed",
+        "params": {
+          "processId": "special-slash_tmp",
+          "seq": 6
+        }
+      }
+    },
+    {
+      "direction": "request",
+      "frame": {
+        "id": 14,
+        "method": "process/terminate",
+        "params": {
+          "processId": "special-slash_tmp"
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "id": 14,
+        "result": {
+          "running": false
+        }
+      }
+    },
+    {
+      "direction": "request",
+      "frame": {
+        "id": 15,
+        "method": "process/start",
+        "params": {
+          "processId": "special-both",
+          "argv": [
+            "C:\\Program Files\\nodejs\\node.exe",
+            "-e",
+            "const fs=require('fs');for(const p of [\"C:\\\\Users\\\\zymun\\\\sunmoon-contract-1c-t2OsWg\\\\temp\\\\both.txt\",\"C:\\\\Users\\\\zymun\\\\sunmoon-contract-1c-t2OsWg\\\\workspace\\\\both.txt\",\"C:\\\\Users\\\\zymun\\\\sunmoon-contract-1c-t2OsWg\\\\both-outside.txt\",\"C:\\\\Users\\\\zymun\\\\AppData\\\\Local\\\\Temp\\\\sunmoon-1c-sunmoon-contract-1c-t2OsWg-both.txt\"]){try{fs.writeFileSync(p,'owned');console.log(JSON.stringify({path:p,written:true}))}catch(e){console.log(JSON.stringify({path:p,code:e.code}))}}"
+          ],
+          "cwd": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/workspace",
+          "env": {
+            "ALLUSERSPROFILE": "[REDACTED]",
+            "APPDATA": "[REDACTED]",
+            "CHROME_CRASHPAD_PIPE_NAME": "[REDACTED]",
+            "COMMONPROGRAMFILES": "[REDACTED]",
+            "COMMONPROGRAMFILES(X86)": "[REDACTED]",
+            "COMMONPROGRAMW6432": "[REDACTED]",
+            "COMPUTERNAME": "[REDACTED]",
+            "COMSPEC": "[REDACTED]",
+            "COREPACK_ENABLE_AUTO_PIN": "[REDACTED]",
+            "COREPACK_ENABLE_PROJECT_SPEC": "[REDACTED]",
+            "COREPACK_HOME": "[REDACTED]",
+            "COREPACK_NPM_REGISTRY": "[REDACTED]",
+            "CURSOR_LAYOUT": "[REDACTED]",
+            "CURSOR_WORKSPACE_LABEL": "[REDACTED]",
+            "DRIVERDATA": "[REDACTED]",
+            "EFC_26292_1262719628": "[REDACTED]",
+            "EFC_26292_1592913036": "[REDACTED]",
+            "EFC_26292_2283032206": "[REDACTED]",
+            "EFC_26292_3789132940": "[REDACTED]",
+            "EFC_26292_4126798990": "[REDACTED]",
+            "ELECTRON_RUN_AS_NODE": "[REDACTED]",
+            "HOMEDRIVE": "[REDACTED]",
+            "HOMEPATH": "[REDACTED]",
+            "LOCALAPPDATA": "[REDACTED]",
+            "LOGONSERVER": "[REDACTED]",
+            "NUMBER_OF_PROCESSORS": "[REDACTED]",
+            "ONEDRIVE": "[REDACTED]",
+            "ONEDRIVECONSUMER": "[REDACTED]",
+            "OS": "[REDACTED]",
+            "PATH": "[REDACTED]",
+            "PATHEXT": "[REDACTED]",
+            "PROCESSOR_ARCHITECTURE": "[REDACTED]",
+            "PROCESSOR_IDENTIFIER": "[REDACTED]",
+            "PROCESSOR_LEVEL": "[REDACTED]",
+            "PROCESSOR_REVISION": "[REDACTED]",
+            "PROGRAMDATA": "[REDACTED]",
+            "PROGRAMFILES": "[REDACTED]",
+            "PROGRAMFILES(X86)": "[REDACTED]",
+            "PROGRAMW6432": "[REDACTED]",
+            "PSMODULEPATH": "[REDACTED]",
+            "PUBLIC": "[REDACTED]",
+            "RLSSVCPORT": "[REDACTED]",
+            "SESSIONNAME": "[REDACTED]",
+            "SYSTEMDRIVE": "[REDACTED]",
+            "SYSTEMROOT": "[REDACTED]",
+            "TEMP": "[REDACTED]",
+            "TMP": "[REDACTED]",
+            "USERDOMAIN": "[REDACTED]",
+            "USERDOMAIN_ROAMINGPROFILE": "[REDACTED]",
+            "USERNAME": "[REDACTED]",
+            "USERPROFILE": "[REDACTED]",
+            "VSCODE_CODE_CACHE_PATH": "[REDACTED]",
+            "VSCODE_CRASH_REPORTER_PROCESS_TYPE": "[REDACTED]",
+            "VSCODE_CWD": "[REDACTED]",
+            "VSCODE_ESM_ENTRYPOINT": "[REDACTED]",
+            "VSCODE_HANDLES_UNCAUGHT_ERRORS": "[REDACTED]",
+            "VSCODE_IPC_HOOK": "[REDACTED]",
+            "VSCODE_NLS_CONFIG": "[REDACTED]",
+            "VSCODE_PID": "[REDACTED]",
+            "VSCODE_PROCESS_TITLE": "[REDACTED]",
+            "WINDIR": "[REDACTED]",
+            "CODEX_HOME": "[REDACTED]",
+            "TMPDIR": "[REDACTED]"
+          },
+          "tty": false,
+          "sandbox": {
+            "permissions": {
+              "type": "managed",
+              "file_system": {
+                "type": "restricted",
+                "entries": [
+                  {
+                    "path": {
+                      "type": "special",
+                      "value": {
+                        "kind": "root"
+                      }
+                    },
+                    "access": "read"
+                  },
+                  {
+                    "path": {
+                      "type": "special",
+                      "value": {
+                        "kind": "project_roots"
+                      }
+                    },
+                    "access": "write"
+                  },
+                  {
+                    "path": {
+                      "type": "special",
+                      "value": {
+                        "kind": "tmpdir"
+                      }
+                    },
+                    "access": "write"
+                  },
+                  {
+                    "path": {
+                      "type": "special",
+                      "value": {
+                        "kind": "slash_tmp"
+                      }
+                    },
+                    "access": "write"
+                  }
+                ]
+              },
+              "network": "restricted"
+            },
+            "cwd": "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/workspace",
+            "workspaceRoots": [
+              "file:///C:/Users/zymun/sunmoon-contract-1c-t2OsWg/workspace"
+            ],
+            "windowsSandboxLevel": "restricted-token",
+            "useLegacyLandlock": false
+          }
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "id": 15,
+        "result": {
+          "processId": "special-both",
+          "sandboxType": "windowsRestrictedToken"
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/output",
+        "params": {
+          "processId": "special-both",
+          "seq": 1,
+          "stream": "stdout",
+          "chunk": "eyJwYXRoIjoiQzpcXFVzZXJzXFx6eW11blxcc3VubW9vbi1jb250cmFjdC0xYy10Mk9zV2dcXHRlbXBcXGJvdGgudHh0Iiwid3JpdHRlbiI6dHJ1ZX0K"
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/output",
+        "params": {
+          "processId": "special-both",
+          "seq": 2,
+          "stream": "stdout",
+          "chunk": "eyJwYXRoIjoiQzpcXFVzZXJzXFx6eW11blxcc3VubW9vbi1jb250cmFjdC0xYy10Mk9zV2dcXHdvcmtzcGFjZVxcYm90aC50eHQiLCJ3cml0dGVuIjp0cnVlfQo="
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/output",
+        "params": {
+          "processId": "special-both",
+          "seq": 3,
+          "stream": "stdout",
+          "chunk": "eyJwYXRoIjoiQzpcXFVzZXJzXFx6eW11blxcc3VubW9vbi1jb250cmFjdC0xYy10Mk9zV2dcXGJvdGgtb3V0c2lkZS50eHQiLCJjb2RlIjoiRVBFUk0ifQo="
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/output",
+        "params": {
+          "processId": "special-both",
+          "seq": 4,
+          "stream": "stdout",
+          "chunk": "eyJwYXRoIjoiQzpcXFVzZXJzXFx6eW11blxcQXBwRGF0YVxcTG9jYWxcXFRlbXBcXHN1bm1vb24tMWMtc3VubW9vbi1jb250cmFjdC0xYy10Mk9zV2ctYm90aC50eHQiLCJjb2RlIjoiRVBFUk0ifQo="
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/exited",
+        "params": {
+          "processId": "special-both",
+          "seq": 5,
+          "exitCode": 0,
+          "sandboxDenied": false
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "method": "process/closed",
+        "params": {
+          "processId": "special-both",
+          "seq": 6
+        }
+      }
+    },
+    {
+      "direction": "request",
+      "frame": {
+        "id": 16,
+        "method": "process/terminate",
+        "params": {
+          "processId": "special-both"
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "id": 16,
+        "result": {
+          "running": false
+        }
+      }
+    },
+    {
+      "direction": "request",
+      "frame": {
+        "id": 17,
+        "method": "process/terminate",
+        "params": {
+          "processId": "never-started"
+        }
+      }
+    },
+    {
+      "direction": "response",
+      "frame": {
+        "id": 17,
+        "result": {
+          "running": false
+        }
+      }
+    }
+  ]
+}

@@ -12,7 +12,10 @@ describe("Windows command environment", () => {
     expect(windowsEnvironment("C:\\home", { pAtH: "C:\\Other", MODE: "remote" }, { Path: "C:\\Local", mode: "local" })).toEqual({ PATH: "C:\\Other", MODE: "remote", CODEX_HOME: "C:\\home" });
     expect(windowsEnvironment("C:\\home", { CODEX_HOME: "C:\\home" }, {})).toEqual({ CODEX_HOME: "C:\\home" });
   });
-  it.each(["CODEX_HOME", "codex_any", "Sunmoon_Any", "NODE_OPTIONS", "node_path", "RUST_LOG", "LD_OTHER"])("refuses remote reserved variable %s", key => {
+  it("replaces inherited global Temp with the owned directory", () => {
+    expect(windowsEnvironment("C:\\home", {}, { TEMP: "C:\\Global", Tmp: "C:\\Other", TMPDIR: "C:\\Third" }, "C:\\Owned")).toEqual({ CODEX_HOME: "C:\\home", TEMP: "C:\\Owned", TMP: "C:\\Owned", TMPDIR: "C:\\Owned" });
+  });
+  it.each(["CODEX_HOME", "codex_any", "Sunmoon_Any", "NODE_OPTIONS", "node_path", "RUST_LOG", "LD_OTHER", "TEMP", "Tmp", "tmpdir"])("refuses remote reserved variable %s", key => {
     expect(() => windowsEnvironment("C:\\home", { [key]: "bad" }, {})).toThrow("reserved");
   });
 });

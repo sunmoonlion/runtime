@@ -14,7 +14,7 @@ import { log } from "./log.js";
 import { locateCodex } from "./paths.js";
 import { RelayClient } from "./relayClient.js";
 import { detectWindowsSandbox } from "./windowsBootstrap.js";
-import { type WindowsHelper, assertWindowsHome, locateWindowsHelper, pinWindowsDirectories, runSandboxProbe } from "./windowsRuntime.js";
+import { type WindowsHelper, WindowsTemporary, assertWindowsHome, locateWindowsHelper, pinWindowsDirectories, runSandboxProbe } from "./windowsRuntime.js";
 import { canonicalPath } from "./pathuri.js";
 
 const VERSION = "0.2.0";
@@ -84,23 +84,25 @@ async function start(cfg: AgentConfig): Promise<number> {
   const codex = locateCodex();
   log("info", "sunmoon-agent starting", { version: VERSION, machine: cfg.machineName, codex: codex.version, codexBin: codex.codexBin, bwrap: codex.bwrap, platform: process.platform });
   let releaseRoots: (() => void) | undefined;
-  let windows: { home: string; helper: WindowsHelper; mode: "elevated" | "unelevated" } | undefined;
+  let windows: { home: string; helper: WindowsHelper; mode: "elevated" | "unelevated"; temporary: WindowsTemporary } | undefined;
   if (process.platform === "win32") {
     if (!cfg.windowsSandbox) throw new Error("Run init to detect Windows sandbox capability");
     assertWindowsHome(cfg.codexHome, cfg.roots);
-    windows = { home: cfg.codexHome, helper: locateWindowsHelper(), mode: cfg.windowsSandbox.mode };
-    releaseRoots = await pinWindowsDirectories(windows.helper, [...cfg.roots, cfg.codexHome], cfg.codexHome);
+    const helper = locateWindowsHelper();
+    windows = { home: cfg.codexHome, helper, mode: cfg.windowsSandbox.mode, temporary: await WindowsTemporary.create(cfg.codexHome, cfg.roots, helper) };
+    try { releaseRoots = await pinWindowsDirectories(windows.helper, [...cfg.roots, cfg.codexHome], cfg.codexHome); }
+    catch (error) { await windows.temporary.close(); throw error; }
     log("info", "Windows inner sandbox and strict protocol filter; no OS outer sandbox", { mode: windows.mode });
   }
-  const es = new ExecServer({ codexBin: codex.codexBin, bwrap: codex.bwrap, outerSandbox: cfg.outerSandbox, roots: cfg.roots, codexHome: cfg.codexHome, port: cfg.execPort, windowsMode: cfg.windowsSandbox?.mode });
+  const es = new ExecServer({ codexBin: codex.codexBin, bwrap: codex.bwrap, outerSandbox: cfg.outerSandbox, roots: cfg.roots, codexHome: cfg.codexHome, port: cfg.execPort, windowsMode: cfg.windowsSandbox?.mode, windowsTemporary: windows?.temporary });
   try {
     await es.start();
-    if (windows && !await runSandboxProbe(es.url, cfg.codexHome, cfg.roots[0] ?? cfg.codexHome, windows.mode)) throw new Error("Configured Windows sandbox is no longer usable; run init");
-  } catch (error) { await es.stop(); releaseRoots?.(); throw error; }
+    if (windows && !await runSandboxProbe(es.url, cfg.codexHome, cfg.roots[0] ?? cfg.codexHome, windows.mode, windows.temporary.directory)) throw new Error("Configured Windows sandbox is no longer usable; run init");
+  } catch (error) { await es.stop(); releaseRoots?.(); await windows?.temporary.close(); throw error; }
   // 被会合点拒绝就退出（退出码 3），不挂着一个连不上的进程：开机自启、托盘、systemd 都能据此看出出错（KIND 12 实测）
   let onRejected: (reason: string) => void = () => {};
   const relay = new RelayClient({
-    windows, relayUrl: cfg.relayUrl, userId: cfg.userId, token: cfg.token, codexVersion: codex.version, softwareVersion: VERSION,
+    windows: windows ? { ...windows, executorEnvironment: () => es.windowsEnv } : undefined, relayUrl: cfg.relayUrl, userId: cfg.userId, token: cfg.token, codexVersion: codex.version, softwareVersion: VERSION,
     localUrl: () => es.url, ceiling: () => cfg.ceiling, roots: () => cfg.roots, machineName: () => cfg.machineName,
     onRejected: (reason) => onRejected(reason),
   });
@@ -129,7 +131,7 @@ async function start(cfg: AgentConfig): Promise<number> {
       log(code === 0 ? "info" : "error", "shutting down", { why, exitCode: code });
       clearInterval(timer);
       if (code !== 0) writeStatus(); // 保留最后状态（含被拒原因），便于用户与托盘查看
-      relay.stop(); srv.close(); await es.stop(); releaseRoots?.();
+      relay.stop(); srv.close(); await es.stop(); releaseRoots?.(); await windows?.temporary.close();
       if (code === 0) { try { fs.unlinkSync(STATUS_PATH); } catch {} }
       resolve(code);
     };

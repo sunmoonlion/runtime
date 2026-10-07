@@ -7,7 +7,7 @@ const object = (v: any) => v !== null && typeof v === "object" && !Array.isArray
 const only = (v: any, keys: string[]) => object(v) && Object.keys(v).every(k => keys.includes(k));
 const string = (v: any) => typeof v === "string" && v.length > 0;
 const uuid = (v: any) => typeof v === "string" && /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(v);
-export const isReservedWindowsEnv = (key: string): boolean => /^(?:CODEX|SUNMOON|RUST|LD_)|^NODE_(?:OPTIONS|PATH)$/i.test(key);
+export const isReservedWindowsEnv = (key: string): boolean => /^(?:CODEX|SUNMOON|RUST|LD_)|^NODE_(?:OPTIONS|PATH)$|^(?:TEMP|TMP|TMPDIR)$/i.test(key);
 // Fixed-client annotations are validated here, then discarded before launch.
 // They never become remote overrides of the executor's environment.
 export function isClientWindowsEnvAnnotation(p: any, key: string): boolean {
@@ -21,6 +21,7 @@ export function isClientWindowsEnvAnnotation(p: any, key: string): boolean {
 const METHODS: Record<string, string[]> = {
   initialize: ["clientName", "resumeSessionId"], initialized: [],
   "environment/info": [], "environment/status": [],
+  "environmentConfig/read": ["cwd", "configPaths", "requirementsPaths"],
   "process/start": ["processId", "metadata", "argv", "cwd", "env", "tty", "pipeStdin", "arg0", "sandbox", "enforceManagedNetwork", "managedNetwork", "envPolicy", "shellSnapshot", "networkProxy"],
   "process/read": ["processId", "afterSeq", "maxBytes", "waitMs"],
   "process/write": ["processId", "chunk", "writeId"],
@@ -38,7 +39,7 @@ const METHODS: Record<string, string[]> = {
 };
 export const FS_WRITES = new Set(["fs/writeFile", "fs/createDirectory", "fs/remove", "fs/copy"]);
 
-export function windowsDecision(frame: any, ceiling: Ceiling, roots: readonly string[], codexHome?: string): Decision {
+export function windowsDecision(frame: any, ceiling: Ceiling, roots: readonly string[], codexHome?: string, temporary?: string): Decision {
   const method = typeof frame?.method === "string" ? frame.method : "";
   const kind: Decision["kind"] = method.startsWith("process/") ? "process" : FS_WRITES.has(method) ? "fs-write" : method.startsWith("fs/") ? "fs-read" : "other";
   const no = (reason: string): Decision => ({ allow: false, kind, reason });
@@ -62,6 +63,12 @@ export function windowsDecision(frame: any, ceiling: Ceiling, roots: readonly st
     // 0.155.1 sends explicit null on a new connection; resumed IDs are UUIDs.
     if (p.resumeSessionId != null && !uuid(p.resumeSessionId)) return no("invalid resumeSessionId");
     return ok;
+  }
+  if (method === "environmentConfig/read") {
+    // Stage 1 only exposes the captured MCP projection of our generated file.
+    // No arbitrary TOML key, filename, requirements file or project config.
+    const selection = (v: any) => Array.isArray(v) && v.length === 1 && Array.isArray(v[0]) && v[0].length === 1 && v[0][0] === "mcp_servers";
+    return codexHome && within(p.cwd, true) && selection(p.configPaths) && selection(p.requirementsPaths) ? ok : no("unsupported executor config projection");
   }
   if (method === "process/start") {
     if (!string(p.processId) || !Array.isArray(p.argv) || !p.argv.length || !p.argv.every(string) || !object(p.env) || !Object.values(p.env).every(v => typeof v === "string") || typeof p.tty !== "boolean") return no("invalid process fields");
@@ -93,6 +100,12 @@ export function windowsDecision(frame: any, ceiling: Ceiling, roots: readonly st
       else if (ep.type === "special" && only(ep.value, ["kind", "subpath"])) {
         const { kind: special, subpath } = ep.value;
         if (["root", "minimal"].includes(special) && subpath == null && entry.access === "read") continue; // OS command runtime reads, not fs RPC reads.
+        if (["tmpdir", "slash_tmp"].includes(special) && subpath == null && entry.access === "write" && temporary) {
+          if (ceiling.sandbox === "read-only") return no("write permission exceeds local ceiling read-only");
+          // Windows 0.155.1 uses fixed TEMP/TMP for tmpdir; slash_tmp is inert.
+          // The bridge validates the owned directory and executor environment.
+          continue;
+        }
         if (special !== "project_roots") return no("unsupported special filesystem permission");
         // Captured workspace-write protects these children as read-only.
         // No arbitrary subpath or writable descendant alias is accepted.

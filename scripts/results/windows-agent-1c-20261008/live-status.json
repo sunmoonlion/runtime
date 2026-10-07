@@ -1,0 +1,34 @@
+{
+  "pid": 34320,
+  "at": "2026-10-07T16:11:07.455Z",
+  "relay": {
+    "status": "connected",
+    "lastError": ""
+  },
+  "bridge": {
+    "connections": 2,
+    "active": 1,
+    "forwardedUp": 3,
+    "forwardedDown": 2,
+    "denied": 59,
+    "lastDenial": {
+      "method": "process/start",
+      "reason": "unsupported filesystem permission path",
+      "at": "2026-10-07T16:08:24.753Z"
+    }
+  },
+  "execServer": {
+    "url": "ws://127.0.0.1:53554",
+    "alive": true,
+    "sandboxed": false,
+    "generation": 1,
+    "protection": "inner-sandbox+strict-protocol",
+    "windowsSandbox": {
+      "mode": "unelevated",
+      "testedAt": "2026-10-07T16:02:04.916Z",
+      "probe": "process/start",
+      "elevatedSetupForHome": false,
+      "elevatedUsable": false
+    }
+  }
+}

@@ -1,0 +1,12 @@
+
+ RUN  v3.2.7 /home/zymun/worktrees/luna/runtime/agent
+
+ ✓ test/windowsFilter.test.ts (24 tests) 8ms
+ ✓ test/windowsPolicy.test.ts (23 tests) 16ms
+ ✓ test/windowsEnvironment.test.ts (9 tests) 4ms
+
+ Test Files  3 passed (3)
+      Tests  56 passed (56)
+   Start at  23:07:08
+   Duration  274ms (transform 131ms, setup 0ms, collect 232ms, tests 29ms, environment 0ms, prepare 151ms)
+

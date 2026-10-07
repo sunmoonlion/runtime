@@ -6,17 +6,22 @@ import { randomUUID } from "node:crypto";
 import WebSocket from "ws";
 import { locateCodex } from "./paths.js";
 import { isUnder, canonicalPath } from "./pathuri.js";
+import { isReservedWindowsEnv } from "./windowsPolicy.js";
 
 export type WindowsMode = "elevated" | "unelevated";
-export function windowsEnvironment(home: string): Record<string, string> {
+export function windowsEnvironment(home: string, overrides: Record<string, string> = {}, inherited: NodeJS.ProcessEnv = process.env): Record<string, string> {
+  // Windows keys are case-insensitive. Canonicalize before merging so PATH
+  // really overrides Path; Node otherwise chooses one of the duplicate keys.
   const result: Record<string, string> = {};
-  for (const key of ["SystemRoot", "WINDIR", "ComSpec", "TEMP", "TMP", "USERPROFILE", "APPDATA", "LOCALAPPDATA", "ProgramData", "ProgramFiles", "ProgramFiles(x86)", "PATHEXT"]) {
-    const found = Object.keys(process.env).find(k => k.toLowerCase() === key.toLowerCase());
-    if (found && process.env[found]) result[key] = process.env[found]!;
+  for (const [key, value] of Object.entries(inherited)) if (value !== undefined && !isReservedWindowsEnv(key)) result[key.toUpperCase()] = value;
+  for (const [key, value] of Object.entries(overrides)) {
+    if (isReservedWindowsEnv(key)) {
+      if (key === "CODEX_HOME" && value === home) continue;
+      throw new Error("reserved executor environment override");
+    }
+    result[key.toUpperCase()] = value;
   }
-  result.PATH = [path.join(result.SystemRoot ?? "C:\\Windows", "System32"), path.dirname(process.execPath)].join(";");
-  result.CODEX_HOME = home;
-  return result;
+  return { ...result, CODEX_HOME: home };
 }
 export function assertWindowsHome(home: string, roots: readonly string[]): void {
   if (canonicalPath(home, "win32") === null) throw new Error("Windows executor home must be on a local drive");

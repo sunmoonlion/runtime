@@ -46,9 +46,19 @@ Windows `--no-outer-sandbox` 被忽略。状态明确标识 `inner-sandbox+stric
 实际探测模式以及 `sandboxed:false`（执行器本身无外层）。这不表示文件助手或命令无沙箱。
 沙箱命令的运行库仍需要系统读取权限；文件 RPC 的读白名单不是对任意命令的全盘禁读承诺。
 
+Windows 命令继承当前用户的 PATH 和普通环境变量，过滤 `CODEX*`、`SUNMOON*`、
+`NODE_OPTIONS`、`NODE_PATH`、`RUST*`、`LD_*`，将 CODEX_HOME 固定到代理的执行器家，
+再合并允许的远端环境变量。Windows 环境键按大小写不敏感合并；远端不能覆盖保留项。
+固定客户端自动附带的版本、线程 ID、CI/禁网标记先按真实协议核值，再丢弃；
+不让它们变成远端环境覆盖。只接受已核实的 `inherit=all` 环境策略，
+实际转发完整过滤后的环境并使用 `inherit=none`，防止执行器内部变量被再次继承。
+代理不替用户安装 Git/Python/uv；工具须先能在该 Windows 用户的 PATH 中找到。
+
 当前明确拒绝：UNC/设备路径、8.3 别名、ADS、硬链接、符号链接；未知方法；
 非空的 FS 请求 sandbox（尚未实现其更窄权限组合，不会丢弃后放行）；
-process 的显式文件权限目标目前须为可固定的现有目录。`http/request` 暂不在 Windows
+process 的显式文件权限目标目前须为可固定的现有目录；只读且标记 `missing_path_behavior=skip`
+的缺失目录保留原限制，不为固定目录而创建它。默认 workspace-write 会额外申请系统临时目录写权限，
+超出白名单时仍拒绝；工作台需显式排除这两项，见 1b 结果中的待办。`http/request` 暂不在 Windows
 允许清单，网络开关不会放行未知方法。能力不足返回 `-32001`，不降级执行。
 
 文件助手和目录固定助手均复用正在运行代理的本机 Node。**不依赖 Python，
@@ -93,3 +103,27 @@ corepack pnpm@10.24.0 test
 symlink/hardlink/大小写/短名/设备路径、严格方法过滤及 CLI 生命周期。
 生命周期测试用回环测试会合点断开 20 秒后重连，并发送 4003 验证退出与进程树清理；
 这不是对生产网页“轮换令牌”的冒充验证。现网网页在线另由所有者确认。
+
+### 固定版本文件协议核对
+
+在完整 Windows 测试副本的仓根执行（需先构建 agent，保留 probe/frames.jsonl）：
+
+```powershell
+$env:SUNMOON_PROBE_OUTPUT = 'C:\path\to\owned-probe-results'
+node probe/windows-agent-contract.mjs
+```
+
+探针只创建自有临时目录，不接会合点、不使用模型凭据；比较原生 0.155.1 与助手的
+完整响应，输出 fs-frames.jsonl 和 fs-comparison.json。环境值在帧中脱敏。
+对照包含 12 种文件方法、块读取边界、真实 PATH 命令和目录句柄实验。
+样例响应一致不代表所有错误情形兼容，也不能代替网页聊天/工作/专家的真实联调。
+
+### 固定客户端命令协议核对
+
+`node probe/windows-client-bridge.mjs` 用本机确定性 HTTP 响应驱动固定版 app-server，
+经过真实 WindowsBridge 和 exec-server 执行一次只读命令。没有外部模型调用或用户凭据。
+`SUNMOON_PROBE_WRITABLE=1` 改为创建探针文件；再设置 `SUNMOON_PROBE_EXCLUDE_TEMP=1`
+在 turn/start 排除系统临时目录写权限。前者作为默认策略冲突对照，后者作为限制在项目内的成功对照。
+输出仍由 `SUNMOON_PROBE_OUTPUT` 指定；命令退出、轮次完成和目标文件均检查，失败返回非零。
+默认客户端显式配置 unelevated；`SUNMOON_PROBE_CLIENT_DEFAULT_WINDOWS=1` 可对照未配置时的行为。
+这些是协议与执行器诊断，不能当作真实浏览器、实际模型或 Linux 云端客户端的验收。

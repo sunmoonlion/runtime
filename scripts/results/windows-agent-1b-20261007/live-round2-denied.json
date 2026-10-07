@@ -1,0 +1,192 @@
+[
+  {
+    "t": "2026-10-07T14:47:51.593Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem worker refused request"
+  },
+  {
+    "t": "2026-10-07T14:47:51.594Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.594Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.594Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.594Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.595Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.595Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.595Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.595Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.646Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem worker refused request"
+  },
+  {
+    "t": "2026-10-07T14:47:51.646Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.694Z",
+    "method": "environmentConfig/read",
+    "reason": "method is not in the Windows allowlist"
+  },
+  {
+    "t": "2026-10-07T14:47:51.724Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.727Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.727Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.776Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.811Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.813Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.814Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.814Z",
+    "method": "environmentConfig/read",
+    "reason": "method is not in the Windows allowlist"
+  },
+  {
+    "t": "2026-10-07T14:47:51.860Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.874Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem worker refused request"
+  },
+  {
+    "t": "2026-10-07T14:47:51.877Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.877Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.878Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.878Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.879Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.926Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem worker refused request"
+  },
+  {
+    "t": "2026-10-07T14:47:51.932Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem worker refused request"
+  },
+  {
+    "t": "2026-10-07T14:47:51.935Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.935Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.936Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.936Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:47:51.936Z",
+    "method": "fs/getMetadata",
+    "reason": "filesystem path outside the whitelisted roots"
+  },
+  {
+    "t": "2026-10-07T14:48:08.522Z",
+    "method": "process/start",
+    "reason": "unknown or invalid request fields"
+  },
+  {
+    "t": "2026-10-07T14:48:14.573Z",
+    "method": "process/start",
+    "reason": "unknown or invalid request fields"
+  },
+  {
+    "t": "2026-10-07T14:48:21.778Z",
+    "method": "process/start",
+    "reason": "unknown or invalid request fields"
+  },
+  {
+    "t": "2026-10-07T14:48:31.100Z",
+    "method": "process/start",
+    "reason": "unknown or invalid request fields"
+  }
+]

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { windowsDecision } from "../src/windowsPolicy.js";
+import { windowsDecision, isClientWindowsEnvAnnotation } from "../src/windowsPolicy.js";
 const root = "C:\\Allowed", home = "C:\\Agent\\codex-home";
 const ceiling = { sandbox: "workspace-write", network: false } as const;
 const frame = () => ({ id: 1, method: "process/start", params: {
@@ -12,7 +12,58 @@ const frame = () => ({ id: 1, method: "process/start", params: {
   },
 } });
 const check = (f: any, over = ceiling) => windowsDecision(f, over, [root], home);
+const clientFrame = () => {
+  const f: any = frame();
+  const threadId = "01a116d9-d2f4-77f3-8f14-4deb4d373f33";
+  f.params.metadata = { threadId, toolCallId: "call_probe" };
+  f.params.envPolicy = { inherit: "all", ignoreDefaultExcludes: true, exclude: ["CODEX_PERMISSION_PROFILE", "CODEX_VERSION", "CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS", "CODEX_PLUGIN_METRICS_OUTPUT"], set: {}, includeOnly: [] };
+  f.params.env = { CODEX_THREAD_ID: threadId, CODEX_SESSION_ID: threadId, CODEX_VERSION: "0.155.1", CODEX_CI: "1", CODEX_SANDBOX_NETWORK_DISABLED: "1", TERM: "dumb" };
+  f.params.sandbox.windowsSandboxPrivateDesktop = true;
+  f.params.sandbox.windowsSandboxProxySettingsMode = "reconcile";
+  f.params.pipeStdin = false;
+  return f;
+};
 describe("Windows strict protocol policy", () => {
+  it("accepts captured client metadata and strips only validated generated annotations", () => {
+    const f = clientFrame(); expect(check(f).allow).toBe(true);
+    expect(Object.keys(f.params.env).filter(k => !isClientWindowsEnvAnnotation(f.params, k))).toEqual(["TERM"]);
+    for (const key of ["CODEX_THREAD_ID", "CODEX_SESSION_ID", "CODEX_VERSION", "CODEX_CI", "CODEX_SANDBOX_NETWORK_DISABLED", "CODEX_HOME", "codex_version", "NODE_OPTIONS"]) {
+      const bad = clientFrame(); bad.params.env[key] = "bad"; expect(check(bad).allow).toBe(false);
+    }
+  });
+  it("rejects altered environment policies, metadata and Windows launch options", () => {
+    const edits = [
+      (p: any) => p.metadata.extra = true,
+      (p: any) => p.metadata.threadId = "bad",
+      (p: any) => p.envPolicy.set.CODEX_HOME = "bad",
+      (p: any) => p.envPolicy.exclude = ["PATH"],
+      (p: any) => p.envPolicy.exclude = ["CODEX*"],
+      (p: any) => p.envPolicy.includeOnly = ["PATH"],
+      (p: any) => p.envPolicy.inherit = "none",
+      (p: any) => p.envPolicy.ignoreDefaultExcludes = false,
+      (p: any) => p.sandbox.windowsSandboxPrivateDesktop = false,
+      (p: any) => p.sandbox.windowsSandboxProxySettingsMode = "unknown",
+      (p: any) => p.pipeStdin = "yes",
+      (p: any) => p.enforceManagedNetwork = "no",
+    ];
+    for (const edit of edits) { const f = clientFrame(); edit(f.params); expect(check(f).allow).toBe(false); }
+  });
+  it("accepts the captured 0.155.1 client handshake and validates resumeSessionId", () => {
+    const init = (resumeSessionId: unknown) => ({ id: 1, method: "initialize", params: { clientName: "codex-environment", resumeSessionId } });
+    expect(check(init(null)).allow).toBe(true);
+    expect(check(init("467deea9-3b76-4af0-9a7b-db781857cd19")).allow).toBe(true);
+    for (const value of [1, {}, "", "not-a-session", "../../outside"]) expect(check(init(value)).allow).toBe(false);
+    expect(check({ ...init(null), params: { ...init(null).params, extra: true } }).allow).toBe(false);
+  });
+  it("accepts null params only on parameterless environment methods", () => {
+    for (const method of ["environment/info", "environment/status"]) {
+      expect(check({ id: 2, method, params: null }).allow).toBe(true);
+      expect(check({ id: 2, method, params: {} }).allow).toBe(true);
+      expect(check({ id: 2, method, params: [] }).allow).toBe(false);
+      expect(check({ id: 2, method, params: { extra: true } }).allow).toBe(false);
+    }
+    expect(check({ id: 2, method: "fs/readFile", params: null }).allow).toBe(false);
+  });
   it("accepts pinned process shape and sandboxed modes", () => { expect(check(frame()).allow).toBe(true); const f = frame(); f.params.sandbox.windowsSandboxLevel = "elevated"; expect(check(f).allow).toBe(true); });
   it.each([null, "none", {}, { permissions: { type: "unrestricted" } }])("refuses absent/unknown sandbox %j", sandbox => { const f: any = frame(); f.params.sandbox = sandbox; expect(check(f).allow).toBe(false); });
   it.each(["disabled", "none", "unelevated"])("refuses wire sandbox level %s", level => { const f = frame(); f.params.sandbox.windowsSandboxLevel = level; expect(check(f).allow).toBe(false); });
@@ -26,6 +77,19 @@ describe("Windows strict protocol policy", () => {
       { path: { type: "special", value: { kind: "future" } }, access: "write" },
     ]) { const f: any = frame(); f.params.sandbox.permissions.file_system.entries.push(entry); expect(check(f).allow).toBe(false); }
     const f: any = frame(); f.params.sandbox.permissions.file_system.entries.push({ path: { type: "path", path: "file:///C:/Allowed/sub" }, access: "write" }); expect(check(f).allow).toBe(true);
+  });
+  it("accepts captured read-only project guards, rejecting traversal, writes and temp grants", () => {
+    for (const subpath of [".git", ".agents", ".codex"]) {
+      const f: any = frame();
+      const guard = { path: { type: "special", value: { kind: "project_roots", subpath } }, access: "read", missing_path_behavior: "skip" };
+      f.params.sandbox.permissions.file_system.entries.push(guard); expect(check(f).allow).toBe(true);
+      guard.access = "write"; expect(check(f).allow).toBe(false);
+      guard.access = "read"; guard.path.value.subpath = "../outside"; expect(check(f).allow).toBe(false);
+    }
+    for (const kind of ["slash_tmp", "tmpdir"]) {
+      const f: any = frame(); f.params.sandbox.permissions.file_system.entries.push({ path: { type: "special", value: { kind } }, access: "write" });
+      expect(check(f).allow).toBe(false);
+    }
   });
   it("rejects network widening and reserved executor configuration overrides", () => {
     const f = frame(); f.params.sandbox.permissions.network = "enabled"; expect(check(f).allow).toBe(false);

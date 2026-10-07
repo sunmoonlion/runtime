@@ -1,0 +1,13 @@
+{
+  "version": "0.155.1",
+  "frames": [
+    {
+      "id": 1,
+      "method": "initialize",
+      "params": {
+        "clientName": "codex-environment",
+        "resumeSessionId": null
+      }
+    }
+  ]
+}

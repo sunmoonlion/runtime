@@ -1,5 +1,6 @@
 import { uriToPath } from "./pathuri.js";
-import { windowsDecision } from "./windowsPolicy.js";
+import fs from "node:fs";
+import { windowsDecision, isClientWindowsEnvAnnotation } from "./windowsPolicy.js";
 import { pinWindowsDirectories, WindowsFiles, windowsEnvironment, type WindowsHelper, type WindowsMode } from "./windowsRuntime.js";
 import type { Ceiling } from "./filter.js";
 
@@ -32,13 +33,24 @@ export class WindowsBridge {
         if (this.guards.has(p.processId) || this.starts.has(frame.id)) return reject("duplicate processId or pending request id");
         if (this.guards.size >= 64) return reject("too many active processes in this stream");
         const dirs = [p.cwd, p.sandbox.cwd, ...p.sandbox.workspaceRoots];
-        for (const entry of p.sandbox.permissions.file_system.entries) if (entry.path.type === "path") dirs.push(entry.path.path);
+        for (const entry of p.sandbox.permissions.file_system.entries) if (entry.path.type === "path") {
+          // The client emits optional read-only guards for .codex even when
+          // absent. Keep that restriction on the wire; do not create its path.
+          if (entry.access === "read" && entry.missing_path_behavior === "skip") {
+            try { fs.lstatSync(uriToPath(entry.path.path, "win32")!); }
+            catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") continue; throw error; }
+          }
+          dirs.push(entry.path.path);
+        }
         const release = await pinWindowsDirectories(this.opts.helper, dirs.map(d => uriToPath(d, "win32")!), this.opts.home);
         if (this.closed) { release(); return reject("stream closed"); }
         this.guards.set(p.processId, release); this.starts.set(frame.id, p.processId);
         // Selection is local. Remote clients cannot downgrade elevated to unelevated.
         p.sandbox.windowsSandboxLevel = this.opts.mode === "elevated" ? "elevated" : "restricted-token";
-        p.env = { ...windowsEnvironment(this.opts.home), ...p.env, CODEX_HOME: this.opts.home };
+        p.env = windowsEnvironment(this.opts.home, Object.fromEntries(Object.entries(p.env).filter(([key]) => !isClientWindowsEnvAnnotation(p, key))) as Record<string, string>);
+        // The complete, filtered local environment is now explicit. Do not
+        // inherit executor internals or apply a second remote merge afterward.
+        p.envPolicy = { inherit: "none", ignoreDefaultExcludes: true, exclude: [], set: {}, includeOnly: [] };
       } else if (method.startsWith("process/") && !this.guards.has(p.processId)) return reject("unknown processId in this stream");
       return { method, forward: JSON.stringify(frame) };
     } catch { return reject("Windows path guard or sandboxed worker unavailable"); }

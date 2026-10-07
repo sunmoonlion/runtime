@@ -89,6 +89,10 @@ describe.skipIf(process.platform !== "win32")("native Windows adversarial admiss
     expect((await call("fs/walk", { path: uri(root), options: { maxDepth: 2, maxDirectories: 100, maxEntries: 100, followDirectorySymlinks: false, pruneHiddenDirectories: false } })).result.entries.some((e: any) => e.path === uri(p))).toBe(true);
     expect((await call("fs/open", { path: uri(p), handleId: "h1" })).result.handleId).toBe("h1");
     expect((await call("fs/readBlock", { handleId: "h1", offset: 0, len: 100 })).result).toEqual({ chunk: "cG9zaXRpdmU=", eof: true });
+    // Captured from native Codex 0.155.1: an exactly full block is not EOF.
+    expect((await call("fs/readBlock", { handleId: "h1", offset: 0, len: 8 })).result).toEqual({ chunk: "cG9zaXRpdmU=", eof: false });
+    expect((await call("fs/readBlock", { handleId: "h1", offset: 8, len: 1 })).result).toEqual({ chunk: "", eof: true });
+    expect((await call("fs/readBlock", { handleId: "h1", offset: 0, len: 0 })).error).toEqual({ code: -32600, message: "file read block length must be between 1 and 1048576" });
     expect((await call("fs/close", { handleId: "h1" })).result).toEqual({});
     expect((await call("fs/readBlock", { handleId: "h1", offset: 0, len: 1 })).error.code).toBe(-32001);
     const d = path.join(root, "new-dir"); expect((await call("fs/createDirectory", { path: uri(d), recursive: false })).result).toEqual({});
@@ -96,6 +100,18 @@ describe.skipIf(process.platform !== "win32")("native Windows adversarial admiss
     expect(fs.readFileSync(path.join(d, "copy.txt"), "utf8")).toBe("positive");
     expect((await call("fs/remove", { path: uri(d), recursive: true, force: false })).result).toEqual({});
   }, 45000);
+  it("returns walk entries in the fixed executor's breadth-first order", async () => {
+    const dir = path.join(root, "walk-contract"); fs.mkdirSync(dir);
+    fs.mkdirSync(path.join(dir, "a"));
+    fs.writeFileSync(path.join(dir, "a", "nested.txt"), "nested");
+    fs.writeFileSync(path.join(dir, "b.txt"), "sibling");
+    const result = await call("fs/walk", { path: uri(dir), options: { maxDepth: 4, maxDirectories: 100, maxEntries: 100, followDirectorySymlinks: false, pruneHiddenDirectories: false } });
+    expect(result.result).toEqual({ entries: [
+      { path: uri(path.join(dir, "a")), kind: "directory" },
+      { path: uri(path.join(dir, "b.txt")), kind: "file" },
+      { path: uri(path.join(dir, "a", "nested.txt")), kind: "file" },
+    ], errors: [], truncated: false });
+  });
   it("rejects unknown methods, binary frames, responses and unlisted notifications", async () => {
     for (const raw of ['{"id":1,"method":"fs/rename","params":{}}', '{"id":1,"result":{}}', '{"method":"fs/writeFile","params":{}}', 'not-json']) expect((await bridge.receive(raw, false)).reason).toBeTruthy();
     expect((await bridge.receive('{"id":1,"method":"initialize","params":{"clientName":"x"}}', true)).reason).toBeTruthy();

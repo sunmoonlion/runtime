@@ -100,16 +100,18 @@ if (process.argv[2] === '--pin-directory') {
   function walk(p, o) {
     if (!o || ['maxDepth', 'maxDirectories', 'maxEntries'].some(k => !Number.isSafeInteger(o[k]) || o[k] < 0) || o.maxDepth > 128 || o.maxDirectories > 10000 || o.maxEntries > 10000 || o.followDirectorySymlinks) throw new Error('walk bounds refused');
     const result = { entries: [], errors: [], truncated: false }; let visited = 0;
-    function visit(dir, depth) {
-      policy(dir); if (visited++ >= o.maxDirectories) { result.truncated = true; return; }
+    const queue = [{ dir: p, depth: 0 }];
+    while (queue.length) {
+      const { dir, depth } = queue.shift();
+      policy(dir); if (visited++ >= o.maxDirectories) { result.truncated = true; break; }
       inDirectory(dir, () => { for (const name of fs.readdirSync(dir)) {
         if (result.entries.length >= o.maxEntries) { result.truncated = true; return; }
         const target = path.join(dir, name);
-        try { const m = metadata(target); result.entries.push({ path: pathToFileURL(target).href, kind: m.isDirectory ? 'directory' : 'file' }); if (m.isDirectory && depth < o.maxDepth && !(o.pruneHiddenDirectories && name.startsWith('.'))) visit(target, depth + 1); }
+        try { const m = metadata(target); result.entries.push({ path: pathToFileURL(target).href, kind: m.isDirectory ? 'directory' : 'file' }); if (m.isDirectory && depth < o.maxDepth && !(o.pruneHiddenDirectories && name.startsWith('.'))) queue.push({ dir: target, depth: depth + 1 }); }
         catch { result.errors.push({ path: pathToFileURL(target).href, message: 'entry refused or unavailable' }); }
       } });
     }
-    visit(p, 0); return result;
+    return result;
   }
   function dispatch(method, p) {
     const target = p.path ? local(p.path, ['fs/writeFile', 'fs/createDirectory', 'fs/remove'].includes(method)) : null;
@@ -133,11 +135,12 @@ if (process.argv[2] === '--pin-directory') {
         handles.set(p.handleId, openRead(target)); return { handleId: p.handleId };
       }
       case 'fs/readBlock': {
+        if (!Number.isSafeInteger(p.len) || p.len < 1 || p.len > 1024 * 1024) throw Object.assign(new Error('invalid block length'), { rpcCode: -32600, rpcMessage: 'file read block length must be between 1 and 1048576' });
         const fd = handles.get(p.handleId);
-        if (fd === undefined || !Number.isSafeInteger(p.offset) || p.offset < 0 || !Number.isSafeInteger(p.len) || p.len < 0 || p.len > 1024 * 1024) throw new Error('invalid block');
+        if (fd === undefined || !Number.isSafeInteger(p.offset) || p.offset < 0) throw new Error('invalid block');
         const stat = fs.fstatSync(fd); if (stat.nlink !== 1) throw new Error('file links changed');
         const b = Buffer.alloc(p.len), n = fs.readSync(fd, b, 0, b.length, p.offset);
-        return { chunk: b.subarray(0, n).toString('base64'), eof: p.offset + n >= stat.size };
+        return { chunk: b.subarray(0, n).toString('base64'), eof: n < p.len };
       }
       case 'fs/close': { const fd = handles.get(p.handleId); if (fd === undefined) throw new Error('unknown handle'); fs.closeSync(fd); handles.delete(p.handleId); return {}; }
       default: throw new Error('unknown method');
@@ -147,7 +150,7 @@ if (process.argv[2] === '--pin-directory') {
   lines.on('line', line => {
     let id = null;
     try { if (line.length > 12 * 1024 * 1024) throw new Error('frame too large'); const f = JSON.parse(line); id = f.id; process.stdout.write(JSON.stringify({ id, result: dispatch(f.method, f.params) }) + '\n'); }
-    catch (e) { process.stdout.write(JSON.stringify({ id, error: { code: -32001, message: 'sunmoon-agent local ceiling: filesystem operation refused or unavailable', data: { reason: e.code ?? (e.message.includes('refused') ? e.message : 'invalid operation'), syscall: e.syscall } } }) + '\n'); }
+    catch (e) { process.stdout.write(JSON.stringify({ id, error: e.rpcCode ? { code: e.rpcCode, message: e.rpcMessage } : { code: -32001, message: 'sunmoon-agent local ceiling: filesystem operation refused or unavailable', data: { reason: e.code ?? (e.message.includes('refused') ? e.message : 'invalid operation'), syscall: e.syscall } } }) + '\n'); }
   });
   lines.on('close', () => { for (const fd of handles.values()) fs.closeSync(fd); });
 }

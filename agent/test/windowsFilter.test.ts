@@ -8,7 +8,11 @@ import { canonicalPath, isUnder, uriToPath } from "../src/pathuri.js";
 // are explicitly adversarial/normalization variants, not claimed wire captures.
 const captures = fs.readFileSync(path.resolve(__dirname, "../../probe/frames.jsonl"), "utf8")
   .trim().split("\n").map(line => JSON.parse(line));
-const requests = captures.filter(row => row.direction === "request").map(row => row.frame);
+const boundarySources = new Set([
+  "scripts/results/windows-unelevated-20261007/outer-final.frames.jsonl",
+  "scripts/results/windows-agent-1-20261007/inner-cmdlet.txt",
+]);
+const requests = captures.filter(row => row.direction === "request" && boundarySources.has(row.source)).map(row => row.frame);
 const start = requests.find(f => f.method === "process/start");
 const writes = requests.filter(f => f.method === "fs/writeFile");
 const root = uriToPath(start.params.cwd, "win32")!;

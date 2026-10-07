@@ -41,8 +41,16 @@ describe.skipIf(process.platform !== "win32")("Windows CLI real lifecycle + loop
       expect((await call("initialize", { clientName: "native-cli-test" })).result.environmentInfo.executorVersion).toBe("0.155.1"); data!.send(JSON.stringify({ method: "initialized", params: {} }));
       const target = path.join(root, "via-relay.txt");
       expect((await call("fs/writeFile", { path: pathToFileURL(target).href, dataBase64: "YnJpZGdl" })).result).toEqual({});expect(fs.readFileSync(target, "utf8")).toBe("bridge");
-      const request = { processId: "remote-1", argv: [globalThis.process.execPath, "-e", "require('fs').writeFileSync('command.txt','ran')"], tty: false, env: {}, cwd: pathToFileURL(root).href, sandbox: windowsProfile(root, [root], "unelevated") };
+      const threadId = "01a116d9-d2f4-77f3-8f14-4deb4d373f33";
+      const sandbox = windowsProfile(root, [root], "unelevated");
+      (sandbox.permissions.file_system.entries as any[]).push({ path: { type: "path", path: pathToFileURL(path.join(root, ".codex")).href }, access: "read", missing_path_behavior: "skip" });
+      const request = { processId: "remote-1", metadata: { threadId, toolCallId: "native-lifecycle" }, argv: [globalThis.process.execPath, "-e", "require('fs').writeFileSync('command.txt','ran');require('fs').writeFileSync('env-check.json',JSON.stringify({home:process.env.CODEX_HOME,clientMarker:process.env.CODEX_CI??null,pathPresent:!!process.env.PATH}))"], tty: false,
+        envPolicy: { inherit: "all", ignoreDefaultExcludes: true, exclude: ["CODEX_VERSION"], set: {}, includeOnly: [] },
+        env: { CODEX_THREAD_ID: threadId, CODEX_SESSION_ID: threadId, CODEX_VERSION: "0.155.1", CODEX_CI: "1", CODEX_SANDBOX_NETWORK_DISABLED: "1" }, cwd: pathToFileURL(root).href, sandbox };
       expect((await call("process/start", request)).result.sandboxType).toBe("windowsRestrictedToken"); await until(() => fs.existsSync(path.join(root, "command.txt")));
+      await until(() => fs.existsSync(path.join(root, "env-check.json")));
+      expect(JSON.parse(fs.readFileSync(path.join(root, "env-check.json"), "utf8"))).toEqual({ home: JSON.parse(fs.readFileSync(path.join(home, "config.json"), "utf8")).codexHome, clientMarker: null, pathPresent: true });
+      expect(fs.existsSync(path.join(root, ".codex"))).toBe(false);
       expect((await call("process/start", { ...request, processId: "unsafe", sandbox: null })).error.code).toBe(-32001);
       const readOnly = { ...request, processId: "read-only", argv: [globalThis.process.execPath, "-e", "require('fs').writeFileSync('read-only.txt','bad')"], sandbox: windowsProfile(root, [root], "unelevated", false) };
       expect((await call("process/start", readOnly)).result.sandboxType).toBe("windowsRestrictedToken"); await until(() => received.some(f => f.method === "process/exited" && f.params.processId === "read-only")); expect(fs.existsSync(path.join(root, "read-only.txt"))).toBe(false);

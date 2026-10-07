@@ -1,5 +1,36 @@
 # CHECKPOINT（runtime 仓，分支 luna）
 
+## 当前停点：第 1 段补验 1b，待远程修工作台请求后复验
+
+基线 `9d68ed90dca32193a263b544123122c916b8f088`；按 k8s `87e36b47` 最新反馈，
+仅修改 runtime，不进入第 2 段。顺序与完成条件：
+
+1. 用户环境/PATH 继承、保留变量过滤和远端合并；真实工具可发现性验证。
+2. 固定 0.155.1 的所有 fs 真回包与 Node 助手逐字段核对，帧追加入 probe/frames.jsonl。
+3. opendir 句柄优化先原生实验；失败保留已验过的目录固定方式。
+4. 原生攻击回归通过后，临时连接 Windows 代理，由所有者在网页执行聊天/建文件/专家，记录全部拒绝；结束恢复原 Linux 代理。
+5. 追加 windows-agent-1b 结果，清理临时凭据/副本，本地提交交审。
+
+第 4 项未实际完成不能写整个第 1 段已交付。
+
+1b 已完成：环境继承与保留项过滤；原生 FS 14 组真回包对齐，修复 walk 顺序、
+readBlock 的 eof/零长度错误；opendir 不阻止重命名，保留 cwd guard。
+首轮真实网页请求已到达，initialize 被拒 3 次（resumeSessionId:null 漏列）。
+已恢复原 Linux 代理且核对配置摘要不变；又用固定版 app-server → WindowsBridge →
+exec-server 的无模型探针发现 environment/info 的 params:null 漏列，两处已修复。
+本地客户端现在可取得环境信息并建立线程，白名单外 metadata 与 MCP 配置读取仍拒绝。
+第二轮真实网页进入工作模式，process/start 因真实客户端字段不全被拒 4 次，合计 denied=38。
+现已补齐 metadata/envPolicy/沙箱启动选项、保留标记核值后丢弃、缺失只读目录保护。
+Windows 113 passed；Linux 96 passed、17 skipped。固定客户端本机只读命令通过；
+默认 workspaceWrite 额外申请系统临时目录写权限，违反项目白名单；排除两项后本机建文件通过。
+这些用确定性本地模型响应驱动，不是网页验收。
+
+**需要改工作台，按任务书停下交远程**：WORK/EXPERT 的 turn sandboxPolicy 显式加
+excludeTmpdirEnvVar=true、excludeSlashTmp=true，并核对云端客户端 Windows sandbox 选择。
+具体源文件、两组真帧和复验步骤见 scripts/results/windows-agent-1b.20261007-2220.md 第 7 节。
+只读查库确认普通“＋新建”不带项目，项目“新聊天/新工作”才绑定机器；未改应用数据。
+原 Linux 代理已恢复在线、配置摘要不变。网页聊天/建文件/专家仍未全部成功，禁止报交付或进第 2 段。
+
 ## 当前停点：Windows 代理第 1 段完成开发自检，交远程审读（2026-10-07）
 
 本轮基线 `36ec68be9a47386b3a39f387a3a12cd5fe9785d7`；采用所有者确认的

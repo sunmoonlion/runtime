@@ -1,0 +1,424 @@
+{
+  "version": "0.155.1",
+  "comparisons": [
+    {
+      "name": "write",
+      "method": "fs/writeFile",
+      "request": {
+        "path": "file:///C:/Users/zymun/sunmoon-contract-1b-ryZ3lX/workspace/sample.txt",
+        "dataBase64": "Y29udHJhY3Qt5Lit5paHCg==",
+        "sandbox": null
+      },
+      "real": {
+        "id": 2,
+        "result": {}
+      },
+      "helper": {
+        "id": 1,
+        "result": {}
+      },
+      "equal": true
+    },
+    {
+      "name": "read",
+      "method": "fs/readFile",
+      "request": {
+        "path": "file:///C:/Users/zymun/sunmoon-contract-1b-ryZ3lX/workspace/sample.txt",
+        "sandbox": null
+      },
+      "real": {
+        "id": 3,
+        "result": {
+          "dataBase64": "Y29udHJhY3Qt5Lit5paHCg=="
+        }
+      },
+      "helper": {
+        "id": 2,
+        "result": {
+          "dataBase64": "Y29udHJhY3Qt5Lit5paHCg=="
+        }
+      },
+      "equal": true
+    },
+    {
+      "name": "metadata",
+      "method": "fs/getMetadata",
+      "request": {
+        "path": "file:///C:/Users/zymun/sunmoon-contract-1b-ryZ3lX/workspace/sample.txt",
+        "sandbox": null
+      },
+      "real": {
+        "id": 4,
+        "result": {
+          "isDirectory": false,
+          "isFile": true,
+          "isSymlink": false,
+          "size": 16,
+          "createdAtMs": 1791384009650,
+          "modifiedAtMs": 1791384009841
+        }
+      },
+      "helper": {
+        "id": 3,
+        "result": {
+          "isDirectory": false,
+          "isFile": true,
+          "isSymlink": false,
+          "size": 16,
+          "createdAtMs": 1791384009650,
+          "modifiedAtMs": 1791384009841
+        }
+      },
+      "equal": true
+    },
+    {
+      "name": "canonical",
+      "method": "fs/canonicalize",
+      "request": {
+        "path": "file:///C:/Users/zymun/sunmoon-contract-1b-ryZ3lX/workspace/sample.txt",
+        "sandbox": null
+      },
+      "real": {
+        "id": 5,
+        "result": {
+          "path": "file:///C:/Users/zymun/sunmoon-contract-1b-ryZ3lX/workspace/sample.txt"
+        }
+      },
+      "helper": {
+        "id": 4,
+        "result": {
+          "path": "file:///C:/Users/zymun/sunmoon-contract-1b-ryZ3lX/workspace/sample.txt"
+        }
+      },
+      "equal": true
+    },
+    {
+      "name": "mkdir",
+      "method": "fs/createDirectory",
+      "request": {
+        "path": "file:///C:/Users/zymun/sunmoon-contract-1b-ryZ3lX/workspace/folder",
+        "recursive": true,
+        "sandbox": null
+      },
+      "real": {
+        "id": 6,
+        "result": {}
+      },
+      "helper": {
+        "id": 5,
+        "result": {}
+      },
+      "equal": true
+    },
+    {
+      "name": "copy",
+      "method": "fs/copy",
+      "request": {
+        "sourcePath": "file:///C:/Users/zymun/sunmoon-contract-1b-ryZ3lX/workspace/sample.txt",
+        "destinationPath": "file:///C:/Users/zymun/sunmoon-contract-1b-ryZ3lX/workspace/folder/copy.txt",
+        "recursive": false,
+        "sandbox": null
+      },
+      "real": {
+        "id": 7,
+        "result": {}
+      },
+      "helper": {
+        "id": 6,
+        "result": {}
+      },
+      "equal": true
+    },
+    {
+      "name": "directory",
+      "method": "fs/readDirectory",
+      "request": {
+        "path": "file:///C:/Users/zymun/sunmoon-contract-1b-ryZ3lX/workspace",
+        "sandbox": null
+      },
+      "real": {
+        "id": 8,
+        "result": {
+          "entries": [
+            {
+              "fileName": "folder",
+              "isDirectory": true,
+              "isFile": false
+            },
+            {
+              "fileName": "sample.txt",
+              "isDirectory": false,
+              "isFile": true
+            }
+          ]
+        }
+      },
+      "helper": {
+        "id": 7,
+        "result": {
+          "entries": [
+            {
+              "fileName": "folder",
+              "isDirectory": true,
+              "isFile": false
+            },
+            {
+              "fileName": "sample.txt",
+              "isDirectory": false,
+              "isFile": true
+            }
+          ]
+        }
+      },
+      "equal": true
+    },
+    {
+      "name": "walk",
+      "method": "fs/walk",
+      "request": {
+        "path": "file:///C:/Users/zymun/sunmoon-contract-1b-ryZ3lX/workspace",
+        "options": {
+          "maxDepth": 4,
+          "maxDirectories": 100,
+          "maxEntries": 100,
+          "followDirectorySymlinks": false,
+          "pruneHiddenDirectories": false
+        },
+        "sandbox": null
+      },
+      "real": {
+        "id": 9,
+        "result": {
+          "entries": [
+            {
+              "path": "file:///C:/Users/zymun/sunmoon-contract-1b-ryZ3lX/workspace/folder",
+              "kind": "directory"
+            },
+            {
+              "path": "file:///C:/Users/zymun/sunmoon-contract-1b-ryZ3lX/workspace/sample.txt",
+              "kind": "file"
+            },
+            {
+              "path": "file:///C:/Users/zymun/sunmoon-contract-1b-ryZ3lX/workspace/folder/copy.txt",
+              "kind": "file"
+            }
+          ],
+          "errors": [],
+          "truncated": false
+        }
+      },
+      "helper": {
+        "id": 8,
+        "result": {
+          "entries": [
+            {
+              "path": "file:///C:/Users/zymun/sunmoon-contract-1b-ryZ3lX/workspace/folder",
+              "kind": "directory"
+            },
+            {
+              "path": "file:///C:/Users/zymun/sunmoon-contract-1b-ryZ3lX/workspace/sample.txt",
+              "kind": "file"
+            },
+            {
+              "path": "file:///C:/Users/zymun/sunmoon-contract-1b-ryZ3lX/workspace/folder/copy.txt",
+              "kind": "file"
+            }
+          ],
+          "errors": [],
+          "truncated": false
+        }
+      },
+      "equal": true
+    },
+    {
+      "name": "open",
+      "method": "fs/open",
+      "request": {
+        "path": "file:///C:/Users/zymun/sunmoon-contract-1b-ryZ3lX/workspace/sample.txt",
+        "handleId": "contract-h1",
+        "sandbox": null
+      },
+      "real": {
+        "id": 10,
+        "result": {
+          "handleId": "contract-h1"
+        }
+      },
+      "helper": {
+        "id": 9,
+        "result": {
+          "handleId": "contract-h1"
+        }
+      },
+      "equal": true
+    },
+    {
+      "name": "block",
+      "method": "fs/readBlock",
+      "request": {
+        "handleId": "contract-h1",
+        "offset": 0,
+        "len": 100
+      },
+      "real": {
+        "id": 11,
+        "result": {
+          "chunk": "Y29udHJhY3Qt5Lit5paHCg==",
+          "eof": true
+        }
+      },
+      "helper": {
+        "id": 10,
+        "result": {
+          "chunk": "Y29udHJhY3Qt5Lit5paHCg==",
+          "eof": true
+        }
+      },
+      "equal": true
+    },
+    {
+      "name": "block-exact",
+      "method": "fs/readBlock",
+      "request": {
+        "handleId": "contract-h1",
+        "offset": 0,
+        "len": 16
+      },
+      "real": {
+        "id": 12,
+        "result": {
+          "chunk": "Y29udHJhY3Qt5Lit5paHCg==",
+          "eof": false
+        }
+      },
+      "helper": {
+        "id": 11,
+        "result": {
+          "chunk": "Y29udHJhY3Qt5Lit5paHCg==",
+          "eof": false
+        }
+      },
+      "equal": true
+    },
+    {
+      "name": "block-zero",
+      "method": "fs/readBlock",
+      "request": {
+        "handleId": "contract-h1",
+        "offset": 0,
+        "len": 0
+      },
+      "real": {
+        "error": {
+          "code": -32600,
+          "message": "file read block length must be between 1 and 1048576"
+        },
+        "id": 13
+      },
+      "helper": {
+        "id": 12,
+        "error": {
+          "code": -32600,
+          "message": "file read block length must be between 1 and 1048576"
+        }
+      },
+      "equal": true
+    },
+    {
+      "name": "close",
+      "method": "fs/close",
+      "request": {
+        "handleId": "contract-h1"
+      },
+      "real": {
+        "id": 14,
+        "result": {}
+      },
+      "helper": {
+        "id": 13,
+        "result": {}
+      },
+      "equal": true
+    },
+    {
+      "name": "remove",
+      "method": "fs/remove",
+      "request": {
+        "path": "file:///C:/Users/zymun/sunmoon-contract-1b-ryZ3lX/workspace/folder",
+        "recursive": true,
+        "force": false,
+        "sandbox": null
+      },
+      "real": {
+        "id": 15,
+        "result": {}
+      },
+      "helper": {
+        "id": 14,
+        "result": {}
+      },
+      "equal": true
+    }
+  ],
+  "experiments": [
+    {
+      "command": "git",
+      "nativePathLookupExit": 0,
+      "locations": [
+        "C:\\Program Files\\Git\\cmd\\git.exe"
+      ]
+    },
+    {
+      "command": "git",
+      "sandboxExit": {
+        "processId": "path-git",
+        "seq": 2,
+        "exitCode": 0,
+        "sandboxDenied": false
+      },
+      "stdout": "git version 2.54.0.windows.1\n"
+    },
+    {
+      "command": "python",
+      "nativePathLookupExit": 0,
+      "locations": [
+        "C:\\Users\\zymun\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "C:\\Users\\zymun\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe"
+      ]
+    },
+    {
+      "command": "python",
+      "sandboxExit": {
+        "processId": "path-python",
+        "seq": 2,
+        "exitCode": 0,
+        "sandboxDenied": false
+      },
+      "stdout": "Python 3.13.15\r\n"
+    },
+    {
+      "command": "uv",
+      "nativePathLookupExit": 1,
+      "locations": []
+    },
+    {
+      "command": "uv",
+      "sandboxExit": {
+        "processId": "path-uv",
+        "seq": 2,
+        "exitCode": 1,
+        "sandboxDenied": false
+      },
+      "stdout": ""
+    },
+    {
+      "mode": "opendir",
+      "renameBlocked": false
+    },
+    {
+      "mode": "cwd",
+      "renameBlocked": true,
+      "code": "EBUSY"
+    }
+  ]
+}

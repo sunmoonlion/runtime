@@ -1,0 +1,11 @@
+{
+  "checkedAt": "2026-10-07T15:08:44.997663+00:00",
+  "pid": 3676263,
+  "statusAt": "2026-10-07T15:08:41.421Z",
+  "relay": "connected",
+  "originalCwdVerified": true,
+  "originalArgvVerified": true,
+  "configSha256": "c80e10838cac82599861d996b94a5d095f67457e6192e99bb9d798c28bb4fe16",
+  "windowsAgentDirectoryAbsent": true,
+  "windowsStageAbsent": true
+}

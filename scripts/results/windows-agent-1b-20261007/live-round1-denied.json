@@ -1,0 +1,23 @@
+[
+  {
+    "t": "2026-10-07T14:33:45.314Z",
+    "level": "warn",
+    "msg": "denied by local ceiling",
+    "method": "initialize",
+    "reason": "unknown or invalid request fields"
+  },
+  {
+    "t": "2026-10-07T14:33:45.406Z",
+    "level": "warn",
+    "msg": "denied by local ceiling",
+    "method": "initialize",
+    "reason": "unknown or invalid request fields"
+  },
+  {
+    "t": "2026-10-07T14:33:45.451Z",
+    "level": "warn",
+    "msg": "denied by local ceiling",
+    "method": "initialize",
+    "reason": "unknown or invalid request fields"
+  }
+]

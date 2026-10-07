@@ -1,0 +1,164 @@
+[
+  {
+    "path": "agent/src/cli.ts",
+    "sha256": "db1110fea53a4159ecbab8a78bbd08e34422b3dd5606ab8fd4d7da00070394f5",
+    "stagedSha256": "db1110fea53a4159ecbab8a78bbd08e34422b3dd5606ab8fd4d7da00070394f5",
+    "equal": true
+  },
+  {
+    "path": "agent/src/config.ts",
+    "sha256": "df14f05956163278423c6d17c04f9efc453e76f341c7cb64e10a3099fce9117f",
+    "stagedSha256": "df14f05956163278423c6d17c04f9efc453e76f341c7cb64e10a3099fce9117f",
+    "equal": true
+  },
+  {
+    "path": "agent/src/execServer.ts",
+    "sha256": "d446ba5ba2828eba53ed8790965421449f5f2cfba157769de750977ad3ce278d",
+    "stagedSha256": "d446ba5ba2828eba53ed8790965421449f5f2cfba157769de750977ad3ce278d",
+    "equal": true
+  },
+  {
+    "path": "agent/src/filter.ts",
+    "sha256": "3440f74e33fc4a857367b49fa7913dd446e3bfdb73c7a7cfb655098e677dc1f4",
+    "stagedSha256": "3440f74e33fc4a857367b49fa7913dd446e3bfdb73c7a7cfb655098e677dc1f4",
+    "equal": true
+  },
+  {
+    "path": "agent/src/log.ts",
+    "sha256": "a509850d78cb3509019f51d1bbbb31e50504d66e4be14cb58b8ece6b659b2bf6",
+    "stagedSha256": "a509850d78cb3509019f51d1bbbb31e50504d66e4be14cb58b8ece6b659b2bf6",
+    "equal": true
+  },
+  {
+    "path": "agent/src/outerSandbox.ts",
+    "sha256": "c24bac8c7d1f2d3fb87579e6fb4c2c658ac2c158a8b4d680d855319287f1950a",
+    "stagedSha256": "c24bac8c7d1f2d3fb87579e6fb4c2c658ac2c158a8b4d680d855319287f1950a",
+    "equal": true
+  },
+  {
+    "path": "agent/src/paths.ts",
+    "sha256": "6f7935aa9115ee7e17336d0110a9bac4e6ccb2704963a62b452ba1571576d351",
+    "stagedSha256": "6f7935aa9115ee7e17336d0110a9bac4e6ccb2704963a62b452ba1571576d351",
+    "equal": true
+  },
+  {
+    "path": "agent/src/pathuri.ts",
+    "sha256": "75acf5792fdcaf095552817351f917dadde786030be328f3ca7cf21069bd220d",
+    "stagedSha256": "75acf5792fdcaf095552817351f917dadde786030be328f3ca7cf21069bd220d",
+    "equal": true
+  },
+  {
+    "path": "agent/src/relayClient.ts",
+    "sha256": "718e0b5531df61dff79346918e20466d2c5b92fb1f0fe1ed895795db48b9f3ff",
+    "stagedSha256": "718e0b5531df61dff79346918e20466d2c5b92fb1f0fe1ed895795db48b9f3ff",
+    "equal": true
+  },
+  {
+    "path": "agent/src/relayProtocol.ts",
+    "sha256": "a61342b673add133ab0f72b0f53c4cd8f95fc41c0f91c8bd25f82e1987c5016d",
+    "stagedSha256": "a61342b673add133ab0f72b0f53c4cd8f95fc41c0f91c8bd25f82e1987c5016d",
+    "equal": true
+  },
+  {
+    "path": "agent/src/windowsBootstrap.ts",
+    "sha256": "658b145e70777dd801097f26d48835f43bef6bffe45ca9d7ae1d660a4139f72f",
+    "stagedSha256": "658b145e70777dd801097f26d48835f43bef6bffe45ca9d7ae1d660a4139f72f",
+    "equal": true
+  },
+  {
+    "path": "agent/src/windowsBridge.ts",
+    "sha256": "ce2b7cf39a15f2c8731d63a604a591541b7f51ac636e5b61f2ca49dff6317bcb",
+    "stagedSha256": "ce2b7cf39a15f2c8731d63a604a591541b7f51ac636e5b61f2ca49dff6317bcb",
+    "equal": true
+  },
+  {
+    "path": "agent/src/windowsPolicy.ts",
+    "sha256": "7f61e2939971498da6f38f25b50d22b89655d96762d7888d523aaa5b9ef9a21d",
+    "stagedSha256": "7f61e2939971498da6f38f25b50d22b89655d96762d7888d523aaa5b9ef9a21d",
+    "equal": true
+  },
+  {
+    "path": "agent/src/windowsRuntime.ts",
+    "sha256": "01a125dec30b63b23fda232f9508c96cf106671ceded4cc4eef999ce534bece4",
+    "stagedSha256": "01a125dec30b63b23fda232f9508c96cf106671ceded4cc4eef999ce534bece4",
+    "equal": true
+  },
+  {
+    "path": "agent/test/cli.test.ts",
+    "sha256": "2af528fda0b57e39d94af2391414adac108745d0b9bdd39c3cccb13a44a6d82b",
+    "stagedSha256": "2af528fda0b57e39d94af2391414adac108745d0b9bdd39c3cccb13a44a6d82b",
+    "equal": true
+  },
+  {
+    "path": "agent/test/filter.test.ts",
+    "sha256": "b9302307da323b8c068d5d8709eb2ebc2759b212fdcd0fcf27af7658d1387892",
+    "stagedSha256": "b9302307da323b8c068d5d8709eb2ebc2759b212fdcd0fcf27af7658d1387892",
+    "equal": true
+  },
+  {
+    "path": "agent/test/outerSandbox.test.ts",
+    "sha256": "f6b1df2b3f6db6c1ff86cba305e22b3e54ef74d7c4346ceb67773710e8796517",
+    "stagedSha256": "f6b1df2b3f6db6c1ff86cba305e22b3e54ef74d7c4346ceb67773710e8796517",
+    "equal": true
+  },
+  {
+    "path": "agent/test/relayClient.test.ts",
+    "sha256": "222be8b219f84e2429f9167741463ec61c2d34cdb28e0ea6b160508fa9c38613",
+    "stagedSha256": "222be8b219f84e2429f9167741463ec61c2d34cdb28e0ea6b160508fa9c38613",
+    "equal": true
+  },
+  {
+    "path": "agent/test/windowsEnvironment.test.ts",
+    "sha256": "158c16970ad9152bf15f69efd406abb1698799b0286bdd0c7222c4fed9646096",
+    "stagedSha256": "158c16970ad9152bf15f69efd406abb1698799b0286bdd0c7222c4fed9646096",
+    "equal": true
+  },
+  {
+    "path": "agent/test/windowsFilter.test.ts",
+    "sha256": "a9ade1021541152378cec5bc24989c7d5656855c0f59e8d8322f8f08a23899a9",
+    "stagedSha256": "a9ade1021541152378cec5bc24989c7d5656855c0f59e8d8322f8f08a23899a9",
+    "equal": true
+  },
+  {
+    "path": "agent/test/windowsLifecycle.test.ts",
+    "sha256": "ae1d581f5bc9e712aabfcce4d8ffec4105d54c84c78163406255f45ddd85c863",
+    "stagedSha256": "ae1d581f5bc9e712aabfcce4d8ffec4105d54c84c78163406255f45ddd85c863",
+    "equal": true
+  },
+  {
+    "path": "agent/test/windowsNative.test.ts",
+    "sha256": "70a692d1b17dc2664626a96d37199bbad260d0a4312e3205a3ae9ecf71fb9cf6",
+    "stagedSha256": "70a692d1b17dc2664626a96d37199bbad260d0a4312e3205a3ae9ecf71fb9cf6",
+    "equal": true
+  },
+  {
+    "path": "agent/test/windowsPolicy.test.ts",
+    "sha256": "5727c3af502710eab36c81b56c806f4b100aacb82d95ec85d921ccf65acef74d",
+    "stagedSha256": "5727c3af502710eab36c81b56c806f4b100aacb82d95ec85d921ccf65acef74d",
+    "equal": true
+  },
+  {
+    "path": "agent/native/helper.mjs",
+    "sha256": "62ce407ba6ee8704b8cb6c099cdccab7a458d9bfad2050f62bee96aef46d0f5f",
+    "stagedSha256": "62ce407ba6ee8704b8cb6c099cdccab7a458d9bfad2050f62bee96aef46d0f5f",
+    "equal": true
+  },
+  {
+    "path": "agent/package.json",
+    "sha256": "be841bc0ced7589607af6d340d33672e6b0b3f83a521c34cb360c7110c3b6a82",
+    "stagedSha256": "be841bc0ced7589607af6d340d33672e6b0b3f83a521c34cb360c7110c3b6a82",
+    "equal": true
+  },
+  {
+    "path": "agent/pnpm-lock.yaml",
+    "sha256": "8cfbd5aef122e57912b4eee9c99c3bdefbd9cdb83f076a24eba9949d5c70d4c7",
+    "stagedSha256": "8cfbd5aef122e57912b4eee9c99c3bdefbd9cdb83f076a24eba9949d5c70d4c7",
+    "equal": true
+  },
+  {
+    "path": "agent/tsconfig.json",
+    "sha256": "ada679e3bc1466b2a0ad87c528876d277e26b264e0907680dd38c311477d9053",
+    "stagedSha256": "ada679e3bc1466b2a0ad87c528876d277e26b264e0907680dd38c311477d9053",
+    "equal": true
+  }
+]

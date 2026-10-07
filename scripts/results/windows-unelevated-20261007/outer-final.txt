@@ -1,0 +1,48 @@
+===== 环境 =====
+主机        ZYMUN
+时间        2026-10-07T19:35:54.5849441+08:00
+系统        Microsoft Windows NT 10.0.26200.0  PowerShell 5.1.26100.9444
+内存        63.7 GB 可用
+Python 3.13.15
+v24.19.0
+codex-cli 0.155.1
+Sandbox mode unelevated; administrator=False; outer=True
+Codex 启动参数 ["C:\\Users\\zymun\\AppData\\Roaming\\npm\\node_modules\\@openai\\codex\\node_modules\\@openai\\codex-win32-x64\\vendor\\x86_64-pc-windows-msvc\\bin\\codex.exe","-c","windows.sandbox=\"unelevated\""]
+杀毒        Windows Defender
+Source baseline bdcddddb2ff10e4f678c5f7c83a6cf2cf8878afe (copied to native Windows storage)
+Source SHA256 5085c6b599bd4be7ce03a0bdffa9bb82752ee506a19c1144193fbf86bfe27f6f C:\Users\zymun\sunmoon-probe-runs\unelevated-20261007T191926\outer-final\scripts\probe-windows-exec-server.ps1
+Source SHA256 873ed84a52e3be834918b57870dae6ff5cdeec07a9d6e35ccda677218fb86aec C:\Users\zymun\sunmoon-probe-runs\unelevated-20261007T191926\outer-final\probe\probe_local_ceiling.py
+Source SHA256 2299ee2e573a722ea543ed9b13df988915355d478c5e3a42c204c39f78028fef C:\Users\zymun\sunmoon-probe-runs\unelevated-20261007T191926\outer-final\probe\probe_windows_fs.mjs
+===== 开始 =====
+Executor home C:\Users\zymun\.codex-probe-exec-unelevated-315580cf51684c7ea49f35e4ff13469f; auth.json absent; no setup command executed
+--- 1. 起 exec-server（ws://127.0.0.1:57879）
+Executor argv ["sandbox","--permission-profile","probe_outer","-C","C:\\Users\\zymun\\sunmoon-probe-runs\\unelevated-20261007T191926\\outer-final\\probe\\user-ws","--","C:\\Users\\zymun\\AppData\\Roaming\\npm\\node_modules\\@openai\\codex\\node_modules\\@openai\\codex-win32-x64\\vendor\\x86_64-pc-windows-msvc\\bin\\codex.exe","exec-server","--listen","ws://127.0.0.1:57879"]
+exec-server launcher pid 7720 退出了吗: False 监听 57879: True
+{"mode":"outer-boundary"}
+{"control":"inside","writableByOrdinaryUser":true,"target":"C:\\Users\\zymun\\sunmoon-probe-runs\\unelevated-20261007T191926\\outer-final\\probe\\user-ws\\sunmoon-probe-7468-1791372957730.txt"}
+{"control":"outside-cwd","writableByOrdinaryUser":true,"target":"C:\\Users\\zymun\\sunmoon-probe-7468-1791372957730.txt"}
+{"control":"outside-profile","writableByOrdinaryUser":true,"target":"C:\\sunmoon-probe-outside-3eb5781642ab4321aff6ab7e9b928284\\sunmoon-probe-7468-1791372957730.txt"}
+{"direction":"request","frame":{"id":0,"method":"initialize","params":{"clientName":"sunmoon-windows-probe"}}}
+{"direction":"response","frame":{"id":0,"result":{"sessionId":"467deea9-3b76-4af0-9a7b-db781857cd19","environmentInfo":{"shell":{"name":"powershell","path":"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"},"executorVersion":"0.155.1","cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/unelevated-20261007T191926/outer-final/probe/user-ws","userHomeDir":"file:///C:/Users/zymun","platformOs":"windows","temporaryDirectories":["file:///C:/Users/zymun/AppData/Local/Temp"],"tempDir":"file:///C:/Users/zymun/AppData/Local/Temp","capabilities":{"networkProxyLaunch":true,"capabilityDiscoverySandbox":true,"environmentConfigRead":true,"httpHeaderEnvVars":true,"sandboxedFileStreaming":true,"shellSnapshotV2":false}}}}}
+{"direction":"request","frame":{"method":"initialized","params":{}}}
+{"direction":"request","frame":{"id":1,"method":"fs/writeFile","params":{"path":"file:///C:/Users/zymun/sunmoon-probe-runs/unelevated-20261007T191926/outer-final/probe/user-ws/sunmoon-probe-7468-1791372957730.txt","dataBase64":"c3VubW9vbi1wcm9iZS03NDY4LTE3OTEzNzI5NTc3MzA=","sandbox":null}}}
+{"direction":"response","frame":{"id":1,"result":{}}}
+{"case":"inside","shouldWrite":true,"exists":true,"verdict":"pass"}
+{"direction":"request","frame":{"id":2,"method":"fs/writeFile","params":{"path":"file:///C:/Users/zymun/sunmoon-probe-7468-1791372957730.txt","dataBase64":"c3VubW9vbi1wcm9iZS03NDY4LTE3OTEzNzI5NTc3MzA=","sandbox":null}}}
+{"direction":"response","frame":{"error":{"code":-32600,"message":"拒绝访问。 (os error 5)"},"id":2}}
+{"case":"outside-cwd","shouldWrite":false,"exists":false,"verdict":"pass"}
+{"direction":"request","frame":{"id":3,"method":"fs/writeFile","params":{"path":"file:///C:/sunmoon-probe-outside-3eb5781642ab4321aff6ab7e9b928284/sunmoon-probe-7468-1791372957730.txt","dataBase64":"c3VubW9vbi1wcm9iZS03NDY4LTE3OTEzNzI5NTc3MzA=","sandbox":null}}}
+{"direction":"response","frame":{"error":{"code":-32600,"message":"拒绝访问。 (os error 5)"},"id":3}}
+{"case":"outside-profile","shouldWrite":false,"exists":false,"verdict":"pass"}
+Filesystem-only probe exit=0; model-driven L2/L3 remain unverified
+--- 3. 收尾
+SUCCESS: The process with PID 18668 (child process of PID 7720) has been terminated.
+SUCCESS: The process with PID 18240 (child process of PID 7720) has been terminated.
+SUCCESS: The process with PID 7720 (child process of PID 18004) has been terminated.
+--- probe\es-windows.log（完整）
+ws://127.0.0.1:57879
+--- probe\es-windows.err.log（完整）
+WARNING: failed to clean up stale arg0 temp dirs: 拒绝访问。 (os error 5)
+WARNING: proceeding, even though we could not create PATH aliases: 拒绝访问。 (os error 5) at path "C:\\Users\\zymun\\.codex-probe-exec-unelevated-315580cf51684c7ea49f35e4ff13469f\\tmp\\arg0\\codex-arg06qmxT7"
+
+RUN_EXIT=0

@@ -1,0 +1,19 @@
+{
+  "python_ast": "pass",
+  "checks": [
+    "missing command is undecidable",
+    "missing exit is undecidable",
+    "wrong command is undecidable",
+    "unrelated failure is undecidable",
+    "explicit denial passes",
+    "localized denial passes",
+    "no inside write fails",
+    "outside file is failure",
+    "inside actual write passes",
+    "control cleans marker",
+    "outer-final captured frames verified",
+    "control-final captured frames verified"
+  ],
+  "count": 12,
+  "note": "Verdict function checks and captured-frame consistency, not model-driven L2/L3."
+}

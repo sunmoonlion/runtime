@@ -1,0 +1,13 @@
+{
+  "source": "Windows run unelevated-20261007T191926/unelevated-direct-run.txt",
+  "sha256": "c96a324614de6c840b8ab35134f84f9fa5258b9a5dc4e01891026869276a4016",
+  "kind": "selected facts; original model log not copied",
+  "environment_add": "success",
+  "environment_info_shell": "powershell.exe",
+  "auth_http_status": 403,
+  "auth_error_code": "unsupported_country_region_territory",
+  "L2": "undecidable",
+  "L3": "undecidable",
+  "termination": "owned app-server tree stopped after repeated authentication errors; wrapper then stopped owned exec-server tree",
+  "note": "No completed write command; absence of marker files is not a sandbox pass."
+}

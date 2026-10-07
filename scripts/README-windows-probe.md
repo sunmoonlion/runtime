@@ -1,42 +1,82 @@
 # Windows exec-server 探针
 
-在 Windows 原生 Git 检出中运行 `probe-windows-exec-server.ps1`。需要 Node 20+、
-Python 3.10+ 和 Codex CLI **0.155.1**。`ORCH_HOME` 指向已登录的独立测试目录；
-执行端使用 `%USERPROFILE%\.codex-probe-exec`，不复制登录态。
+入口仍为 `scripts/probe-windows-exec-server.ps1`，固定 Codex **0.155.1**。
+结果解释见 [2026-10-07 报告](../probe/REPORT-2026-10-07-windows-unelevated.md)。
+这里是探针操作说明，不是代理安装器；不要据此改变现有代理或用户 Codex 配置。
 
-首次使用时，在 **Windows 管理员 PowerShell** 中为两个测试目录初始化官方沙箱：
+## 准备
 
-```powershell
-foreach ($probeName in @('.codex-probe', '.codex-probe-exec')) {
-    $env:CODEX_HOME = Join-Path $env:USERPROFILE $probeName
-    codex sandbox setup --elevated --current-user
-    if ($LASTEXITCODE -ne 0) { throw "沙箱初始化失败：$probeName" }
-}
-```
-
-初始化会设置 Windows 沙箱账号、权限和防火墙，并在对应配置中启用
-`windows.sandbox = "elevated"`。只有安装与登录、没有初始化沙箱时，
-`approvalPolicy=never` 下的写操作可能在编排端直接被策略拒绝，不能据此证明执行端的文件边界。
-参见 [OpenAI Windows 沙箱说明](https://learn.chatgpt.com/docs/windows/windows-sandbox)。
-
-之后在普通 PowerShell 的 runtime 目录执行：
+在 Windows 原生 NTFS 检出中运行，使用**普通、非管理员 PowerShell**。
+需要 Python 3.10+、Node 22+（本次实测 24.19.0）及原生 `codex.exe`。
+`.ps1` 保持带 BOM 的 UTF-8，兼容 Windows PowerShell 5.1。
 
 ```powershell
-$env:ORCH_HOME = Join-Path $env:USERPROFILE '.codex-probe'
-# 默认 47001。若已被 Cursor 转发等程序占用，明确指定空闲端口，结果中记录差异。
-$env:EXEC_PORT = '47011'
+# 本机 npm 0.155.1 的实际布局；其他安装位置请填写对应原生 exe 的完整路径。
+$env:CODEX_NATIVE_EXE = Join-Path $env:APPDATA 'npm\node_modules\@openai\codex\node_modules\@openai\codex-win32-x64\vendor\x86_64-pc-windows-msvc\bin\codex.exe'
+$env:SANDBOX_MODE = 'unelevated'
+$env:EXEC_PORT = '47011' # 已占用就选另一个；脚本不会占用或杀死别人的进程。
+# 专用、当前普通用户可写、位于 USERPROFILE 之外的目录。
+$env:L2_OUTSIDE_ROOT = 'C:\sunmoon-probe-outside-' + [guid]::NewGuid().ToString('N')
+New-Item -ItemType Directory -Path $env:L2_OUTSIDE_ROOT | Out-Null
 New-Item -ItemType Directory -Force scripts\results | Out-Null
-$out = "scripts\results\probe-windows-exec-server.$(Get-Date -Format yyyyMMdd-HHmmss).txt"
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts\probe-windows-exec-server.ps1 *> $out
-$probeExit = $LASTEXITCODE
-Add-Content -Path $out -Value "exit=$probeExit"
 ```
 
-脚本解析 npm 包声明的 `bin.codex`，通过 Node 启动 exec-server 和 app-server；
-不直接把 `.ps1` / `.cmd` 包装器当作 Windows 原生进程启动。
-`.ps1` 保存为带 BOM 的 UTF-8，兼容 Windows PowerShell 5.1。
+若普通用户不能建立外部测试目录，停止并记录环境条件不足；不能用管理员创建测试文件来冒充普通用户写入对照。
+每次 unelevated 运行使用新的 `.codex-probe-exec-unelevated-<GUID>`，不复制 `auth.json`，不跑 setup，不改 `~/.codex`。
+日志记录执行端家路径、版本、管理员状态及三个源码文件 SHA256。
+复制源码到 Windows 临时目录时，必须用 `PROBE_SOURCE_COMMIT` 标明 40 位基线提交；文件摘要记录实际改动后的字节。
 
-判据保持原待办的 L2 / L3 定义：两项 `True` 且 Python 正常退出为 `pass`；
-执行端明确报告无法实施沙箱为 `fail`；证据不完整为 `undecidable`。
-脚本分别以 `0`、`1`、`2` 退出，exec-server 未监听时以 `5` 退出。
-端口占用时停止，不接入或终止占用它的其他进程；结束时清理本次启动的进程树。
+## 1. 原模型驱动 L2 / L3
+
+```powershell
+$env:ORCH_HOME = Join-Path $env:USERPROFILE '.codex-probe' # 已独立登录的测试家
+$env:PROBE_OUTER_SANDBOX = '0'
+Remove-Item Env:PROBE_FS_ONLY, Env:PROBE_START_ONLY -ErrorAction SilentlyContinue
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\probe-windows-exec-server.ps1
+$probeExit = $LASTEXITCODE
+```
+
+执行端仍默认只读；编排端以 `workspace-write` 请求执行一次固定命令。
+L2 同时检查用户目录内、cwd 外的文件和 `L2_OUTSIDE_ROOT` 内的文件；L3 检查 cwd 内文件。
+每个路径先由普通用户完成写入、删除对照。必须有实际命令结果，不能把模型拒绝、认证失败、超时或文件不存在当成沙箱通过。
+模型服务认证失败时停止排查服务可用性，不反复重试，不把下面的纯本机探针当作这项已通过。
+
+## 2. 不依赖模型的外层边界探针
+
+```powershell
+Remove-Item Env:ORCH_HOME, Env:PROBE_START_ONLY -ErrorAction SilentlyContinue
+$env:PROBE_FS_ONLY = '1'
+$env:PROBE_OUTER_SANDBOX = '1'
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\probe-windows-exec-server.ps1
+$probeExit = $LASTEXITCODE
+```
+
+现有 PowerShell 入口负责启动与收尾，`probe/probe_windows_fs.mjs` 只发送本机 JSON-RPC。
+无第三方依赖、不请求模型、不携带凭据。真实握手为 `initialize {clientName}`，随后 `initialized` 通知；写请求字段为 `dataBase64`。
+请求使用 `sandbox:null`，验证的是**包住整个 exec-server 的 OS 层**，不是请求自带的沙箱。
+
+脚本生成 named permission profile，仅允许测试工作目录和独立执行端家写入，其他目录只读；允许联网以使用回环 WebSocket，**不声称提供网络硬隔离**。
+实际命令形状：
+
+```text
+codex.exe sandbox --permission-profile probe_outer -C <probe\user-ws> -- codex.exe exec-server --listen ws://127.0.0.1:<port>
+```
+
+钉定版本 Windows CLI 使用 `sandbox [COMMAND]`，不要加 `windows` 子命令。
+`PROBE_START_ONLY=1` 仅检查监听，总是以 `2` 返回，不能证明边界通过；不能与 `PROBE_FS_ONLY` 同时设置。
+
+对照运行：仅改 `$env:PROBE_OUTER_SANDBOX = '0'` 后重复同一入口。
+此时应看到 `mode=unwrapped-control`，三个写入都成功。对照退出 `0` 表示基线可写，**不是安全隔离通过**。
+外层运行应看到 `mode=outer-boundary`：目录内成功，目录外两处均明确拒绝，文件不存在。
+
+## 结果和收尾
+
+退出 `0` 为当前所选探针通过，`1` 为明确失败，`2` 为证据不足或执行错误，`5` 为执行器未监听。
+JSON 帧中的 Base64 只包含固定测试标记。保留日志时不要附带任何认证文件。
+探针结束清理自身进程树和测试标记；先留存结果，再删除**日志列明的本次独立执行端家**和空测试目录，不通配删除其他 `.codex*`。
+
+## 保留的 elevated 复测方式
+
+默认 `SANDBOX_MODE=elevated` 是兼容 2026-09-24 探针，不是本次无管理员验收的前提。
+仅在专门复测 elevated 时，由管理员为 `.codex-probe` / `.codex-probe-exec` 分别运行官方 `codex sandbox setup --elevated --current-user`，随后回到普通 PowerShell 运行模型探针。
+**本次 unelevated 探针没有执行 setup。**模式限制见 [OpenAI Windows 沙箱说明](https://learn.chatgpt.com/docs/windows/windows-sandbox)。

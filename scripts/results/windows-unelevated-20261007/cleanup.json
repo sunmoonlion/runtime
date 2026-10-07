@@ -1,0 +1,55 @@
+{
+  "time": "2026-10-07T19:43:49.2289020+08:00",
+  "ordinary_user": true,
+  "results": [
+    {
+      "path": "C:\\Users\\zymun\\.codex-probe-exec-unelevated-23a6afe1c0404c7b8d7c3db106f1ed87",
+      "removed": true
+    },
+    {
+      "path": "C:\\Users\\zymun\\.codex-probe-exec-unelevated-315580cf51684c7ea49f35e4ff13469f",
+      "removed": true
+    },
+    {
+      "path": "C:\\Users\\zymun\\.codex-probe-exec-unelevated-4d8f5cafb5db4edcb14633223750bc02",
+      "removed": true
+    },
+    {
+      "path": "C:\\Users\\zymun\\.codex-probe-exec-unelevated-55fa2f31ca98404b94002863f36cb60e",
+      "removed": true
+    },
+    {
+      "path": "C:\\Users\\zymun\\.codex-probe-exec-unelevated-5d942af1fce340a3a74bfc79918d16b5",
+      "removed": true
+    },
+    {
+      "path": "C:\\Users\\zymun\\.codex-probe-exec-unelevated-7b5bb8d325634a338aa46291540a2aec",
+      "removed": true
+    },
+    {
+      "path": "C:\\Users\\zymun\\.codex-probe-exec-unelevated-925a75a853e24f9fb52f6d2e7ea7fc0f",
+      "removed": true
+    },
+    {
+      "path": "C:\\Users\\zymun\\.codex-probe-exec-unelevated-948dc71e963345f1889ff1f22f4f03c4",
+      "removed": true
+    },
+    {
+      "path": "C:\\Users\\zymun\\.codex-probe-exec-unelevated-b3b3b9dbc4c944d2b13245a17ce3d807",
+      "removed": true
+    },
+    {
+      "path": "C:\\Users\\zymun\\.codex-probe-exec-unelevated-db8c449e01f54003884e58ac207aa60b",
+      "removed": true
+    },
+    {
+      "path": "C:\\Users\\zymun\\sunmoon-probe-runs\\unelevated-20261007T191926",
+      "removed": true
+    },
+    {
+      "path": "C:\\sunmoon-probe-outside-3eb5781642ab4321aff6ab7e9b928284",
+      "removed": true
+    }
+  ],
+  "protected": "Existing .codex, .codex-probe, .codex-probe-exec were not modified or deleted"
+}

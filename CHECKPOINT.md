@@ -1,6 +1,17 @@
-# CHECKPOINT（runtime 仓，分支 fable）
+# CHECKPOINT（runtime 仓，分支 luna）
 
-> 接手的人先读这里。规则：`k8s/sunmoonai/docs/dev-investment-agent/turn/imp/`。写于 2026-09-24。
+> 接手的人先读这里。规则：`k8s/sunmoonai/docs/dev-investment-agent/turn/imp/`。更新于 2026-10-07。
+
+## 当前停点：Windows 代理阶段 0，待所有者同步及远程审读
+
+任务：k8s `sunmoonai/docs/dev-investment-agent/switch-test/luna-task-windows-agent.md`，任务版本 `c77e2536`；runtime 开工基线 `bdcddddb2ff10e4f678c5f7c83a6cf2cf8878afe`。
+只改本仓探针和文档，没有改代理产品代码、其他仓、会合点或已运行服务。未 fetch/pull/rebase/push。
+
+- **问题 1 undecidable**：普通 Windows + unelevated + 新执行端家、不跑 setup；模型认证 HTTP 403 阻止实际 L2/L3 命令，不能记通过。
+- **问题 2 pass（文件写边界）**：整个 exec-server 包进原生 Codex 外层沙箱后，cwd 内文件写成功，两个外部目标权限拒绝；无外层时三个目标都写成功。完整真实帧已入仓。
+- 复现入口仍是 `scripts/probe-windows-exec-server.ps1`，加 `SANDBOX_MODE` 和可选本机探针；报告及限制见 [REPORT-2026-10-07-windows-unelevated.md](probe/REPORT-2026-10-07-windows-unelevated.md)，操作见 [README-windows-probe.md](scripts/README-windows-probe.md)。
+- **先停在这里**：任务要求每阶段本地提交后交远程审读。阶段 1 尚未开始。需要补内层 process/start / 外层嵌套执行、干净 Windows 主机覆盖，不能把本次本机文件探针称为完整代理验收。
+- 后续任务以 2026-10-07 交接为准：只做 Windows 10/11，Linux 保持开发联调，macOS 不做；不进行 runtime 仓改名。下面是保留的 2026-09-24 实现背景。
 
 ## 这个仓是什么
 
@@ -22,7 +33,7 @@
 2. 令牌：现在是配置里的静态字符串；工作台签发、公钥就地验是 `D10`；
 3. 版本成对：会合点已核对两端 Codex 版本；代理侧收到 reject 后只停不提示更新（`F-AGENT-05` 半成）；
 4. macOS：不套外沙箱（只有协议过滤）；`sandbox-exec` 外层待验；
-5. Windows：探针 pass；代理启动方式（原生 exe、动态端口、一次提权初始化）未实现；
+5. Windows：2026-09-24 elevated 探针 pass；2026-10-07 unelevated 结论见当前停点。代理原生 exe、动态端口、可选提权初始化仍未实现；
 6. 勾选上送知识服务（`F-AGENT-08`）未做；开机自启（`F-AGENT-09`）未做；
 7. 网络硬禁（`--unshare-net` + unix socket）未做，网络上限只有协议过滤 + Codex 自身策略；
 8. 两机公网延迟实测等所有者开 47100（switch-test inbox 02）；

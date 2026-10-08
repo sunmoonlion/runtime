@@ -39,6 +39,18 @@ const METHODS: Record<string, string[]> = {
 };
 export const FS_WRITES = new Set(["fs/writeFile", "fs/createDirectory", "fs/remove", "fs/copy"]);
 
+// A Linux app-server can emit its own optional read guard (e.g. /data/.codex).
+// It names no Windows absolute path. Discard only that inert read/skip entry;
+// malformed Windows paths, mixed OS paths and actual Windows guards still fail
+// validation or retain their restriction. Never translate a path across OSes.
+export function isInapplicableWindowsReadGuard(entry: any): boolean {
+  if (!only(entry, ["path", "access", "missing_path_behavior"]) || entry.access !== "read" || entry.missing_path_behavior !== "skip" || !only(entry.path, ["type", "path"]) || entry.path.type !== "path") return false;
+  const uri = entry.path.path;
+  if (uriToPath(uri, "win32") !== null) return false;
+  const posix = uriToPath(uri, "linux");
+  return posix !== null && posix.startsWith("/") && !posix.startsWith("//") && !/[\\\\:]/.test(posix);
+}
+
 export function windowsDecision(frame: any, ceiling: Ceiling, roots: readonly string[], codexHome?: string, temporary?: string): Decision {
   const method = typeof frame?.method === "string" ? frame.method : "";
   const kind: Decision["kind"] = method.startsWith("process/") ? "process" : FS_WRITES.has(method) ? "fs-write" : method.startsWith("fs/") ? "fs-read" : "other";
@@ -94,6 +106,7 @@ export function windowsDecision(frame: any, ceiling: Ceiling, roots: readonly st
     for (const entry of f.entries) {
       if (!only(entry, ["path", "access", "missing_path_behavior"]) || !["read", "write", "deny"].includes(entry.access) || !only(entry.path, ["type", "value", "path"])) return no("unknown filesystem permission");
       if (entry.missing_path_behavior != null && (entry.missing_path_behavior !== "skip" || entry.access !== "read")) return no("unsupported missing path behaviour");
+      if (isInapplicableWindowsReadGuard(entry)) continue;
       const ep = entry.path;
       let targets: string[];
       if (ep.type === "path" && typeof ep.path === "string" && uriToPath(ep.path, "win32") !== null) targets = [uriToPath(ep.path, "win32")!];

@@ -1,0 +1,4 @@
+
+> @sunmoon/agent@0.2.0 typecheck C:\Users\zymun\sunmoon-probe-runs\windows-agent-1d-20261008\agent
+> tsc -p tsconfig.json --noEmit
+

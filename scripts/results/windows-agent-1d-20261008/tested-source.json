@@ -1,0 +1,58 @@
+[
+  {
+    "path": "agent/src/cli.ts",
+    "sha256": "c469eb2be0339686281a878f5b10254d4f5c335e91bb416c3ca0939a55e06a2d"
+  },
+  {
+    "path": "agent/src/config.ts",
+    "sha256": "df14f05956163278423c6d17c04f9efc453e76f341c7cb64e10a3099fce9117f"
+  },
+  {
+    "path": "agent/src/execServer.ts",
+    "sha256": "c888c8c8963e3f94a077503fcf8c203d204e741c3b3c37120ed30cf5fb6bae8d"
+  },
+  {
+    "path": "agent/src/filter.ts",
+    "sha256": "3440f74e33fc4a857367b49fa7913dd446e3bfdb73c7a7cfb655098e677dc1f4"
+  },
+  {
+    "path": "agent/src/log.ts",
+    "sha256": "a509850d78cb3509019f51d1bbbb31e50504d66e4be14cb58b8ece6b659b2bf6"
+  },
+  {
+    "path": "agent/src/outerSandbox.ts",
+    "sha256": "c24bac8c7d1f2d3fb87579e6fb4c2c658ac2c158a8b4d680d855319287f1950a"
+  },
+  {
+    "path": "agent/src/paths.ts",
+    "sha256": "6f7935aa9115ee7e17336d0110a9bac4e6ccb2704963a62b452ba1571576d351"
+  },
+  {
+    "path": "agent/src/pathuri.ts",
+    "sha256": "75acf5792fdcaf095552817351f917dadde786030be328f3ca7cf21069bd220d"
+  },
+  {
+    "path": "agent/src/relayClient.ts",
+    "sha256": "6112081b53344109ee09c166199395de0811052307dacdfa5d83a760297636cb"
+  },
+  {
+    "path": "agent/src/relayProtocol.ts",
+    "sha256": "a61342b673add133ab0f72b0f53c4cd8f95fc41c0f91c8bd25f82e1987c5016d"
+  },
+  {
+    "path": "agent/src/windowsBootstrap.ts",
+    "sha256": "6ef1cd757531b1c3796be782981d629df3ba2d2dcb5c46d5581a2e0047fe5f50"
+  },
+  {
+    "path": "agent/src/windowsBridge.ts",
+    "sha256": "05e06255f746d73f86d929cd8f9f61c6b3fbaa178c793556d72775948458ac8e"
+  },
+  {
+    "path": "agent/src/windowsPolicy.ts",
+    "sha256": "63b4178ec51ae6ea7b53cdd767ce284fc87f3af09c1d674baa7913756cbfe1fd"
+  },
+  {
+    "path": "agent/src/windowsRuntime.ts",
+    "sha256": "747c60690b2d3096900e078ff84a2d9dc55b8dd67392b79712dc4b5c99033321"
+  }
+]

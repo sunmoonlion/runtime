@@ -1,0 +1,25 @@
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +58
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 58, reused 58, downloaded 0, added 58, done
+
+dependencies:
++ @openai/codex 0.155.1
++ ws 8.21.3
+
+devDependencies:
++ @types/node 22.20.4
++ @types/ws 8.18.1
++ typescript 5.9.3
++ vitest 3.2.7
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: esbuild.                                            │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 1s using pnpm v10.24.0

@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-08T09:02:24.539Z",
+  "root": "C:\\Users\\zymun\\sunmoon-probe-runs\\windows-agent-1b-20261007\\workspace",
+  "project": "C:\\Users\\zymun\\sunmoon-probe-runs\\windows-agent-1b-20261007\\workspace\\myproject",
+  "files": [
+    "README.md"
+  ],
+  "browserCheckExists": false,
+  "state": "prepared only; no live agent started"
+}

@@ -1,0 +1,49 @@
+{
+  "checked_at": "2026-10-08T09:03:00.632717+00:00",
+  "files": [
+    {
+      "path": "app/application/workbench/runner.py",
+      "sha256": "f0db2b5683e93411b4254e2651d872c847ff2d02a642b4e24c76bbc69560c21d",
+      "cwd_excerpts": [
+        {
+          "line": 1019,
+          "code": "        env_key = settings.pop(\"environmentId\", self.environment_key)\n        if settings:  # 旧入口建的会话：沿用它记下的设置\n            params = {\n                \"cwd\": session[\"project_root\"],\n                \"environments\": [\n                    {\"environmentId\": env_key, \"cwd\": session[\"project_root\"]}\n                ],"
+        },
+        {
+          "line": 1021,
+          "code": "            params = {\n                \"cwd\": session[\"project_root\"],\n                \"environments\": [\n                    {\"environmentId\": env_key, \"cwd\": session[\"project_root\"]}\n                ],\n                **settings,\n            }"
+        }
+      ]
+    },
+    {
+      "path": "app/domain/workbench/projects.py",
+      "sha256": "06cc470491eb8894c2daae18db1db2be575037287740657e444f7abb964713c2",
+      "cwd_excerpts": [
+        {
+          "line": 235,
+          "code": "    )\n    if mode in (Mode.WORK, Mode.EXPERT):\n        return {\n            \"environments\": [{\"environmentId\": environment_key, \"cwd\": directory}],\n            \"cwd\": directory,\n            \"sandboxPolicy\": {\n                \"type\": \"workspaceWrite\","
+        },
+        {
+          "line": 236,
+          "code": "    if mode in (Mode.WORK, Mode.EXPERT):\n        return {\n            \"environments\": [{\"environmentId\": environment_key, \"cwd\": directory}],\n            \"cwd\": directory,\n            \"sandboxPolicy\": {\n                \"type\": \"workspaceWrite\",\n                \"writableRoots\": [],"
+        },
+        {
+          "line": 252,
+          "code": "    }\n    if mode is Mode.CHAT_IN_PROJECT:\n        settings[\"environments\"] = [\n            {\"environmentId\": environment_key, \"cwd\": directory}\n        ]\n        settings[\"cwd\"] = directory\n    return settings"
+        },
+        {
+          "line": 254,
+          "code": "        settings[\"environments\"] = [\n            {\"environmentId\": environment_key, \"cwd\": directory}\n        ]\n        settings[\"cwd\"] = directory\n    return settings\n\n"
+        },
+        {
+          "line": 273,
+          "code": "        raise ValueError(\"work needs a project\")\n    settings: dict[str, Any] = {\n        \"environments\": (\n            [{\"environmentId\": environment_key, \"cwd\": directory}] if in_project else []\n        ),\n        \"sandbox\": \"workspace-write\" if kind is ConversationKind.WORK else \"read-only\",\n        \"approvalPolicy\": ("
+        },
+        {
+          "line": 282,
+          "code": "    }\n    settings[\"config\"] = dict(THREAD_CONFIG)\n    if in_project:\n        settings[\"cwd\"] = directory\n    if model:\n        settings[\"model\"] = model\n    return settings"
+        }
+      ]
+    }
+  ]
+}

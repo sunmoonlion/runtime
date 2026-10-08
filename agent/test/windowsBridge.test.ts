@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-vi.mock("node:fs", () => ({ default: { statSync: () => ({ isDirectory: () => true }) } }));
+vi.mock("node:fs", () => ({ default: { statSync: () => ({ isDirectory: () => true }), lstatSync: () => ({}) } }));
 const mocks = vi.hoisted(() => ({ reply: {} as any, release: vi.fn() }));
 vi.mock("../src/windowsRuntime.js", async original => ({
   ...await original<any>(),
@@ -13,6 +13,18 @@ const send = (bridge: WindowsBridge, frame: any) => bridge.receive(JSON.stringif
 const terminate = (bridge: WindowsBridge, processId = "p1") => send(bridge, { id: 9, method: "process/terminate", params: { processId } });
 afterEach(() => { vi.useRealTimers(); vi.clearAllMocks(); });
 describe("Windows bridge follow-up contracts", () => {
+  it("removes POSIX read/skip from the forwarded permissions and preserves Windows guards", async () => {
+    const bridge = new WindowsBridge(options), frame: any = start(1);
+    const guard = (uri: string) => ({ path: { type: "path", path: uri }, access: "read", missing_path_behavior: "skip" });
+    const native = guard("file:///C:/Allowed/.codex");
+    frame.params.sandbox.permissions.file_system.entries.push(guard("file:///data/.codex"), native);
+    const answer = await send(bridge, frame); expect(answer.reason).toBeUndefined();
+    const entries = JSON.parse(answer.forward!).params.sandbox.permissions.file_system.entries;
+    expect(entries).toEqual([frame.params.sandbox.permissions.file_system.entries[0], native]);
+    // The exception is exclusive to command permission entries, not FS access.
+    expect((await send(bridge, { id: 2, method: "fs/readFile", params: { path: "file:///data/.codex" } })).reason).toBeTruthy();
+    await bridge.close();
+  });
   it("answers late termination only for this stream, expires after 60 seconds", async () => {
     vi.useFakeTimers(); const bridge = new WindowsBridge(options), other = new WindowsBridge(options);
     expect((await send(bridge, start(1))).forward).toBeTruthy();

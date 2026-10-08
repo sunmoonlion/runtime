@@ -1,5 +1,25 @@
 # CHECKPOINT（runtime 仓，分支 luna）
 
+## 当前停点：可忽略的 POSIX 只读项已处理；待待办 34 上线后补网页三项
+
+基线 runtime `526401c`，反馈 k8s `f14dbc1e` 最后一节；本轮只改 runtime。
+远程已接受 a–d，并在 investment-backend `7ac05d2a` 修正 Windows 顶层 cwd。
+
+- 代理只丢弃纯 POSIX、read、skip 同时成立的命令权限项，转发前移除。
+  Windows 保护项保留；混合路径、越界、写权限和无 skip 仍拒绝。
+- Windows 130 passed / 1 skipped（仍是需预建符号链接夹具的旧用例）；
+  Linux 107 passed / 24 Windows 专用 skipped；两端 build/typecheck 通过。
+- 原生测试确认：带 POSIX 只读跳过项的项目/受管临时目录写入成功，
+  项目外和用户全局 Temp 的写入仍被 OS 拒绝。
+- 只读核查现网 runner 时，仍看到旧版顶层 cwd 写法，待办 34 尚未生效。
+  因此本轮尚未重连 Windows；Linux 代理未替换，网页三项未验，不报 1b 通过。
+
+结果：[windows-agent-1b.20261008-1710.md](scripts/results/windows-agent-1b.20261008-1710.md)。
+下一步：确认待办 34 已上线 → 核对 Windows 项目目录存在 → 临时连接 Windows（限时恢复）
+→ 所有者从项目页做新聊天列文件、新工作建文件、请专家 → 完整拒绝清单与恢复记录交审。
+
+以下为历史停点，不代表当前工作要求。
+
 ## 当前停点：1b 代理补修完成；真实网页暴露跨系统目录问题，待远程处理
 
 本轮基线 `0c5779d`，按 k8s `c8428efb` 反馈，只改 runtime。

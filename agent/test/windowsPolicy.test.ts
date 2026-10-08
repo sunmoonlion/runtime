@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { windowsDecision, isClientWindowsEnvAnnotation } from "../src/windowsPolicy.js";
+import { windowsDecision, isClientWindowsEnvAnnotation, isInapplicableWindowsReadGuard } from "../src/windowsPolicy.js";
 const root = "C:\\Allowed", home = "C:\\Agent\\codex-home";
 const ceiling = { sandbox: "workspace-write", network: false } as const;
 const frame = () => ({ id: 1, method: "process/start", params: {
@@ -24,6 +24,22 @@ const clientFrame = () => {
   return f;
 };
 describe("Windows strict protocol policy", () => {
+  it("discards only optional pure POSIX read guards, never malformed Windows guards", () => {
+    const guard = (uri: string): any => ({ path: { type: "path", path: uri }, access: "read", missing_path_behavior: "skip" });
+    const withEntry = (entry: any) => { const f: any = frame(); f.params.sandbox.permissions.file_system.entries.push(entry); return f; };
+    for (const uri of ["file:///data/.codex", "file:///home/service/project/.codex"]) {
+      const entry = guard(uri); expect(isInapplicableWindowsReadGuard(entry)).toBe(true); expect(check(withEntry(entry)).allow).toBe(true);
+      for (const access of ["write", "deny"]) expect(check(withEntry({ ...entry, access })).allow).toBe(false);
+      for (const missing_path_behavior of [undefined, null, "error"]) expect(check(withEntry({ ...entry, missing_path_behavior })).allow).toBe(false);
+      expect(check(withEntry({ ...entry, unexpected: true })).allow).toBe(false);
+      expect(check(withEntry({ ...entry, path: { ...entry.path, value: {} } })).allow).toBe(false);
+      expect(check(withEntry(entry), { ...ceiling, sandbox: "read-only" } as any).allow).toBe(false);
+    }
+    const native = guard("file:///C:/Allowed/.codex"); expect(isInapplicableWindowsReadGuard(native)).toBe(false); expect(check(withEntry(native)).allow).toBe(true);
+    for (const uri of ["/data/.codex", "file:///data/C:%5CUsers%5Cproject/.codex", "file:///data/C:/Users/project/.codex", "file:///C:/Outside/.codex", "file:///C:/Allowed./.codex", "file:///C:/ALLOWE~1/.codex", "file:///C:/Allowed/x:stream", "file://server/share/.codex", "file:////server/share/.codex", "file:///%5C%5C%3F%5CC:%5CAllowed/.codex", "file:///data/.codex?x=1"]) {
+      expect(isInapplicableWindowsReadGuard(guard(uri))).toBe(false); expect(check(withEntry(guard(uri))).allow).toBe(false);
+    }
+  });
   it("requires owned temp context, exact special shape and writable ceiling", () => {
     for (const kind of ["tmpdir", "slash_tmp"]) {
       const f: any = frame(); const entry = { path: { type: "special", value: { kind } as any }, access: "write" };

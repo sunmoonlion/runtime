@@ -1,0 +1,56 @@
+
+ RUN  v3.2.7 C:/Users/zymun/sunmoon-probe-runs/windows-agent-1d-20261008/agent
+
+ ✓ test/outerSandbox.test.ts (5 tests) 6ms
+ ✓ test/windowsEnvironment.test.ts (13 tests) 12ms
+ ✓ test/filter.test.ts (19 tests) 8ms
+ ✓ test/windowsFilter.test.ts (24 tests) 10ms
+ ✓ test/windowsPolicy.test.ts (25 tests) 36ms
+ ✓ test/windowsBridge.test.ts (5 tests) 15ms
+{"t":"2026-10-08T08:59:46.070Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-08T08:59:46.097Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-08T08:59:46.123Z","level":"info","msg":"stream bridged","conn":"c5401f93","local":"ws://127.0.0.1:62559"}
+{"t":"2026-10-08T08:59:46.123Z","level":"info","msg":"stream closed","conn":"c5401f93","why":"agent stopped"}
+{"t":"2026-10-08T08:59:46.130Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-08T08:59:46.155Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-08T08:59:46.181Z","level":"info","msg":"stream bridged","conn":"a8736cdb","local":"ws://127.0.0.1:62567"}
+{"t":"2026-10-08T08:59:46.243Z","level":"info","msg":"stream closed","conn":"a8736cdb","why":"agent stopped"}
+{"t":"2026-10-08T08:59:46.251Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-08T08:59:46.276Z","level":"info","msg":"stream bridged","conn":"e1f1c0b9","local":"ws://127.0.0.1:62572"}
+{"t":"2026-10-08T08:59:46.335Z","level":"info","msg":"stream closed","conn":"e1f1c0b9","why":"agent stopped"}
+{"t":"2026-10-08T08:59:46.607Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-08T08:59:46.875Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-08T08:59:47.316Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-08T08:59:48.889Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-08T08:59:50.451Z","level":"info","msg":"relay connected","relay":"fake"}
+{"t":"2026-10-08T08:59:51.483Z","level":"info","msg":"relay connected","relay":"fake"}
+ ✓ test/relayClient.test.ts (12 tests) 5497ms
+   ✓ RelayClient > does not call onRejected on an ordinary disconnect  439ms
+   ✓ RelayClient > does not reconnect after close 4000 (replaced by a newer agent for this user)  1574ms
+   ✓ RelayClient > does not reconnect after close 4003 (token revoked)  1563ms
+   ✓ RelayClient > reconnects the control channel after the relay drops it  1066ms
+ ✓ test/windowsFollowup.test.ts (7 tests) 9408ms
+   ✓ native Windows stage 1b follow-up > runs real project + owned-temp writes, denies global Temp and outside writes, accepts late terminate  329ms
+   ✓ native Windows stage 1b follow-up > pins temp against swaps and refuses a replaced directory after guard failure  1790ms
+ ✓ test/cli.test.ts (5 tests) 10125ms
+   ✓ Windows CLI capability admission > supports configuration commands and refuses start without a recorded capability probe  9440ms
+ ✓ test/windowsNative.test.ts (15 tests | 1 skipped) 14730ms
+   ✓ native Windows adversarial admission > elevated OS sandbox blocks ordinary Node writes after a directory swap  4139ms
+   ✓ native Windows adversarial admission > probes an existing elevated setup and runs the protected file helper under it  3263ms
+   ✓ native Windows adversarial admission > pins sandbox roots against replacement throughout command launch  391ms
+ ✓ test/windowsLifecycle.test.ts (1 test) 53985ms
+   ✓ Windows CLI real lifecycle + loopback relay > initializes, filters, runs commands, survives 20s relay loss, reports revocation and cleans executor tree  53984ms
+
+ Test Files  11 passed (11)
+      Tests  130 passed | 1 skipped (131)
+   Start at  16:59:43
+   Duration  56.10s (transform 8.33s, setup 0ms, collect 10.05s, tests 93.83s, environment 3ms, prepare 2.55s)
+
+{"t":"2026-10-08T08:59:46.334Z","level":"warn","msg":"denied by local ceiling","method":"process/start","reason":"sandbox mode danger-full-access exceeds local ceiling workspace-write"}
+{"t":"2026-10-08T08:59:46.343Z","level":"error","msg":"relay rejected us — not retrying until config changes","reason":"bad token"}
+{"t":"2026-10-08T08:59:46.372Z","level":"error","msg":"relay rejected us — not retrying until config changes","reason":"bad token"}
+{"t":"2026-10-08T08:59:46.635Z","level":"error","msg":"another agent for this user connected to the relay; this one stops (run only one agent per user)","code":4000}
+{"t":"2026-10-08T08:59:46.902Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-08T08:59:47.344Z","level":"error","msg":"another agent for this user connected to the relay; this one stops (run only one agent per user)","code":4000}
+{"t":"2026-10-08T08:59:48.914Z","level":"error","msg":"relay revoked this agent's token; re-run init with a new token","code":4003}
+{"t":"2026-10-08T08:59:50.478Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}

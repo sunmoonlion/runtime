@@ -67,6 +67,12 @@ process 的显式文件权限目标目前须为可固定的现有目录；只读
 不会因此开放用户全局 Temp。`http/request` 暂不在 Windows
 允许清单，网络开关不会放行未知方法。能力不足返回 `-32001`，不降级执行。
 
+跨系统编排有一项明确例外：Linux app-server 的后备目录可能产生 `file:///data/.codex`
+这类纯 POSIX 路径。仅当它是 `read`、`missing_path_behavior=skip` 且不是 Windows
+绝对路径时，桥在转发命令前丢弃该无效条目。Windows 只读保护仍保留；写权限、
+未带 skip、混合 `/data/C:\\…`、UNC/设备/别名路径照旧拒绝。不会删除前缀猜测目标。
+这不改变 `fs/*` 请求的读白名单。
+
 白名单内缺失文件返回固定执行器的 `-32004`，保留本机 Windows 的错误消息，
 不算权限拒绝；路径经过联接或链接时仍拒绝。命令结束后，同一流在 60 秒内补发
 `process/terminate` 返回 `running:false`；陌生或其他流的进程 ID 不放行。

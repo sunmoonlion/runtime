@@ -1,6 +1,6 @@
 import { uriToPath } from "./pathuri.js";
 import fs from "node:fs";
-import { windowsDecision, isClientWindowsEnvAnnotation } from "./windowsPolicy.js";
+import { windowsDecision, isClientWindowsEnvAnnotation, isInapplicableWindowsReadGuard } from "./windowsPolicy.js";
 import { pinWindowsDirectories, WindowsFiles, windowsEnvironment, type WindowsHelper, type WindowsMode, type WindowsTemporary } from "./windowsRuntime.js";
 import type { Ceiling } from "./filter.js";
 
@@ -44,6 +44,7 @@ export class WindowsBridge {
           catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return reject("Windows working directory does not exist; select an existing project directory"); throw error; }
         }
         const dirs = [p.cwd, p.sandbox.cwd, ...p.sandbox.workspaceRoots];
+        p.sandbox.permissions.file_system.entries = p.sandbox.permissions.file_system.entries.filter((entry: any) => !isInapplicableWindowsReadGuard(entry));
         for (const entry of p.sandbox.permissions.file_system.entries) if (entry.path.type === "path") {
           // The client emits optional read-only guards for .codex even when
           // absent. Keep that restriction on the wire; do not create its path.

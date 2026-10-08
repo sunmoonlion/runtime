@@ -65,10 +65,12 @@ describe.skipIf(process.platform !== "win32")("native Windows stage 1b follow-up
   });
   it("runs real project + owned-temp writes, denies global Temp and outside writes, accepts late terminate", async () => {
     const params = request("owned-temp");
+    params.sandbox.permissions.file_system.entries.push({ path: { type: "path", path: "file:///data/.codex" }, access: "read", missing_path_behavior: "skip" });
     const targets = [path.join(root, "positive.txt"), path.join(temporary.directory, "positive.txt"), path.join(base, "outside.txt"), path.join(os.tmpdir(), `sunmoon-followup-${path.basename(base)}.txt`)];
     params.argv = [process.execPath, "-e", `const fs=require('fs');for(const p of ${JSON.stringify(targets)}){try{fs.writeFileSync(p,'ok');console.log('ok')}catch(e){console.log(e.code)}}`];
     const accepted = await send("process/start", params); expect(accepted.reason).toBeUndefined(); expect(accepted.forward).toBeTruthy();
     const forwarded = JSON.parse(accepted.forward!); for (const key of ["TEMP", "TMP", "TMPDIR"]) expect(forwarded.params.env[key]).toBe(temporary.directory);
+    expect(forwarded.params.sandbox.permissions.file_system.entries).not.toContainEqual(params.sandbox.permissions.file_system.entries.at(-1));
     const response = await rpc.call(forwarded.method, forwarded.params); bridge.observe(JSON.stringify({ ...response, id: forwarded.id })); expect(response.result.sandboxType).toBe("windowsRestrictedToken");
     for (let i = 0; i < 200 && !events.some(f => f.method === "process/closed" && f.params.processId === params.processId); i++) await sleep(50);
     expect(events.find(f => f.method === "process/exited" && f.params.processId === params.processId)?.params.exitCode).toBe(0);

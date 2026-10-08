@@ -9,7 +9,7 @@
 | --- | --- | --- |
 | 下载与四项页面 | backend `a01db6f`，web `2095c04`，parent `231f305` | Fable 接受；未发布 |
 | 投资源码版本锁 | k8s `87f56ec2`，锁至上述 parent/backend/web | 已提交 |
-| 分阶段 Cursor 发布卡 | k8s `b949c04c`，inbox 35；旧 stage2 待办已移入 done | 等 Cursor 执行 A/B/C |
+| 分阶段 Cursor 发布卡 | k8s `59e2f08c`，inbox 35；要求先经 Fable 审阅/所有者通知；旧 stage2 待办已移入 done | 等审阅后再由 Cursor 执行 A/B/C |
 | 托管与上传代码 | k8s `2966f98b`：独立读写身份、原部署链、Make 校验/条件上传/读回回执 | 候选接受；未实机 |
 | 检查 | backend 667/258 跳过；web 226/2 跳过；构建通过；上传单测 10 通过；实际 Make 验包通过 | 后端专用测试库未配置，跳过不算通过 |
 

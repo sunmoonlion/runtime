@@ -9,6 +9,7 @@ export interface WindowsBridgeOptions {
   roots: readonly string[]; ceiling: Ceiling; home: string; helper: WindowsHelper; mode: WindowsMode; url: () => string;
   temporary?: WindowsTemporary; executorEnvironment?: () => NodeJS.ProcessEnv;
   localPermissions?: LocalPermissions;
+  confirmedHttpUrls?: readonly string[];
 }
 export class WindowsBridge {
   private files: WindowsFiles;
@@ -27,11 +28,11 @@ export class WindowsBridge {
     const method = windowsMethodLabel(frame?.method);
     const reject = (reason: string) => ({ method, reason, response: JSON.stringify({ id: (typeof frame?.id === "string" || Number.isSafeInteger(frame?.id)) ? frame.id : null, error: { code: -32001, message: `sunmoon-agent local ceiling: ${reason}` } }) });
     if (this.closed) return reject("stream closed");
-    let decision = windowsDecision(frame, this.opts.ceiling, this.opts.roots, this.opts.home, this.opts.temporary?.directory);
+    let decision = windowsDecision(frame, this.opts.ceiling, this.opts.roots, this.opts.home, this.opts.temporary?.directory, this.opts.confirmedHttpUrls);
     let grant: PermissionGrant | null = null;
     if (!decision.allow && this.permissions) {
       grant = await this.permissions.allow(frame, this.opts.ceiling, this.opts.roots, this.opts.home, this.opts.temporary?.directory);
-      if (grant?.valid() && !this.closed) decision = windowsDecision(frame, grant.ceiling, this.opts.roots, this.opts.home, this.opts.temporary?.directory);
+      if (grant?.valid() && !this.closed) decision = windowsDecision(frame, grant.ceiling, this.opts.roots, this.opts.home, this.opts.temporary?.directory, this.opts.confirmedHttpUrls);
     }
     if (!decision.allow || this.closed) return reject(decision.reason ?? "request refused or stream closed");
     const p = frame.params;

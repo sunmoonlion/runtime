@@ -64,6 +64,13 @@ export function mcpToml(servers: McpServers): string {
   return Object.keys(checked).length ? stringify({ mcp_servers: checked }) : "";
 }
 
+// Exact strings, not host prefixes, origin-wide or path-prefix grants. Input is
+// the locally confirmed file read once at startup, never a remote RPC field.
+export function confirmedMcpUrls(servers: McpServers): readonly string[] {
+  return Object.freeze([...new Set(Object.values(validateServers(servers))
+    .filter(server => server.enabled !== false).map(server => server.url))]);
+}
+
 export function ownedConfig(mode: "unelevated" | "elevated", servers: McpServers = {}): string {
   return `sandbox_mode = "read-only"\napproval_policy = "never"\n[windows]\nsandbox = "${mode}"\n` + mcpToml(servers);
 }

@@ -1,0 +1,15 @@
+
+ RUN  v3.2.7 C:/Users/zymun/sunmoon-probe-runs/windows-agent-2-20261008/agent
+
+ ✓ test/windowsBridge.test.ts (6 tests) 12ms
+ ✓ test/stage2.test.ts (11 tests) 141ms
+ ✓ test/windowsHttp.test.ts (45 tests) 1898ms
+   ✓ native pinned executor HTTP (isolated loopback, no relay) > passes confirmed endpoint without redirects: streamed=false status=200  672ms
+   ✓ native pinned executor HTTP (isolated loopback, no relay) > passes confirmed endpoint without redirects: streamed=true status=200  618ms
+   ✓ native pinned executor HTTP (isolated loopback, no relay) > passes confirmed endpoint without redirects: streamed=false status=302  595ms
+
+ Test Files  3 passed (3)
+      Tests  62 passed (62)
+   Start at  23:24:29
+   Duration  2.98s (transform 253ms, setup 0ms, collect 496ms, tests 2.05s, environment 0ms, prepare 382ms)
+

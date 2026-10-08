@@ -53,7 +53,7 @@ export function isInapplicableWindowsReadGuard(entry: any): boolean {
   return posix !== null && posix.startsWith("/") && !posix.startsWith("//") && !/[\\\\:]/.test(posix);
 }
 
-export function windowsDecision(frame: any, ceiling: Ceiling, roots: readonly string[], codexHome?: string, temporary?: string): Decision {
+export function windowsDecision(frame: any, ceiling: Ceiling, roots: readonly string[], codexHome?: string, temporary?: string, confirmedHttpUrls: readonly string[] = []): Decision {
   const method = typeof frame?.method === "string" ? frame.method : "";
   const kind: Decision["kind"] = method.startsWith("process/") ? "process" : FS_WRITES.has(method) ? "fs-write" : method.startsWith("fs/") ? "fs-read" : method === "http/request" ? "http" : "other";
   const no = (reason: string): Decision => ({ allow: false, kind, reason });
@@ -92,17 +92,21 @@ export function windowsDecision(frame: any, ceiling: Ceiling, roots: readonly st
       const u = new URL(p.url);
       if (!["http:", "https:"].includes(u.protocol) || u.username || u.password || u.hash) return no("unsupported HTTP URL");
     } catch { return no("invalid HTTP URL"); }
+    if (!confirmedHttpUrls.includes(p.url)) return no("HTTP URL is not an exact locally confirmed MCP address");
+    // Require an explicit no-redirect request. Neither omitted executor defaults
+    // nor a remote 'follow' flag may extend a one-URL local consent.
+    if (p.redirectPolicy !== "stop") return no("HTTP redirects are forbidden; redirectPolicy must be stop");
     // Never resolve headers from local environment variables. That would let
     // a cloud caller exfiltrate values held only on the user's Windows machine.
     const headers = p.headers === undefined ? [] : p.headers;
     if (!Array.isArray(headers) || headers.length > 64 || !headers.every(h =>
       only(h, ["name", "value"]) && string(h.name) && /^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/.test(h.name)
+      && !["host", "proxy-authorization", "proxy-connection"].includes(h.name.toLowerCase())
       && typeof h.value === "string" && !/[\x00-\x08\x0a-\x1f\x7f]/.test(h.value))
       || JSON.stringify(headers).length > 32768) return no("invalid HTTP headers or local environment lookup");
     if (p.bodyBase64 != null && (typeof p.bodyBase64 !== "string" || p.bodyBase64.length > 12 * 1024 * 1024
       || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(p.bodyBase64))) return no("invalid HTTP body");
     if (p.timeoutMs != null && (!Number.isSafeInteger(p.timeoutMs) || p.timeoutMs < 0 || p.timeoutMs > 600000)) return no("invalid HTTP timeout");
-    if (p.redirectPolicy !== undefined && !["follow", "stop"].includes(p.redirectPolicy)) return no("invalid HTTP redirect policy");
     if (!string(p.requestId) || p.requestId.length > 128 || /[\x00-\x20\x7f]/.test(p.requestId)
       || (p.streamResponse !== undefined && typeof p.streamResponse !== "boolean")) return no("invalid HTTP stream fields");
     return ok;

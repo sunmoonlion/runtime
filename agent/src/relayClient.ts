@@ -10,7 +10,7 @@ import type { LocalPermissions } from "./permissions.js";
 import { hello, PERMISSION_CAPABILITY, validPermissionReport, type PermissionReport, type ControlMessage } from "./relayProtocol.js";
 
 export interface RelayClientOptions {
-  windows?: { home: string; helper: WindowsHelper; mode: WindowsMode; temporary: WindowsTemporary; executorEnvironment: () => NodeJS.ProcessEnv };
+  windows?: { home: string; helper: WindowsHelper; mode: WindowsMode; temporary: WindowsTemporary; executorEnvironment: () => NodeJS.ProcessEnv; confirmedHttpUrls?: readonly string[] };
   relayUrl: string;
   userId: string;
   token: string;

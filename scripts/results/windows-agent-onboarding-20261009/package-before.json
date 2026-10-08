@@ -1,0 +1,62 @@
+{
+  "source": "/mnt/c/Users/zymun/sunmoon-probe-runs/windows-agent-3-20261009/sunmoon-agent-21f864b",
+  "total_bytes": 500974988,
+  "files": 89,
+  "top10": [
+    {
+      "path": "app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/bin/codex.exe",
+      "bytes": 307108144
+    },
+    {
+      "path": "node/node.exe",
+      "bytes": 92825416
+    },
+    {
+      "path": "app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/bin/codex-code-mode-host.exe",
+      "bytes": 72473904
+    },
+    {
+      "path": "app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-resources/codex-windows-sandbox-setup.exe",
+      "bytes": 15498544
+    },
+    {
+      "path": "app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-resources/codex-command-runner.exe",
+      "bytes": 8217904
+    },
+    {
+      "path": "app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-path/rg.exe",
+      "bytes": 4218880
+    },
+    {
+      "path": "licenses/node-LICENSE",
+      "bytes": 157606
+    },
+    {
+      "path": "app/node_modules/ws/lib/websocket.js",
+      "bytes": 37367
+    },
+    {
+      "path": "app/node_modules/smol-toml/dist/index.cjs",
+      "bytes": 26378
+    },
+    {
+      "path": "app/node_modules/ws/lib/receiver.js",
+      "bytes": 17439
+    }
+  ],
+  "debug_symbols": [],
+  "executables": [
+    "app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/bin/codex-code-mode-host.exe",
+    "app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/bin/codex.exe",
+    "app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-path/rg.exe",
+    "app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-resources/codex-command-runner.exe",
+    "app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-resources/codex-windows-sandbox-setup.exe",
+    "node/node.exe"
+  ],
+  "zip": {
+    "path": "/tmp/sunmoon-package-audit-sk3ci4tf/sunmoon-agent-21f864b.zip",
+    "bytes": 174242372,
+    "sha256": "576799e69496663b472f80143ae6bfee474508f53417945a8397e5481bd66d36",
+    "all_files_roundtrip_equal": true
+  }
+}

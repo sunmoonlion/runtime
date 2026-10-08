@@ -1,0 +1,25 @@
+{
+  "pass": true,
+  "rounds": [
+    {
+      "pass": true,
+      "round": 1,
+      "statusCases": 6
+    },
+    {
+      "pass": true,
+      "round": 2,
+      "statusCases": 6
+    },
+    {
+      "pass": true,
+      "round": 3,
+      "statusCases": 6
+    }
+  ],
+  "settingsSource": "unchanged production AST functions",
+  "realCliPersistence": true,
+  "permissionDialogUsed": false,
+  "realAccountUsed": false,
+  "base": "C:\\Users\\zymun\\sunmoon-settings-test-vZwFAk"
+}

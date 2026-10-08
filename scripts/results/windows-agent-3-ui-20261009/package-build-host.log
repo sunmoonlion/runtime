@@ -1,0 +1,9 @@
+Staging: /tmp/.sunmoon-package-VHQ0lf
+{
+  "output": "/tmp/sunmoon-agent-stage3-20261009",
+  "manifestSha256": "e04d0cd3b2b865a638ca1d2425423e5d7dcf5b2d16211a19439b044fc6cf705d",
+  "sourceRevision": "21f864b5d8e44c70ad485b5cc0f3e52de15a84ff",
+  "files": 89,
+  "bytes": 500959705,
+  "status": "candidate; no agent started and no installation performed"
+}

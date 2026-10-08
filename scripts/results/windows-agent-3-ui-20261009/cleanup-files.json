@@ -1,0 +1,61 @@
+{
+  "removed": [
+    {
+      "path": "/mnt/c/Users/zymun/sunmoon-settings-test-2IUxZL",
+      "files": 9,
+      "bytes": 5489,
+      "purpose": "failed isolated GUI regression"
+    },
+    {
+      "path": "/mnt/c/Users/zymun/sunmoon-settings-test-rdEeQc",
+      "files": 9,
+      "bytes": 5625,
+      "purpose": "failed isolated GUI regression"
+    },
+    {
+      "path": "/mnt/c/Users/zymun/sunmoon-settings-test-0lyNpi",
+      "files": 9,
+      "bytes": 5626,
+      "purpose": "failed isolated GUI regression"
+    },
+    {
+      "path": "/tmp/sunmoon-agent-stage3-20261009",
+      "files": 89,
+      "bytes": 500974988,
+      "purpose": "duplicate or superseded delivery; new full bundle verified"
+    },
+    {
+      "path": "/mnt/c/Users/zymun/sunmoon-probe-runs/windows-agent-3-20261008/sunmoon-agent-9f2b5c6",
+      "files": 89,
+      "bytes": 500970900,
+      "purpose": "duplicate or superseded delivery; new full bundle verified"
+    },
+    {
+      "path": "/home/zymun/worktrees/luna/runtime/probe/it-turns.out",
+      "bytes": 3035,
+      "purpose": "archived run output"
+    },
+    {
+      "path": "/home/zymun/worktrees/luna/runtime/probe/it-relay.log",
+      "bytes": 713,
+      "purpose": "archived run output"
+    },
+    {
+      "path": "/home/zymun/worktrees/luna/runtime/probe/it-agent.log",
+      "bytes": 1636,
+      "purpose": "archived run output"
+    },
+    {
+      "path": "/home/zymun/worktrees/luna/runtime/probe/it-bridge.log",
+      "bytes": 375,
+      "purpose": "archived run output"
+    },
+    {
+      "path": "/mnt/c/Users/zymun/sunmoon-probe-runs/windows-agent-3-20261008/windows-stage3-package.mjs",
+      "bytes": 4900,
+      "purpose": "identical obsolete probe copy; source retained in Git"
+    }
+  ],
+  "logicalBytes": 1001973287,
+  "notPhysicalFreeSpace": true
+}

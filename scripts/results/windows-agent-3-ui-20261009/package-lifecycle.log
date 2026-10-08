@@ -1,0 +1,16 @@
+{
+  "pass": true,
+  "manifestSha256": "e04d0cd3b2b865a638ca1d2425423e5d7dcf5b2d16211a19439b044fc6cf705d",
+  "checks": [
+    "install + bundled Node/CLI versions without Node PATH",
+    "closing tray leaves installed background agent running",
+    "explicit stop after tray closure",
+    "uninstall preview read-only; matching task and program removed; config preserved",
+    "reinstall uses retained config; explicit default-home purge; project retained",
+    "no matching login task remains"
+  ],
+  "base": "C:\\Users\\zymun\\sunmoon-package-test-ln5Vme",
+  "realAccountUsed": false,
+  "realUserConfigTouched": false,
+  "administrator": false
+}

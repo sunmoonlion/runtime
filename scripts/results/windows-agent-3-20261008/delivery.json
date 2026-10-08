@@ -1,0 +1,8 @@
+{
+  "sourceRevision": "9f2b5c60b738b51d9cb757fd574ccd479cc40874",
+  "manifestSha256": "95d9219ee12ffeb9b5a992523f9f8a0a8348bfce3c1b2d5c2be79d52f6511946",
+  "filesIncludingManifest": 89,
+  "bytesExcludingManifest": 500955617,
+  "windowsDelivery": "C:\\Users\\zymun\\sunmoon-probe-runs\\windows-agent-3-20261008\\sunmoon-agent-9f2b5c6",
+  "status": "candidate; isolated native lifecycle passed; live/clean-machine/reboot acceptance pending"
+}

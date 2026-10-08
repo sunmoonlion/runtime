@@ -1,24 +1,23 @@
 # CHECKPOINT（runtime 仓，分支 luna）
 
-## 当前：私有安装包托管候选完成，停在发布前（2026-10-09）
+## 当前：托管候选已审读接受，Cursor 发布卡已准备（2026-10-09）
 
-反馈基线 k8s `67e9fa97` 最后一节，含所有者随后追加的四项页面修改。
-**先读 [本轮交回与 Cursor 发布边界](scripts/results/agent-release-hosting.20261009.md)。**
+反馈基线 k8s `67e9fa97`；Fable 审读提交 `71048534`，已由同步合并提交 `723d637d` 带回。
+**先读 [本轮交回与检查记录](scripts/results/agent-release-hosting.20261009.md)。**
 
-| 单元 | 本地提交 / 结果 | 尚待实机 |
+| 单元 | 本地提交 / 结果 | 当前状态 |
 | --- | --- | --- |
-| 下载 | backend `a01db6f`：认证、固定对象、流式 Range/校验、外部地址模式 | 发布后真实 AIStor 和浏览器 |
-| 四项页面 | web `2095c04`：先 key 后电脑、简化说明、在线勾令牌、三场景录制 | 发布后真人闭环 |
-| 父仓 | investment-app `231f305`，两个 gitlink 已提交 | 所有者同步 |
-| 桶与上传 | k8s `2966f98b`：独立读写身份、原部署链、Make 校验/条件上传/读回回执 | 建桶、最小权限、重复上传、真实读回 |
-| 检查与交回 | backend 667/258 跳过；web 226/2 跳过；构建通过；上传单测 10 通过；实际 Make 验包通过 | 后端专用测试库未配置，跳过不算通过 |
+| 下载与四项页面 | backend `a01db6f`，web `2095c04`，parent `231f305` | Fable 接受；未发布 |
+| 投资源码版本锁 | k8s `87f56ec2`，锁至上述 parent/backend/web | 已提交 |
+| 分阶段 Cursor 发布卡 | k8s `b949c04c`，inbox 35；旧 stage2 待办已移入 done | 等 Cursor 执行 A/B/C |
+| 托管与上传代码 | k8s `2966f98b`：独立读写身份、原部署链、Make 校验/条件上传/读回回执 | 候选接受；未实机 |
+| 检查 | backend 667/258 跳过；web 226/2 跳过；构建通过；上传单测 10 通过；实际 Make 验包通过 | 后端专用测试库未配置，跳过不算通过 |
 
 包仍为 `6de6002` / Agent 0.2.1：174243923 字节，90 文件已核；未重组。
-`enabled`/`download_available` 默认 false，本轮未部署、未上传、未改真实代理配置。
-发布顺序与回退写在 k8s 的 `agent-releases/README.md`，**由所有者安排 Cursor，不自行发布**。
-完整提交、失败原文、重跑命令、归档及清理范围均在报告。
-GUI 真人允许、网页已装实例在线、重启/UAC/干净机、两次旧投影原始参数仍待验；MCP URL 留下次自然实测。
-只本地提交；所有者先 `human-remote.sh` 同步，助手不自行 fetch/pull/push。
+真实桶/身份、上传读回与三段发布未执行。浏览器真人下载→安装→领令牌→在线、GUI 真人允许、重启/UAC/干净机、
+两次旧投影原始参数仍待验；MCP URL 留下次自然实测。细节与回退见报告和
+k8s `gitops/components/app-platform/investment-app/investment-backend/agent-releases/README.md`。
+只本地提交；所有者用 `human-remote.sh` 同步，助手不自行 fetch/pull/push。
 
 以下为历史记录，以本节和本轮报告为准。
 

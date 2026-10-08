@@ -1,5 +1,51 @@
 # CHECKPOINT（runtime 仓，分支 luna）
 
+## 当前停点：专家重连卡住已定位并交报，聊天/工作按单项补验（2026-10-08 17:50）
+
+runtime 产品代码仍为 `3bf4d3d`；本轮只追加证据/报告，不修改工作台仓、不改任务数据、不 push。
+报告：[windows-agent-1b.20261008-1750.md](scripts/results/windows-agent-1b.20261008-1750.md)。
+
+- 专家真实 Task `5e77067c-983d-4e0d-a88e-e4e77f68fa71` 进入 WAITING(ENVIRONMENT) 后，
+  机器恢复 online，Task 仍未恢复。MachineSync 只更新机器状态；advisor 不处理 WAITING，
+  runner 接管也不包含 WAITING。请远程补合法状态迁移与幂等重新调度。
+- 第一轮断开是我设置的 10 分钟联调计时器到期，并非确认的网络故障；“请专家读文件”误入
+  DATA_QUERY SQL 流程，测试指导不合适，已经说明。1b 仍未通过。
+- 普通聊天/工作已核对原前端投影，五组合成事件诊断通过：只有断线/error 没有终结事件时均保持忙碌；
+  有 turn/completed/command-failed 则可收尾。**这不是现网普通会话重连通过或失败的证据。**
+- 所有者说“重新来”，已重新单项引导：先在 myproject 新聊天只读 browser-check.txt，收到成功回执后
+  才安排受控重连，并在原聊天再读；再做工作。不要在用户尚未准备时停代理。
+- 新聊天基线已成功，kind=chat；session=`52511429-3a68-4bb3-a102-55db1e6b4c3f`。
+  第二轮 17:50:38 正常退出并删临时令牌，第三轮 17:50:58 重连，等原聊天再次读取回执。
+  第三轮监督 `/tmp/luna-1e-watch3.py`、停止标记 `/tmp/luna-1e-stop3`，执行会话 56661，
+  Windows PID 9244（操作前复核），最晚 18:20:53 自动停；记录前缀 `live3-`。
+  不要把测试私有 config.json 令牌副本提交；仍需归档第三轮、补工作验收和最终清理。
+
+## 前一停点：网页读写已通过，专家步骤待完成（2026-10-08 17:29）
+
+runtime/luna `3bf4d3d`；已只读确认待办 34 的 Windows 顶层 cwd 修复在现网 runner 生效。
+本轮 Windows 代理真实上线后，所有者完成：
+
+- 项目页新聊天列文件：`myproject` 中只有 README.md；真实只读 process/start 正常通过。
+- 项目页工作建文件：所有者改为内容 `hello！`；实际 browser-check.txt 字节
+  `efbbbf68656c6c6fefbc81` 已核对。首次补丁命令失败，随后 PowerShell 写入及字节核验成功；
+  三条命令均通过桥，未放宽沙箱。实际 `file:///data/.codex` read/skip 出现并按反馈丢弃，
+  Windows 的 .git/.agents/.codex 只读保护均保留。
+- 第一轮完整 95 条请求、62 条拒绝（全部是越白名单 fs/getMetadata）已归档到
+  `scripts/results/windows-agent-1e-20261008/round1/`；读写回执在同目录上一级。
+- 17:25:29 第一轮因本机联调计时器到期正常退出（0）；原 Linux 代理在开始前已停止，
+  保持原状态且配置摘要未变。专家步骤没完成，不能把 1b 记通过。
+- 所有者反馈断开后，17:28:48 重连同一台 Windows 测试机器，工作台已确认 online；
+  本轮给专家验收 30 分钟，最晚 17:58:45 自动停止，完成则提前停止。
+
+当前临时控制器 `/tmp/luna-1e-watch2.py`，停止标记 `/tmp/luna-1e-stop2`；
+Windows PID 16368（操作前再核对身份），当前状态与记录为 Windows 测试副本下的
+`live2-status.json`、`live2-frame-projection.jsonl`，日志 `/tmp/luna-1e-live2.log`。
+本轮控制器退出后删除临时 config.json 令牌副本。产品代码未变。
+下一步等待所有者完成专家 → 留实际三项结果与完整拒绝/退出记录 → 清理本轮私有副本与
+试验产物 → 本地提交交审。暂不进入第 2 段。
+
+以下为历史停点。
+
 ## 当前停点：可忽略的 POSIX 只读项已处理；待待办 34 上线后补网页三项
 
 基线 runtime `526401c`，反馈 k8s `f14dbc1e` 最后一节；本轮只改 runtime。

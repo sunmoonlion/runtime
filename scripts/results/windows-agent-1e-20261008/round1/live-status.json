@@ -1,0 +1,43 @@
+{
+  "at": "2026-10-08T09:25:22.667Z",
+  "pid": 34304,
+  "codex": "0.155.1",
+  "roots": [
+    "C:\\Users\\zymun\\sunmoon-probe-runs\\windows-agent-1b-20261007\\workspace"
+  ],
+  "ceiling": {
+    "sandbox": "workspace-write",
+    "network": false
+  },
+  "bridge": {
+    "connections": 1,
+    "active": 1,
+    "forwardedUp": 6,
+    "forwardedDown": 47,
+    "denied": 62,
+    "lastDenial": {
+      "method": "fs/getMetadata",
+      "reason": "filesystem path outside the whitelisted roots",
+      "at": "2026-10-08T09:25:05.886Z"
+    }
+  },
+  "execServer": {
+    "url": "ws://127.0.0.1:49996",
+    "alive": true,
+    "sandboxed": false,
+    "generation": 1,
+    "protection": "inner-sandbox+strict-protocol",
+    "windowsSandbox": {
+      "mode": "unelevated",
+      "testedAt": "2026-10-08T09:15:29.604Z",
+      "probe": "process/start",
+      "elevatedSetupForHome": false,
+      "elevatedUsable": false
+    }
+  },
+  "relay": {
+    "url": "wss://relay.sunmoonai.com:30443",
+    "status": "connected",
+    "lastError": ""
+  }
+}

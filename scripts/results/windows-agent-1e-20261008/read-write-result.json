@@ -1,0 +1,18 @@
+{
+  "checked_at": "2026-10-08T09:24:06.743665+00:00",
+  "read": {
+    "owner_report": "myproject 中只有 README.md (32 字节)",
+    "actual_process_forwarded": true
+  },
+  "write": {
+    "owner_requested_content": "hello！",
+    "owner_report": "第一次补丁命令失败；PowerShell Set-Content 写入及字节核验成功",
+    "file": "/mnt/c/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject/browser-check.txt",
+    "bytes_hex": "efbbbf68656c6c6fefbc81",
+    "sha256": "194115ce89f5837bfb5f5491f7ea389eca5b6c7daf90a113a611a36593be22aa",
+    "utf8_bom": true,
+    "decoded_content_matches": true
+  },
+  "expert": "pending",
+  "stage_1b": "not complete"
+}

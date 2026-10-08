@@ -1,0 +1,47 @@
+{
+  "checked_at": "2026-10-08T09:47:21.773Z",
+  "evidence_type": "synthetic events applied to actual frontend projection functions; not live browser acceptance",
+  "limitation": "Does not establish whether live app-server always emits a terminal turn event, or whether the next real command succeeds after agent reconnect.",
+  "source_sha256": {
+    "features/chat/model/thread.ts": "6e6bf18d24d5baa371f7b0658cda7122c71e778a6b7954e61ffd93be62378315",
+    "features/work/model/timeline.ts": "33ed9b589818630caea383a43e62672e4571e7017c7c692e3be384e1d53c5a83",
+    "lib/workbench/items.ts": "24505cc22605252575703a71c4793e0b7548c3e1df8e57546eb137af925a38d3"
+  },
+  "results": [
+    {
+      "name": "active_disconnect_without_terminal_event",
+      "chat_busy": true,
+      "work_busy": true,
+      "chat_status": "running",
+      "work_last": "none"
+    },
+    {
+      "name": "active_disconnect_with_error_only",
+      "chat_busy": true,
+      "work_busy": true,
+      "chat_status": "running",
+      "work_last": "none"
+    },
+    {
+      "name": "active_disconnect_then_failed_terminal",
+      "chat_busy": false,
+      "work_busy": false,
+      "chat_status": "failed",
+      "work_last": "failed"
+    },
+    {
+      "name": "active_disconnect_then_command_failed",
+      "chat_busy": false,
+      "work_busy": false,
+      "chat_status": "failed",
+      "work_last": "failed"
+    },
+    {
+      "name": "already_completed_then_disconnect",
+      "chat_busy": false,
+      "work_busy": false,
+      "chat_status": "completed",
+      "work_last": "completed"
+    }
+  ]
+}

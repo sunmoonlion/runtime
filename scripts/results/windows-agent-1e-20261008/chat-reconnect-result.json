@@ -1,0 +1,23 @@
+{
+  "chat_session": "52511429-3a68-4bb3-a102-55db1e6b4c3f",
+  "chat_thread": "01a11aea-2193-75c0-a17a-8e399be33281",
+  "kind": "chat",
+  "owner_baseline": "读取成功，hello！、UTF-8 BOM，未改文件",
+  "reconnect_result": "pass: same chat/thread can execute a new read after idle agent restart",
+  "checked_at": "2026-10-08T09:54:08.293333+00:00",
+  "owner_after_reconnect": "跑了1条命令，重新读取原始字节：hello！、UTF-8 BOM、无换行；未修改",
+  "restart": {
+    "stopped_at": "2026-10-08T09:50:38Z",
+    "connected_at": "2026-10-08T09:50:58Z",
+    "old_agent_pid": 16368,
+    "new_agent_pid": 9244,
+    "old_exec_port": 56785,
+    "new_exec_port": 56347
+  },
+  "new_process_started_at": "2026-10-08T09:51:49.678Z",
+  "new_turn": "01a11aec-fba6-7f13-a092-34014feadea4",
+  "new_turn_completed_at": "2026-10-08T09:52:03.372822Z",
+  "file_sha256": "194115ce89f5837bfb5f5491f7ea389eca5b6c7daf90a113a611a36593be22aa",
+  "file_unchanged": true,
+  "not_covered": "disconnect while a normal chat turn is still running"
+}

@@ -1,0 +1,9 @@
+{
+  "start": "2026-10-08T09:15:27.906896+00:00",
+  "original_agent_count": 0,
+  "lease_seconds": 600,
+  "windows_exit": 0,
+  "config_unchanged": true,
+  "end": "2026-10-08T09:25:29.688630+00:00",
+  "restore": "preserved initially stopped state"
+}

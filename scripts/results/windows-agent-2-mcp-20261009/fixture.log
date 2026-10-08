@@ -1,0 +1,8 @@
+{"ready":true,"pid":19524,"port":48291,"deadlineMinutes":30}
+{"at":"2026-10-08T16:17:25.401Z","method":"initialize"}
+{"at":"2026-10-08T16:17:25.412Z","method":"notifications/initialized"}
+{"at":"2026-10-08T16:17:25.417Z","method":"tools/list"}
+{"at":"2026-10-08T16:17:25.475Z","method":"initialize"}
+{"at":"2026-10-08T16:17:25.524Z","method":"notifications/initialized"}
+{"at":"2026-10-08T16:17:25.529Z","method":"tools/list"}
+{"at":"2026-10-08T16:17:25.579Z","method":"tools/call"}

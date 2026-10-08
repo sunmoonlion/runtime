@@ -1,0 +1,43 @@
+{
+  "at": "2026-10-09T00:21:50.259862+08:00",
+  "agentExitCode": 0,
+  "networkDisabledBeforeDelete": true,
+  "originalConfigSha256": "c80e10838cac82599861d996b94a5d095f67457e6192e99bb9d798c28bb4fe16",
+  "removedRound": "/mnt/c/Users/zymun/sunmoon-probe-runs/windows-agent-2-mcp-20261009",
+  "temporaryCredentialCopyRemoved": true,
+  "archived": [
+    {
+      "file": "trace.jsonl",
+      "sha256": "92cb75566c26674a5aa141b737f58357161fc526271a350e9d14aa45407f9521"
+    },
+    {
+      "file": "fixture.log",
+      "sha256": "9c19e0ab0b4b85d7eff687ab4542827c3b9aafe0040d52326768e7e4003e1a24"
+    },
+    {
+      "file": "fixture-error.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "import-fixture-exit.json",
+      "sha256": "6041df3e9b345d68be886f995c452395674ea950cd3ca9992c13b64f3aa9cbd0"
+    },
+    {
+      "file": "run-exit.json",
+      "sha256": "6041df3e9b345d68be886f995c452395674ea950cd3ca9992c13b64f3aa9cbd0"
+    },
+    {
+      "file": "mcp.json",
+      "sha256": "9c45db7db32541a3413a66a29f9e9fe8b0ed58fe602e59b8929805f485e597fc"
+    },
+    {
+      "file": "live.mjs",
+      "sha256": "889aac819c45be797e78e62b8c11fecca59d5360812e5a1f81c3bfaba701df82"
+    },
+    {
+      "file": "fixture.mjs",
+      "sha256": "030021c34413ef5522ea02c7be1ad9cccff4e09232ede810bc0b26c72c503da9"
+    }
+  ],
+  "scope": "isolated Windows MCP test only"
+}

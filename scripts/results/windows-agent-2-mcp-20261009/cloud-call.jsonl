@@ -1,0 +1,5 @@
+{"event": "connecting-public-app-server"}
+{"event": "starting-ephemeral-thread"}
+{"event": "ephemeral-thread", "threadId": "01a11c4e-2220-7b90-aa6d-26a2e904315f"}
+{"event": "mcp-inventory", "fixtureListed": true}
+{"event": "mcp-call", "result": {"content": [{"type": "text", "text": "SUNMOON_STAGE2_HTTP_MCP_20261008"}], "isError": false}}

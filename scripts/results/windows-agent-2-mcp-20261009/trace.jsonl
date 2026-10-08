@@ -1,0 +1,22 @@
+{"at":"2026-10-08T16:16:36.199Z","event":"native-console","pid":11312,"tty":true,"ceiling":"read-only","network":true,"lifetimeMinutes":45}
+{"at":"2026-10-08T16:17:25.267Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T16:17:25.270Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T16:17:25.271Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T16:17:25.272Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T16:17:25.274Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T16:17:25.275Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T16:17:25.277Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T16:17:25.317Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T16:17:25.368Z","event":"projection","keys":["cwd","configPaths","requirementsPaths"],"configPaths":[["mcp_servers"]],"requirementsPaths":[["mcp_servers"]],"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject"}
+{"at":"2026-10-08T16:17:25.396Z","event":"http-projection","exactFixtureUrl":true,"method":"POST","redirectPolicy":"stop","streamResponse":true}
+{"at":"2026-10-08T16:17:25.409Z","event":"projection","keys":["cwd","configPaths","requirementsPaths"],"configPaths":[["mcp_servers"]],"requirementsPaths":[["mcp_servers"]],"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject"}
+{"at":"2026-10-08T16:17:25.412Z","event":"http-projection","exactFixtureUrl":true,"method":"POST","redirectPolicy":"stop","streamResponse":true}
+{"at":"2026-10-08T16:17:25.415Z","event":"http-projection","exactFixtureUrl":true,"method":"GET","redirectPolicy":"stop","streamResponse":true}
+{"at":"2026-10-08T16:17:25.417Z","event":"http-projection","exactFixtureUrl":true,"method":"POST","redirectPolicy":"stop","streamResponse":true}
+{"at":"2026-10-08T16:17:25.419Z","event":"http-projection","exactFixtureUrl":false,"method":"GET","redirectPolicy":"stop","streamResponse":true}
+{"at":"2026-10-08T16:17:25.420Z","event":"denied","method":"http/request","reason":"HTTP URL is not an exact locally confirmed MCP address"}
+{"at":"2026-10-08T16:17:25.474Z","event":"http-projection","exactFixtureUrl":true,"method":"POST","redirectPolicy":"stop","streamResponse":true}
+{"at":"2026-10-08T16:17:25.523Z","event":"http-projection","exactFixtureUrl":true,"method":"POST","redirectPolicy":"stop","streamResponse":true}
+{"at":"2026-10-08T16:17:25.529Z","event":"http-projection","exactFixtureUrl":true,"method":"POST","redirectPolicy":"stop","streamResponse":true}
+{"at":"2026-10-08T16:17:25.579Z","event":"http-projection","exactFixtureUrl":true,"method":"POST","redirectPolicy":"stop","streamResponse":true}
+{"at":"2026-10-08T16:18:22.990Z","event":"exit","code":0}

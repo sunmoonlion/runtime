@@ -1,0 +1,8 @@
+{
+  "sunmoon_stage2_fixture": {
+    "enabled": true,
+    "startup_timeout_sec": 15,
+    "tool_timeout_sec": 15,
+    "url": "http://127.0.0.1:48291/mcp"
+  }
+}

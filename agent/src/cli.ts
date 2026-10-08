@@ -19,6 +19,7 @@ import { type WindowsHelper, WindowsTemporary, assertWindowsHome, locateWindowsH
 import { canonicalPath } from "./pathuri.js";
 import { importCandidates, loadMcp, saveMcp, confirmedMcpUrls } from "./mcp.js";
 import { localConfirm } from "./localConfirm.js";
+import { readHiddenToken } from "./hiddenToken.js";
 import { windowsConfirm } from "./windowsDesktop.js";
 import { acquireResident, autostart, preferences, readResidentStatus, residentAlive, runTray, closeTray, startResident, stopResident, setupElevated } from "./resident.js";
 
@@ -49,7 +50,8 @@ async function main(argv: string[]): Promise<number> {
     const cfg: AgentConfig = { ...defaultConfig() };
     cfg.relayUrl = arg("--relay", argv) ?? cfg.relayUrl;
     cfg.userId = arg("--user", argv) ?? cfg.userId;
-    cfg.token = arg("--token", argv) ?? cfg.token;
+    if (argv.includes("--token-prompt") && argv.includes("--token")) throw new Error("--token-prompt 不能与 --token 同用");
+    cfg.token = argv.includes("--token-prompt") ? await readHiddenToken() : arg("--token", argv) ?? cfg.token;
     registerSecret(cfg.token);
     cfg.roots = args("--root", argv).map((r) => path.resolve(r));
     const name = arg("--name", argv); if (name) cfg.machineName = name;
@@ -198,6 +200,7 @@ async function start(cfg: AgentConfig, windowed = false): Promise<number> {
 function usage(): void {
   console.log(`sunmoon-agent ${VERSION}
   init --relay ws://HOST:PORT --user ID --token T [--root DIR]... [--name 机器名] [--port N] [--no-outer-sandbox]
+  init --relay wss://HOST --user ID --token-prompt [--root DIR]...  本机隐藏输入，不把令牌放进命令历史
   roots list | add DIR | remove DIR
   mcp import | list   本机逐项确认导入无凭据 HTTP MCP；拒绝管道输入确认
   ceiling show | set [--sandbox read-only|workspace-write|danger-full-access] [--network on|off]

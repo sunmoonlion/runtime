@@ -9,7 +9,7 @@
 | --- | --- |
 | 0 包体审计、ZIP 实测 | 完成，见下 |
 | 1 后端配置、30 天、并发/重放、no-store 与身份 | 26 项定向测试通过，pyright 0 错误，ruff 通过，分层 4/4 |
-| 2 CLI 隐藏输入令牌 | 接下来实施 |
+| 2 CLI 隐藏输入令牌 | Windows 16/16、Linux 15/1 Windows 专用跳过；真实 Linux PTY 非敏感夹具验证通过 |
 | 3 网页接入迁到「我的机器」 | 待实施 |
 | 4 固定源码组新包，核对最终 ZIP | 待实施，不自行发布 |
 
@@ -58,3 +58,17 @@ ZIP CRC 及解压后全部 89 文件摘要与原文件逐一相等。此为基�
 
 后端契约/配置说明在 investment-backend `app/contracts/agent-onboarding.md`。
 还未改网页、CLI，也未发布后端；此时不能从新后端单独上线轮换接口，因为网页还未传 revision。
+
+## CLI 阶段
+
+后端本地 `8279c2c`，投资父仓 `f049fe6` 已跟随；子仓同步留下 detached HEAD，
+已确认旧 luna 是祖先后快进并切回 luna，未丢弃或合并别人工位。
+
+`init --token-prompt` 只从本机 TTY 隐藏输入，拒管道，支持退格、Ctrl+C 和两分钟超时；
+错误不含输入，终止恢复原始终端模式，不保存配置。旧 --token 保留兼容；两种参数不能同时使用。
+编译通过，Windows 原生 16/16、Linux 15 通过/1 Windows 专用跳过；实际 Linux PTY 用固定
+无凭据字符串验证匹配、无回显、raw 模式恢复。没有为真实用户输入令牌或替人批准权限。
+
+初次 Linux CLI 子进程受工具沙箱 EPERM 阻拦，主机权限重跑通过；首次原生 vitest 从 WSL
+UNC 工作目录起时报告 Invalid regular expression，改从已有 Windows 本地测试目录运行通过。
+未修改测试器依赖或系统策略。Windows 测试含真实 unelevated 沙箱准入，但不是新包完整验收。

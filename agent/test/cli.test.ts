@@ -8,6 +8,16 @@ import { describe, expect, it } from "vitest";
 const CLI = path.resolve(__dirname, "../dist/cli.js");
 
 describe("cli --help", () => {
+  it("hidden token refuses a pipe without saving or echoing input", () => {
+    const home = mkdtempSync(path.join(tmpdir(), "agent-hidden-pipe-"));
+    try {
+      const r = spawnSync(process.execPath, [CLI, "init", "--token-prompt"], {
+        env: { ...process.env, SUNMOON_AGENT_HOME: home }, input: "fixture-token-0123456789\n", encoding: "utf8", timeout: 5000,
+      });
+      expect(r.status).toBe(1); expect(r.stdout + r.stderr).not.toContain("fixture-token");
+      expect(existsSync(path.join(home, "config.json"))).toBe(false);
+    } finally { rmSync(home, { recursive: true, force: true }); }
+  });
   for (const args of [["--help"], ["start", "--help"], ["init", "-h"], ["roots", "list", "--help"]]) {
     it(`${args.join(" ")} prints usage and exits 0 without starting`, () => {
       const home = mkdtempSync(path.join(tmpdir(), "agent-help-"));

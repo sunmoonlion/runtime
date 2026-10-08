@@ -1,0 +1,15 @@
+{
+  "checked_at": "2026-10-08T11:12:16.666747+00:00",
+  "same_session": "6e0bc2cf-7c86-4784-9156-5b4d3c7a6e5e",
+  "same_thread": "01a11ad1-53f3-7711-8509-b367c7696c65",
+  "new_turn": "01a11b35-48d2-77c1-b1d5-b0e2ca9eeda8",
+  "last_turn_status": "completed",
+  "bytes": 38,
+  "sha256": "39e5ed241ed8cb16a9ed7cf7a096d7d078acb7563315f8d6c958ff3e5c629d36",
+  "lines": [
+    "before-reconnect",
+    "after-reconnect"
+  ],
+  "windows_pid": 30012,
+  "result": "pass-idle-agent-restart"
+}

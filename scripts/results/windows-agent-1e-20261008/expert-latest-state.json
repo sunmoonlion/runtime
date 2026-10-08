@@ -1,0 +1,114 @@
+{
+  "checked_at": "2026-10-08T10:00:30.190656+00:00",
+  "task": [
+    {
+      "id": "5e77067c-983d-4e0d-a88e-e4e77f68fa71",
+      "state": "WAITING",
+      "waiting_reason": "ENVIRONMENT",
+      "current_step": 1,
+      "profile_id": "DATA_QUERY",
+      "active_attempt_id": null,
+      "active_interaction_id": null,
+      "session_id": "6e0bc2cf-7c86-4784-9156-5b4d3c7a6e5e",
+      "project_id": "053b9b70-260f-42b9-a2e7-ba911e4424c1",
+      "wheel": "advisor",
+      "active_task_id": "5e77067c-983d-4e0d-a88e-e4e77f68fa71",
+      "machine_status": "online",
+      "last_seen_at": "2026-10-08 10:00:25.136457+00:00"
+    }
+  ],
+  "attempts": [
+    {
+      "id": "e74a40be-5a93-4c85-9b1e-d9106b2b697d",
+      "step_id": "rewrite",
+      "status": "COMPLETED",
+      "failure_code": null,
+      "retryable": null,
+      "turn_ids": [
+        "01a11ad4-73e2-7832-9e7e-ba2cc921fabb"
+      ],
+      "created_at": "2026-10-08 09:24:53.302800+00:00"
+    },
+    {
+      "id": "72f46157-0ef3-49c0-a373-ee71cde6aadb",
+      "step_id": "sql_generate",
+      "status": "FAILED",
+      "failure_code": "environment",
+      "retryable": true,
+      "turn_ids": [
+        "01a11ad4-a4bb-7132-bc2a-1450f9a19fe6"
+      ],
+      "created_at": "2026-10-08 09:25:05.832321+00:00"
+    }
+  ],
+  "state_events": [
+    {
+      "created_at": "2026-10-08 09:24:52.738165+00:00",
+      "event_type": "wheel/handover",
+      "previous": "user",
+      "target": "advisor",
+      "waiting_reason": null
+    },
+    {
+      "created_at": "2026-10-08 09:24:53.286110+00:00",
+      "event_type": "task/state",
+      "previous": "RECEIVED",
+      "target": "VALIDATING",
+      "waiting_reason": null
+    },
+    {
+      "created_at": "2026-10-08 09:24:53.296963+00:00",
+      "event_type": "task/state",
+      "previous": "VALIDATING",
+      "target": "QUEUED",
+      "waiting_reason": null
+    },
+    {
+      "created_at": "2026-10-08 09:24:53.302800+00:00",
+      "event_type": "task/state",
+      "previous": "QUEUED",
+      "target": "RUNNING",
+      "waiting_reason": null
+    },
+    {
+      "created_at": "2026-10-08 09:24:53.316558+00:00",
+      "event_type": "step/started",
+      "previous": null,
+      "target": null,
+      "waiting_reason": null
+    },
+    {
+      "created_at": "2026-10-08 09:25:05.825844+00:00",
+      "event_type": "task/state",
+      "previous": "RUNNING",
+      "target": "QUEUED",
+      "waiting_reason": null
+    },
+    {
+      "created_at": "2026-10-08 09:25:05.832321+00:00",
+      "event_type": "task/state",
+      "previous": "QUEUED",
+      "target": "RUNNING",
+      "waiting_reason": null
+    },
+    {
+      "created_at": "2026-10-08 09:25:05.843188+00:00",
+      "event_type": "step/started",
+      "previous": null,
+      "target": null,
+      "waiting_reason": null
+    },
+    {
+      "created_at": "2026-10-08 09:25:57.677898+00:00",
+      "event_type": "task/state",
+      "previous": "RUNNING",
+      "target": "WAITING",
+      "waiting_reason": "ENVIRONMENT"
+    }
+  ],
+  "deployed_source_sha256": {
+    "app/application/workbench/machines.py": "233bacc2f07d8ce4d46734ae0624c6daa1b200457beb060cfb067398ea59f0d0",
+    "app/application/workbench/advisor.py": "f94e32a3888a464407d0a431263597c31d20f2bc1422657fd893a1eb81a156ea",
+    "app/infrastructure/workbench/repository.py": "fe76bf10dabf4830ffef8ebfcb0c6a27f0e3f54857777c22e548f84ffd02dfde"
+  }
+}

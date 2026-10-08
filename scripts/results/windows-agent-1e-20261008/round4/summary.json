@@ -1,0 +1,18 @@
+{
+  "frames": 80,
+  "denied": 59,
+  "methods": {
+    "initialize": 1,
+    "initialized": 1,
+    "environment/info": 1,
+    "environment/status": 1,
+    "fs/getMetadata": 72,
+    "environmentConfig/read": 2,
+    "process/start": 1,
+    "process/terminate": 1
+  },
+  "denied_by_reason": {
+    "filesystem path outside the whitelisted roots": 58,
+    "unsupported executor config projection": 1
+  }
+}

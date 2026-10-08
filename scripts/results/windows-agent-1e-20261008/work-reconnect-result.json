@@ -1,0 +1,18 @@
+{
+  "checked_at": "2026-10-08T10:01:45.202188+00:00",
+  "owner_send_error": "没有发出去，请再试一次",
+  "actual_http_error": "409 project_held_by_expert",
+  "owner_cancel_attempt": "已给原专家页直接链接；所有者确认页面没有可见停止按钮，只有等待机器与生成 SQL 步骤",
+  "task": "5e77067c-983d-4e0d-a88e-e4e77f68fa71",
+  "work_reconnect_result": "blocked: cannot establish baseline because active expert holds project; no work reconnect pass/fail asserted",
+  "work_fixture_exists": false,
+  "agent": {
+    "pid": 9244,
+    "relay": {
+      "url": "wss://relay.sunmoonai.com:30443",
+      "status": "connected",
+      "lastError": ""
+    },
+    "exec_alive": true
+  }
+}

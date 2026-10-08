@@ -1,0 +1,631 @@
+{
+  "sessions": [
+    {
+      "id": "6e0bc2cf-7c86-4784-9156-5b4d3c7a6e5e",
+      "title": "请再当前创建browser-check.txt。内容为：he…",
+      "kind": "work",
+      "wheel": "user",
+      "active_task_id": null,
+      "thread_id": "01a11ad1-53f3-7711-8509-b367c7696c65",
+      "last_active_at": "2026-10-08 11:05:37.715214+00:00",
+      "state": null,
+      "waiting_reason": null,
+      "active_attempt_id": null,
+      "active_interaction_id": null,
+      "profile_id": null,
+      "attempt_status": null,
+      "turn_ids": null
+    },
+    {
+      "id": "49be877c-af46-420a-802a-993d63ceda58",
+      "title": null,
+      "kind": "work",
+      "wheel": "user",
+      "active_task_id": null,
+      "thread_id": "01a11aef-ecb6-72f1-a382-ecf4af35bfbb",
+      "last_active_at": "2026-10-08 09:54:53.802335+00:00",
+      "state": null,
+      "waiting_reason": null,
+      "active_attempt_id": null,
+      "active_interaction_id": null,
+      "profile_id": null,
+      "attempt_status": null,
+      "turn_ids": null
+    },
+    {
+      "id": "de7d35e2-50c5-4260-aaae-8278d08d7ce4",
+      "title": null,
+      "kind": "work",
+      "wheel": "user",
+      "active_task_id": null,
+      "thread_id": "01a11aef-8df1-7ea2-bffd-df27b737d850",
+      "last_active_at": "2026-10-08 09:54:29.539542+00:00",
+      "state": null,
+      "waiting_reason": null,
+      "active_attempt_id": null,
+      "active_interaction_id": null,
+      "profile_id": null,
+      "attempt_status": null,
+      "turn_ids": null
+    },
+    {
+      "id": "7a5d8110-e788-4734-85ec-6069279dc93d",
+      "title": null,
+      "kind": "work",
+      "wheel": "user",
+      "active_task_id": null,
+      "thread_id": "01a11aef-6621-7060-ad08-0e2c2ec252ba",
+      "last_active_at": "2026-10-08 09:54:19.383708+00:00",
+      "state": null,
+      "waiting_reason": null,
+      "active_attempt_id": null,
+      "active_interaction_id": null,
+      "profile_id": null,
+      "attempt_status": null,
+      "turn_ids": null
+    },
+    {
+      "id": "bc795c63-c957-4c2b-aee3-a59a91fe64d4",
+      "title": null,
+      "kind": "work",
+      "wheel": "user",
+      "active_task_id": null,
+      "thread_id": "01a11aef-59ed-7d82-9142-bef83091653f",
+      "last_active_at": "2026-10-08 09:54:16.241468+00:00",
+      "state": null,
+      "waiting_reason": null,
+      "active_attempt_id": null,
+      "active_interaction_id": null,
+      "profile_id": null,
+      "attempt_status": null,
+      "turn_ids": null
+    }
+  ],
+  "work_events": [
+    {
+      "created_at": "2026-10-08 11:05:48.892178+00:00",
+      "event_type": "turn/completed",
+      "turn_id": null,
+      "nested_turn_id": "01a11b30-b0fa-7e03-9ffe-dcfc2ecdafff",
+      "turn_status": "completed",
+      "command_kind": null,
+      "payload_keys": [
+        "turn",
+        "threadId"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:48.887018+00:00",
+      "event_type": "thread/status/changed",
+      "turn_id": null,
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "status",
+        "threadId"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:48.881466+00:00",
+      "event_type": "thread/tokenUsage/updated",
+      "turn_id": "01a11b30-b0fa-7e03-9ffe-dcfc2ecdafff",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "cost",
+        "turnId",
+        "threadId",
+        "tokenUsage"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:48.836929+00:00",
+      "event_type": "item/completed",
+      "turn_id": "01a11b30-b0fa-7e03-9ffe-dcfc2ecdafff",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "item",
+        "turnId",
+        "threadId",
+        "completedAtMs"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:48.047240+00:00",
+      "event_type": "item/started",
+      "turn_id": "01a11b30-b0fa-7e03-9ffe-dcfc2ecdafff",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "item",
+        "turnId",
+        "threadId",
+        "startedAtMs"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:48.042096+00:00",
+      "event_type": "item/completed",
+      "turn_id": "01a11b30-b0fa-7e03-9ffe-dcfc2ecdafff",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "item",
+        "turnId",
+        "threadId",
+        "completedAtMs"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:47.784604+00:00",
+      "event_type": "item/reasoning/summaryPartAdded",
+      "turn_id": "01a11b30-b0fa-7e03-9ffe-dcfc2ecdafff",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "itemId",
+        "turnId",
+        "threadId",
+        "summaryIndex"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:47.778371+00:00",
+      "event_type": "item/started",
+      "turn_id": "01a11b30-b0fa-7e03-9ffe-dcfc2ecdafff",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "item",
+        "turnId",
+        "threadId",
+        "startedAtMs"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:44.484033+00:00",
+      "event_type": "thread/tokenUsage/updated",
+      "turn_id": "01a11b30-b0fa-7e03-9ffe-dcfc2ecdafff",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "cost",
+        "turnId",
+        "threadId",
+        "tokenUsage"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:44.460251+00:00",
+      "event_type": "item/completed",
+      "turn_id": "01a11b30-b0fa-7e03-9ffe-dcfc2ecdafff",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "item",
+        "turnId",
+        "threadId",
+        "completedAtMs"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:44.253456+00:00",
+      "event_type": "item/started",
+      "turn_id": "01a11b30-b0fa-7e03-9ffe-dcfc2ecdafff",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "item",
+        "turnId",
+        "threadId",
+        "startedAtMs"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:43.381247+00:00",
+      "event_type": "item/completed",
+      "turn_id": "01a11b30-b0fa-7e03-9ffe-dcfc2ecdafff",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "item",
+        "turnId",
+        "threadId",
+        "completedAtMs"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:42.823413+00:00",
+      "event_type": "item/started",
+      "turn_id": "01a11b30-b0fa-7e03-9ffe-dcfc2ecdafff",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "item",
+        "turnId",
+        "threadId",
+        "startedAtMs"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:42.816639+00:00",
+      "event_type": "item/completed",
+      "turn_id": "01a11b30-b0fa-7e03-9ffe-dcfc2ecdafff",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "item",
+        "turnId",
+        "threadId",
+        "completedAtMs"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:42.694789+00:00",
+      "event_type": "item/reasoning/summaryPartAdded",
+      "turn_id": "01a11b30-b0fa-7e03-9ffe-dcfc2ecdafff",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "itemId",
+        "turnId",
+        "threadId",
+        "summaryIndex"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:42.687935+00:00",
+      "event_type": "item/started",
+      "turn_id": "01a11b30-b0fa-7e03-9ffe-dcfc2ecdafff",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "item",
+        "turnId",
+        "threadId",
+        "startedAtMs"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:38.401127+00:00",
+      "event_type": "item/completed",
+      "turn_id": "01a11b30-b0fa-7e03-9ffe-dcfc2ecdafff",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "item",
+        "turnId",
+        "threadId",
+        "completedAtMs"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:38.394100+00:00",
+      "event_type": "item/started",
+      "turn_id": "01a11b30-b0fa-7e03-9ffe-dcfc2ecdafff",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "item",
+        "turnId",
+        "threadId",
+        "startedAtMs"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:38.367904+00:00",
+      "event_type": "turn/started",
+      "turn_id": null,
+      "nested_turn_id": "01a11b30-b0fa-7e03-9ffe-dcfc2ecdafff",
+      "turn_status": "inProgress",
+      "command_kind": null,
+      "payload_keys": [
+        "turn",
+        "threadId"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:38.362029+00:00",
+      "event_type": "thread/status/changed",
+      "turn_id": null,
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "status",
+        "threadId"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:38.355221+00:00",
+      "event_type": "warning",
+      "turn_id": null,
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "message",
+        "threadId"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:38.313551+00:00",
+      "event_type": "turn/accepted",
+      "turn_id": null,
+      "nested_turn_id": "01a11b30-b0fa-7e03-9ffe-dcfc2ecdafff",
+      "turn_status": "inProgress",
+      "command_kind": null,
+      "payload_keys": [
+        "by",
+        "turn",
+        "request_id"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:38.292016+00:00",
+      "event_type": "session/mode_announced",
+      "turn_id": null,
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "mode",
+        "note",
+        "injected",
+        "directory"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 11:05:37.715214+00:00",
+      "event_type": "turn/requested",
+      "turn_id": null,
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "by",
+        "text",
+        "request_id"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 10:57:09.974853+00:00",
+      "event_type": "wheel/return",
+      "turn_id": null,
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "to",
+        "from",
+        "task_id",
+        "final_state"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 10:57:09.974853+00:00",
+      "event_type": "task/state",
+      "turn_id": null,
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "to",
+        "from",
+        "reason",
+        "task_id",
+        "waiting_reason"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 10:57:09.964361+00:00",
+      "event_type": "step/accepted",
+      "turn_id": null,
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "checks",
+        "step_id",
+        "artifact",
+        "consumed"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 10:57:09.955637+00:00",
+      "event_type": "attempt/state",
+      "turn_id": null,
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "to",
+        "from",
+        "consumed",
+        "attempt_id",
+        "failure_code"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 10:57:09.950382+00:00",
+      "event_type": "attempt/state",
+      "turn_id": null,
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "to",
+        "from",
+        "consumed",
+        "attempt_id",
+        "failure_code"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 10:57:09.946572+00:00",
+      "event_type": "turn/completed",
+      "turn_id": null,
+      "nested_turn_id": "01a11b28-bdff-7f63-b6ce-c7c2ab88b19f",
+      "turn_status": "completed",
+      "command_kind": null,
+      "payload_keys": [
+        "turn",
+        "threadId"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 10:57:09.942191+00:00",
+      "event_type": "thread/status/changed",
+      "turn_id": null,
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "status",
+        "threadId"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 10:57:09.936960+00:00",
+      "event_type": "thread/tokenUsage/updated",
+      "turn_id": "01a11b28-bdff-7f63-b6ce-c7c2ab88b19f",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "cost",
+        "turnId",
+        "threadId",
+        "tokenUsage"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 10:57:09.885213+00:00",
+      "event_type": "item/completed",
+      "turn_id": "01a11b28-bdff-7f63-b6ce-c7c2ab88b19f",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "item",
+        "turnId",
+        "threadId",
+        "completedAtMs"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 10:57:02.131843+00:00",
+      "event_type": "item/started",
+      "turn_id": "01a11b28-bdff-7f63-b6ce-c7c2ab88b19f",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "item",
+        "turnId",
+        "threadId",
+        "startedAtMs"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 10:57:02.127132+00:00",
+      "event_type": "item/completed",
+      "turn_id": "01a11b28-bdff-7f63-b6ce-c7c2ab88b19f",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "item",
+        "turnId",
+        "threadId",
+        "completedAtMs"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 10:57:01.433703+00:00",
+      "event_type": "item/reasoning/summaryPartAdded",
+      "turn_id": "01a11b28-bdff-7f63-b6ce-c7c2ab88b19f",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "itemId",
+        "turnId",
+        "threadId",
+        "summaryIndex"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 10:57:01.427902+00:00",
+      "event_type": "item/started",
+      "turn_id": "01a11b28-bdff-7f63-b6ce-c7c2ab88b19f",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "item",
+        "turnId",
+        "threadId",
+        "startedAtMs"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 10:56:57.438462+00:00",
+      "event_type": "item/completed",
+      "turn_id": "01a11b28-bdff-7f63-b6ce-c7c2ab88b19f",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "item",
+        "turnId",
+        "threadId",
+        "completedAtMs"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 10:56:57.431679+00:00",
+      "event_type": "item/started",
+      "turn_id": "01a11b28-bdff-7f63-b6ce-c7c2ab88b19f",
+      "nested_turn_id": null,
+      "turn_status": null,
+      "command_kind": null,
+      "payload_keys": [
+        "item",
+        "turnId",
+        "threadId",
+        "startedAtMs"
+      ]
+    },
+    {
+      "created_at": "2026-10-08 10:56:57.370557+00:00",
+      "event_type": "turn/started",
+      "turn_id": null,
+      "nested_turn_id": "01a11b28-bdff-7f63-b6ce-c7c2ab88b19f",
+      "turn_status": "inProgress",
+      "command_kind": null,
+      "payload_keys": [
+        "turn",
+        "threadId"
+      ]
+    }
+  ]
+}

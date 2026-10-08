@@ -1,0 +1,33 @@
+{
+  "source": "owner messages during 2026-10-08 controlled acceptance",
+  "expert_page": {
+    "returned": true,
+    "composer_visible": true,
+    "observed_text": [
+      "专家交回了",
+      "接着让它做…"
+    ]
+  },
+  "idle_work": {
+    "first_line": "before-reconnect",
+    "second_line_after_restart": "after-reconnect",
+    "reported_actual_read": true
+  },
+  "inflight_work": {
+    "original_command_failed": true,
+    "error": "exec-server transport disconnected; failed to resume exec-server session: recovery timed out after 25s",
+    "no_automatic_retry": true,
+    "next_turn_actual_read_succeeded": true,
+    "reported_lines": [
+      "before-reconnect",
+      "after-reconnect"
+    ]
+  },
+  "inflight_chat": {
+    "original_command_failed": true,
+    "error": "exec-server transport disconnected; failed to resume exec-server session: recovery timed out after 25s",
+    "no_automatic_retry": true,
+    "remote_model_speculation_about_process_completion_not_accepted_as_evidence": true,
+    "next_turn_read": "passed; hello！; 11 bytes; actual fresh read"
+  }
+}

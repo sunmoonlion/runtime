@@ -1,0 +1,29 @@
+2026-10-08T09:57:26.479785273Z redis.exceptions.NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command
+2026-10-08T09:57:26.481277373Z redis.exceptions.NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command
+2026-10-08T09:57:27.510172293Z 2026-10-08 09:57:27 - app.interfaces.errors.exception_handlers - ERROR - unhandled_exception path=/api/workbench/sessions/52511429-3a68-4bb3-a102-55db1e6b4c3f/stream type=NoPermissionError
+2026-10-08T09:57:27.510439442Z redis.exceptions.NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command
+2026-10-08T09:57:27.512746247Z redis.exceptions.NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command
+2026-10-08T09:57:28.538620060Z 2026-10-08 09:57:28 - app.interfaces.errors.exception_handlers - ERROR - unhandled_exception path=/api/workbench/sessions/52511429-3a68-4bb3-a102-55db1e6b4c3f/stream type=NoPermissionError
+2026-10-08T09:57:28.538924877Z redis.exceptions.NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command
+2026-10-08T09:57:28.540046218Z redis.exceptions.NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command
+2026-10-08T09:57:29.566848826Z 2026-10-08 09:57:29 - app.interfaces.errors.exception_handlers - ERROR - unhandled_exception path=/api/workbench/sessions/52511429-3a68-4bb3-a102-55db1e6b4c3f/stream type=NoPermissionError
+2026-10-08T09:57:29.566988076Z redis.exceptions.NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command
+2026-10-08T09:57:29.568564484Z redis.exceptions.NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command
+2026-10-08T09:57:30.589536087Z 2026-10-08 09:57:30 - app.interfaces.errors.exception_handlers - ERROR - unhandled_exception path=/api/workbench/sessions/52511429-3a68-4bb3-a102-55db1e6b4c3f/stream type=NoPermissionError
+2026-10-08T09:57:30.589789690Z redis.exceptions.NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command
+2026-10-08T09:57:30.591755465Z redis.exceptions.NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command
+2026-10-08T09:57:31.664996377Z 2026-10-08 09:57:31 - app.interfaces.errors.exception_handlers - ERROR - unhandled_exception path=/api/workbench/sessions/52511429-3a68-4bb3-a102-55db1e6b4c3f/stream type=NoPermissionError
+2026-10-08T09:57:31.665253958Z redis.exceptions.NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command
+2026-10-08T09:57:31.668129576Z redis.exceptions.NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command
+2026-10-08T09:57:32.700361276Z 2026-10-08 09:57:32 - app.interfaces.errors.exception_handlers - ERROR - unhandled_exception path=/api/workbench/sessions/52511429-3a68-4bb3-a102-55db1e6b4c3f/stream type=NoPermissionError
+2026-10-08T09:57:32.700541502Z redis.exceptions.NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command
+2026-10-08T09:57:32.702206511Z redis.exceptions.NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command
+2026-10-08T09:57:33.727598055Z 2026-10-08 09:57:33 - app.interfaces.errors.exception_handlers - ERROR - unhandled_exception path=/api/workbench/sessions/52511429-3a68-4bb3-a102-55db1e6b4c3f/stream type=NoPermissionError
+2026-10-08T09:57:33.727746512Z redis.exceptions.NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command
+2026-10-08T09:57:33.729388318Z redis.exceptions.NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command
+2026-10-08T09:57:35.701129213Z 2026-10-08 09:57:35 - app.interfaces.errors.exception_handlers - ERROR - unhandled_exception path=/api/workbench/sessions/52511429-3a68-4bb3-a102-55db1e6b4c3f/stream type=NoPermissionError
+2026-10-08T09:57:35.701411039Z redis.exceptions.NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command
+2026-10-08T09:57:35.703603612Z redis.exceptions.NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command
+2026-10-08T09:57:37.747618367Z 2026-10-08 09:57:37 - app.interfaces.errors.exception_handlers - ERROR - unhandled_exception path=/api/workbench/sessions/52511429-3a68-4bb3-a102-55db1e6b4c3f/stream type=NoPermissionError
+2026-10-08T09:57:37.747935038Z redis.exceptions.NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command
+2026-10-08T09:57:37.749640076Z redis.exceptions.NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command

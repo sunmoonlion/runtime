@@ -1,0 +1,8 @@
+{"at": "2026-10-08T11:20:52.384Z", "method": "fs/getMetadata", "id": 2, "reason": "filesystem path outside the whitelisted roots", "forwarded": false, "paths": {"path": "file:///data/.git"}}
+{"at": "2026-10-08T11:20:52.385Z", "method": "fs/getMetadata", "id": 3, "reason": "filesystem path outside the whitelisted roots", "forwarded": false, "paths": {"path": "file:///.git"}}
+{"at": "2026-10-08T11:20:52.437Z", "method": "fs/getMetadata", "id": 4, "reason": "filesystem path outside the whitelisted roots", "forwarded": false, "paths": {"path": "file:///data/.agents/skills"}}
+{"at": "2026-10-08T11:20:52.616Z", "method": "fs/getMetadata", "id": 7, "reason": "filesystem path outside the whitelisted roots", "forwarded": false, "paths": {"path": "file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/.git"}}
+{"at": "2026-10-08T11:20:52.617Z", "method": "fs/getMetadata", "id": 8, "reason": "filesystem path outside the whitelisted roots", "forwarded": false, "paths": {"path": "file:///C:/Users/zymun/sunmoon-probe-runs/.git"}}
+{"at": "2026-10-08T11:20:52.618Z", "method": "fs/getMetadata", "id": 9, "reason": "filesystem path outside the whitelisted roots", "forwarded": false, "paths": {"path": "file:///C:/Users/zymun/.git"}}
+{"at": "2026-10-08T11:20:52.618Z", "method": "fs/getMetadata", "id": 10, "reason": "filesystem path outside the whitelisted roots", "forwarded": false, "paths": {"path": "file:///C:/Users/.git"}}
+{"at": "2026-10-08T11:20:52.619Z", "method": "fs/getMetadata", "id": 11, "reason": "filesystem path outside the whitelisted roots", "forwarded": false, "paths": {"path": "file:///C:/.git"}}

@@ -1,0 +1,7 @@
+{
+  "browser_check_bytes": 11,
+  "browser_check_sha256": "194115ce89f5837bfb5f5491f7ea389eca5b6c7daf90a113a611a36593be22aa",
+  "chat_same_session": "52511429-3a68-4bb3-a102-55db1e6b4c3f",
+  "chat_same_thread": "01a11aea-2193-75c0-a17a-8e399be33281",
+  "chat_after_reconnect_turn": "01a11b3e-a354-77d2-aabc-2d1ace1ef391"
+}

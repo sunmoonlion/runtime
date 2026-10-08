@@ -10,14 +10,14 @@
 | --- | --- | --- |
 | 请专家 | 真实网页、机器在线状态、Task/Attempt/会话状态和时间线 | **fail**：断线进入 WAITING(ENVIRONMENT)，机器重连后仍未续跑，页面一直等机器 |
 | 项目聊天 | 代理重启前后同一 chat/session/thread 实际读文件，命令真帧、终态与用户回执齐全 | **pass（空闲时重启后发下一问）**；执行中断线仍未实测 |
-| 普通工作 | 断线前实际建文件成功，内容字节独立核对；同上投影诊断完成 | 普通会话的重连后写文件**待网页实测**；不可把首次读写成功当作重连验收 |
+| 普通工作 | 首轮实际建文件成功；补验时发现 HTTP 409 project_held_by_expert | 专家仍占项目，普通工作发送被拒；不是工作命令重连失败。释放占用后再验 |
 
 17:47 所有者要求重新按单项做。17:48 新建的项目聊天已实际读取 `browser-check.txt` 成功，
 只读查库确认 kind=chat、wheel=user。17:50:38 受控停止代理，17:50:58 同名机器重新上线，
 Windows PID 从 16368 换为 9244，exec-server 端口从 56785 换为 56347。
 17:51:49 同一 thread 发出新的 process/start，17:52:03 新 turn 完成；所有者确认网页实际读取
 11 字节（BOM + `hello！`），不是复述旧结果。我独立核对文件摘要不变。聊天该用例通过。
-现已引导所有者新建普通工作会话做写入基线，之后再在同一工作验重连写入。
+新建工作基线遇到下述项目占用；现先请所有者在原专家页“停止”→“停下”释放项目。
 
 聊天 session=`52511429-3a68-4bb3-a102-55db1e6b4c3f`，
 thread=`01a11aea-2193-75c0-a17a-8e399be33281`。
@@ -106,6 +106,30 @@ node scripts/results/windows-agent-1e-20261008/reconnect-projection-probe.mjs
 
 五组断言通过，退出 0；Node 对兄弟仓 TS 的 module-type 警告不影响结果，未改它的 package.json。
 
+### 4.1 补验时发现：专家卡住也挡住同项目其它工作，页面未说明
+
+所有者反馈“没有发出去，请再试一次”。API 17:54:15/18/28/53 返回
+`409 project_held_by_expert`；新建了四条无标题 work 会话，第一条消息没有受理。
+代理同时保持 connected，没有新的建文件命令；目标测试文件尚不存在。
+
+- 后端 `session_service.py:189` 的 `_refuse_while_expert_works` 正确执行“专家占项目时允许聊天、
+  不允许其它工作”的既定规则；repository.py:797 将 WAITING 也视为非终态。因此卡住的专家继续占用项目。
+- 前端 `app/features/home/api/start.ts` 先建会话再发首句；首句 409 后重试又新建会话，留下空会话。
+- `home-screen.tsx` 查询错误码对应的翻译；`messages/zh-CN.json` 没有本入口的
+  project_held_by_expert 文案，于是变成“没有发出去，请再试一次”，容易诱导重复点击。
+
+请远程保留项目互斥规则，补具体占用提示、跳转到占用专家及取消/恢复入口；首次发言失败重试应复用
+已创建会话或采用明确的清理/幂等方案。不要为让测试通过而绕过占用检查。见 `work-send-409.log`。
+我先前直接让所有者建新工作，漏了先释放已有专家占用，已更正指导；未替用户取消或删除空会话。
+
+### 4.2 附带现网错误：SSE 的 Redis subscribe 权限不足
+
+API 日志反复出现 `NoPermissionError: User investment_runtime has no permissions to run the 'subscribe' command`，
+调用链是 `/api/workbench/sessions/.../stream` → workbench_routes.py 的 wait_wakeup → pubsub.get_message。
+证据 `work-send-errors.log`。这项会影响实时事件流，需远程核对声明中的最小 Pub/Sub 权限及断线恢复，
+不应直接给该账号全权限。**不能把这条 SSE 错误当作此次发送 409 的原因**；也尚未证明它是专家
+无重新调度的原因。普通聊天本次实际仍能完成，不能因此忽略流订阅异常。
+
 ## 5. 请远程处理/复验的范围
 
 1. 绑定机器恢复可用后，依法恢复 WAITING(ENVIRONMENT) 并可靠投递调度命令；状态迁移、事件与
@@ -141,3 +165,10 @@ node scripts/results/windows-agent-1e-20261008/reconnect-projection-probe.mjs
 第二轮 17:50:38 已正常退出、原配置未变、临时令牌副本已删除。第三轮 17:50:58 上线，
 限时至 18:20:53；监督程序退出时删除本轮临时令牌副本。第三轮仍在进行，尚不能写
 “全部临时产物已清理”；完成后补该轮退出与普通会话重连结果。
+
+## 7. 后续入口（本报告保留失败现场）
+
+所有者随后临时授权直接修复工作台。本轮修复提交、部署、原专家自动完成与网页确认，
+以及追加的聊天/工作重连验收和清理，统一见
+[windows-agent-1b.20261008-1900.md](windows-agent-1b.20261008-1900.md)。
+不要把上文修复前状态当作当前在线状态；也不要删除原失败证据。

@@ -1,0 +1,137 @@
+[
+  {
+    "round": 1,
+    "frames": 95,
+    "denied": 62,
+    "methods": {
+      "initialize": 1,
+      "initialized": 1,
+      "fs/getMetadata": 82,
+      "environmentConfig/read": 3,
+      "process/start": 4,
+      "process/terminate": 4
+    },
+    "reasons": {
+      "filesystem path outside the whitelisted roots": 62
+    },
+    "exit": 0,
+    "temporary_credential_removed": null,
+    "original_config_unchanged": true
+  },
+  {
+    "round": 2,
+    "frames": 32,
+    "denied": 19,
+    "methods": {
+      "initialize": 1,
+      "initialized": 1,
+      "fs/getMetadata": 25,
+      "environmentConfig/read": 1,
+      "process/start": 2,
+      "process/terminate": 2
+    },
+    "reasons": {
+      "filesystem path outside the whitelisted roots": 19
+    },
+    "exit": 0,
+    "temporary_credential_removed": true,
+    "original_config_unchanged": true
+  },
+  {
+    "round": 3,
+    "frames": 67,
+    "denied": 40,
+    "methods": {
+      "initialize": 2,
+      "initialized": 1,
+      "fs/getMetadata": 58,
+      "process/start": 1,
+      "process/terminate": 1,
+      "environmentConfig/read": 4
+    },
+    "reasons": {
+      "filesystem path outside the whitelisted roots": 40
+    },
+    "exit": 0,
+    "temporary_credential_removed": true,
+    "original_config_unchanged": true
+  },
+  {
+    "round": 4,
+    "frames": 80,
+    "denied": 59,
+    "methods": {
+      "initialize": 1,
+      "initialized": 1,
+      "environment/info": 1,
+      "environment/status": 1,
+      "fs/getMetadata": 72,
+      "environmentConfig/read": 2,
+      "process/start": 1,
+      "process/terminate": 1
+    },
+    "reasons": {
+      "filesystem path outside the whitelisted roots": 58,
+      "unsupported executor config projection": 1
+    },
+    "exit": 0,
+    "temporary_credential_removed": true,
+    "original_config_unchanged": true
+  },
+  {
+    "round": 5,
+    "frames": 25,
+    "denied": 16,
+    "methods": {
+      "initialize": 1,
+      "initialized": 1,
+      "fs/getMetadata": 20,
+      "process/start": 2,
+      "process/terminate": 1
+    },
+    "reasons": {
+      "filesystem path outside the whitelisted roots": 16
+    },
+    "exit": 0,
+    "temporary_credential_removed": true,
+    "original_config_unchanged": true
+  },
+  {
+    "round": 6,
+    "frames": 46,
+    "denied": 32,
+    "methods": {
+      "initialize": 1,
+      "initialized": 1,
+      "fs/getMetadata": 39,
+      "process/start": 2,
+      "process/terminate": 1,
+      "environmentConfig/read": 2
+    },
+    "reasons": {
+      "filesystem path outside the whitelisted roots": 31,
+      "unsupported executor config projection": 1
+    },
+    "exit": 0,
+    "temporary_credential_removed": true,
+    "original_config_unchanged": true
+  },
+  {
+    "round": 7,
+    "frames": 16,
+    "denied": 8,
+    "methods": {
+      "initialize": 1,
+      "initialized": 1,
+      "fs/getMetadata": 10,
+      "process/start": 2,
+      "process/terminate": 2
+    },
+    "reasons": {
+      "filesystem path outside the whitelisted roots": 8
+    },
+    "exit": 0,
+    "temporary_credential_removed": true,
+    "original_config_unchanged": true
+  }
+]

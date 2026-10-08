@@ -1,0 +1,91 @@
+{
+  "scenario": "chat-agent-restart-during-read-delay",
+  "process_start": {
+    "at": "2026-10-08T11:18:13.892Z",
+    "method": "process/start",
+    "id": 45,
+    "forwarded": true,
+    "process": {
+      "processId": "23150-4b00fe02-8e3a-43c3-b673-27212ba1ee53",
+      "cwd": "file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject",
+      "metadata": {
+        "threadId": "01a11aea-2193-75c0-a17a-8e399be33281",
+        "toolCallId": "exec_command_3_c63e81b0"
+      },
+      "argvCount": 3,
+      "envKeys": [
+        "LC_ALL",
+        "CODEX_SANDBOX_NETWORK_DISABLED",
+        "PAGER",
+        "CODEX_VERSION",
+        "NO_COLOR",
+        "GIT_PAGER",
+        "CODEX_THREAD_ID",
+        "TERM",
+        "CODEX_CI",
+        "LANG",
+        "COLORTERM",
+        "CODEX_SESSION_ID",
+        "GH_PAGER",
+        "LC_CTYPE"
+      ],
+      "sandbox": {
+        "permissions": {
+          "type": "managed",
+          "file_system": {
+            "type": "restricted",
+            "entries": [
+              {
+                "path": {
+                  "type": "special",
+                  "value": {
+                    "kind": "root"
+                  }
+                },
+                "access": "read"
+              }
+            ]
+          },
+          "network": "restricted"
+        },
+        "cwd": "file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject",
+        "workspaceRoots": [
+          "file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject"
+        ],
+        "windowsSandboxLevel": "restricted-token",
+        "windowsSandboxPrivateDesktop": true,
+        "windowsSandboxProxySettingsMode": "reconcile",
+        "useLegacyLandlock": false
+      }
+    },
+    "forwardedSandbox": {
+      "permissions": {
+        "type": "managed",
+        "file_system": {
+          "type": "restricted",
+          "entries": [
+            {
+              "path": {
+                "type": "special",
+                "value": {
+                  "kind": "root"
+                }
+              },
+              "access": "read"
+            }
+          ]
+        },
+        "network": "restricted"
+      },
+      "cwd": "file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject",
+      "workspaceRoots": [
+        "file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject"
+      ],
+      "windowsSandboxLevel": "restricted-token",
+      "windowsSandboxPrivateDesktop": true,
+      "windowsSandboxProxySettingsMode": "reconcile",
+      "useLegacyLandlock": false
+    }
+  },
+  "stop_requested_at": "2026-10-08T11:18:18.010370+00:00"
+}

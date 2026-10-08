@@ -1,0 +1,14 @@
+{
+  "frames": 25,
+  "denied": 16,
+  "methods": {
+    "initialize": 1,
+    "initialized": 1,
+    "fs/getMetadata": 20,
+    "process/start": 2,
+    "process/terminate": 1
+  },
+  "denied_by_reason": {
+    "filesystem path outside the whitelisted roots": 16
+  }
+}

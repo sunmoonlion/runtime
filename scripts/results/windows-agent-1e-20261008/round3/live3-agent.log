@@ -1,0 +1,52 @@
+{"t":"2026-10-08T09:50:56.838Z","level":"info","msg":"sunmoon-agent starting","version":"0.2.0","machine":"luna-windows-stage1b-20261007","codex":"0.155.1","codexBin":"C:\\Users\\zymun\\sunmoon-probe-runs\\windows-agent-1d-20261008\\agent\\node_modules\\.pnpm\\@openai+codex@0.155.1-win32-x64\\node_modules\\@openai\\codex\\vendor\\x86_64-pc-windows-msvc\\bin\\codex.exe","bwrap":null,"platform":"win32"}
+{"t":"2026-10-08T09:50:57.785Z","level":"info","msg":"Windows inner sandbox and strict protocol filter; no OS outer sandbox","mode":"unelevated"}
+{"t":"2026-10-08T09:50:57.787Z","level":"info","msg":"exec-server starting","port":56347,"sandboxed":false,"roots":["C:\\Users\\zymun\\sunmoon-probe-runs\\windows-agent-1b-20261007\\workspace"],"generation":1}
+{"t":"2026-10-08T09:50:58.027Z","level":"info","msg":"exec-server ready","url":"ws://127.0.0.1:56347","generation":1}
+{"t":"2026-10-08T09:50:58.173Z","level":"info","msg":"status endpoint","url":"http://127.0.0.1:56351/"}
+{"t":"2026-10-08T09:50:58.185Z","level":"info","msg":"relay connected","relay":"edge-1"}
+{"t":"2026-10-08T09:50:58.255Z","level":"info","msg":"stream bridged","conn":"de2f2572","local":"ws://127.0.0.1:56347"}
+{"t":"2026-10-08T09:50:58.272Z","level":"info","msg":"stream closed","conn":"de2f2572","why":"relay side close 1000"}
+{"t":"2026-10-08T09:51:40.978Z","level":"info","msg":"stream bridged","conn":"e732c9c3","local":"ws://127.0.0.1:56347"}
+{"t":"2026-10-08T09:51:41.045Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:51:41.046Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:51:41.098Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:51:41.286Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:51:41.287Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:51:41.288Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:51:41.289Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:51:41.289Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:16.183Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:16.185Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:16.185Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:16.186Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:16.187Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:16.188Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:16.188Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:16.201Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:19.309Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:19.310Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:19.310Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:19.311Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:19.311Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:19.312Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:19.312Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:19.362Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:29.498Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:29.498Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:29.499Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:29.500Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:29.501Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:29.501Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:29.502Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:29.517Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:53.761Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:53.761Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:53.762Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:53.762Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:53.762Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:53.763Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:53.763Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T09:54:53.780Z","level":"warn","msg":"denied by local ceiling","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"t":"2026-10-08T10:04:15.956Z","level":"info","msg":"shutting down","why":"SIGTERM","exitCode":0}
+{"t":"2026-10-08T10:04:16.381Z","level":"info","msg":"stream closed","conn":"e732c9c3","why":"agent stopped"}
+{"t":"2026-10-08T10:04:16.683Z","level":"info","msg":"exec-server exited","code":1,"signal":null,"generation":1}

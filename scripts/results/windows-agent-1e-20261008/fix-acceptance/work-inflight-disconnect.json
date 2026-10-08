@@ -1,0 +1,219 @@
+{
+  "scenario": "work-agent-restart-during-read-delay",
+  "process_start": {
+    "at": "2026-10-08T11:13:22.812Z",
+    "method": "process/start",
+    "id": 24,
+    "forwarded": true,
+    "process": {
+      "processId": "33308-67bbede0-01a2-4dac-8759-40d821eafab6",
+      "cwd": "file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject",
+      "metadata": {
+        "threadId": "01a11ad1-53f3-7711-8509-b367c7696c65",
+        "toolCallId": "exec_command_8_3333f24a"
+      },
+      "argvCount": 3,
+      "envKeys": [
+        "CODEX_SANDBOX_NETWORK_DISABLED",
+        "LC_CTYPE",
+        "TERM",
+        "CODEX_THREAD_ID",
+        "NO_COLOR",
+        "LANG",
+        "CODEX_CI",
+        "GH_PAGER",
+        "COLORTERM",
+        "CODEX_SESSION_ID",
+        "LC_ALL",
+        "CODEX_VERSION",
+        "PAGER",
+        "GIT_PAGER"
+      ],
+      "sandbox": {
+        "permissions": {
+          "type": "managed",
+          "file_system": {
+            "type": "restricted",
+            "entries": [
+              {
+                "path": {
+                  "type": "special",
+                  "value": {
+                    "kind": "root"
+                  }
+                },
+                "access": "read"
+              },
+              {
+                "path": {
+                  "type": "special",
+                  "value": {
+                    "kind": "project_roots"
+                  }
+                },
+                "access": "write"
+              },
+              {
+                "path": {
+                  "type": "special",
+                  "value": {
+                    "kind": "slash_tmp"
+                  }
+                },
+                "access": "write"
+              },
+              {
+                "path": {
+                  "type": "special",
+                  "value": {
+                    "kind": "tmpdir"
+                  }
+                },
+                "access": "write"
+              },
+              {
+                "path": {
+                  "type": "special",
+                  "value": {
+                    "kind": "project_roots",
+                    "subpath": ".git"
+                  }
+                },
+                "access": "read",
+                "missing_path_behavior": "skip"
+              },
+              {
+                "path": {
+                  "type": "special",
+                  "value": {
+                    "kind": "project_roots",
+                    "subpath": ".agents"
+                  }
+                },
+                "access": "read",
+                "missing_path_behavior": "skip"
+              },
+              {
+                "path": {
+                  "type": "special",
+                  "value": {
+                    "kind": "project_roots",
+                    "subpath": ".codex"
+                  }
+                },
+                "access": "read",
+                "missing_path_behavior": "skip"
+              },
+              {
+                "path": {
+                  "type": "path",
+                  "path": "file:///data/.codex"
+                },
+                "access": "read",
+                "missing_path_behavior": "skip"
+              }
+            ]
+          },
+          "network": "restricted"
+        },
+        "cwd": "file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject",
+        "workspaceRoots": [
+          "file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject"
+        ],
+        "windowsSandboxLevel": "restricted-token",
+        "windowsSandboxPrivateDesktop": true,
+        "windowsSandboxProxySettingsMode": "reconcile",
+        "useLegacyLandlock": false
+      }
+    },
+    "forwardedSandbox": {
+      "permissions": {
+        "type": "managed",
+        "file_system": {
+          "type": "restricted",
+          "entries": [
+            {
+              "path": {
+                "type": "special",
+                "value": {
+                  "kind": "root"
+                }
+              },
+              "access": "read"
+            },
+            {
+              "path": {
+                "type": "special",
+                "value": {
+                  "kind": "project_roots"
+                }
+              },
+              "access": "write"
+            },
+            {
+              "path": {
+                "type": "special",
+                "value": {
+                  "kind": "slash_tmp"
+                }
+              },
+              "access": "write"
+            },
+            {
+              "path": {
+                "type": "special",
+                "value": {
+                  "kind": "tmpdir"
+                }
+              },
+              "access": "write"
+            },
+            {
+              "path": {
+                "type": "special",
+                "value": {
+                  "kind": "project_roots",
+                  "subpath": ".git"
+                }
+              },
+              "access": "read",
+              "missing_path_behavior": "skip"
+            },
+            {
+              "path": {
+                "type": "special",
+                "value": {
+                  "kind": "project_roots",
+                  "subpath": ".agents"
+                }
+              },
+              "access": "read",
+              "missing_path_behavior": "skip"
+            },
+            {
+              "path": {
+                "type": "special",
+                "value": {
+                  "kind": "project_roots",
+                  "subpath": ".codex"
+                }
+              },
+              "access": "read",
+              "missing_path_behavior": "skip"
+            }
+          ]
+        },
+        "network": "restricted"
+      },
+      "cwd": "file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject",
+      "workspaceRoots": [
+        "file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject"
+      ],
+      "windowsSandboxLevel": "restricted-token",
+      "windowsSandboxPrivateDesktop": true,
+      "windowsSandboxProxySettingsMode": "reconcile",
+      "useLegacyLandlock": false
+    }
+  },
+  "stop_requested_at": "2026-10-08T11:13:26.817178+00:00"
+}

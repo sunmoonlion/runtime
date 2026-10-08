@@ -1,0 +1,26 @@
+[
+  {
+    "width": 1280,
+    "stop_box": {
+      "x": 1216,
+      "y": 9.5,
+      "width": 48,
+      "height": 28
+    },
+    "inside_viewport": true,
+    "confirmation_opened": true,
+    "fixture_only": true
+  },
+  {
+    "width": 390,
+    "stop_box": {
+      "x": 256,
+      "y": 64,
+      "width": 48,
+      "height": 28
+    },
+    "inside_viewport": true,
+    "confirmation_opened": true,
+    "fixture_only": true
+  }
+]

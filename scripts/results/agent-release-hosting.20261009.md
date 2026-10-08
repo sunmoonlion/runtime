@@ -165,10 +165,10 @@ Windows 安装包验证仍沿用原 `windows-agent-onboarding.20261009.md`，本
 
 - k8s `87f56ec2`：sources.yaml 固定 investment parent `231f305d`、backend `a01db6f1`、web `2095c049`；
   backend/web parent 字段同步到已审子仓提交，admin 与其他应用未变。
-- k8s `b949c04c` + `59e2f08c`：新增 `inbox/2026-10-09-35-agent-release-hosting.md`，分 A（成对构建并部署、下载关闭）、
+- k8s `b949c04c` + `59e2f08c` + `70528a59`：新增并完善 `inbox/2026-10-09-35-agent-release-hosting.md`，分 A（成对构建并部署、下载关闭）、
   B（私有桶上传及权限/读回实测）、C（读回核准后开放下载与接口检查）；失败即停。先交 Fable 审阅，收到通过与所有者通知后才由 Cursor 执行。
 - 已完成的 `2026-10-08-luna-stage2-cursor.md` 从 inbox 移至 done，内容未改。
 - 修改前本地 `luna` HEAD 与 `origin/luna` 均为审读合并提交 `723d637d`，因此在该同步基线上继续；
-  未自行 fetch/pull/push。三笔新增提交均在本地 luna，尚未同步。
+  未自行 fetch/pull/push。四笔新增提交均在本地 luna，尚未同步。
 
 Cursor 卡不包含浏览器真人下载/安装/领令牌/在线验收；仍由所有者完成。此记录没有表示发布已经开始。

@@ -1,5 +1,36 @@
 # CHECKPOINT（runtime 仓，分支 luna）
 
+## 当前工作：第 2 段，先补跨仓协议，再实现代理（2026-10-08）
+
+Fable 在 k8s `434241be` 的反馈末节已接受 1b。所有者随后授权 Luna 直接修改
+第 2 段必要的会合点/工作台接口，验证后向 Fable 报备。只本地提交；所有者同步，
+Fable 只在 luna 审读，整体验收后再合 fable。构建镜像/发布交 Cursor 的 switch-test 待办。
+
+| 顺序 | 工作与完成条件 | 状态 |
+| --- | --- | --- |
+| 1 | 会合点权限报告、工作台持久化回执、版本错配通知；跨仓契约与隔离/重放测试 | 源码完成；relay 39、后端/DB/契约 31 通过 |
+| 2 | HTTP MCP 本机选择导入；隔离用户配置/凭据；固定 Codex 原生投影对照 | 代码和原生投影对照完成；真实 HTTP 调用待联调 |
+| 3 | 本机 CLI 确认、请求摘要、当前会话权限；断线/过期/拒绝默认关闭 | 本地终端与真实 Windows 写边界已验；云端审计链待发布 |
+| 4 | 可操作的拒绝提示；Windows 文件日志轮转与秘密排除 | 已实现并回归；第三方任意 URL 路径秘密仍需本人核对 |
+| 5 | Windows/Linux 回归、Linux 最小对；Cursor 发布后真实链路验收 | Linux 124 通过/26 Windows 专用跳过；Windows 149 通过/1 缺夹具失败；最小对 pass |
+| 6 | windows-agent-2 结果、限制、跨仓提交清单，交 Fable 审读 | 本地候选报告与 Cursor 同机待办；未宣布第 2 段通过 |
+
+发现：旧会合点忽略 hello 后的控制消息；Codex 错配只通知沙箱，代理收不到。
+实现通过控制通道扩展，不在 Codex 数据流塞自定义消息。权限仍由本机确认；工作台
+回执仅证明报告已记账。Windows 必须保留已接受的内层沙箱，不由云端关闭。
+不复用旧 source-before.yaml 回退锁；当前没有重连测试代理或发布服务。
+
+当前停点：Cursor 直接读取本机 k8s 的 switch-test/inbox/2026-10-08-luna-stage2-cursor.md，
+无需先推远端或同步。先补原生符号链接夹具、普通用户全测通过，再发布两个候选镜像。
+报告：scripts/results/windows-agent-2.20261008-2130.md。
+Windows replica：C:\Users\zymun\sunmoon-probe-runs\windows-agent-2-20261008。
+既有无认证 elevated 测试家只复用，不复制；Node + 官方 Codex，不编译自有 exe、不关应用控制。
+之前两次投影拒绝没有原始参数，尚未解决；发布后捕获受限投影参数再定位，不能猜测放行。
+Windows 临时授权仅提高白名单内的 managed 权限；danger-full-access 一律拒绝并上报。
+仓库协议、部署版本与网页真实验收由 Fable 在本次整体完成后审读；本轮只本地提交。
+
+以下为历史停点，不代表当前待办。
+
 ## 当前停点：临时授权修复已上线，真实验收完成，待 Fable 审读（2026-10-08 19:25）
 
 最新完整报告：[windows-agent-1b.20261008-1900.md](scripts/results/windows-agent-1b.20261008-1900.md)。

@@ -1,0 +1,67 @@
+{
+  "at": "2026-10-08T13:20:52.655145+00:00",
+  "source": {
+    "runtime": "6461f3f29c63d74dbdf0364a65de5c9ada7cdf7c",
+    "relay_k8s": "4d0ff0433628b8e821ca6239eebd8cf46f0a4fe3",
+    "investment_backend": "db96b401944b43fc2541704b165951eaac808e84"
+  },
+  "contract_sha256": "0b4ec422bebc4835a2c251410cd0432416db7bc39be1a025806f1bcc9d2b6981",
+  "windows_fixture_script_sha256": "c5b9de85a0a2fd30e5f715acb2fe366b112ed0ad26108b9cab56854b0dc96595",
+  "logs": [
+    {
+      "path": "/tmp/luna-stage2-linux-final.log",
+      "sha256": "b48881b87168af67ccada2f485293aaae651795cd01c266634c14c5a5ced955f"
+    },
+    {
+      "path": "/tmp/luna-stage2-relay-final.log",
+      "sha256": "31fdfe624276f7bf87acf15eabab8402f02f9b0384c3349e01cff8cdf5f1cd27"
+    },
+    {
+      "path": "/tmp/luna-stage2-minimal-pair.log",
+      "sha256": "167a4bfa4059adc502c8c65996a64bb80d3fc036b942affb559a05c7ac616e63"
+    },
+    {
+      "path": "/mnt/c/Users/zymun/sunmoon-probe-runs/windows-agent-2-20261008/test.log",
+      "sha256": "4364a5f6ce12b99e7deacbcf5a8d32e3c1615e5c3c35329f265ae88816ae81f2"
+    },
+    {
+      "path": "/mnt/c/Users/zymun/sunmoon-probe-runs/windows-agent-2-20261008/build.log",
+      "sha256": "91c18cca6ab52745f798ec7b186b8fe4d606604c66185644da9ea29ef1bb3d11"
+    },
+    {
+      "path": "/mnt/c/Users/zymun/sunmoon-probe-runs/windows-agent-2-20261008/typecheck.log",
+      "sha256": "d1e4ef08be663490b5a1daed289418e915b3a0e26002eccc49ed754878c6e338"
+    }
+  ],
+  "checks": {
+    "linux_unit": {
+      "pass": 124,
+      "windows_only_skipped": 26
+    },
+    "windows_unit": {
+      "pass": 149,
+      "fail": 1,
+      "cause": "native symlink fixture absent; ordinary creation EPERM"
+    },
+    "relay": {
+      "pass": 39
+    },
+    "backend_related": {
+      "pass": 31
+    },
+    "backend_architecture": {
+      "kept": 4,
+      "broken": 0
+    },
+    "linux_minimal_pair": "pass",
+    "powershell_fixture_parse": "pass",
+    "windows_smart_app_control_state": 1,
+    "windows_test_account_admin": false,
+    "backend_pyright": "0 errors, 0 warnings"
+  },
+  "cleanup": {
+    "isolated_postgres": "stopped; --rm with tmpfs; no production mounts",
+    "windows_replica": "retained for Cursor native fixture re-run",
+    "live_proxy": "not started or replaced"
+  }
+}

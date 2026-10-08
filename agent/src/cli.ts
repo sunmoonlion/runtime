@@ -8,14 +8,17 @@
 import fs from "node:fs";
 import http from "node:http";
 import path from "node:path";
+import os from "node:os";
 import { CONFIG_DIR, CONFIG_PATH, defaultConfig, loadConfig, saveConfig, type AgentConfig } from "./config.js";
 import { ExecServer } from "./execServer.js";
-import { log } from "./log.js";
+import { log, registerSecret, configureWindowsLogs, safeData } from "./log.js";
 import { locateCodex } from "./paths.js";
 import { RelayClient } from "./relayClient.js";
 import { detectWindowsSandbox } from "./windowsBootstrap.js";
 import { type WindowsHelper, WindowsTemporary, assertWindowsHome, locateWindowsHelper, pinWindowsDirectories, runSandboxProbe } from "./windowsRuntime.js";
 import { canonicalPath } from "./pathuri.js";
+import { importCandidates, loadMcp, saveMcp } from "./mcp.js";
+import { localConfirm } from "./localConfirm.js";
 
 const VERSION = "0.2.0";
 const STATUS_PATH = path.join(CONFIG_DIR, "status.json");
@@ -44,6 +47,7 @@ async function main(argv: string[]): Promise<number> {
     cfg.relayUrl = arg("--relay", argv) ?? cfg.relayUrl;
     cfg.userId = arg("--user", argv) ?? cfg.userId;
     cfg.token = arg("--token", argv) ?? cfg.token;
+    registerSecret(cfg.token);
     cfg.roots = args("--root", argv).map((r) => path.resolve(r));
     const name = arg("--name", argv); if (name) cfg.machineName = name;
     const port = arg("--port", argv); if (port) cfg.execPort = Number(port);
@@ -55,6 +59,27 @@ async function main(argv: string[]): Promise<number> {
   }
 
   const cfg = loadConfig();
+  registerSecret(cfg.token);
+  if (cmd === "mcp") {
+    const file = path.join(CONFIG_DIR, "mcp.json");
+    if (argv[1] === "list") { console.log(JSON.stringify(loadMcp(file), null, 2)); return 0; }
+    if (argv[1] !== "import" || argv.length !== 2) { usage(); return 2; }
+    if (process.platform !== "win32") { console.error("本轮 MCP 导入入口仅用于 Windows 代理。"); return 2; }
+    const source = path.join(os.homedir(), ".codex", "config.toml");
+    const stat = fs.lstatSync(source);
+    if (!stat.isFile() || stat.isSymbolicLink() || stat.nlink !== 1 || stat.size > 1024 * 1024) throw new Error("Unsupported user Codex config file");
+    const { servers, skipped } = importCandidates(fs.readFileSync(source, "utf8"));
+    const selected = { ...loadMcp(file) };
+    let imported = 0;
+    console.log(`可导入 ${Object.keys(servers).length} 个 HTTP MCP；跳过 ${skipped} 个不支持/含认证字段的条目。`);
+    for (const [name, server] of Object.entries(servers)) {
+      const approved = await localConfirm(`导入 MCP ${JSON.stringify(name)}：${JSON.stringify(server)}\n它的 URL/公开配置会供云端读取；请确认 URL 路径本身也不含口令。连接由云端发起，本机 localhost 不能当作云端 localhost。`);
+      if (approved) { selected[name] = server; imported++; }
+    }
+    if (!imported) { console.log("没有条目获得本机确认，配置未变更。"); return 1; }
+    saveMcp(file, selected);
+    console.log("已保存确认过的条目；重启代理后生效。未复制用户其它配置或认证状态。"); return 0;
+  }
   if (cmd === "roots") {
     const sub = argv[1]; const dir = argv[2] ? path.resolve(argv[2]) : "";
     if (sub === "list") { cfg.roots.forEach((r) => console.log(r)); return 0; }
@@ -80,6 +105,10 @@ async function main(argv: string[]): Promise<number> {
 }
 
 async function start(cfg: AgentConfig): Promise<number> {
+  if (process.platform === "win32") {
+    if (!process.env.LOCALAPPDATA) throw new Error("LOCALAPPDATA is required for agent logs");
+    configureWindowsLogs(path.join(process.env.LOCALAPPDATA, "sunmoon-agent", "logs"), cfg.token);
+  }
   if (cfg.roots.length === 0) log("warn", "白名单为空：任何 process/start 都会被拒；用 sunmoon-agent roots add <目录>");
   const codex = locateCodex();
   log("info", "sunmoon-agent starting", { version: VERSION, machine: cfg.machineName, codex: codex.version, codexBin: codex.codexBin, bwrap: codex.bwrap, platform: process.platform });
@@ -94,7 +123,7 @@ async function start(cfg: AgentConfig): Promise<number> {
     catch (error) { await windows.temporary.close(); throw error; }
     log("info", "Windows inner sandbox and strict protocol filter; no OS outer sandbox", { mode: windows.mode });
   }
-  const es = new ExecServer({ codexBin: codex.codexBin, bwrap: codex.bwrap, outerSandbox: cfg.outerSandbox, roots: cfg.roots, codexHome: cfg.codexHome, port: cfg.execPort, windowsMode: cfg.windowsSandbox?.mode, windowsTemporary: windows?.temporary });
+  const es = new ExecServer({ codexBin: codex.codexBin, bwrap: codex.bwrap, outerSandbox: cfg.outerSandbox, roots: cfg.roots, codexHome: cfg.codexHome, port: cfg.execPort, windowsMode: cfg.windowsSandbox?.mode, windowsTemporary: windows?.temporary, mcpServers: windows ? loadMcp(path.join(CONFIG_DIR, "mcp.json")) : undefined });
   try {
     await es.start();
     if (windows && !await runSandboxProbe(es.url, cfg.codexHome, cfg.roots[0] ?? cfg.codexHome, windows.mode, windows.temporary.directory)) throw new Error("Configured Windows sandbox is no longer usable; run init");
@@ -105,14 +134,16 @@ async function start(cfg: AgentConfig): Promise<number> {
     windows: windows ? { ...windows, executorEnvironment: () => es.windowsEnv } : undefined, relayUrl: cfg.relayUrl, userId: cfg.userId, token: cfg.token, codexVersion: codex.version, softwareVersion: VERSION,
     localUrl: () => es.url, ceiling: () => cfg.ceiling, roots: () => cfg.roots, machineName: () => cfg.machineName,
     onRejected: (reason) => onRejected(reason),
+    confirmPermission: windows ? localConfirm : undefined,
   });
   relay.start();
 
   const writeStatus = () => {
-    const st = { version: VERSION, pid: process.pid, codex: codex.version, execServer: { url: es.url, alive: es.alive, sandboxed: es.sandboxed, generation: es.generation, ...(windows ? { protection: "inner-sandbox+strict-protocol", windowsSandbox: cfg.windowsSandbox } : {}) }, relay: { url: cfg.relayUrl, status: relay.status, lastError: relay.lastError }, ceiling: cfg.ceiling, roots: cfg.roots, bridge: relay.stats, at: new Date().toISOString() };
+    const st = { version: VERSION, pid: process.pid, codex: codex.version, execServer: { url: es.url, alive: es.alive, sandboxed: es.sandboxed, generation: es.generation, ...(windows ? { protection: "inner-sandbox+strict-protocol", windowsSandbox: cfg.windowsSandbox } : {}) }, relay: { url: cfg.relayUrl, status: relay.status, lastError: relay.lastError, lastNotice: relay.lastNotice }, ceiling: cfg.ceiling, roots: cfg.roots, bridge: relay.stats, at: new Date().toISOString() };
     fs.mkdirSync(CONFIG_DIR, { recursive: true, mode: 0o700 });
-    fs.writeFileSync(STATUS_PATH, JSON.stringify(st, null, 2));
-    return st;
+    const safe = safeData(st);
+    fs.writeFileSync(STATUS_PATH, JSON.stringify(safe, null, 2), { mode: 0o600 });
+    return safe;
   };
   const timer = setInterval(writeStatus, 5000);
   writeStatus();
@@ -145,6 +176,7 @@ function usage(): void {
   console.log(`sunmoon-agent ${VERSION}
   init --relay ws://HOST:PORT --user ID --token T [--root DIR]... [--name 机器名] [--port N] [--no-outer-sandbox]
   roots list | add DIR | remove DIR
+  mcp import | list   本机逐项确认导入无凭据 HTTP MCP；拒绝管道输入确认
   ceiling show | set [--sandbox read-only|workspace-write|danger-full-access] [--network on|off]
   start      前台运行；被会合点拒绝（令牌无效、被吊销、被同用户的新代理顶掉）时退出，退出码 3
   status`);

@@ -1,12 +1,14 @@
 import { uriToPath } from "./pathuri.js";
 import fs from "node:fs";
-import { windowsDecision, isClientWindowsEnvAnnotation, isInapplicableWindowsReadGuard } from "./windowsPolicy.js";
+import { windowsDecision, windowsMethodLabel, isClientWindowsEnvAnnotation, isInapplicableWindowsReadGuard } from "./windowsPolicy.js";
 import { pinWindowsDirectories, WindowsFiles, windowsEnvironment, type WindowsHelper, type WindowsMode, type WindowsTemporary } from "./windowsRuntime.js";
 import type { Ceiling } from "./filter.js";
+import { SessionPermissions, type LocalPermissions, type PermissionGrant } from "./permissions.js";
 
 export interface WindowsBridgeOptions {
   roots: readonly string[]; ceiling: Ceiling; home: string; helper: WindowsHelper; mode: WindowsMode; url: () => string;
   temporary?: WindowsTemporary; executorEnvironment?: () => NodeJS.ProcessEnv;
+  localPermissions?: LocalPermissions;
 }
 export class WindowsBridge {
   private files: WindowsFiles;
@@ -14,17 +16,24 @@ export class WindowsBridge {
   private guards = new Map<string, () => void>();
   private starts = new Map<string | number, string>();
   private finished = new Map<string, number>();
+  private permissions?: SessionPermissions;
   constructor(private opts: WindowsBridgeOptions) {
+    if (opts.localPermissions) this.permissions = new SessionPermissions(opts.localPermissions);
     this.files = new WindowsFiles({ url: opts.url, home: opts.home, roots: opts.roots, mode: opts.mode, writable: opts.ceiling.sandbox !== "read-only", helper: opts.helper, temporary: opts.temporary?.directory });
   }
   async receive(raw: string, binary: boolean): Promise<{ forward?: string; response?: string; reason?: string; method: string }> {
     let frame: any;
     try { if (binary) throw new Error(); frame = JSON.parse(raw); } catch { return { method: "invalid-frame", reason: "binary or malformed JSON refused", response: JSON.stringify({ id: null, error: { code: -32001, message: "sunmoon-agent local ceiling: binary or malformed JSON refused" } }) }; }
-    const method = typeof frame?.method === "string" ? frame.method.slice(0, 80) : "invalid-frame";
+    const method = windowsMethodLabel(frame?.method);
     const reject = (reason: string) => ({ method, reason, response: JSON.stringify({ id: (typeof frame?.id === "string" || Number.isSafeInteger(frame?.id)) ? frame.id : null, error: { code: -32001, message: `sunmoon-agent local ceiling: ${reason}` } }) });
     if (this.closed) return reject("stream closed");
-    const decision = windowsDecision(frame, this.opts.ceiling, this.opts.roots, this.opts.home, this.opts.temporary?.directory);
-    if (!decision.allow) return reject(decision.reason ?? "request refused");
+    let decision = windowsDecision(frame, this.opts.ceiling, this.opts.roots, this.opts.home, this.opts.temporary?.directory);
+    let grant: PermissionGrant | null = null;
+    if (!decision.allow && this.permissions) {
+      grant = await this.permissions.allow(frame, this.opts.ceiling, this.opts.roots, this.opts.home, this.opts.temporary?.directory);
+      if (grant?.valid() && !this.closed) decision = windowsDecision(frame, grant.ceiling, this.opts.roots, this.opts.home, this.opts.temporary?.directory);
+    }
+    if (!decision.allow || this.closed) return reject(decision.reason ?? "request refused or stream closed");
     const p = frame.params;
     try {
       if (method.startsWith("fs/") || method === "environmentConfig/read") {
@@ -55,7 +64,7 @@ export class WindowsBridge {
           dirs.push(entry.path.path);
         }
         const release = await pinWindowsDirectories(this.opts.helper, dirs.map(d => uriToPath(d, "win32")!), this.opts.home);
-        if (this.closed) { release(); return reject("stream closed"); }
+        if (this.closed || (grant && !grant.valid())) { release(); return reject("stream closed or local permission expired"); }
         this.guards.set(p.processId, release); this.starts.set(frame.id, p.processId);
         // Selection is local. Remote clients cannot downgrade elevated to unelevated.
         p.sandbox.windowsSandboxLevel = this.opts.mode === "elevated" ? "elevated" : "restricted-token";
@@ -83,5 +92,5 @@ export class WindowsBridge {
       }
     } catch { /* executor validation owns down-stream frames */ }
   }
-  async close(): Promise<void> { this.closed = true; for (const release of this.guards.values()) release(); this.guards.clear(); this.starts.clear(); this.finished.clear(); await this.files.close(); }
+  async close(): Promise<void> { this.closed = true; this.permissions?.close(); for (const release of this.guards.values()) release(); this.guards.clear(); this.starts.clear(); this.finished.clear(); await this.files.close(); }
 }

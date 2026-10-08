@@ -45,7 +45,8 @@ export function defaultConfig(): AgentConfig {
 
 export function loadConfig(file = CONFIG_PATH): AgentConfig {
   if (!fs.existsSync(file)) throw new Error(`没有配置：${file}（先跑 sunmoon-agent init）`);
-  const raw = JSON.parse(fs.readFileSync(file, "utf8"));
+  let raw: any;
+  try { raw = JSON.parse(fs.readFileSync(file, "utf8")); } catch { throw new Error("代理配置无法读取或 JSON 无效；请在本机检查 config.json"); }
   const cfg: AgentConfig = { ...defaultConfig(), ...raw, ceiling: { ...defaultConfig().ceiling, ...(raw.ceiling ?? {}) } };
   validate(cfg);
   return cfg;
@@ -58,7 +59,8 @@ export function saveConfig(cfg: AgentConfig, file = CONFIG_PATH): void {
 }
 
 export function validate(cfg: AgentConfig): void {
-  if (!/^wss?:\/\//.test(cfg.relayUrl)) throw new Error(`relayUrl 必须是 ws:// 或 wss://：${cfg.relayUrl}`);
+  try { const u = new URL(cfg.relayUrl); if (!["ws:", "wss:"].includes(u.protocol) || u.username || u.password || u.search || u.hash) throw new Error(); }
+  catch { throw new Error("relayUrl 必须是 ws:// 或 wss://，且不能包含口令、查询参数或片段"); }
   if (!cfg.userId) throw new Error("userId 不能为空");
   if (!cfg.machineName || cfg.machineName.length > 128) throw new Error("machineName 要有，且不超过 128 个字符");
   for (const r of cfg.roots) {
@@ -66,6 +68,6 @@ export function validate(cfg: AgentConfig): void {
   }
   if (cfg.windowsSandbox && !["unelevated", "elevated"].includes(cfg.windowsSandbox.mode)) throw new Error("Invalid Windows sandbox mode");
   if (typeof cfg.ceiling.network !== "boolean") throw new Error("ceiling.network must be boolean");
-  if (!["read-only", "workspace-write", "danger-full-access"].includes(cfg.ceiling.sandbox)) throw new Error(`ceiling.sandbox 非法：${cfg.ceiling.sandbox}`);
-  if (!Number.isInteger(cfg.execPort) || cfg.execPort < 0 || cfg.execPort > 65535) throw new Error(`execPort 非法：${cfg.execPort}`);
+  if (!["read-only", "workspace-write", "danger-full-access"].includes(cfg.ceiling.sandbox)) throw new Error("ceiling.sandbox 非法");
+  if (!Number.isInteger(cfg.execPort) || cfg.execPort < 0 || cfg.execPort > 65535) throw new Error("execPort 非法");
 }

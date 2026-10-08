@@ -7,6 +7,7 @@ import net from "node:net";
 import { killWindowsTree, windowsEnvironment, type WindowsMode, type WindowsTemporary } from "./windowsRuntime.js";
 import { log } from "./log.js";
 import { wrapCommand } from "./outerSandbox.js";
+import { ownedConfig, type McpServers } from "./mcp.js";
 
 export interface ExecServerOptions {
   codexBin: string;
@@ -18,6 +19,7 @@ export interface ExecServerOptions {
   env?: Record<string, string>;
   windowsMode?: WindowsMode;
   windowsTemporary?: WindowsTemporary;
+  mcpServers?: McpServers;
 }
 
 export async function freeLoopbackPort(): Promise<number> {
@@ -80,7 +82,7 @@ export class ExecServer {
       if (!this.opts.windowsMode || !this.opts.windowsTemporary) throw new Error("Windows sandbox capability and owned temporary directory required; run init");
       this.opts.windowsTemporary.assert();
       this.windowsEnv = windowsEnvironment(this.opts.codexHome, {}, process.env, this.opts.windowsTemporary.directory);
-      fs.writeFileSync(cfg, `sandbox_mode = "read-only"\napproval_policy = "never"\n[windows]\nsandbox = "${this.opts.windowsMode}"\n`, { mode: 0o600 });
+      fs.writeFileSync(cfg, ownedConfig(this.opts.windowsMode, this.opts.mcpServers), { mode: 0o600 });
     } else if (!fs.existsSync(cfg)) fs.writeFileSync(cfg, 'sandbox_mode = "read-only"\napproval_policy = "never"\n', { mode: 0o600 });
     this.port = this.opts.port || (await freeLoopbackPort());
     const command = [this.opts.codexBin, "exec-server", "--listen", this.url];
@@ -96,8 +98,10 @@ export class ExecServer {
       env: process.platform === "win32" ? this.windowsEnv : { ...process.env, ...(this.opts.env ?? {}), CODEX_HOME: this.opts.codexHome },
     });
     this.child = child;
-    child.stdout?.on("data", (d) => log("debug", "exec-server stdout", { line: String(d).trimEnd() }));
-    child.stderr?.on("data", (d) => log("debug", "exec-server stderr", { line: String(d).trimEnd() }));
+    // Child output can contain argv, env or MCP auth failures. Drain it without
+    // persisting its content, even at debug level.
+    child.stdout?.on("data", (d) => log("debug", "exec-server stdout", { bytes: d.length }));
+    child.stderr?.on("data", (d) => log("debug", "exec-server stderr", { bytes: d.length }));
     let ready = false;
     child.on("error", () => { log("error", "exec-server spawn failed", { generation: gen }); });
     child.on("exit", (code, signal) => {

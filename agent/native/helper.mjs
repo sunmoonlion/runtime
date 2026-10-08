@@ -5,6 +5,7 @@ import path from 'node:path';
 import readline from 'node:readline';
 import os from 'node:os';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { ownedMcp, mcpToml } from '../dist/mcp.js';
 if (process.platform !== 'win32') throw new Error('Windows only');
 const normal = p => {
   if (typeof p !== 'string' || !/^[a-z]:[\\/]/i.test(p) || /[\x00-\x1f]/.test(p)) throw new Error('local path required');
@@ -143,8 +144,9 @@ if (process.argv[2] === '--pin-directory') {
         // Only our current generated, credential-free file. No generic loader
         // that could merge .codex, global config or requirements from elsewhere.
         const text = read(path.join(cfg.home, 'config.toml')).toString('utf8');
-        if (!/^sandbox_mode\s*=\s*"read-only"\s+approval_policy\s*=\s*"never"\s+\[windows\]\s+sandbox\s*=\s*"(?:unelevated|elevated)"\s*$/.test(text)) throw new Error('executor config differs from owned stage-1 schema');
-        return { userHomeDir: pathToFileURL(os.homedir()).href, codexHomeDir: pathToFileURL(cfg.home).href, hostname: os.hostname(), config: { layers: [], cloudInsertionIndex: 0 }, requirements: { layers: [], cloudInsertionIndex: 0 } };
+        const servers = ownedMcp(text), toml = mcpToml(servers);
+        const layers = toml ? [{ source: `user (${path.join(cfg.home, 'config.toml')})`, baseDir: pathToFileURL(cfg.home).href, toml }] : [];
+        return { userHomeDir: pathToFileURL(os.homedir()).href, codexHomeDir: pathToFileURL(cfg.home).href, hostname: os.hostname(), config: { layers, cloudInsertionIndex: 0 }, requirements: { layers: [], cloudInsertionIndex: 0 } };
       }
       case 'fs/readFile': return { dataBase64: read(target).toString('base64') };
       case 'fs/writeFile': {

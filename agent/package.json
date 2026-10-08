@@ -4,8 +4,12 @@
   "description": "SunMoonAI 本地代理：包 codex exec-server、出站连会合点、守本地上限",
   "private": true,
   "type": "module",
-  "bin": { "sunmoon-agent": "./dist/cli.js" },
-  "engines": { "node": ">=20.13" },
+  "bin": {
+    "sunmoon-agent": "./dist/cli.js"
+  },
+  "engines": {
+    "node": ">=20.13"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -14,6 +18,7 @@
   },
   "dependencies": {
     "@openai/codex": "0.155.1",
+    "smol-toml": "1.4.2",
     "ws": "^8.18.0"
   },
   "devDependencies": {

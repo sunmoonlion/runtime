@@ -37,6 +37,7 @@ const METHODS: Record<string, string[]> = {
   "fs/open": ["path", "handleId", "sandbox"],
   "fs/readBlock": ["handleId", "offset", "len"], "fs/close": ["handleId"],
 };
+export const windowsMethodLabel = (method: unknown): string => typeof method === "string" && Object.hasOwn(METHODS, method) ? method : "unsupported-method";
 export const FS_WRITES = new Set(["fs/writeFile", "fs/createDirectory", "fs/remove", "fs/copy"]);
 
 // A Linux app-server can emit its own optional read guard (e.g. /data/.codex).

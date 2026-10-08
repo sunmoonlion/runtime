@@ -8,6 +8,8 @@ import { beforeAll, afterAll, describe, expect, it } from "vitest";
 import { locateCodex } from "../src/paths.js";
 import { freeLoopbackPort, waitForPort } from "../src/execServer.js";
 import { WindowsBridge } from "../src/windowsBridge.js";
+import { parse } from "smol-toml";
+import { ownedConfig } from "../src/mcp.js";
 import { WindowsTemporary, LocalRpc, locateWindowsHelper, windowsEnvironment, windowsProfile, killWindowsTree } from "../src/windowsRuntime.js";
 const uri = (p: string) => pathToFileURL(p).href;
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
@@ -63,6 +65,54 @@ describe.skipIf(process.platform !== "win32")("native Windows stage 1b follow-up
       const denied = await send("environmentConfig/read", params); expect(denied.reason).toBeTruthy(); expect(denied.response).not.toContain("other_canary");
     } finally { fs.unlinkSync(target); fs.writeFileSync(target, config); }
   });
+  it("projects confirmed HTTP MCP with the native 0.155.1 contract and no project settings", async () => {
+    const servers = { stage2: { url: "https://stage2.invalid/mcp", enabled_tools: ["read"], tool_timeout_sec: 30 } };
+    const target = path.join(home, "config.toml");
+    fs.writeFileSync(target, ownedConfig("unelevated", servers));
+    const fresh = new WindowsBridge({ roots: [root], home, helper, mode: "unelevated", ceiling, url: () => url });
+    try {
+      const params = { cwd: uri(root), configPaths: [["mcp_servers"]], requirementsPaths: [["mcp_servers"]] };
+      const native = await rpc.call("environmentConfig/read", params);
+      const answer = await fresh.receive(JSON.stringify({ id: 1, method: "environmentConfig/read", params }), false);
+      expect(answer.reason).toBeUndefined();
+      const actual = JSON.parse(answer.response!).result;
+      expect(actual.config.layers).toHaveLength(1);
+      expect(parse(actual.config.layers[0].toml)).toEqual(parse(native.result.config.layers[0].toml));
+      expect(parse(actual.config.layers[0].toml)).toEqual({ mcp_servers: servers });
+      expect(actual.config.layers[0].source).toBe(native.result.config.layers[0].source);
+      expect(actual.config.layers[0].baseDir).toBe(native.result.config.layers[0].baseDir);
+      expect(actual.requirements).toEqual(native.result.requirements);
+      expect(answer.response).not.toContain("project_canary");
+    } finally { await fresh.close(); fs.writeFileSync(target, config); }
+  });
+  it("requires local approval and durable audit before a real Windows write; outside remains denied", async () => {
+    let approvals = 0, reports = 0, epoch = 0;
+    const fresh = new WindowsBridge({ roots: [root], home, helper, mode: "unelevated", ceiling: { sandbox: "read-only", network: false }, url: () => url, temporary, executorEnvironment: () => env,
+      localPermissions: { available: () => true, epoch: () => epoch,
+        confirm: async () => { approvals++; return true; },
+        report: async report => { reports++; expect(report.decision).toBe("approved"); return reports > 1; },
+      },
+    });
+    const observe = (f: any) => fresh.observe(JSON.stringify(f)); rpc.listeners.add(observe);
+    const file = path.join(root, "approved-stage2.txt"), outside = path.join(base, "denied-stage2.txt");
+    const params = { ...request("stage2-approved"), metadata: { threadId: "12345678-1234-1234-1234-123456789abc", toolCallId: "call-stage2" } };
+    params.argv = [process.execPath, "-e", `const fs=require('fs');fs.writeFileSync(${JSON.stringify(file)},'approved');try{fs.writeFileSync(${JSON.stringify(outside)},'escape')}catch{}`];
+    try {
+      const denied = await fresh.receive(JSON.stringify({ id: 1, method: "process/start", params }), false);
+      expect(denied.reason).toBeTruthy(); expect(fs.existsSync(file)).toBe(false);
+      const allowed = await fresh.receive(JSON.stringify({ id: 2, method: "process/start", params }), false);
+      expect(allowed.reason).toBeUndefined(); expect(approvals).toBe(2); expect(reports).toBe(2);
+      const frame = JSON.parse(allowed.forward!);
+      expect((await rpc.call(frame.method, frame.params)).error).toBeUndefined();
+      for (let i = 0; i < 100 && !events.some(f => f.method === "process/exited" && f.params.processId === params.processId); i++) await sleep(50);
+      expect(fs.readFileSync(file, "utf8")).toBe("approved"); expect(fs.existsSync(outside)).toBe(false);
+      epoch++;
+      params.processId = "stage2-new-epoch";
+      const next = await fresh.receive(JSON.stringify({ id: 3, method: "process/start", params }), false);
+      expect(next.reason).toBeUndefined(); expect(approvals).toBe(3); expect(reports).toBe(3);
+      // Deliberately not forwarded: only re-confirmation admission is checked.
+    } finally { rpc.listeners.delete(observe); await fresh.close(); }
+  }, 30000);
   it("runs real project + owned-temp writes, denies global Temp and outside writes, accepts late terminate", async () => {
     const params = request("owned-temp");
     params.sandbox.permissions.file_system.entries.push({ path: { type: "path", path: "file:///data/.codex" }, access: "read", missing_path_behavior: "skip" });

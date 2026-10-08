@@ -2,6 +2,8 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { WebSocketServer, WebSocket, type RawData } from "ws";
 import { RelayClient } from "../src/relayClient.js";
+import { randomUUID } from "node:crypto";
+import { validPermissionReport, type PermissionReport } from "../src/relayProtocol.js";
 
 type Waiter<T> = { promise: Promise<T>; resolve: (v: T) => void };
 function waiter<T>(): Waiter<T> { let resolve!: (v: T) => void; const promise = new Promise<T>((r) => (resolve = r)); return { promise, resolve }; }
@@ -93,6 +95,67 @@ describe("RelayClient", () => {
     makeClient();
     for (let i = 0; i < 50 && client.status !== "connected"; i++) await sleep(20);
     expect(relay.hellos[0].machine).toBeUndefined();
+  });
+
+  function permission(): PermissionReport {
+    return { id: randomUUID(), conn: "01234567", threadId: randomUUID(), requestDigest: "a".repeat(64),
+      permissionDigest: "b".repeat(64), decision: "approved", scope: { sandbox: "workspace-write", network: false }, expiresAt: Math.floor(Date.now() / 1000) + 300 };
+  }
+
+  async function connectedWithReports(enabled = true) {
+    makeClient();
+    for (let i = 0; i < 50 && client.status !== "connected"; i++) await sleep(20);
+    if (enabled) { relay.agentCtrl!.send(JSON.stringify({ type: "welcome", relay: "fake", proto: 1, capabilities: ["local-permission-v1"] })); await sleep(20); }
+  }
+
+  it("waits for a matching committed receipt and rejects a stale or unknown receipt", async () => {
+    await connectedWithReports();
+    const p = permission();
+    const sent = nextMessage(relay.agentCtrl!);
+    let settled = false;
+    const recorded = client.reportPermission(p).then(r => { settled = true; return r; });
+    expect(await sent).toEqual({ type: "permission_report", report: p });
+    relay.agentCtrl!.send(JSON.stringify({ type: "permission_receipt", id: randomUUID(), status: "recorded" }));
+    await sleep(20); expect(settled).toBe(false);
+    relay.agentCtrl!.send(JSON.stringify({ type: "permission_receipt", id: p.id, status: "recorded" }));
+    expect(await recorded).toBe(true);
+  });
+
+  it("fails closed for old relay, invalid schema, timeout, refusal, stop and disconnect", async () => {
+    await connectedWithReports(false);
+    expect(await client.reportPermission(permission())).toBe(false);
+    relay.agentCtrl!.send(JSON.stringify({ type: "welcome", relay: "fake", proto: 1, capabilities: ["local-permission-v1"] })); await sleep(20);
+    expect(await client.reportPermission({ ...permission(), token: "fixture" } as any)).toBe(false);
+    expect(await client.reportPermission(permission(), 10)).toBe(false);
+    const p = permission(); const pending = client.reportPermission(p);
+    relay.agentCtrl!.send(JSON.stringify({ type: "permission_receipt", id: p.id, status: "rejected" }));
+    expect(await pending).toBe(false);
+    const lost = client.reportPermission(permission()); relay.agentCtrl!.terminate();
+    expect(await lost).toBe(false);
+    expect(await client.reportPermission(permission())).toBe(false);
+  });
+
+  it("does not accept unsolicited receipt after stop", async () => {
+    await connectedWithReports();
+    const p = permission(); const pending = client.reportPermission(p);
+    client.stop();
+    expect(await pending).toBe(false);
+    expect(await client.reportPermission(p)).toBe(false);
+  });
+
+  it("makes pairing mismatch visible without stopping the executor connection", async () => {
+    await connectedWithReports();
+    relay.agentCtrl!.send(JSON.stringify({ type: "notice", code: "codex_version_mismatch" })); await sleep(20);
+    expect(client.lastNotice).toBe("codex_version_mismatch");
+    expect(client.status).toBe("connected");
+  });
+
+  it("strict report wire validation keeps credentials and ambiguous types out", () => {
+    const good = permission(); expect(validPermissionReport(good)).toBe(true);
+    for (const bad of [{ ...good, env: {} }, { ...good, expiresAt: true }, { ...good, requestDigest: good.requestDigest + "\n" },
+      { ...good, scope: { sandbox: "danger-full-access", network: false } }, { ...good, scope: { ...good.scope, network: "false" } }]) {
+      expect(validPermissionReport(bad)).toBe(false);
+    }
   });
 
   it("opens a data stream on 'open', forwards allowed requests to exec-server and responses back", async () => {

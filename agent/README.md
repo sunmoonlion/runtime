@@ -26,7 +26,53 @@ sunmoon-agent roots add|remove|list <dir>          # 改完要重启 start（外
 sunmoon-agent ceiling show | set --sandbox read-only|workspace-write|danger-full-access --network on|off
 sunmoon-agent start                                # 前台；systemd/launchd 由安装器管
 sunmoon-agent status
+sunmoon-agent mcp import                          # Windows：本机逐项确认 HTTP MCP
+sunmoon-agent mcp list                            # 查看已确认配置；不读取用户凭据
 ```
+
+## Windows MCP 与临时权限（第 2 段候选）
+
+这部分源码已有本地回归，服务端镜像尚需按 switch-test 待办发布后联调；不表示现网已经支持。
+
+`mcp import` 固定读取当前 Windows 用户的 `~/.codex/config.toml`，只选择 HTTP/HTTPS
+`mcp_servers` 条目。在本机交互终端逐项列出、输入本次随机确认码后，保存到代理配置目录
+`mcp.json`；重新启动 `start` 时写进代理自己的 `codex-home/config.toml`。
+后续重启继续沿用已确认条目，不自动跟随用户配置变化。没有确认的项不写入。
+
+支持 URL、enabled/required、超时和工具白/黑名单；带 command/args/env、HTTP 认证头、
+bearer 环境变量、URL 用户信息/查询串/fragment 的整项跳过，不悄悄删掉认证字段后导入。
+模型、偏好、skills、auth.json、OAuth 缓存均不复制。URL 路径也可能含秘密，确认前须人工核对；
+代码不能判断任意路径中的不透明字符串是否是令牌。HTTP 端点须能从云端沙箱访问，
+`localhost` 指向云端沙箱，不是用户电脑；本功能不是 MCP 网络隧道。
+需要认证的 MCP 仍由服务端自己的受保护配置管理，本轮不支持转交个人 MCP 凭据。
+
+移除已导入条目：停止代理，在本机编辑代理配置目录 `mcp.json` 删除整个服务键，
+运行 `mcp list` 检查后重新启动。不要修改自动生成的 codex-home 文件；它会在启动时重建。
+解析器新增 `smol-toml@1.4.2`，用于完整 TOML 解析和重新序列化，纯 JS、无原生编译。
+
+超出当前配置上限但仍在 Windows 固定沙箱和目录白名单以内的 `process/start`，
+可在前台 `start` 所在的本机终端确认。提示包含线程、目录、程序、权限范围、请求摘要；
+60 秒内输入当次随机码才同意，无 TTY、超时、断线或拒绝均不放行。云端不能填写此答案。
+同意后还要收到工作台事务提交后的 `recorded` 回执，最长等 30 秒；旧 relay、不匹配的会话、
+审计失败均拒绝。回执证明决定已记账，不证明命令已执行。
+
+临时授权仅用于当前数据连接中的同一 thread、目录和权限摘要，最长 30 分钟，
+断线、控制通道重连、退出即失效；不改 config.json 的默认上限。
+允许只读提升到白名单内 workspace-write、或相同范围的联网权限；
+**Windows 的 danger-full-access/null sandbox 永远拒绝并报告摘要，不弹出批准选项**。
+新目录、未知字段和不带 threadId 的文件 RPC 不能借此扩权。永久改目录/上限仍走本机配置命令。
+
+## Windows 日志与拒绝排查
+
+`start` 在 `%LOCALAPPDATA%\sunmoon-agent\logs` 写 `agent.log`，每份 2 MiB，
+共保留 5 份（含当前文件）；仅轮转这五个自有文件。stdout/stderr 继续可见。
+令牌和敏感字段脱敏，不记录执行器原始 stdout/stderr、命令正文、环境或 MCP 配置。
+轮转/写入失败给出一次提示；检查目录权限、磁盘空间，不能以关闭沙箱解决。
+
+令牌无效/吊销：从网页重新取得 init 命令，本机重新配置；不把令牌贴到日志或工单。
+同账号被新代理替换：保留所需代理，不循环重连互踢。Codex 配对版本不一致：
+保持代理在线等待兼容沙箱，同时显示配套升级提示，不自动换版本或降级。
+`status.json` 的 `lastError`/`lastNotice` 只记录已知原因，不回显任意远端错误文本。
 
 配置：`~/.sunmoon-agent/config.json`（`SUNMOON_AGENT_HOME` 可改目录），600 权限。
 Windows 路径按本地盘符绝对路径处理，大小写和斜杠形式不影响白名单匹配；

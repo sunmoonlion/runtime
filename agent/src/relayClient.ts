@@ -4,8 +4,10 @@ import WebSocket from "ws";
 import { WindowsBridge } from "./windowsBridge.js";
 import type { WindowsMode, WindowsHelper, WindowsTemporary } from "./windowsRuntime.js";
 import { decide, denialResponse, type Ceiling } from "./filter.js";
-import { log } from "./log.js";
-import { hello, type ControlMessage } from "./relayProtocol.js";
+import { log, registerSecret } from "./log.js";
+import { rejectionInfo } from "./rejections.js";
+import type { LocalPermissions } from "./permissions.js";
+import { hello, PERMISSION_CAPABILITY, validPermissionReport, type PermissionReport, type ControlMessage } from "./relayProtocol.js";
 
 export interface RelayClientOptions {
   windows?: { home: string; helper: WindowsHelper; mode: WindowsMode; temporary: WindowsTemporary; executorEnvironment: () => NodeJS.ProcessEnv };
@@ -21,6 +23,8 @@ export interface RelayClientOptions {
   machineName?: () => string;
   /** 被会合点拒绝（令牌无效、被吊销、被同用户的新代理顶掉）时调用一次；之后不会再重连。 */
   onRejected?: (reason: string) => void;
+  onNotice?: (code: "codex_version_mismatch") => void;
+  confirmPermission?: LocalPermissions["confirm"];
 }
 
 export interface BridgeStats {
@@ -40,8 +44,37 @@ export class RelayClient {
   readonly stats: BridgeStats = { connections: 0, active: 0, forwardedUp: 0, forwardedDown: 0, denied: 0 };
   status: "disconnected" | "connecting" | "connected" | "rejected" = "disconnected";
   lastError = "";
+  lastNotice = "";
+  private permissionReportsAvailable = false;
+  private controlEpoch = 0;
+  private pendingReports = new Map<string, { resolve: (recorded: boolean) => void; timer: NodeJS.Timeout }>();
 
-  constructor(private readonly opts: RelayClientOptions) {}
+  /** Only a committed workbench receipt returns true. Old relays, timeouts,
+   * invalid reports and disconnects all return false; no optimistic grant. */
+  reportPermission(report: PermissionReport, timeoutMs = 30000): Promise<boolean> {
+    if (!validPermissionReport(report) || !this.permissionReportsAvailable || this.ctrl?.readyState !== WebSocket.OPEN
+      || this.pendingReports.has(report.id) || this.pendingReports.size >= 32) return Promise.resolve(false);
+    return new Promise(resolve => {
+      const timer = setTimeout(() => this.finishReport(report.id, false), Math.min(30000, Math.max(1, timeoutMs)));
+      this.pendingReports.set(report.id, { resolve, timer });
+      try { this.ctrl!.send(JSON.stringify({ type: "permission_report", report })); }
+      catch { this.finishReport(report.id, false); }
+    });
+  }
+
+  private finishReport(id: string, recorded: boolean): void {
+    const pending = this.pendingReports.get(id);
+    if (!pending) return;
+    this.pendingReports.delete(id); clearTimeout(pending.timer); pending.resolve(recorded);
+  }
+
+  private clearReports(): void {
+    this.controlEpoch++;
+    this.permissionReportsAvailable = false;
+    for (const id of this.pendingReports.keys()) this.finishReport(id, false);
+  }
+
+  constructor(private readonly opts: RelayClientOptions) { registerSecret(opts.token); }
 
   start(): void {
     this.stopped = false;
@@ -53,11 +86,12 @@ export class RelayClient {
   private notifyRejected(): void {
     if (this.rejectedNotified) return;
     this.rejectedNotified = true;
-    try { this.opts.onRejected?.(this.lastError); } catch (e) { log("error", "onRejected handler failed", { error: String(e) }); }
+    try { this.opts.onRejected?.(this.lastError); } catch { log("error", "onRejected handler failed"); }
   }
 
   stop(): void {
     this.stopped = true;
+    this.clearReports();
     this.ctrl?.close();
     this.ctrl = null;
     for (const close of this.streams) close();
@@ -74,7 +108,7 @@ export class RelayClient {
   private connectControl(): void {
     if (this.stopped) return;
     this.status = "connecting";
-    const ws = new WebSocket(this.controlUrl(), { maxPayload: 0 });
+    const ws = new WebSocket(this.controlUrl(), { maxPayload: 64 * 1024 });
     this.ctrl = ws;
     ws.on("open", () => {
       // 机器信息只在控制通道的 hello 里报一次：白名单和上限改了要重启 start，重启就会重报
@@ -84,24 +118,37 @@ export class RelayClient {
       ws.send(hello({ role: "agent", user: this.opts.userId, token: this.opts.token, codex: this.opts.codexVersion, software: this.opts.softwareVersion, ...(machine ? { machine } : {}) }));
     });
     ws.on("message", (data) => {
+      if (this.ctrl !== ws || this.stopped) return;
       let msg: ControlMessage;
       try { msg = JSON.parse(String(data)); } catch { return; }
+      if (!msg || typeof msg !== "object") return;
       if (msg.type === "welcome") {
+        this.permissionReportsAvailable = Array.isArray(msg.capabilities) && msg.capabilities.includes(PERMISSION_CAPABILITY);
         this.status = "connected"; this.backoff = 1000; this.lastError = "";
-        log("info", "relay connected", { relay: msg.relay });
+        log("info", "relay connected");
       } else if (msg.type === "reject") {
-        this.status = "rejected"; this.lastError = msg.reason;
-        log("error", "relay rejected us — not retrying until config changes", { reason: msg.reason });
+        const info = rejectionInfo(msg.reason);
+        this.status = "rejected"; this.lastError = info.reason;
+        log("error", info.message);
         this.stopped = true; ws.close();
         this.notifyRejected();
       } else if (msg.type === "open") {
         this.openStream(msg.conn);
       } else if (msg.type === "ping") {
         ws.send(JSON.stringify({ type: "pong" }));
+      } else if (msg.type === "permission_receipt") {
+        if (Object.keys(msg).sort().join() === "id,status,type" && typeof msg.id === "string" && ["recorded", "rejected"].includes(msg.status)) {
+          this.finishReport(msg.id, msg.status === "recorded");
+        }
+      } else if (msg.type === "notice" && msg.code === "codex_version_mismatch") {
+        this.lastNotice = "codex_version_mismatch";
+        log("warn", "沙箱与本地代理的 Codex 版本不一致，已拒绝连接；请更新成配套版本后重试。代理继续等待兼容的连接。");
+        try { this.opts.onNotice?.(msg.code); } catch { log("warn", "notice handler failed"); }
       }
     });
     const onDown = (why: string) => {
       if (this.ctrl !== ws) return;
+      this.clearReports();
       this.ctrl = null;
       if (this.status !== "rejected") this.status = "disconnected";
       if (this.stopped) return;
@@ -116,20 +163,24 @@ export class RelayClient {
         this.status = "rejected";
         this.lastError = code === 4000 ? "replaced by a newer agent for this user" : "token revoked";
         this.stopped = true;
-        log("error", code === 4000
-          ? "another agent for this user connected to the relay; this one stops (run only one agent per user)"
-          : "relay revoked this agent's token; re-run init with a new token", { code });
+        log("error", rejectionInfo(this.lastError).message, { code });
         this.notifyRejected();
       }
       onDown(`close ${code}`);
     });
-    ws.on("error", (e) => { this.lastError = String(e.message ?? e); onDown(`error ${this.lastError}`); });
+    ws.on("error", () => { this.lastError = "relay connection failed"; onDown(this.lastError); });
   }
 
   private openStream(conn: string): void {
     this.stats.connections += 1; this.stats.active += 1;
     const up = new WebSocket(this.dataUrl(conn), { maxPayload: this.opts.windows ? 12 * 1024 * 1024 : 0 });
-    const windows = this.opts.windows ? new WindowsBridge({ ...this.opts.windows, roots: this.opts.roots(), ceiling: this.opts.ceiling(), url: this.opts.localUrl }) : null;
+    const windows = this.opts.windows ? new WindowsBridge({ ...this.opts.windows, roots: this.opts.roots(), ceiling: this.opts.ceiling(), url: this.opts.localUrl,
+      localPermissions: this.opts.confirmPermission ? { confirm: this.opts.confirmPermission,
+        report: report => this.reportPermission({ ...report, conn }),
+        available: () => this.permissionReportsAvailable && this.status === "connected",
+        epoch: () => this.controlEpoch,
+      } : undefined,
+    }) : null;
     let chain = Promise.resolve();
     let pendingFrames = 0, pendingBytes = 0;
     const forward = (data: WebSocket.RawData, binary: boolean) => {
@@ -183,9 +234,9 @@ export class RelayClient {
       if (up.readyState === WebSocket.OPEN) up.send(data, { binary: isBinary });
     });
     up.on("close", (c) => finish(`relay side close ${c}`));
-    up.on("error", (e) => finish(`relay side error ${e.message}`));
+    up.on("error", () => finish("relay data connection failed"));
     local.on("close", (c) => finish(`exec-server side close ${c}`));
-    local.on("error", (e) => finish(`exec-server side error ${e.message}`));
+    local.on("error", () => finish("exec-server connection failed"));
   }
 
   /** 沙箱 → 执行端：过滤后转发 */

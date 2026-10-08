@@ -45,7 +45,10 @@ try {
   if (values['remove-config']) { inspectConfig(); ownedLogs(); }
   if (!values.apply) { console.log(JSON.stringify(plan)); process.exit(0); }
   if (fs.existsSync(path.join(state, 'config.json'))) {
-    const invoke = args => { const r=spawnSync(path.join(source,'node/node.exe'),[path.join(target,'app/dist/cli.js'),...args],{env:{...process.env,SUNMOON_AGENT_HOME:state},windowsHide:true,encoding:'utf8',timeout:45000}); if(r.status!==0)throw new Error(`Cannot complete ${args[0]}; installation and config kept`); };
+    // Task identity contains the installed executable path. These short-lived
+    // children must use that exact node.exe, then exit before file removal.
+    // This uninstaller itself continues running from the external bundle.
+    const invoke = args => { const r=spawnSync(path.join(target,'node/node.exe'),[path.join(target,'app/dist/cli.js'),...args],{env:{...process.env,SUNMOON_AGENT_HOME:state},windowsHide:true,encoding:'utf8',timeout:45000}); if(r.status!==0)throw new Error(`Cannot complete ${args[0]}; installation and config kept`); };
     // Remove restart policy before stopping. A failed step keeps program files.
     invoke(['autostart','disable']); invoke(['tray','stop']); invoke(['stop']);
   }

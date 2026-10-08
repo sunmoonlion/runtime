@@ -1,5 +1,23 @@
 # CHECKPOINT（runtime 仓，分支 luna）
 
+## 第 3 项演练中发现并修复卸载身份路径错误（23:32）
+
+所有者已确认第 2 项提交后同步成功。第三项按固定 `a95910f` 组包，89 文件，
+500955386 字节；清单 `0ae35dbc8c8538790de6ed2a6da81888ae1d7bee5dbe9ff6787a0fe61f48487a`。
+隔离真实包已完成安装→启动→关闭托盘（后台保活）→停止。卸载失败，尚未标闭环通过：
+
+```text
+Uninstall stopped: Cannot complete autostart; installation and config kept
+```
+
+原因：外部卸载器以交付包 node.exe 调用已装 CLI，自启任务原记录的是已装 node.exe，
+精确身份检查正确拒绝不匹配。修复为：卸载器仍在外部运行，但启停/删除任务的短命子进程
+使用已装 node.exe，等待退出后再删程序文件。没有放宽任务归属检查。
+失败输出 `scripts/results/windows-agent-3-20261008/package-first-failure.log`。
+失败夹具 `C:\Users\zymun\sunmoon-package-test-HrewXN` 暂保留，任务已注册但代理停止；
+使用修复包按原安装摘要完成精确卸载后，再从头重跑。最终结果将另记，不据代码宣称修复通过。
+
+
 ## 最新：第 1、2 项已完成，准备隔离安装闭环（2026-10-08 23:25）
 
 - 第 1 项提交 `5f8d208`：全部现状、真实结果、失败原文和重跑方法已保存。

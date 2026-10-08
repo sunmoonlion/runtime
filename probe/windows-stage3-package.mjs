@@ -32,12 +32,16 @@ try{
   const tray=spawn(installedNode,[cli,'tray'],{env,windowsHide:true,stdio:'ignore'});tray.unref();
   for(let n=0;n<100&&!fs.existsSync(path.join(home,'tray.json'));n++)await new Promise(r=>setTimeout(r,100));
   assert.equal(fs.existsSync(path.join(home,'tray.json')),true);
+  run(installedNode,[cli,'tray','stop']);assert.equal(json(installedNode,[cli,'status']).running,true);
+  checks.push('closing tray leaves installed background agent running');
+  run(installedNode,[cli,'stop']);assert.equal(json(installedNode,[cli,'status']).running,false);
+  checks.push('explicit stop after tray closure');
   const task=json(installedNode,[cli,'autostart','enable']);assert.equal(task.installed,true);
-  assert.equal(uninstall(false).action,'preview');assert.equal(json(installedNode,[cli,'status']).running,true);
+  assert.equal(uninstall(false).action,'preview');assert.equal(fs.existsSync(target),true);
   uninstall(true);assert.equal(fs.existsSync(target),false);assert.equal(sha(path.join(home,'config.json')),configSha);
-  assert.equal(fs.existsSync(path.join(home,'tray.json')),false);checks.push('uninstall preview read-only; running agent + tray + matching task removed; config preserved');
+  assert.equal(fs.existsSync(path.join(home,'tray.json')),false);checks.push('uninstall preview read-only; matching task and program removed; config preserved');
   // Reinstall the same verified package: manual-upgrade/config-preservation path.
-  install(true);assert.equal(sha(path.join(home,'config.json')),configSha);run(installedNode,[cli,'start','--background']);run(installedNode,[cli,'stop']);
+  install(true);assert.equal(sha(path.join(home,'config.json')),configSha);run(installedNode,[cli,'start','--background']);
   uninstall(true,true);assert.equal(fs.existsSync(target),false);assert.equal(fs.existsSync(home),false);
   assert.equal(fs.existsSync(root),true);checks.push('reinstall uses retained config; explicit default-home purge; project retained');
   // Query exactly our prior task; do not enumerate command lines or other users.

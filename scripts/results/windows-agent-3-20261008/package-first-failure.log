@@ -1,0 +1,14 @@
+Isolated fixture retained for recovery: C:\Users\zymun\sunmoon-package-test-HrewXN
+file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-3-20261008/windows-stage3-package.mjs:19
+const run=(bin,args,options={})=>{const r=spawnSync(bin,args,{env,windowsHide:true,encoding:'utf8',timeout:90000,...options});if(r.status!==0)throw new Error(`isolated ${path.basename(bin)} ${args[0]} failed: ${r.error?.code??r.status}\n${r.stderr??''}`);return r.stdout.trim();};
+                                                                                                                                                    ^
+
+Error: isolated node.exe C:\Users\zymun\sunmoon-probe-runs\windows-agent-3-20261008\sunmoon-agent-a95910f\installer\uninstall.mjs failed: 1
+Uninstall stopped: Cannot complete autostart; installation and config kept
+
+    at run (file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-3-20261008/windows-stage3-package.mjs:19:149)
+    at json (file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-3-20261008/windows-stage3-package.mjs:20:35)
+    at uninstall (file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-3-20261008/windows-stage3-package.mjs:23:38)
+    at file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-3-20261008/windows-stage3-package.mjs:41:3
+
+Node.js v24.19.0

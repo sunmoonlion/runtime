@@ -9,7 +9,7 @@ const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 describe.skipIf(process.platform !== "win32")("Windows background + tray lifecycle (no real account)", () => {
   it("one resident, closing tray keeps it alive, settings remain local, exact stop and restart", async () => {
     const base = fs.mkdtempSync(path.join(os.homedir(), "sunmoon-resident-test-"));
-    const home = path.join(base, "agent"), root = path.join(base, "workspace"); fs.mkdirSync(root);
+    const home = path.join(base, "agent"), root = path.join(base, "workspace"), unchecked = path.join(base, "unchecked"); fs.mkdirSync(root); fs.mkdirSync(unchecked);
     const env = { ...process.env, SUNMOON_AGENT_HOME: home };
     const run = (...args: string[]) => { const r = spawnSync(process.execPath, [CLI, ...args], { env, windowsHide: true, encoding: "utf8", timeout: 40000 }); expect(r.status, r.stderr).toBe(0); return r.stdout.trim(); };
     let tray: ReturnType<typeof spawn> | undefined;
@@ -31,9 +31,24 @@ describe.skipIf(process.platform !== "win32")("Windows background + tray lifecyc
       const input = JSON.stringify({ ...prefs, machineName: "本机后台测试" });
       const changed = spawnSync(process.execPath, [CLI,"settings","set"], { env, windowsHide:true,encoding:"utf8",input,timeout:10000 }); expect(changed.status,changed.stderr).toBe(0);
       expect(JSON.parse(run("settings","show")).machineName).toBe("本机后台测试");
-      const invalid=spawnSync(process.execPath,[CLI,"settings","set"],{env,windowsHide:true,encoding:"utf8",input:JSON.stringify({...prefs,roots:[base]}),timeout:10000});expect(invalid.status).toBe(1);
+      const selected={...prefs,rootChoices:[root,unchecked],roots:[root]};
+      const saveSelection=(value:unknown)=>spawnSync(process.execPath,[CLI,"settings","set"],{env,windowsHide:true,encoding:"utf8",input:JSON.stringify(value),timeout:10000});
+      expect(saveSelection(selected).status).toBe(0);
+      expect(JSON.parse(run("settings","show"))).toMatchObject({roots:[root],rootChoices:[root,unchecked]});
+      expect(JSON.parse(fs.readFileSync(path.join(home,"config.json"),"utf8")).roots).toEqual([root]);
+      expect(saveSelection({...selected,roots:[unchecked],rootChoices:[root]}).status).toBe(1);
+      expect(saveSelection({...selected,rootChoices:[root,root.toUpperCase()]}).status).toBe(1);
+      const invalid=saveSelection({...prefs,roots:[base],rootChoices:[base]});expect(invalid.status).toBe(1);
       expect(JSON.parse(run("settings","show")).roots).toEqual([root]);
       run("stop"); expect(JSON.parse(run("status")).running).toBe(false);
+      expect(saveSelection({...selected,roots:[]}).status).toBe(0);
+      expect(JSON.parse(run("settings","show"))).toMatchObject({roots:[],rootChoices:[root,unchecked]});
+      run("start","--background");expect(JSON.parse(run("status")).roots).toEqual([]);run("stop");
+      run("roots","add",unchecked);
+      expect(JSON.parse(run("settings","show"))).toMatchObject({roots:[unchecked],rootChoices:[root,unchecked]});
+      run("roots","remove",unchecked);
+      expect(JSON.parse(run("settings","show")).rootChoices).toEqual([root,unchecked]);
+      expect(saveSelection(selected).status).toBe(0);
       run("start","--background"); const second=JSON.parse(run("status")); expect(second.running).toBe(true);expect(second.runId).not.toBe(first.runId);
       run("stop"); run("stop"); expect(JSON.parse(run("status")).running).toBe(false);
       const task=JSON.parse(run("autostart","enable")); expect(task.installed).toBe(true);expect(task.runLevel).toBe("Limited");

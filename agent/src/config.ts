@@ -15,6 +15,8 @@ export interface AgentConfig {
   token: string;
   /** 根目录白名单（绝对路径） */
   roots: string[];
+  /** Local settings choices, including unchecked directories; never grants access. */
+  rootChoices?: string[];
   ceiling: Ceiling;
   /** exec-server 监听端口；0 = 自动选空闲回环端口 */
   execPort: number;
@@ -65,6 +67,11 @@ export function validate(cfg: AgentConfig): void {
   if (typeof cfg.machineName !== "string" || !cfg.machineName.trim() || cfg.machineName.length > 128 || /[\x00-\x1f\x7f]/.test(cfg.machineName)) throw new Error("machineName 要有，且不超过 128 个字符、不含控制字符");
   for (const r of cfg.roots) {
     if (canonicalPath(r) === null) throw new Error(`白名单根必须是受支持的本地绝对路径：${r}`);
+  }
+  if (cfg.rootChoices !== undefined) {
+    if (!Array.isArray(cfg.rootChoices) || cfg.rootChoices.length > 32 || cfg.rootChoices.some(r => typeof r !== "string" || canonicalPath(r) === null)) throw new Error("Invalid local directory choices");
+    const choices = cfg.rootChoices.map(r => canonicalPath(r));
+    if (new Set(choices).size !== choices.length || cfg.roots.some(r => !choices.includes(canonicalPath(r)))) throw new Error("Selected roots must be unique directory choices");
   }
   if (cfg.windowsSandbox && !["unelevated", "elevated"].includes(cfg.windowsSandbox.mode)) throw new Error("Invalid Windows sandbox mode");
   if (typeof cfg.ceiling.network !== "boolean") throw new Error("ceiling.network must be boolean");

@@ -1,0 +1,79 @@
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mC:/Users/zymun/sunmoon-probe-runs/windows-agent-2-20261008/agent[39m
+
+ [32m✓[39m test/outerSandbox.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/filter.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m test/windowsFilter.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m test/localConfirm.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m test/windowsPolicy.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m test/relayContract.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/windowsEnvironment.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m test/windowsBridge.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+{"t":"2026-10-08T16:41:36.833Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:41:36.864Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:41:36.890Z","level":"info","msg":"stream bridged","conn":"7a07bf11","local":"ws://127.0.0.1:51416/"}
+{"t":"2026-10-08T16:41:36.890Z","level":"info","msg":"stream closed","conn":"7a07bf11","why":"agent stopped"}
+{"t":"2026-10-08T16:41:36.897Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:41:36.923Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:41:36.947Z","level":"info","msg":"relay connected"}
+ [32m✓[39m test/stage2.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 197[2mms[22m[39m
+{"t":"2026-10-08T16:41:37.015Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:41:37.040Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:41:37.087Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-08T16:41:37.093Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:41:37.118Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:41:37.159Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:41:37.181Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:41:37.212Z","level":"warn","msg":"沙箱与本地代理的 Codex 版本不一致，已拒绝连接；请更新成配套版本后重试。代理继续等待兼容的连接。"}
+{"t":"2026-10-08T16:41:37.251Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:41:37.276Z","level":"info","msg":"stream bridged","conn":"e1b113c0","local":"ws://127.0.0.1:51445/"}
+{"t":"2026-10-08T16:41:37.339Z","level":"info","msg":"stream closed","conn":"e1b113c0","why":"agent stopped"}
+{"t":"2026-10-08T16:41:37.345Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:41:37.371Z","level":"info","msg":"stream bridged","conn":"9f90266f","local":"ws://127.0.0.1:51450/"}
+{"t":"2026-10-08T16:41:37.430Z","level":"warn","msg":"denied by local ceiling","method":"process/start","reason":"sandbox mode danger-full-access exceeds local ceiling workspace-write"}
+{"t":"2026-10-08T16:41:37.432Z","level":"info","msg":"stream closed","conn":"9f90266f","why":"agent stopped"}
+{"t":"2026-10-08T16:41:37.440Z","level":"error","msg":"代理令牌无效或已过期。请从网页重新取得 init 命令；不要在日志或对话里粘贴令牌。"}
+{"t":"2026-10-08T16:41:37.467Z","level":"error","msg":"代理令牌无效或已过期。请从网页重新取得 init 命令；不要在日志或对话里粘贴令牌。"}
+{"t":"2026-10-08T16:41:37.698Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:41:37.727Z","level":"error","msg":"同一账号已有另一台代理连接，本代理已停止。请保留需要使用的那一个代理。","code":4000}
+{"t":"2026-10-08T16:41:37.964Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:41:37.992Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-08T16:41:38.404Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:41:38.432Z","level":"error","msg":"同一账号已有另一台代理连接，本代理已停止。请保留需要使用的那一个代理。","code":4000}
+{"t":"2026-10-08T16:41:39.971Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:41:40.000Z","level":"error","msg":"代理令牌已吊销。请在网页“设置 → 本地代理”重新取得 init 命令，在本机执行后再启动。","code":4003}
+ [32m✓[39m test/windowsHttp.test.ts [2m([22m[2m45 tests[22m[2m)[22m[33m 3347[2mms[22m[39m
+   [33m[2m✓[22m[39m native pinned executor HTTP (isolated loopback, no relay)[2m > [22mpasses confirmed endpoint without redirects: streamed=false status=200 [33m 1278[2mms[22m[39m
+   [33m[2m✓[22m[39m native pinned executor HTTP (isolated loopback, no relay)[2m > [22mpasses confirmed endpoint without redirects: streamed=true status=200 [33m 927[2mms[22m[39m
+   [33m[2m✓[22m[39m native pinned executor HTTP (isolated loopback, no relay)[2m > [22mpasses confirmed endpoint without redirects: streamed=false status=302 [33m 1120[2mms[22m[39m
+{"t":"2026-10-08T16:41:41.535Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:41:41.564Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+ [32m✓[39m test/cli.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 5557[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows CLI capability admission[2m > [22msupports configuration commands and refuses start without a recorded capability probe [33m 4845[2mms[22m[39m
+{"t":"2026-10-08T16:41:42.568Z","level":"info","msg":"relay connected"}
+ [32m✓[39m test/relayClient.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 5808[2mms[22m[39m
+   [33m[2m✓[22m[39m RelayClient[2m > [22mdoes not call onRejected on an ordinary disconnect [33m 440[2mms[22m[39m
+   [33m[2m✓[22m[39m RelayClient[2m > [22mdoes not reconnect after close 4000 (replaced by a newer agent for this user) [33m 1567[2mms[22m[39m
+   [33m[2m✓[22m[39m RelayClient[2m > [22mdoes not reconnect after close 4003 (token revoked) [33m 1565[2mms[22m[39m
+   [33m[2m✓[22m[39m RelayClient[2m > [22mreconnects the control channel after the relay drops it [33m 1068[2mms[22m[39m
+ [32m✓[39m test/windowsNative.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 6542[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows adversarial admission[2m > [22melevated OS sandbox blocks ordinary Node writes after a directory swap [33m 829[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows adversarial admission[2m > [22mprobes an existing elevated setup and runs the protected file helper under it [33m 2743[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows adversarial admission[2m > [22mrejects precreated native symbolic links as an ordinary user [33m 710[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows adversarial admission[2m > [22mpins sandbox roots against replacement throughout command launch [33m 406[2mms[22m[39m
+ [32m✓[39m test/windowsFollowup.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 7205[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows stage 1b follow-up[2m > [22mprojects confirmed HTTP MCP with the native 0.155.1 contract and no project settings [33m 1025[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows stage 1b follow-up[2m > [22mrequires local approval and durable audit before a real Windows write; outside remains denied [33m 386[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows stage 1b follow-up[2m > [22mpins temp against swaps and refuses a replaced directory after guard failure [33m 1866[2mms[22m[39m
+ [32m✓[39m test/windowsResident.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 41513[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows background + tray lifecycle (no real account)[2m > [22mone resident, closing tray keeps it alive, settings remain local, exact stop and restart [33m 39072[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows background + tray lifecycle (no real account)[2m > [22mcloses an aborted local GUI prompt without granting permission [33m 2021[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows background + tray lifecycle (no real account)[2m > [22mall shipped PowerShell scripts parse without altering execution policy [33m 417[2mms[22m[39m
+ [32m✓[39m test/windowsLifecycle.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 49294[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows CLI real lifecycle + loopback relay[2m > [22minitializes, filters, runs commands, survives 20s relay loss, reports revocation and cleans executor tree [33m 49293[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+[2m      Tests [22m [1m[32m204 passed[39m[22m[90m (204)[39m
+[2m   Start at [22m 00:41:35
+[2m   Duration [22m 50.43s[2m (transform 1.21s, setup 0ms, collect 4.25s, tests 119.56s, environment 3ms, prepare 3.47s)[22m
+

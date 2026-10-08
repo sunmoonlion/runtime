@@ -95,7 +95,7 @@ async function main(argv: string[]): Promise<number> {
   if (cmd === "roots") {
     const sub = argv[1]; const dir = argv[2] ? path.resolve(argv[2]) : "";
     if (sub === "list") { cfg.roots.forEach((r) => console.log(r)); return 0; }
-    if (sub === "add") { if (!argv[2] || canonicalPath(dir) === null || !fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) { console.error(`不是支持的本地目录：${dir}`); return 2; } if (!cfg.roots.some(r => canonicalPath(r) === canonicalPath(dir))) cfg.roots.push(dir); saveConfig(cfg); console.log(`已加入白名单：${dir}（重启 start 生效）`); return 0; }
+    if (sub === "add") { if (!argv[2] || canonicalPath(dir) === null || !fs.existsSync(dir) || !fs.statSync(dir).isDirectory()) { console.error(`不是支持的本地目录：${dir}`); return 2; } if (!cfg.roots.some(r => canonicalPath(r) === canonicalPath(dir))) cfg.roots.push(dir); if (cfg.rootChoices && !cfg.rootChoices.some(r => canonicalPath(r) === canonicalPath(dir))) cfg.rootChoices.push(dir); saveConfig(cfg); console.log(`已加入白名单：${dir}（重启 start 生效）`); return 0; }
     if (sub === "remove") { if (!argv[2]) { usage(); return 2; } cfg.roots = cfg.roots.filter((r) => canonicalPath(r) !== canonicalPath(dir)); saveConfig(cfg); console.log(`已移出白名单：${dir}（重启 start 生效）`); return 0; }
     usage(); return 2;
   }

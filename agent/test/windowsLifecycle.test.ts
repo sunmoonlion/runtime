@@ -34,6 +34,9 @@ describe.skipIf(process.platform !== "win32")("Windows CLI real lifecycle + loop
       await listen(); const env = { ...process.env, SUNMOON_AGENT_HOME: home };
       const init = spawnSync(process.execPath, [CLI, "init", "--relay", `ws://127.0.0.1:${port}`, "--user", "test-user", "--token", "test-only-not-a-credential", "--root", root, "--name", "windows-native-lifecycle"], { env, encoding: "utf8", timeout: 20000, windowsHide: true });
       expect(init.status, init.stderr).toBe(0);
+      const unchecked=path.join(base,"unchecked");fs.mkdirSync(unchecked);fs.writeFileSync(path.join(unchecked,"private.txt"),"not shared");
+      const configFile=path.join(home,"config.json"),config=JSON.parse(fs.readFileSync(configFile,"utf8"));
+      config.rootChoices=[root,unchecked];fs.writeFileSync(configFile,JSON.stringify(config));
       child = spawn(process.execPath, [CLI, "start"], { env, windowsHide: true, stdio: ["pipe", "ignore", "pipe"] }); child.stderr!.on("data", d => { stderr += String(d); });
       await until(() => fs.existsSync(state) && JSON.parse(fs.readFileSync(state, "utf8")).relay.status === "connected");
       const first = JSON.parse(fs.readFileSync(state, "utf8")); expect(first.execServer.windowsSandbox.mode).toBe("unelevated"); expect(first.execServer.sandboxed).toBe(false); expect(first.execServer.protection).toBe("inner-sandbox+strict-protocol");
@@ -41,6 +44,9 @@ describe.skipIf(process.platform !== "win32")("Windows CLI real lifecycle + loop
       expect((await call("initialize", { clientName: "native-cli-test" })).result.environmentInfo.executorVersion).toBe("0.155.1"); data!.send(JSON.stringify({ method: "initialized", params: {} }));
       const target = path.join(root, "via-relay.txt");
       expect((await call("fs/writeFile", { path: pathToFileURL(target).href, dataBase64: "YnJpZGdl" })).result).toEqual({});expect(fs.readFileSync(target, "utf8")).toBe("bridge");
+      expect((await call("fs/readFile",{path:pathToFileURL(path.join(unchecked,"private.txt")).href})).error.code).toBe(-32001);
+      expect((await call("fs/writeFile",{path:pathToFileURL(path.join(unchecked,"blocked.txt")).href,dataBase64:"YmFk"})).error.code).toBe(-32001);
+      expect(fs.existsSync(path.join(unchecked,"blocked.txt"))).toBe(false);
       const threadId = "01a116d9-d2f4-77f3-8f14-4deb4d373f33";
       const sandbox = windowsProfile(root, [root], "unelevated");
       (sandbox.permissions.file_system.entries as any[]).push({ path: { type: "path", path: pathToFileURL(path.join(root, ".codex")).href }, access: "read", missing_path_behavior: "skip" });

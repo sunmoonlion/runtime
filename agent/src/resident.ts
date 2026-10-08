@@ -10,6 +10,7 @@ import { assertWindowsHome } from "./windowsRuntime.js";
 import { desktopRequest, nativeDirectory, powershell } from "./windowsDesktop.js";
 import { locateCodex } from "./paths.js";
 import { detectWindowsSandbox } from "./windowsBootstrap.js";
+import { canonicalPath } from "./pathuri.js";
 
 const cli = fileURLToPath(new URL("./cli.js", import.meta.url));
 const statusFile = path.join(CONFIG_DIR, "status.json"), stopFile = path.join(CONFIG_DIR, "stop-request.json");
@@ -118,13 +119,19 @@ export function preferences(argv: string[]): object {
   checkControlDirectory(); const cfg = loadConfig();
   if (argv[0] === "set") {
     const input = JSON.parse(fs.readFileSync(0, "utf8"));
-    if (!input || Object.keys(input).sort().join(",") !== "ceiling,machineName,roots") throw new Error("Invalid settings fields");
-    if (!Array.isArray(input.roots) || !input.roots.length || input.roots.length > 32
+    if (!input || !["ceiling,machineName,roots", "ceiling,machineName,rootChoices,roots"].includes(Object.keys(input).sort().join(","))) throw new Error("Invalid settings fields");
+    const choices = input.rootChoices ?? input.roots;
+    if (!Array.isArray(input.roots) || input.roots.length > 32
       || !input.roots.every((root: unknown) => typeof root === "string" && fs.statSync(root).isDirectory())
+      || !Array.isArray(choices) || choices.length > 32
+      || !choices.every((root: unknown) => typeof root === "string" && fs.statSync(root).isDirectory())
       || !["read-only", "workspace-write"].includes(input.ceiling?.sandbox)
       || Object.keys(input.ceiling).sort().join(",") !== "network,sandbox") throw new Error("Invalid local preferences");
-    assertWindowsHome(CONFIG_DIR, input.roots); assertWindowsHome(cfg.codexHome, input.roots);
-    cfg.roots = input.roots; cfg.machineName = input.machineName; cfg.ceiling = input.ceiling; saveConfig(cfg);
+    const keys = choices.map((root: string) => canonicalPath(root, "win32"));
+    if (new Set(keys).size !== keys.length || new Set(input.roots.map((root: string) => canonicalPath(root, "win32"))).size !== input.roots.length
+      || input.roots.some((root: string) => !keys.includes(canonicalPath(root, "win32")))) throw new Error("Invalid directory selection");
+    assertWindowsHome(CONFIG_DIR, choices); assertWindowsHome(cfg.codexHome, choices);
+    cfg.roots = input.roots; cfg.rootChoices = choices; cfg.machineName = input.machineName; cfg.ceiling = input.ceiling; saveConfig(cfg);
   } else if (argv[0] && argv[0] !== "show") throw new Error("settings show|set");
-  return { machineName: cfg.machineName, roots: cfg.roots, ceiling: cfg.ceiling };
+  return { machineName: cfg.machineName, roots: cfg.roots, rootChoices: cfg.rootChoices ?? cfg.roots, ceiling: cfg.ceiling };
 }

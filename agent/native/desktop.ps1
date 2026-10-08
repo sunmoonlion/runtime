@@ -106,35 +106,64 @@ function Show-Result([scriptblock]$Operation) {
     try { $Result=& $Operation; [System.Windows.Forms.MessageBox]::Show(($Result | ConvertTo-Json -Depth 6),'SunMoon') | Out-Null }
     catch { [System.Windows.Forms.MessageBox]::Show($_.Exception.Message,'SunMoon') | Out-Null }
 }
+function Get-ConnectionText($Current) {
+    if (-not $Current) { return '已停止' }
+    if (-not $Current.running) {
+        if ($Current.relay.status -eq 'rejected') { return '连接被拒绝，代理已停止' }
+        return '已停止或状态过期'
+    }
+    switch ([string]$Current.relay.status) {
+        'connected' { return '在线' }
+        'connecting' { return '正在连接' }
+        'rejected' { return '连接被拒绝' }
+        default { return '离线，等待重连' }
+    }
+}
+function Show-Status {
+    try {
+        $Current=Invoke-Agent @('status')
+        $Reason=if($Current.relay.lastError){[string]$Current.relay.lastError}elseif($Current.relay.lastNotice){[string]$Current.relay.lastNotice}elseif($Current.running){'无连接错误'}else{'代理未运行；可从托盘启动'}
+        $Text='状态：'+(Get-ConnectionText $Current)+"`r`n`r`n原因："+$Reason
+        if($Current.relay.lastNotice -and $Current.relay.lastNotice -ne $Reason){$Text+="`r`n提示："+[string]$Current.relay.lastNotice}
+        if($Current.execServer.windowsSandbox.mode){$Text+="`r`n`r`n沙箱模式："+[string]$Current.execServer.windowsSandbox.mode}
+        if($Current.at){$Text+="`r`n状态更新时间："+[string]$Current.at}
+        [System.Windows.Forms.MessageBox]::Show($Text,'SunMoon - 连接状态')|Out-Null
+    } catch {[System.Windows.Forms.MessageBox]::Show('无法读取状态，请查看本机日志。','SunMoon - 连接状态')|Out-Null}
+}
 function Show-Preferences {
     $Prefs=Invoke-Agent @('settings','show')
-    $Dialog=New-Object System.Windows.Forms.Form; $Dialog.Text='SunMoon - 本机设置'; $Dialog.Size=New-Object System.Drawing.Size(670,470); $Dialog.StartPosition='CenterScreen'
+    $Dialog=New-Object System.Windows.Forms.Form; $Dialog.Text='SunMoon - 本机设置'; $Dialog.Size=New-Object System.Drawing.Size(700,525); $Dialog.StartPosition='CenterScreen'
     $NameLabel=New-Object System.Windows.Forms.Label; $NameLabel.Text='机器名称'; $NameLabel.SetBounds(15,15,100,24)
     $Name=New-Object System.Windows.Forms.TextBox; $Name.Text=$Prefs.machineName; $Name.SetBounds(120,15,500,26)
-    $Roots=New-Object System.Windows.Forms.ListBox; $Roots.SetBounds(15,65,605,170); foreach($Root in $Prefs.roots){$Roots.Items.Add($Root)|Out-Null}
-    $Add=New-Object System.Windows.Forms.Button; $Add.Text='添加目录'; $Add.SetBounds(15,245,120,30)
-    $Remove=New-Object System.Windows.Forms.Button; $Remove.Text='移除选中'; $Remove.SetBounds(150,245,120,30)
-    $Add.Add_Click({ $Picker=New-Object System.Windows.Forms.FolderBrowserDialog; try { if($Picker.ShowDialog() -eq 'OK' -and -not $Roots.Items.Contains($Picker.SelectedPath)){$Roots.Items.Add($Picker.SelectedPath)|Out-Null} } finally{$Picker.Dispose()} })
+    $RootLabel=New-Object System.Windows.Forms.Label; $RootLabel.Text='勾选允许访问的目录；未勾选的目录只记住位置，不授予访问权限。'; $RootLabel.SetBounds(15,52,650,26)
+    $Roots=New-Object System.Windows.Forms.CheckedListBox; $Roots.Name='DirectoryChoices'; $Roots.AccessibleName='允许访问的目录'; $Roots.CheckOnClick=$true; $Roots.HorizontalScrollbar=$true; $Roots.SetBounds(15,82,650,170)
+    $Choices=if($null -ne $Prefs.rootChoices){@($Prefs.rootChoices)}else{@($Prefs.roots)}
+    foreach($Root in $Choices){$Roots.Items.Add([string]$Root,([bool](@($Prefs.roots) -contains $Root)))|Out-Null}
+    $Add=New-Object System.Windows.Forms.Button; $Add.Text='添加待选目录'; $Add.SetBounds(15,265,135,30)
+    $Remove=New-Object System.Windows.Forms.Button; $Remove.Text='移除选中行'; $Remove.SetBounds(165,265,135,30)
+    $Add.Add_Click({ $Picker=New-Object System.Windows.Forms.FolderBrowserDialog; try { if($Picker.ShowDialog() -eq 'OK' -and -not $Roots.Items.Contains($Picker.SelectedPath)){$Roots.Items.Add($Picker.SelectedPath,$false)|Out-Null} } finally{$Picker.Dispose()} })
     $Remove.Add_Click({ if($Roots.SelectedIndex -ge 0){$Roots.Items.RemoveAt($Roots.SelectedIndex)} })
-    $Mode=New-Object System.Windows.Forms.ComboBox; $Mode.DropDownStyle='DropDownList'; $Mode.SetBounds(15,290,230,28); $Mode.Items.AddRange(@('read-only','workspace-write')); $Mode.SelectedItem=$Prefs.ceiling.sandbox
-    $Network=New-Object System.Windows.Forms.CheckBox; $Network.Text='允许联网（包括本机代发 MCP HTTP）'; $Network.Checked=[bool]$Prefs.ceiling.network; $Network.SetBounds(270,290,350,28)
-    $Note=New-Object System.Windows.Forms.Label; $Note.Text='保存后需停止并重新启动代理才生效。临时批准在断开时失效。'; $Note.SetBounds(15,330,605,35)
-    $Save=New-Object System.Windows.Forms.Button; $Save.Text='保存设置'; $Save.SetBounds(360,375,120,30)
-    $Cancel=New-Object System.Windows.Forms.Button; $Cancel.Text='取消'; $Cancel.SetBounds(500,375,120,30)
+    $Mode=New-Object System.Windows.Forms.ComboBox; $Mode.DropDownStyle='DropDownList'; $Mode.SetBounds(15,310,230,28); $Mode.Items.AddRange(@('read-only','workspace-write')); $Mode.SelectedItem=$Prefs.ceiling.sandbox
+    $Network=New-Object System.Windows.Forms.CheckBox; $Network.Text='允许联网（包括本机代发 MCP HTTP）'; $Network.Checked=[bool]$Prefs.ceiling.network; $Network.SetBounds(270,310,395,28)
+    $Note=New-Object System.Windows.Forms.Label; $Note.Text='保存后需停止并重新启动代理才生效。全部取消勾选可关闭项目目录访问；临时批准在断开时失效。'; $Note.SetBounds(15,350,650,55)
+    $Save=New-Object System.Windows.Forms.Button; $Save.Name='SaveSettings'; $Save.Text='保存设置'; $Save.SetBounds(405,425,120,30)
+    $Cancel=New-Object System.Windows.Forms.Button; $Cancel.Text='取消'; $Cancel.SetBounds(545,425,120,30)
     $Save.Add_Click({
         try {
-            Invoke-Agent @('settings','set') @{machineName=$Name.Text; roots=@($Roots.Items | ForEach-Object{[string]$_}); ceiling=@{sandbox=[string]$Mode.SelectedItem; network=[bool]$Network.Checked}} | Out-Null
+            Invoke-Agent @('settings','set') @{machineName=$Name.Text; roots=@($Roots.CheckedItems | ForEach-Object{[string]$_}); rootChoices=@($Roots.Items | ForEach-Object{[string]$_}); ceiling=@{sandbox=[string]$Mode.SelectedItem; network=[bool]$Network.Checked}} | Out-Null
             [System.Windows.Forms.MessageBox]::Show('已保存。请在托盘中停止、再启动代理使设置生效。','SunMoon')|Out-Null; $Dialog.Close()
         } catch { [System.Windows.Forms.MessageBox]::Show($_.Exception.Message,'SunMoon')|Out-Null }
     })
     $Cancel.Add_Click({$Dialog.Close()}); $Dialog.CancelButton=$Cancel
-    $Dialog.Controls.AddRange(@($NameLabel,$Name,$Roots,$Add,$Remove,$Mode,$Network,$Note,$Save,$Cancel))
+    $Dialog.Controls.AddRange(@($NameLabel,$Name,$RootLabel,$Roots,$Add,$Remove,$Mode,$Network,$Note,$Save,$Cancel))
     try{$Dialog.ShowDialog()|Out-Null}finally{$Dialog.Dispose()}
 }
 
 $Tray=New-Object System.Windows.Forms.NotifyIcon; $Tray.Icon=[System.Drawing.SystemIcons]::Application; $Tray.Text='SunMoon Agent'; $Tray.Visible=$true
 $Menu=New-Object System.Windows.Forms.ContextMenuStrip
-$Status=$Menu.Items.Add('查看状态'); $Status.Add_Click({ Show-Result { Invoke-Agent @('status') } })
+$Connection=$Menu.Items.Add('状态：正在读取'); $Connection.Enabled=$false
+$Status=$Menu.Items.Add('查看状态与原因'); $Status.Add_Click({ Show-Status })
+$Tray.Add_DoubleClick({Show-Status})
 $Start=$Menu.Items.Add('启动代理'); $Start.Add_Click({ Show-Result { Invoke-Agent @('start','--background') } })
 $Stop=$Menu.Items.Add('停止代理'); $Stop.Add_Click({ Show-Result { Invoke-Agent @('stop') } })
 $Preferences=$Menu.Items.Add('白名单与上限设置'); $Preferences.Add_Click({ try{Show-Preferences}catch{[System.Windows.Forms.MessageBox]::Show($_.Exception.Message,'SunMoon')|Out-Null} })
@@ -159,10 +188,12 @@ $Timer.Add_Tick({
         $StatusPath=Join-Path $State 'status.json'
         if(Test-Path -LiteralPath $StatusPath){
             $Current=Get-Content -LiteralPath $StatusPath -Raw -Encoding UTF8 | ConvertFrom-Json
-            $Recent=((Get-Date).ToUniversalTime()-[DateTime]::Parse($Current.at).ToUniversalTime()).TotalSeconds -lt 15
-            $Tray.Text=if($Recent){'SunMoon: '+$Current.relay.status}else{'SunMoon: 已停止或状态过期'}
-        } else {$Tray.Text='SunMoon: 已停止'}
-    } catch {$Tray.Text='SunMoon: 状态暂不可读'}
+            $Age=((Get-Date).ToUniversalTime()-[DateTime]::Parse($Current.at).ToUniversalTime()).TotalSeconds
+            $Current|Add-Member -NotePropertyName running -NotePropertyValue ($Age -ge -2 -and $Age -lt 15) -Force
+            $Label=Get-ConnectionText $Current
+            $Tray.Text='SunMoon: '+$Label; $Connection.Text='状态：'+$Label
+        } else {$Tray.Text='SunMoon: 已停止';$Connection.Text='状态：已停止'}
+    } catch {$Tray.Text='SunMoon: 状态暂不可读';$Connection.Text='状态：暂不可读'}
 })
 $Timer.Start()
 try {[System.Windows.Forms.Application]::Run()}

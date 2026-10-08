@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // sunmoon-agent：本地代理的命令行。
-//   init --relay URL --user ID --token T [--root DIR ...] [--name 机器名]   写配置（机器名默认主机名，网页「我的机器」里显示）
+//   init --relay URL --user ID --token-prompt [--root DIR ...] [--name 机器名]   隐藏输入令牌并写配置
 //   roots add|remove|list DIR                                白名单（改完要重启 start，外沙箱的 bind 在启动时定）
 //   ceiling show|set --sandbox MODE --network on|off         本地上限（本机改，仅本机生效）
 //   start                                                    前台运行：起 exec-server + 出站桥；状态写 status.json
@@ -23,7 +23,7 @@ import { readHiddenToken } from "./hiddenToken.js";
 import { windowsConfirm } from "./windowsDesktop.js";
 import { acquireResident, autostart, preferences, readResidentStatus, residentAlive, runTray, closeTray, startResident, stopResident, setupElevated } from "./resident.js";
 
-const VERSION = "0.2.0";
+const VERSION = "0.2.1";
 const STATUS_PATH = path.join(CONFIG_DIR, "status.json");
 
 function arg(flag: string, argv: string[]): string | undefined {

@@ -111,7 +111,8 @@ HTTP 只转发启动时本机确认过的完整 MCP URL，逐字匹配且禁止�
 
 ## 维护者组包与回归
 
-依赖必须由 `agent/pnpm-lock.yaml` 冻结安装在 Windows agent 目录。
+依赖必须由 pnpm **10.24.0**、`agent/pnpm-lock.yaml` 冻结安装在 Windows agent 目录。
+`agent/package.json` 固定 packageManager；不要用全局其它大版本隐式重装依赖。
 不下载、不执行 npm 生命周期、不复制用户配置。提交源码后从 runtime 根目录：
 
 ```sh

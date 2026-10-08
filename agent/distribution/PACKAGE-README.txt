@@ -16,8 +16,9 @@ First command previews; second installs into
 Installation does not start, enable autostart, change PATH or elevate.
 
 Use sunmoon-agent.cmd in the INSTALLED directory:
-  init ...                 Paste your own workbench-issued init arguments.
-                           Never share the token. Select specific project roots.
+  init ... --token-prompt   Copy the non-secret command from My machines, then
+                           paste your own token at the hidden terminal prompt.
+                           Never put it in the command or share it. Select roots.
   start --background       One background agent; local approvals use a GUI.
   tray                     Status, start/stop, roots and permissions settings.
   tray stop                Close tray only; background stays running.

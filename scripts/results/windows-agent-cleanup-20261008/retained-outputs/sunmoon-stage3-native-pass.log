@@ -1,0 +1,113 @@
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mC:/Users/zymun/sunmoon-probe-runs/windows-agent-2-20261008/agent[39m
+
+ [32m✓[39m test/outerSandbox.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/localConfirm.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m test/filter.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/windowsFilter.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m test/windowsPolicy.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m test/windowsEnvironment.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m test/windowsBridge.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m test/relayContract.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+{"t":"2026-10-08T15:17:49.230Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:17:49.260Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:17:49.281Z","level":"info","msg":"stream bridged","conn":"8099050f","local":"ws://127.0.0.1:63393/"}
+{"t":"2026-10-08T15:17:49.282Z","level":"info","msg":"stream closed","conn":"8099050f","why":"agent stopped"}
+{"t":"2026-10-08T15:17:49.289Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:17:49.313Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:17:49.337Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:17:49.405Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:17:49.430Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:17:49.478Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+ [32m✓[39m test/stage2.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 250[2mms[22m[39m
+{"t":"2026-10-08T15:17:49.485Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:17:49.508Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:17:49.544Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:17:49.571Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:17:49.602Z","level":"warn","msg":"沙箱与本地代理的 Codex 版本不一致，已拒绝连接；请更新成配套版本后重试。代理继续等待兼容的连接。"}
+{"t":"2026-10-08T15:17:49.641Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:17:49.667Z","level":"info","msg":"stream bridged","conn":"36f56f69","local":"ws://127.0.0.1:63425/"}
+{"t":"2026-10-08T15:17:49.729Z","level":"info","msg":"stream closed","conn":"36f56f69","why":"agent stopped"}
+{"t":"2026-10-08T15:17:49.734Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:17:49.764Z","level":"info","msg":"stream bridged","conn":"43080768","local":"ws://127.0.0.1:63430/"}
+{"t":"2026-10-08T15:17:49.822Z","level":"warn","msg":"denied by local ceiling","method":"process/start","reason":"sandbox mode danger-full-access exceeds local ceiling workspace-write"}
+{"t":"2026-10-08T15:17:49.823Z","level":"info","msg":"stream closed","conn":"43080768","why":"agent stopped"}
+{"t":"2026-10-08T15:17:49.828Z","level":"error","msg":"代理令牌无效或已过期。请从网页重新取得 init 命令；不要在日志或对话里粘贴令牌。"}
+{"t":"2026-10-08T15:17:49.860Z","level":"error","msg":"代理令牌无效或已过期。请从网页重新取得 init 命令；不要在日志或对话里粘贴令牌。"}
+{"t":"2026-10-08T15:17:50.091Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:17:50.118Z","level":"error","msg":"同一账号已有另一台代理连接，本代理已停止。请保留需要使用的那一个代理。","code":4000}
+{"t":"2026-10-08T15:17:50.355Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:17:50.383Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-08T15:17:50.791Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:17:50.818Z","level":"error","msg":"同一账号已有另一台代理连接，本代理已停止。请保留需要使用的那一个代理。","code":4000}
+ [32m✓[39m test/windowsHttp.test.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 2346[2mms[22m[39m
+   [33m[2m✓[22m[39m native pinned executor HTTP (isolated loopback, no relay)[2m > [22mpasses actual buffered/streamed response frames, streamed=false [33m 1349[2mms[22m[39m
+   [33m[2m✓[22m[39m native pinned executor HTTP (isolated loopback, no relay)[2m > [22mpasses actual buffered/streamed response frames, streamed=true [33m 991[2mms[22m[39m
+{"t":"2026-10-08T15:17:52.358Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:17:52.385Z","level":"error","msg":"代理令牌已吊销。请在网页“设置 → 本地代理”重新取得 init 命令，在本机执行后再启动。","code":4003}
+{"t":"2026-10-08T15:17:53.934Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:17:53.961Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+ [32m✓[39m test/cli.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 5617[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows CLI capability admission[2m > [22msupports configuration commands and refuses start without a recorded capability probe [33m 4935[2mms[22m[39m
+{"t":"2026-10-08T15:17:54.979Z","level":"info","msg":"relay connected"}
+ [32m✓[39m test/relayClient.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 5804[2mms[22m[39m
+   [33m[2m✓[22m[39m RelayClient[2m > [22mdoes not call onRejected on an ordinary disconnect [33m 435[2mms[22m[39m
+   [33m[2m✓[22m[39m RelayClient[2m > [22mdoes not reconnect after close 4000 (replaced by a newer agent for this user) [33m 1568[2mms[22m[39m
+   [33m[2m✓[22m[39m RelayClient[2m > [22mdoes not reconnect after close 4003 (token revoked) [33m 1576[2mms[22m[39m
+   [33m[2m✓[22m[39m RelayClient[2m > [22mreconnects the control channel after the relay drops it [33m 1062[2mms[22m[39m
+ [32m✓[39m test/windowsNative.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 6773[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows adversarial admission[2m > [22melevated OS sandbox blocks ordinary Node writes after a directory swap [33m 1012[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows adversarial admission[2m > [22mprobes an existing elevated setup and runs the protected file helper under it [33m 2695[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows adversarial admission[2m > [22mrejects precreated native symbolic links as an ordinary user [33m 807[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows adversarial admission[2m > [22mpins sandbox roots against replacement throughout command launch [33m 396[2mms[22m[39m
+ [32m✓[39m test/windowsFollowup.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 7191[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows stage 1b follow-up[2m > [22mprojects confirmed HTTP MCP with the native 0.155.1 contract and no project settings [33m 777[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows stage 1b follow-up[2m > [22mrequires local approval and durable audit before a real Windows write; outside remains denied [33m 414[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows stage 1b follow-up[2m > [22mpins temp against swaps and refuses a replaced directory after guard failure [33m 1891[2mms[22m[39m
+ [32m✓[39m test/windowsResident.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 37083[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows background + tray lifecycle (no real account)[2m > [22mone resident, closing tray keeps it alive, settings remain local, exact stop and restart [33m 34625[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows background + tray lifecycle (no real account)[2m > [22mcloses an aborted local GUI prompt without granting permission [33m 2012[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows background + tray lifecycle (no real account)[2m > [22mall shipped PowerShell scripts parse without altering execution policy [33m 443[2mms[22m[39m
+ [32m✓[39m test/windowsLifecycle.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 49500[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows CLI real lifecycle + loopback relay[2m > [22minitializes, filters, runs commands, survives 20s relay loss, reports revocation and cleans executor tree [33m 49498[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+[2m      Tests [22m [1m[32m179 passed[39m[22m[90m (179)[39m
+[2m   Start at [22m 23:17:47
+[2m   Duration [22m 50.57s[2m (transform 1.41s, setup 0ms, collect 3.87s, tests 114.64s, environment 3ms, prepare 2.83s)[22m
+
+✔ uninstall preview keeps all files; apply removes only exact verified program inventory (148.0744ms)
+✔ uninstall refuses unknown file and modified byte without partial deletion (136.693ms)
+✔ complete inventory is deterministic and requires independent expected checksum (47.1448ms)
+✔ reject Windows/path alias: ../outside (0.3417ms)
+✔ reject Windows/path alias: /absolute (0.0854ms)
+✔ reject Windows/path alias: a/../outside (0.0966ms)
+✔ reject Windows/path alias: C:/outside (0.0711ms)
+✔ reject Windows/path alias: a\b (0.0519ms)
+✔ reject Windows/path alias: file:stream (0.0762ms)
+✔ reject Windows/path alias: dir/NUL.txt (0.0906ms)
+✔ reject Windows/path alias: dir/COM1 (0.0684ms)
+✔ reject Windows/path alias: file. (0.0345ms)
+✔ reject Windows/path alias: dir//file (0.0329ms)
+✔ reject Windows/path alias: ./file (0.0426ms)
+✔ reject Windows/path alias: file  (0.0298ms)
+✔ reject Windows/path alias: dir/.. (0.0258ms)
+✔ tampered, missing and additional files all stop before creating a destination (70.0139ms)
+✔ manifest rejects duplicate, case aliases, private extra fields and missing helper (38.7011ms)
+✔ manifest rejects negative sizes, manifest-self entries and traversal (32.9083ms)
+✔ preview is read-only and first install copies exact bytes without modifying separate user config (137.6766ms)
+✔ existing empty directory is not replaced or removed (36.1558ms)
+✔ copy interruption keeps an incomplete marker and refuses a blind second install (48.548ms)
+✔ source-destination nesting is refused (34.9526ms)
+✔ junction/directory-link in Programs is refused, target untouched (38.0211ms)
+✔ bundle directory links are rejected (47.593ms)
+✔ installer refuses unsupported switches rather than accidentally applying (76.31ms)
+✔ only explicit source inputs are included by builder; launcher uses bundled node (0.9691ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 985.151

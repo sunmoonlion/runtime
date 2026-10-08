@@ -1,0 +1,15 @@
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mC:/Users/zymun/sunmoon-probe-runs/windows-agent-2-20261008/agent[39m
+
+ [32m✓[39m test/windowsBridge.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m test/stage2.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 141[2mms[22m[39m
+ [32m✓[39m test/windowsHttp.test.ts [2m([22m[2m45 tests[22m[2m)[22m[33m 1898[2mms[22m[39m
+   [33m[2m✓[22m[39m native pinned executor HTTP (isolated loopback, no relay)[2m > [22mpasses confirmed endpoint without redirects: streamed=false status=200 [33m 672[2mms[22m[39m
+   [33m[2m✓[22m[39m native pinned executor HTTP (isolated loopback, no relay)[2m > [22mpasses confirmed endpoint without redirects: streamed=true status=200 [33m 618[2mms[22m[39m
+   [33m[2m✓[22m[39m native pinned executor HTTP (isolated loopback, no relay)[2m > [22mpasses confirmed endpoint without redirects: streamed=false status=302 [33m 595[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m62 passed[39m[22m[90m (62)[39m
+[2m   Start at [22m 23:24:29
+[2m   Duration [22m 2.98s[2m (transform 253ms, setup 0ms, collect 496ms, tests 2.05s, environment 0ms, prepare 382ms)[22m
+

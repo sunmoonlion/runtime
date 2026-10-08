@@ -1,0 +1,212 @@
+{
+  "at": "2026-10-08T23:53:15.507505+08:00",
+  "scope": "stage2/stage3 test cleanup only",
+  "preservedDelivery": "/mnt/c/Users/zymun/sunmoon-probe-runs/windows-agent-3-20261008/sunmoon-agent-9f2b5c6",
+  "manifestSha256": "95d9219ee12ffeb9b5a992523f9f8a0a8348bfce3c1b2d5c2be79d52f6511946",
+  "windowsBefore": {
+    "processes": [],
+    "tasks": []
+  },
+  "removed": [
+    {
+      "path": "/mnt/c/Users/zymun/sunmoon-probe-runs/windows-agent-3-20261008/sunmoon-agent-a95910f",
+      "reason": "superseded failed package",
+      "files": 89,
+      "logicalBytes": 500970669,
+      "removed": true
+    },
+    {
+      "path": "/mnt/c/Users/zymun/sunmoon-probe-runs/windows-agent-3a-20261008",
+      "reason": "superseded initial package and source replica",
+      "files": 96,
+      "logicalBytes": 501137789,
+      "removed": true
+    },
+    {
+      "path": "/tmp/sunmoon-agent-windows-a95910f",
+      "reason": "WSL duplicate of superseded package",
+      "files": 89,
+      "logicalBytes": 500970669,
+      "removed": true
+    },
+    {
+      "path": "/tmp/sunmoon-agent-win-x64-c56f68c",
+      "reason": "WSL duplicate of initial package",
+      "files": 82,
+      "logicalBytes": 500928262,
+      "removed": true
+    },
+    {
+      "path": "/tmp/sunmoon-agent-windows-9f2b5c6",
+      "reason": "WSL duplicate; verified Windows delivery retained",
+      "files": 89,
+      "logicalBytes": 500970900,
+      "removed": true
+    },
+    {
+      "path": "/tmp/luna-stage2-app-schema",
+      "reason": "regenerable Codex protocol schema dump",
+      "files": 312,
+      "logicalBytes": 3518717,
+      "removed": true
+    },
+    {
+      "path": "/mnt/c/Users/zymun/sunmoon-probe-runs/windows-agent-2-20261008/live-approval-20261008",
+      "reason": "stopped live probe; sanitized evidence tracked; credential copy already removed",
+      "files": 13,
+      "logicalBytes": 14098,
+      "removed": true
+    },
+    {
+      "path": "/mnt/c/Users/zymun/sunmoon-probe-runs/windows-agent-2-20261008/live-approval-20261008-r2",
+      "reason": "stopped live probe; sanitized evidence tracked; credential copy already removed",
+      "files": 15,
+      "logicalBytes": 11485,
+      "removed": true
+    },
+    {
+      "path": "/mnt/c/Users/zymun/sunmoon-probe-runs/windows-agent-2-20261008/live-mcp-20261008",
+      "reason": "stopped live probe; sanitized evidence tracked; credential copy already removed",
+      "files": 14,
+      "logicalBytes": 15108,
+      "removed": true
+    },
+    {
+      "path": "/mnt/c/Users/zymun/sunmoon-probe-runs/windows-agent-2-20261008/live-mcp-20261008-r2",
+      "reason": "stopped live probe; sanitized evidence tracked; credential copy already removed",
+      "files": 5,
+      "logicalBytes": 15293,
+      "removed": true
+    },
+    {
+      "path": "/tmp/luna-stage2-linux-final.log",
+      "reason": "raw test output archived with identical SHA256",
+      "files": 1,
+      "logicalBytes": 4951,
+      "removed": true
+    },
+    {
+      "path": "/tmp/luna-stage2-linux-tests.log",
+      "reason": "raw test output archived with identical SHA256",
+      "files": 1,
+      "logicalBytes": 4907,
+      "removed": true
+    },
+    {
+      "path": "/tmp/luna-stage2-minimal-pair.log",
+      "reason": "raw test output archived with identical SHA256",
+      "files": 1,
+      "logicalBytes": 4700,
+      "removed": true
+    },
+    {
+      "path": "/tmp/luna-stage2-relay-final.log",
+      "reason": "raw test output archived with identical SHA256",
+      "files": 1,
+      "logicalBytes": 801,
+      "removed": true
+    },
+    {
+      "path": "/tmp/luna-stage2-relay-tests.log",
+      "reason": "raw test output archived with identical SHA256",
+      "files": 1,
+      "logicalBytes": 801,
+      "removed": true
+    },
+    {
+      "path": "/tmp/sunmoon-http-restricted-native.log",
+      "reason": "raw test output archived with identical SHA256",
+      "files": 1,
+      "logicalBytes": 1288,
+      "removed": true
+    },
+    {
+      "path": "/tmp/sunmoon-stage3-bundle-tests.log",
+      "reason": "raw test output archived with identical SHA256",
+      "files": 1,
+      "logicalBytes": 2040,
+      "removed": true
+    },
+    {
+      "path": "/tmp/sunmoon-stage3-final-windows.log",
+      "reason": "raw test output archived with identical SHA256",
+      "files": 1,
+      "logicalBytes": 11054,
+      "removed": true
+    },
+    {
+      "path": "/tmp/sunmoon-stage3-native-final.log",
+      "reason": "raw test output archived with identical SHA256",
+      "files": 1,
+      "logicalBytes": 10965,
+      "removed": true
+    },
+    {
+      "path": "/tmp/sunmoon-stage3-native-pass.log",
+      "reason": "raw test output archived with identical SHA256",
+      "files": 1,
+      "logicalBytes": 10845,
+      "removed": true
+    },
+    {
+      "path": "/tmp/sunmoon-stage3-package-pass.log",
+      "reason": "raw test output archived with identical SHA256",
+      "files": 1,
+      "logicalBytes": 646,
+      "removed": true
+    },
+    {
+      "path": "/tmp/sunmoon-stage3-package-run.log",
+      "reason": "raw test output archived with identical SHA256",
+      "files": 1,
+      "logicalBytes": 1312,
+      "removed": true
+    },
+    {
+      "path": "/tmp/sunmoon-stage3-recovery.log",
+      "reason": "raw test output archived with identical SHA256",
+      "files": 1,
+      "logicalBytes": 223,
+      "removed": true
+    },
+    {
+      "path": "/tmp/sunmoon-stage3-windows-policy.json",
+      "reason": "raw test output archived with identical SHA256",
+      "files": 1,
+      "logicalBytes": 211,
+      "removed": true
+    },
+    {
+      "path": "/tmp/luna-stage3-codex-LICENSE",
+      "reason": "license duplicate; tracked distribution copy is identical",
+      "files": 1,
+      "logicalBytes": 10926,
+      "removed": true
+    },
+    {
+      "path": "/tmp/luna-stage3-codex-NOTICE",
+      "reason": "license duplicate; tracked distribution copy is identical",
+      "files": 1,
+      "logicalBytes": 242,
+      "removed": true
+    },
+    {
+      "path": "/tmp/luna-stage3-node-LICENSE",
+      "reason": "license duplicate; tracked distribution copy is identical",
+      "files": 1,
+      "logicalBytes": 157606,
+      "removed": true
+    },
+    {
+      "path": "/tmp/luna-stage3-node-shasums.txt",
+      "reason": "download checksum list archived unchanged",
+      "files": 1,
+      "logicalBytes": 2967,
+      "removed": true
+    }
+  ],
+  "deliveryVerifiedAfter": true,
+  "removedLogicalBytes": 2508779475,
+  "removedFiles": 822,
+  "archivedBytes": 57711
+}

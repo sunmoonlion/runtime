@@ -1,0 +1,17 @@
+[
+  {
+    "name": "browser-check.txt",
+    "bytes": 11,
+    "sha256": "194115ce89f5837bfb5f5491f7ea389eca5b6c7daf90a113a611a36593be22aa"
+  },
+  {
+    "name": "reconnect-work-20261008.txt",
+    "bytes": 38,
+    "sha256": "39e5ed241ed8cb16a9ed7cf7a096d7d078acb7563315f8d6c958ff3e5c629d36"
+  },
+  {
+    "name": "stage2-permission-check.txt",
+    "bytes": 22,
+    "sha256": "569738e9656a736b65bdf3c431dc351bc0a810542a32abfa757efb16b93d3599"
+  }
+]

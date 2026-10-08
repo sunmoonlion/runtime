@@ -1,0 +1,100 @@
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mC:/Users/zymun/sunmoon-probe-runs/windows-agent-2-20261008/agent[39m
+
+ [32m✓[39m test/outerSandbox.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/localConfirm.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m test/filter.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m test/windowsFilter.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m test/windowsPolicy.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m test/windowsEnvironment.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m test/relayContract.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [31m❯[39m test/windowsBridge.test.ts [2m([22m[2m6 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 19[2mms[22m[39m
+[31m   [31m×[31m Windows bridge follow-up contracts[2m > [22mforces a private desktop even if a remote client requests the interactive desktop[39m[32m 7[2mms[22m[39m
+[31m     → "undefined" is not valid JSON[39m
+   [32m✓[39m Windows bridge follow-up contracts[2m > [22mremoves POSIX read/skip from the forwarded permissions and preserves Windows guards[32m 5[2mms[22m[39m
+   [32m✓[39m Windows bridge follow-up contracts[2m > [22manswers late termination only for this stream, expires after 60 seconds[32m 3[2mms[22m[39m
+   [32m✓[39m Windows bridge follow-up contracts[2m > [22mdoes not learn unrelated executor closed IDs[32m 0[2mms[22m[39m
+   [32m✓[39m Windows bridge follow-up contracts[2m > [22mreturns real helper not-found without counting a ceiling denial[32m 1[2mms[22m[39m
+   [32m✓[39m Windows bridge follow-up contracts[2m > [22maccepts only captured config projection, delegating to fixed-file helper[32m 1[2mms[22m[39m
+{"t":"2026-10-08T15:13:41.510Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:13:41.540Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:13:41.568Z","level":"info","msg":"stream bridged","conn":"becd5c9f","local":"ws://127.0.0.1:63080/"}
+{"t":"2026-10-08T15:13:41.569Z","level":"info","msg":"stream closed","conn":"becd5c9f","why":"agent stopped"}
+{"t":"2026-10-08T15:13:41.578Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:13:41.601Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:13:41.620Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:13:41.690Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:13:41.715Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:13:41.763Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-08T15:13:41.769Z","level":"info","msg":"relay connected"}
+ [32m✓[39m test/stage2.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 217[2mms[22m[39m
+{"t":"2026-10-08T15:13:41.792Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:13:41.828Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:13:41.853Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:13:41.886Z","level":"warn","msg":"沙箱与本地代理的 Codex 版本不一致，已拒绝连接；请更新成配套版本后重试。代理继续等待兼容的连接。"}
+{"t":"2026-10-08T15:13:41.932Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:13:41.952Z","level":"info","msg":"stream bridged","conn":"d2127961","local":"ws://127.0.0.1:63103/"}
+{"t":"2026-10-08T15:13:42.013Z","level":"info","msg":"stream closed","conn":"d2127961","why":"agent stopped"}
+{"t":"2026-10-08T15:13:42.016Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:13:42.044Z","level":"info","msg":"stream bridged","conn":"ee69c47f","local":"ws://127.0.0.1:63108/"}
+{"t":"2026-10-08T15:13:42.104Z","level":"warn","msg":"denied by local ceiling","method":"process/start","reason":"sandbox mode danger-full-access exceeds local ceiling workspace-write"}
+{"t":"2026-10-08T15:13:42.105Z","level":"info","msg":"stream closed","conn":"ee69c47f","why":"agent stopped"}
+{"t":"2026-10-08T15:13:42.110Z","level":"error","msg":"代理令牌无效或已过期。请从网页重新取得 init 命令；不要在日志或对话里粘贴令牌。"}
+{"t":"2026-10-08T15:13:42.143Z","level":"error","msg":"代理令牌无效或已过期。请从网页重新取得 init 命令；不要在日志或对话里粘贴令牌。"}
+{"t":"2026-10-08T15:13:42.376Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:13:42.403Z","level":"error","msg":"同一账号已有另一台代理连接，本代理已停止。请保留需要使用的那一个代理。","code":4000}
+{"t":"2026-10-08T15:13:42.643Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:13:42.670Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-08T15:13:43.082Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:13:43.109Z","level":"error","msg":"同一账号已有另一台代理连接，本代理已停止。请保留需要使用的那一个代理。","code":4000}
+{"t":"2026-10-08T15:13:44.659Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:13:44.688Z","level":"error","msg":"代理令牌已吊销。请在网页“设置 → 本地代理”重新取得 init 命令，在本机执行后再启动。","code":4003}
+ [32m✓[39m test/windowsHttp.test.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 3416[2mms[22m[39m
+   [33m[2m✓[22m[39m native pinned executor HTTP (isolated loopback, no relay)[2m > [22mpasses actual buffered/streamed response frames, streamed=false [33m 2549[2mms[22m[39m
+   [33m[2m✓[22m[39m native pinned executor HTTP (isolated loopback, no relay)[2m > [22mpasses actual buffered/streamed response frames, streamed=true [33m 861[2mms[22m[39m
+{"t":"2026-10-08T15:13:46.222Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T15:13:46.250Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-08T15:13:47.263Z","level":"info","msg":"relay connected"}
+ [32m✓[39m test/relayClient.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 5805[2mms[22m[39m
+   [33m[2m✓[22m[39m RelayClient[2m > [22mdoes not call onRejected on an ordinary disconnect [33m 439[2mms[22m[39m
+   [33m[2m✓[22m[39m RelayClient[2m > [22mdoes not reconnect after close 4000 (replaced by a newer agent for this user) [33m 1578[2mms[22m[39m
+   [33m[2m✓[22m[39m RelayClient[2m > [22mdoes not reconnect after close 4003 (token revoked) [33m 1563[2mms[22m[39m
+   [33m[2m✓[22m[39m RelayClient[2m > [22mreconnects the control channel after the relay drops it [33m 1059[2mms[22m[39m
+ [32m✓[39m test/cli.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 6645[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows CLI capability admission[2m > [22msupports configuration commands and refuses start without a recorded capability probe [33m 5990[2mms[22m[39m
+ [32m✓[39m test/windowsFollowup.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 6862[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows stage 1b follow-up[2m > [22mprojects confirmed HTTP MCP with the native 0.155.1 contract and no project settings [33m 899[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows stage 1b follow-up[2m > [22mrequires local approval and durable audit before a real Windows write; outside remains denied [33m 401[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows stage 1b follow-up[2m > [22mpins temp against swaps and refuses a replaced directory after guard failure [33m 2033[2mms[22m[39m
+ [32m✓[39m test/windowsNative.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 7948[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows adversarial admission[2m > [22melevated OS sandbox blocks ordinary Node writes after a directory swap [33m 828[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows adversarial admission[2m > [22mprobes an existing elevated setup and runs the protected file helper under it [33m 2834[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows adversarial admission[2m > [22mrejects precreated native symbolic links as an ordinary user [33m 707[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows adversarial admission[2m > [22mpins sandbox roots against replacement throughout command launch [33m 392[2mms[22m[39m
+ [32m✓[39m test/windowsResident.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 36933[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows background + tray lifecycle (no real account)[2m > [22mone resident, closing tray keeps it alive, settings remain local, exact stop and restart [33m 34506[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows background + tray lifecycle (no real account)[2m > [22mcloses an aborted local GUI prompt without granting permission [33m 2022[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows background + tray lifecycle (no real account)[2m > [22mall shipped PowerShell scripts parse without altering execution policy [33m 404[2mms[22m[39m
+ [32m✓[39m test/windowsLifecycle.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 50497[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows CLI real lifecycle + loopback relay[2m > [22minitializes, filters, runs commands, survives 20s relay loss, reports revocation and cleans executor tree [33m 50496[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m test/windowsBridge.test.ts[2m > [22mWindows bridge follow-up contracts[2m > [22mforces a private desktop even if a remote client requests the interactive desktop
+[31m[1mSyntaxError[22m: "undefined" is not valid JSON[39m
+[36m [2m❯[22m test/windowsBridge.test.ts:[2m18:57[22m[39m
+    [90m 16| [39m  it("forces a private desktop even if a remote client requests the in…
+    [90m 17| [39m    const bridge=new WindowsBridge(options), frame:any=start(1);frame.…
+    [90m 18| [39m    const response=await send(bridge,frame);expect(JSON.parse(response…
+    [90m   | [39m                                                        [31m^[39m
+    [90m 19| [39m    [35mawait[39m bridge[33m.[39m[34mclose[39m()[33m;[39m
+    [90m 20| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m15 passed[39m[22m[90m (16)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m178 passed[39m[22m[90m (179)[39m
+[2m   Start at [22m 23:13:40
+[2m   Duration [22m 51.60s[2m (transform 1.41s, setup 0ms, collect 3.80s, tests 118.41s, environment 3ms, prepare 3.08s)[22m
+

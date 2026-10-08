@@ -1,0 +1,30 @@
+reject: codex version mismatch: sandbox 0.156.0 vs agent 0.155.1
+reject: bad token
+reject: agent did not open the stream
+reject: bad token
+reject: codex version mismatch: sandbox 0.156.0 vs agent 0.155.1
+reject: unknown conn
+reject: jwt signature
+reject: jwt claims
+reject: jwt claims
+reject: jwt claims
+reject: jwt expired
+reject: jwt issuer
+reject: bad token
+reject: token revoked
+reject: token revoked
+reject: agent offline
+reject: agent offline
+reject: protocol 99 != 1
+reject: bad token
+reject: agent did not open the stream
+reject: bad token
+reject: codex version mismatch: sandbox 0.156.0 vs agent 0.155.1
+reject: unknown conn
+reject: agent offline
+reject: agent offline
+reject: protocol 99 != 1
+----------------------------------------------------------------------
+Ran 39 tests in 1.389s
+
+OK

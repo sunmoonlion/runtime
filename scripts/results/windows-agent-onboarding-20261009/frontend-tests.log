@@ -1,0 +1,56 @@
+
+> investment-web-frontend@2.0.0 test /home/zymun/worktrees/luna/investment-app/investment-web-frontend/app
+> vitest run
+
+
+ RUN  v3.2.4 /home/zymun/worktrees/luna/investment-app/investment-web-frontend/app
+
+ ✓ tests/unit/preview-server.test.ts (16 tests) 336ms
+ ✓ tests/component/cross-app-link.test.tsx (7 tests) 175ms
+ ✓ tests/component/results-panel.test.tsx (4 tests) 207ms
+ ✓ tests/component/agent-onboarding.test.tsx (4 tests) 340ms
+ ✓ tests/component/logout-button.test.tsx (2 tests) 185ms
+ ✓ tests/component/library.test.tsx (3 tests) 657ms
+   ✓ 知识库 > 清单：底稿和交回物自动归入，按项目分组，写明服务端有专属副本  309ms
+   ✓ 知识库 > 一份底稿：版本、内容、来路；改名和拿掉经同一份接口  329ms
+ ✓ tests/component/common-kernel.test.tsx (3 tests) 123ms
+ ✓ tests/component/projects.test.tsx (6 tests) 877ms
+   ✓ 项目列表 > 按工作区分组；归档的默认不显示，勾上才显示  365ms
+ ✓ tests/component/work-screen.test.tsx (3 tests) 712ms
+   ✓ 工作页 > 过程收成一行，改了的文件摆在外面，右边有「改动」  419ms
+ ✓ tests/unit/workbench-contract-samples.test.ts (4 tests) 113ms
+ ✓ tests/component/expert-desk.test.tsx (6 tests) 695ms
+ ✓ tests/component/chat-screen.test.tsx (3 tests) 728ms
+   ✓ 聊天页 > 一段答完了的聊天：三轮、没有数据的卡片、花了多少  345ms
+ ✓ tests/component/public-home.test.tsx (1 test) 144ms
+ ✓ tests/component/expert-run-screen.test.tsx (6 tests) 1086ms
+ ✓ tests/component/dossier-and-machines.test.tsx (13 tests) 1158ms
+   ✓ 底稿页 > 做完的底稿：问了什么、答了什么、凭什么、哪些没做到、我怎么看  437ms
+ ✓ tests/component/home-start.test.tsx (1 test) 65ms
+ ✓ tests/unit/interaction-client.test.ts (6 tests) 56ms
+ ✓ tests/unit/shell-nav.test.ts (8 tests) 21ms
+ ✓ tests/unit/browser-session.test.ts (7 tests) 67ms
+ ✓ tests/unit/cross-app-links.test.ts (10 tests) 49ms
+ ✓ tests/unit/feature-boundaries.test.ts (17 tests) 37ms
+ ✓ tests/unit/chat-thread.test.ts (7 tests) 40ms
+ ✓ tests/unit/agent-onboarding.test.ts (9 tests) 13ms
+ ✓ tests/unit/common-api-client.test.ts (3 tests) 35ms
+ ✓ tests/unit/work-timeline.test.ts (7 tests) 11ms
+ ✓ tests/unit/env.test.ts (14 tests) 28ms
+ ✓ tests/unit/settings-client.test.ts (4 tests) 17ms
+ ✓ tests/unit/projects-model.test.ts (5 tests) 42ms
+ ✓ tests/unit/tracked-env-contract.test.ts (2 tests) 3ms
+ ✓ tests/unit/common-query.test.ts (3 tests) 6ms
+ ✓ tests/unit/expert-run.test.ts (10 tests) 21ms
+ ✓ tests/unit/run-projection.test.ts (4 tests) 9ms
+ ✓ tests/unit/machines-client.test.ts (1 test) 12ms
+ ✓ tests/unit/next-path.test.ts (3 tests) 3ms
+ ↓ tests/unit/interaction-consumer-vectors.test.ts (2 tests | 2 skipped)
+ ✓ tests/unit/content-security-policy.test.ts (2 tests) 3ms
+ ✓ tests/unit/cross-app-destinations.test.ts (1 test) 4ms
+
+ Test Files  36 passed | 1 skipped (37)
+      Tests  205 passed | 2 skipped (207)
+   Start at  02:06:05
+   Duration  5.48s (transform 2.31s, setup 6.59s, collect 11.03s, tests 8.08s, environment 17.75s, prepare 3.32s)
+

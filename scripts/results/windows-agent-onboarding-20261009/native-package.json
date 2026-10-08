@@ -1,0 +1,14 @@
+{
+  "result": "pass",
+  "node": "24.19.0",
+  "codex": "0.155.1",
+  "agent": "0.2.1",
+  "manifestSha256": "d72f5443be1fa13895a92cb97f37b9cef6ce5fe27e7707705f3ee0e56a11f1b2",
+  "files": 90,
+  "withoutNodeOnPath": true,
+  "launchedAgent": false,
+  "realUserInstall": false,
+  "isolatedInstall": "C:\\Users\\zymun\\sunmoon-probe-runs\\windows-agent-3-20261009\\candidate-install-check-bp52QK\\Local\\Programs\\sunmoon-agent",
+  "isolatedInstallRemoved": true,
+  "note": "Fresh Windows without Node, tray, lifecycle, UAC and logon task acceptance are still pending"
+}

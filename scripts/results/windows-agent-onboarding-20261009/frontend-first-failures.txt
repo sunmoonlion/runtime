@@ -1,0 +1,9 @@
+First targeted check: 30 passed, 1 failed.
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "确认换令牌"
+Actual button: "确定更换". Corrected test expectation.
+
+First complete check: feature-boundaries.test.ts failed because machines imported @/features/settings/api/client (2 imports). Machine API moved to machines/api; both features now use existing lib/workbench/http.
+
+Sandbox complete run: 189 passed, 18 skipped, failed suite preview-server.test.ts; hook timeout 10000ms; listen EPERM: operation not permitted 127.0.0.1. Host rerun: 205 passed, 2 pre-existing vector skips.
+
+Sandbox Next build: TurbopackInternalError / globals.css / creating new process / binding to a port / Operation not permitted (os error 1). Host rerun production build passed.

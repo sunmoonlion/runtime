@@ -1,0 +1,4 @@
+One mistaken global pnpm invocation selected 12.0.0 and implicitly reinstalled node_modules. It failed on sandbox network permissions; no lock/source change.
+Pinned 10.24.0 offline restore: ERR_PNPM_NO_OFFLINE_TARBALL @types/ws 8.18.1.
+Pinned 10.24.0 online frozen restore: succeeded, 60 packages; ignore-scripts. Agent packageManager is now pinned to avoid recurrence.
+Dependency lock SHA256: fec73d93cb5c4a09b339a0f3ac598da3ff3f1391eeaae73f444ac2583d58bf72 (unchanged).

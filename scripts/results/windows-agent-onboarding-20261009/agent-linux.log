@@ -1,0 +1,69 @@
+
+> @sunmoon/agent@0.2.1 test /home/zymun/worktrees/luna/runtime/agent
+> vitest run
+
+
+ RUN  v3.2.7 /home/zymun/worktrees/luna/runtime/agent
+
+ ✓ test/hiddenToken.test.ts (10 tests) 22ms
+ ✓ test/windowsFilter.test.ts (24 tests) 12ms
+ ✓ test/filter.test.ts (19 tests) 6ms
+ ✓ test/localConfirm.test.ts (5 tests) 16ms
+ ✓ test/windowsPolicy.test.ts (25 tests) 33ms
+ ✓ test/windowsEnvironment.test.ts (13 tests) 6ms
+ ✓ test/windowsHttp.test.ts (45 tests | 3 skipped) 17ms
+{"t":"2026-10-08T18:10:24.588Z","level":"info","msg":"relay connected"}
+ ✓ test/stage2.test.ts (11 tests) 40ms
+{"t":"2026-10-08T18:10:24.618Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T18:10:24.633Z","level":"info","msg":"stream bridged","conn":"f78bf9de","local":"ws://127.0.0.1:42233/"}
+{"t":"2026-10-08T18:10:24.634Z","level":"info","msg":"stream closed","conn":"f78bf9de","why":"agent stopped"}
+{"t":"2026-10-08T18:10:24.640Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T18:10:24.660Z","level":"info","msg":"relay connected"}
+ ✓ test/outerSandbox.test.ts (5 tests) 5ms
+ ✓ test/windowsBridge.test.ts (8 tests) 135ms
+{"t":"2026-10-08T18:10:24.679Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T18:10:24.727Z","level":"info","msg":"relay connected"}
+ ✓ test/relayContract.test.ts (1 test) 4ms
+ ↓ test/windowsLifecycle.test.ts (1 test | 1 skipped)
+{"t":"2026-10-08T18:10:24.746Z","level":"info","msg":"relay connected"}
+ ↓ test/windowsFollowup.test.ts (9 tests | 9 skipped)
+ ↓ test/windowsResident.test.ts (3 tests | 3 skipped)
+ ↓ test/windowsNative.test.ts (15 tests | 15 skipped)
+{"t":"2026-10-08T18:10:24.780Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-08T18:10:24.783Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T18:10:24.803Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T18:10:24.827Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T18:10:24.847Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T18:10:24.868Z","level":"warn","msg":"沙箱与本地代理的 Codex 版本不一致，已拒绝连接；请更新成配套版本后重试。代理继续等待兼容的连接。"}
+ ✓ test/cli.test.ts (6 tests | 1 skipped) 463ms
+{"t":"2026-10-08T18:10:24.891Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T18:10:24.912Z","level":"info","msg":"stream bridged","conn":"62250b8a","local":"ws://127.0.0.1:45985/"}
+{"t":"2026-10-08T18:10:24.964Z","level":"info","msg":"stream closed","conn":"62250b8a","why":"agent stopped"}
+{"t":"2026-10-08T18:10:24.967Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T18:10:24.987Z","level":"info","msg":"stream bridged","conn":"2e452b43","local":"ws://127.0.0.1:38515/"}
+{"t":"2026-10-08T18:10:25.038Z","level":"warn","msg":"denied by local ceiling","method":"process/start","reason":"sandbox mode danger-full-access exceeds local ceiling workspace-write"}
+{"t":"2026-10-08T18:10:25.039Z","level":"info","msg":"stream closed","conn":"2e452b43","why":"agent stopped"}
+{"t":"2026-10-08T18:10:25.041Z","level":"error","msg":"代理令牌无效或已过期。请从网页重新取得 init 命令；不要在日志或对话里粘贴令牌。"}
+{"t":"2026-10-08T18:10:25.062Z","level":"error","msg":"代理令牌无效或已过期。请从网页重新取得 init 命令；不要在日志或对话里粘贴令牌。"}
+{"t":"2026-10-08T18:10:25.284Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T18:10:25.306Z","level":"error","msg":"同一账号已有另一台代理连接，本代理已停止。请保留需要使用的那一个代理。","code":4000}
+{"t":"2026-10-08T18:10:25.528Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T18:10:25.548Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-08T18:10:25.951Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T18:10:25.971Z","level":"error","msg":"同一账号已有另一台代理连接，本代理已停止。请保留需要使用的那一个代理。","code":4000}
+{"t":"2026-10-08T18:10:27.493Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T18:10:27.513Z","level":"error","msg":"代理令牌已吊销。请在网页“设置 → 本地代理”重新取得 init 命令，在本机执行后再启动。","code":4003}
+{"t":"2026-10-08T18:10:29.037Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T18:10:29.057Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-08T18:10:30.058Z","level":"info","msg":"relay connected"}
+ ✓ test/relayClient.test.ts (17 tests) 5506ms
+   ✓ RelayClient > does not call onRejected on an ordinary disconnect  423ms
+   ✓ RelayClient > does not reconnect after close 4000 (replaced by a newer agent for this user)  1542ms
+   ✓ RelayClient > does not reconnect after close 4003 (token revoked)  1544ms
+   ✓ RelayClient > reconnects the control channel after the relay drops it  1036ms
+
+ Test Files  13 passed | 4 skipped (17)
+      Tests  185 passed | 32 skipped (217)
+   Start at  02:10:24
+   Duration  5.97s (transform 741ms, setup 0ms, collect 2.18s, tests 6.26s, environment 2ms, prepare 1.04s)
+

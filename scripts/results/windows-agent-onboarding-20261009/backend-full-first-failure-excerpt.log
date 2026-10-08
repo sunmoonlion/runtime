@@ -1,0 +1,210 @@
+First full run: Harbor PostgreSQL image has no uuid-ossp extension.
+Raw log SHA256: a5dcb76cc90ee64774b78c38b2d11f586e324d0f462726b9d3e50d2402989bbd
+Excerpt: first error and final summary, duplicate traces omitted.
+.....................EE................................................. [  8%]
+..............................EEEEEEEEE...........EEE...........EEEEEEEE [ 16%]
+EEEE.........EEEEEEEEEEEEEE..EEEEEEEEEEEEE.......EEEEEEEEEEEEE.......... [ 24%]
+........................................................................ [ 32%]
+............ss.......................................................... [ 40%]
+....................sEEEEEEEEEEEEEEEE........EE......................... [ 48%]
+........................................................................ [ 56%]
+........................................................................ [ 65%]
+........................................................................ [ 73%]
+........................................................................ [ 81%]
+........................................................................ [ 89%]
+........................................................................ [ 97%]
+.....................s                                                   [100%]
+==================================== ERRORS ====================================
+_ ERROR at setup of test_user_directory_creates_once_then_refreshes_the_same_user _
+
+self = <sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_cursor object at 0x7862a1c20d00>
+operation = 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public'
+parameters = ()
+
+    async def _prepare_and_execute(self, operation, parameters):
+        adapt_connection = self._adapt_connection
+    
+        async with adapt_connection._execute_mutex:
+            if not adapt_connection._started:
+                await adapt_connection._start_transaction()
+    
+            if parameters is None:
+                parameters = ()
+    
+            try:
+                prepared_stmt, attributes = await adapt_connection._prepare(
+                    operation, self._invalidate_schema_cache_asof
+                )
+    
+                if attributes:
+                    self.description = [
+                        (
+                            attr.name,
+                            attr.type.oid,
+                            None,
+                            None,
+                            None,
+                            None,
+                            None,
+                        )
+                        for attr in attributes
+                    ]
+                else:
+                    self.description = None
+    
+                if self.server_side:
+                    self._cursor = await prepared_stmt.cursor(*parameters)
+                    self.rowcount = -1
+                else:
+>                   self._rows = deque(await prepared_stmt.fetch(*parameters))
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:550: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:177: in fetch
+    data = await self.__bind_execute(args, 0, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:268: in __bind_execute
+    data, status, _ = await self.__do_execute(
+.venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py:257: in __do_execute
+    return await executor(protocol)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   asyncpg.exceptions.FeatureNotSupportedError: extension "uuid-ossp" is not available
+E   HINT:  The extension must first be installed on the system where PostgreSQL is running.
+
+asyncpg/protocol/protocol.pyx:205: FeatureNotSupportedError
+
+The above exception was the direct cause of the following exception:
+
+self = <sqlalchemy.engine.base.Connection object at 0x7862a22c9fa0>
+dialect = <sqlalchemy.dialects.postgresql.asyncpg.PGDialect_asyncpg object at 0x7862a0bb04d0>
+context = <sqlalchemy.dialects.postgresql.asyncpg.PGExecutionContext_asyncpg object at 0x7862a085f530>
+statement = <sqlalchemy.dialects.postgresql.asyncpg.PGCompiler_asyncpg object at 0x7862a16a0770>
+parameters = [()]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+[...]
+E                   [SQL: CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public]
+E                   (Background on this error at: https://sqlalche.me/e/20/dbapi)
+
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py:797: DBAPIError
+=========================== short test summary info ============================
+ERROR tests/test_auth_adapters.py::test_user_directory_creates_once_then_refreshes_the_same_user
+ERROR tests/test_auth_adapters.py::test_login_stores_the_user_through_the_directory
+ERROR tests/test_delivery_clock_regression_db.py::test_released_execution_stays_released_after_clock_regression[claim]
+ERROR tests/test_delivery_clock_regression_db.py::test_released_execution_stays_released_after_clock_regression[renew]
+ERROR tests/test_delivery_clock_regression_db.py::test_released_execution_stays_released_after_clock_regression[guard]
+ERROR tests/test_delivery_clock_regression_db.py::test_unscheduled_enqueue_is_still_publishable_after_clock_regression
+ERROR tests/test_delivery_clock_regression_db.py::test_replay_resets_backoff_but_preserves_immutable_schedule[False]
+ERROR tests/test_delivery_clock_regression_db.py::test_replay_resets_backoff_but_preserves_immutable_schedule[True]
+ERROR tests/test_delivery_clock_regression_db.py::test_reconcile_resets_retry_eligibility_without_wall_clock_gate
+ERROR tests/test_delivery_clock_regression_db.py::test_real_retry_backoff_is_not_bypassed
+ERROR tests/test_delivery_clock_regression_db.py::test_active_lease_is_not_stolen_after_clock_regression
+ERROR tests/test_delivery_metrics_http.py::test_signed_scrape_uses_real_observers_and_is_read_only
+ERROR tests/test_delivery_metrics_http.py::test_database_lock_returns_503_then_fresh_scrape_recovers
+ERROR tests/test_delivery_metrics_http.py::test_malformed_db_value_is_not_partial_metrics_or_leaked_error
+ERROR tests/test_delivery_observation.py::test_empty_and_registered_zero_are_not_reported_as_worker_health
+ERROR tests/test_delivery_observation.py::test_unregistered_topics_are_counted_without_becoming_labels
+ERROR tests/test_delivery_observation.py::test_pending_published_ack_and_reconcile_match_runtime_policy
+ERROR tests/test_delivery_observation.py::test_consumer_override_and_rebuildable_hint_use_actual_policy
+ERROR tests/test_delivery_observation.py::test_future_schedule_and_retry_backoff_are_not_immediate_queue_lag
+ERROR tests/test_delivery_observation.py::test_active_lease_excludes_stalled_then_expiry_recovers
+ERROR tests/test_delivery_observation.py::test_expired_publisher_lease_and_dead_letter_replay
+ERROR tests/test_delivery_observation.py::test_snapshot_is_read_only_and_does_not_change_any_ledger
+ERROR tests/test_delivery_observation.py::test_read_only_database_transaction_rejects_even_trusted_bad_extension
+ERROR tests/test_delivery_observation.py::test_database_lock_timeout_and_recovery
+ERROR tests/test_delivery_observation.py::test_caller_cancel_propagates_and_connection_recovers
+ERROR tests/test_delivery_observation.py::test_malformed_schedule_fails_instead_of_emitting_partial_zero
+ERROR tests/test_delivery_observation.py::test_select_only_role_can_collect_and_revocation_fails
+ERROR tests/test_delivery_observation.py::test_server_statement_timeout_is_independent_of_outer_budget
+ERROR tests/test_delivery_progress.py::test_uncommitted_and_rolled_back_receipts_are_not_progress
+ERROR tests/test_delivery_progress.py::test_handler_transaction_is_not_complete_before_commit
+ERROR tests/test_delivery_progress.py::test_handler_rollback_then_recovery_and_duplicate_do_not_overcount
+ERROR tests/test_delivery_progress.py::test_only_exact_consumer_and_retained_topic_receipts_count
+ERROR tests/test_delivery_progress.py::test_retention_and_out_of_order_record_times_are_not_monotonic_counters
+ERROR tests/test_delivery_progress.py::test_nonfinite_receipt_time_fails_snapshot_instead_of_emitting_metrics[False-infinity]
+ERROR tests/test_delivery_progress.py::test_nonfinite_receipt_time_fails_snapshot_instead_of_emitting_metrics[False--infinity]
+ERROR tests/test_delivery_progress.py::test_nonfinite_receipt_time_fails_snapshot_instead_of_emitting_metrics[True-infinity]
+ERROR tests/test_delivery_progress.py::test_nonfinite_receipt_time_fails_snapshot_instead_of_emitting_metrics[True--infinity]
+ERROR tests/test_delivery_progress.py::test_progress_is_available_in_existing_prometheus_output
+ERROR tests/test_delivery_progress_http.py::test_signed_receipt_scrape_and_invalid_timestamp_fail_closed
+ERROR tests/test_delivery_progress_worker.py::test_prefork_pause_pong_receipts_recovery_duplicate_and_rollback
+ERROR tests/test_delivery_schedule.py::test_future_message_neither_publishes_nor_takes_worker_lease
+ERROR tests/test_delivery_schedule.py::test_due_message_works_after_publisher_advances_transport_backoff
+ERROR tests/test_delivery_schedule.py::test_due_message_also_works_through_repository_claim
+ERROR tests/test_delivery_schedule.py::test_schedule_is_immutable_idempotent_intent_not_mutable_backoff
+ERROR tests/test_delivery_schedule.py::test_retry_cannot_add_a_schedule_to_an_existing_immediate_intent
+ERROR tests/test_delivery_schedule.py::test_mutated_dto_cannot_forge_reserved_header
+ERROR tests/test_delivery_schedule.py::test_reconcile_and_dead_letter_replay_do_not_advance_original_timer
+ERROR tests/test_delivery_schedule.py::test_transport_retry_keeps_schedule_and_backoff
+ERROR tests/test_delivery_schedule.py::test_successor_business_and_inbox_are_one_transaction[body]
+ERROR tests/test_delivery_schedule.py::test_successor_business_and_inbox_are_one_transaction[commit]
+ERROR tests/test_delivery_schedule.py::test_successor_business_and_inbox_are_one_transaction[None]
+ERROR tests/test_delivery_schedule.py::test_lost_worker_cannot_leave_successor_without_ack[lease]
+ERROR tests/test_delivery_schedule.py::test_lost_worker_cannot_leave_successor_without_ack[cancel]
+ERROR tests/test_durable_delivery_db.py::test_business_and_intent_rollback_together
+ERROR tests/test_durable_delivery_db.py::test_intent_idempotency_rejects_changed_payload
+ERROR tests/test_durable_delivery_db.py::test_duplicate_delivery_commits_once
+ERROR tests/test_durable_delivery_db.py::test_handler_failure_rolls_back_business_and_inbox
+ERROR tests/test_durable_delivery_db.py::test_lost_broker_message_dead_letter_replay_and_ack
+ERROR tests/test_durable_delivery_db.py::test_broker_failure_is_bounded_and_error_is_sanitized
+ERROR tests/test_durable_delivery_db.py::test_expired_delivery_owner_cannot_publish_or_release_new_owner
+ERROR tests/test_durable_delivery_db.py::test_expired_execution_cannot_commit_intermediate_progress
+ERROR tests/test_durable_delivery_db.py::test_heartbeat_protects_long_execution_and_reconcile
+ERROR tests/test_durable_delivery_db.py::test_ack_and_effect_rollback_when_final_commit_fails
+ERROR tests/test_durable_delivery_db.py::test_unknown_topic_is_never_dispatched
+ERROR tests/test_durable_delivery_db.py::test_migration_downgrade_upgrade_preserves_outbox
+ERROR tests/test_durable_delivery_db.py::test_repeated_publisher_crashes_are_bounded
+ERROR tests/test_schema_readiness.py::test_revision_http_aliases_fail_closed[healthy]
+ERROR tests/test_schema_readiness.py::test_revision_http_aliases_fail_closed[empty]
+ERROR tests/test_schema_readiness.py::test_revision_http_aliases_fail_closed[old]
+ERROR tests/test_schema_readiness.py::test_revision_http_aliases_fail_closed[ahead]
+ERROR tests/test_schema_readiness.py::test_revision_http_aliases_fail_closed[multi]
+ERROR tests/test_schema_readiness.py::test_revision_http_aliases_fail_closed[missing]
+ERROR tests/test_schema_readiness.py::test_probe_does_not_write_and_does_not_cache_database_readiness
+ERROR tests/test_schema_readiness.py::test_real_migration_downgrade_and_forward
+ERROR tests/test_schema_readiness.py::test_api_principal_requires_only_version_select
+ERROR tests/test_schema_readiness.py::test_redis_failure_is_private_and_recovers[exception]
+ERROR tests/test_schema_readiness.py::test_redis_failure_is_private_and_recovers[negative_ping]
+ERROR tests/test_schema_readiness.py::test_connection_error_and_broken_packaging_are_private
+ERROR tests/test_schema_readiness.py::test_slow_redis_is_cancelled_by_probe_budget
+ERROR tests/test_schema_readiness.py::test_database_lock_timeout_releases_connection_and_recovers[0.0]
+ERROR tests/test_schema_readiness.py::test_database_lock_timeout_releases_connection_and_recovers[0.1]
+ERROR tests/test_schema_readiness.py::test_caller_cancellation_is_not_turned_into_ready_or_503
+ERROR tests/test_session_config.py::test_a_loaded_object_can_be_read_after_commit
+ERROR tests/test_session_config.py::test_values_written_elsewhere_need_an_explicit_refresh
+798 passed, 4 skipped, 84 errors in 127.76s (0:02:07)

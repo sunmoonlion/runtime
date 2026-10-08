@@ -1,0 +1,63 @@
+{
+  "source_revision": "6de600279ffc1996e19409b1bd6c4ee1eb1eccbe",
+  "package": "/mnt/c/Users/zymun/sunmoon-probe-runs/windows-agent-3-20261009/sunmoon-agent-6de6002",
+  "archive": "/mnt/c/Users/zymun/sunmoon-probe-runs/windows-agent-3-20261009/sunmoon-agent-0.2.1-6de6002-windows-x64.zip",
+  "files": 90,
+  "uncompressed_bytes": 500978970,
+  "zip_bytes": 174243923,
+  "zip_sha256": "2d5421627198b9cf2eccf15d88b726c80d46f4180e2db30606120f5bd52aea5a",
+  "manifest_sha256": "d72f5443be1fa13895a92cb97f37b9cef6ce5fe27e7707705f3ee0e56a11f1b2",
+  "all_files_roundtrip_verified": true,
+  "largest_files": [
+    {
+      "path": "app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/bin/codex.exe",
+      "size": 307108144,
+      "sha256": "eba0f32c976667cb9298efafd98513e823eeda7b576a03ec658bb8be8d336316"
+    },
+    {
+      "path": "node/node.exe",
+      "size": 92825416,
+      "sha256": "3602f2bb1a10f2cbab4c36886218a33c1ab3db87290e73b033c46c77147d0237"
+    },
+    {
+      "path": "app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/bin/codex-code-mode-host.exe",
+      "size": 72473904,
+      "sha256": "480da4a9a98b5b54d6656d731fbcc00c73fd4d0fc4b9aaceafc9fbdf08a7d523"
+    },
+    {
+      "path": "app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-resources/codex-windows-sandbox-setup.exe",
+      "size": 15498544,
+      "sha256": "a430e15894ef450ee9003459597f95b3e3db5ac1e260f662bbc5d7db4e855047"
+    },
+    {
+      "path": "app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-resources/codex-command-runner.exe",
+      "size": 8217904,
+      "sha256": "0431ee03aaf7e3c2ecda92017ef2fb9750d66221917467132c2136f078924b6c"
+    },
+    {
+      "path": "app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-path/rg.exe",
+      "size": 4218880,
+      "sha256": "14231169855ec5205cf5a1b6f1db358ff4aed4247c86b69ce8aae647c77f6680"
+    },
+    {
+      "path": "licenses/node-LICENSE",
+      "size": 157606,
+      "sha256": "148eacf7863ef4329224a29398623077200a27194aa075569faf4a0a85566ca5"
+    },
+    {
+      "path": "app/node_modules/ws/lib/websocket.js",
+      "size": 37367,
+      "sha256": "de5add831db49e159d3ee0adb1c5e042eba3af13166374c5584f4fc520d1e734"
+    },
+    {
+      "path": "app/node_modules/smol-toml/dist/index.cjs",
+      "size": 26378,
+      "sha256": "c08f704d59f97bec616ad50583e85ef688cb61ef3d5a9bcef53a81157a72bb00"
+    },
+    {
+      "path": "app/node_modules/ws/lib/receiver.js",
+      "size": 17439,
+      "sha256": "a6ada33c9a2d54eaf595824b821ea89ca2c6395f89aa06755c52142148274884"
+    }
+  ]
+}

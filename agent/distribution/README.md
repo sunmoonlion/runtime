@@ -129,7 +129,10 @@ node --test agent/distribution/test/bundle.test.mjs
 Node 版本/摘要来自已固定的官方物料；生成全文件 SHA256、固定源码提交和锁文件摘要。
 Node/Codex LICENSE/NOTICE 存 `licenses/`，其余许可证随依赖。输出不能预先存在。
 
-当前固定包 `21f864b` 及原始结果见 [第三阶段结果](../../scripts/results/windows-agent-3.20261009.md)。
+当前下载接入候选为 **0.2.1 / `6de6002`**；包路径、ZIP 与清单摘要、原生检查和发布前待办见
+[接入实施记录](../../scripts/results/windows-agent-onboarding.20261009.md)。未配置托管地址、未发布。
+`21f864b` 保留为此前完整启停闭环的可信包，结果见 [第三阶段结果](../../scripts/results/windows-agent-3.20261009.md)；
+它不支持新网页的隐藏输入命令，不能替代 0.2.1。
 此前 `9f2b5c6` 候选已核对清理；不要使用旧报告里的目录作为当前安装入口。
 
 ## 第三阶段任务表

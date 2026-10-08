@@ -1,0 +1,16 @@
+{
+  "test_containers": [
+    {
+      "container": "sunmoon-onboarding-tests-20261009",
+      "expected_id_prefix": "691fcdce094ce",
+      "confirmed_absent": true
+    },
+    {
+      "container": "sunmoon-onboarding-pg18-tests-20261009",
+      "expected_id_prefix": "dd06553112c2840a",
+      "confirmed_absent": true
+    }
+  ],
+  "new_test_image_removed": "sha256:0377e72c5289ed2f98cf61b1a9c2db9eb9d300317fe14244492fbc94343b3d04",
+  "no_prune_or_business_mutation": true
+}

@@ -9,12 +9,15 @@ const isHash = value => typeof value === 'string' && HEX.test(value);
 const REQUIRED = [
   'node/node.exe', 'licenses/node-LICENSE', 'licenses/codex-LICENSE', 'licenses/codex-NOTICE',
   'app/package.json', 'app/dist/cli.js', 'app/native/helper.mjs',
+  'app/dist/resident.js', 'app/dist/windowsDesktop.js', 'app/native/desktop.ps1', 'app/native/run-hidden.vbs',
   'app/node_modules/@openai/codex/package.json',
   'app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/bin/codex.exe',
   'app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-resources/codex-command-runner.exe',
   'app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-resources/codex-windows-sandbox-setup.exe',
   'app/node_modules/smol-toml/package.json', 'app/node_modules/ws/package.json',
   'sunmoon-agent.cmd', 'install.cmd', 'installer/install.mjs', 'installer/bundle.mjs',
+  'uninstall.cmd', 'installer/uninstall.mjs',
+  'app/native/elevated-setup.ps1',
 ];
 
 export function relativeFile(name) {
@@ -178,4 +181,17 @@ export function firstInstall({ source, localAppData, expectedManifestHash, apply
   try { verifyBundle(destination, expectedManifestHash); }
   catch (error) { fs.writeFileSync(marker, 'verification failed', { flag: 'wx' }); throw error; }
   return plan;
+}
+
+// No recursive rm. Unknown, modified or linked files fail before any removal.
+export function removeVerifiedBundle(directory, expectedManifestHash, apply = false) {
+  const manifest = verifyBundle(directory, expectedManifestHash);
+  const plan = { directory, files: manifest.files.length + 1, apply };
+  if (!apply) return plan;
+  for (const entry of [...manifest.files, {path: MANIFEST}]) {
+    plainDirectory(path.dirname(path.join(directory, entry.path)));
+    fs.unlinkSync(path.join(directory, entry.path));
+  }
+  function empty(dir) { plainDirectory(dir); for(const name of fs.readdirSync(dir)){ const full=path.join(dir,name);if(!fs.lstatSync(full).isDirectory())throw new Error('Unexpected file appeared during removal');empty(full); }fs.rmdirSync(dir); }
+  empty(directory); return plan;
 }

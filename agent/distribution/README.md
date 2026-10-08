@@ -1,87 +1,125 @@
-# Windows 发行目录与首次安装
+# Windows 安装与日常操作
 
-本目录负责把代理变成不依赖用户另装 Node 的 Windows x64 单目录包。
-目前是**第 3 段的 3a 候选**；托盘、常驻和自启尚未交付。用户于 2026-10-08
-允许在 Cursor 验收第 2 段时，先做第 3 段独立工作。组包不改变 `agent/src/` 的运行流程。
+单目录包包含官方 Node 24.19.0、Codex 0.155.1、JS 和系统 PowerShell/WinForms 界面。
+不编译自有 exe，不要求用户安装 Node/Python，不增加 Electron/原生依赖，不关闭应用控制。
+版本入口为 `windows-x64.json`。执行能力仍在 `agent/src/`，托盘只调用同一个 CLI。
 
-## 任务表
+## 安装和首次连接
 
-| 顺序 | 完成条件 | 当前状态 |
+由可信交付记录取得清单 SHA256，在运行包内程序之前核对摘要及来源。包内清单只能
+检查完整性，不能作为发布者签名。若 Smart App Control、WDAC 或 PowerShell 策略阻止，
+记录具体程序与策略后停止；不要修改执行策略或关闭应用控制来通过。
+
+```powershell
+Get-FileHash .\bundle-manifest.json -Algorithm SHA256
+.\install.cmd --manifest-sha256 '<可信记录中的 SHA256>'
+.\install.cmd --manifest-sha256 '<同一 SHA256>' --apply
+```
+
+固定每用户目录 `%LOCALAPPDATA%\Programs\sunmoon-agent`。默认只安装，不启动、
+不自启、不提权、不设置全局 PATH。已存在目标或安装中断标记均停止，不能覆盖未知文件。
+之后从**安装目录**执行工作台发给你自己的 `init` 命令；令牌不转发给其他人。
+首次仍使用网页拿命令的方式，浏览器登录是第二期。已有配置时先停止后台再 `init`。
+
+`init` 会真实探测沙箱能力。普通用户默认 unelevated，无管理员也能使用。
+可选管理员沙箱入口在完成 init 且代理停止后使用：
+
+```powershell
+.\sunmoon-agent.cmd sandbox-setup --elevated
+```
+
+这是**唯一可选 UAC**：只调用官方 `codex sandbox setup --elevated --current-user`，
+固定到代理自己的 codex-home。拒绝用另一管理员账号替代当前用户。成功后再次实际探测，
+确认 elevated 可用才保存模式；取消、失败不自动降权。超时先检查现场，不重复发起 UAC。
+本轮未执行这个可选入口；普通 unelevated 路径不受它影响。
+
+## 日常控制
+
+均在安装目录使用；未指定 `SUNMOON_AGENT_HOME` 时使用 `%USERPROFILE%\.sunmoon-agent`。
+
+| 操作 | 命令/入口 | 行为 |
 | --- | --- | --- |
-| 3a.1 | 固定 Node、Codex、依赖版本和来源；不编译自有 exe | 已实现，Node 24.19.0 与现有原生验证版本一致 |
-| 3a.2 | 干净源码编译、白名单组包、全文件摘要、必要 helper 和许可证齐全 | 已实现；以结果记录中的真实构建为验收依据 |
-| 3a.3 | 首次安装预览/执行；拒绝覆盖与路径别名；保留用户配置 | 已实现；先在隔离目录验证 |
-| 3b | 单实例后台进程、状态、停止、托盘与本机权限确认 | 未实施，接入第 2 段验收后的运行版本 |
-| 3c | 当前用户登录任务、可选 elevated setup、升级/卸载 | 未实施；默认不提权、不自启 |
-| 3d | 所有者在未装过 Node 的 Windows 上安装；重启与关闭界面验收 | 待完整候选，不能用本机检查代替 |
+| 启动 | `sunmoon-agent.cmd start --background` | 单实例、隐藏后台；重复启动不会多开 |
+| 看状态 | `sunmoon-agent.cmd status` | running、relay 状态及原因；成功查询退出 0，是否运行看 running |
+| 托盘 | `sunmoon-agent.cmd tray` | 查看连接原因、启停、白名单、权限、自启 |
+| 关闭界面 | 托盘“退出托盘”或 `tray stop` | 后台继续；不等于停止代理 |
+| 停止 | `sunmoon-agent.cmd stop` | 匹配 PID 与本轮随机身份，正常清理执行进程，不杀未知进程 |
+| 自启开关 | `autostart enable / disable / status` | 当前用户登录任务，Limited、非管理员；默认关闭 |
+| 配置 | 托盘“白名单与上限设置” | 选择目录、只读/工作区写入、网络开关；保存后 stop/start 生效 |
+| 前台诊断 | `sunmoon-agent.cmd start` | 终端交互和日志；前台/后台共用单实例锁 |
 
-## 为什么用单目录包
+托盘与后台分离，登录任务用系统 wscript 隐藏启动二者，不弹控制台。
+任务名 `SunMoonAgent-<配置目录摘要>`，只有名称、说明和执行路径均匹配才修改/删除。
+令牌吊销/被替换的退出不会触发任务自动重试；重新取得令牌是人工动作。
+自启任务的手动触发可以验证启动链，**不能代替整机重启验收**。
 
-包含官方 `node.exe`、编译后的 `app/dist/`、纯 JS 依赖和完整 Windows Codex 平台包。
-不使用 pkg/SEA，不把 Node 编译成自有 exe，也不增加 Electron 或原生编译依赖。
-这满足所有者“Node helper、不编译自己的 exe”的要求。托盘技术接入时仍须在当前应用控制下验证，
-不能用关闭 Smart App Control 或扩大本地权限换取运行成功。
+## 本机授权与边界
 
-`windows-x64.json` 是本发行目标的版本与物料入口。Node 选择已用于第 2 段原生测试的
-24.19.0；这不是“当前最新版本”的声明。Codex 固定 0.155.1、会合点协议 1、代理 0.2.0。
-Node 摘要来自[官方校验清单](https://nodejs.org/dist/v24.19.0/SHASUMS256.txt)。
-`licenses/` 保留对应版本的完整 [Node LICENSE](https://raw.githubusercontent.com/nodejs/node/v24.19.0/LICENSE)、
-[Codex LICENSE](https://raw.githubusercontent.com/openai/codex/rust-v0.155.1/LICENSE) 和
-[NOTICE](https://raw.githubusercontent.com/openai/codex/rust-v0.155.1/NOTICE)。ws、smol-toml 的许可证随 npm 包原样保留。
+后台收到允许申请的权限提升时，以系统 WinForms 展示程序、目录、权限范围和请求摘要。
+人工输入本次短码并点击允许；窗口关闭、60 秒超时、断线均拒绝。答案只走私有子进程
+stdin/stdout，不开 localhost 批准接口、不存批准文件。远端命令强制 Codex 私有桌面，
+控制目录与安装代码禁止作为可写项目根。确认后仍须经过工作台持久化审计回执。
+`danger-full-access` 和新增白名单根不能在这个弹窗中获批；临时权限断线失效。
 
-## 维护者组包
+同一 Windows 用户的任意恶意本地进程不是普通用户安装器的隔离边界。
+后台不会提供无交互的自动同意方式。GUI 正向真实授权留所有者后续验收；CLI 真实授权已有结果。
 
-先准备使用 `agent/pnpm-lock.yaml` 安装的 Windows 依赖（`pnpm install --frozen-lockfile --ignore-scripts`），
-以及与上述官方摘要一致的 Node 可执行文件。构建机有开发用 Node 和已安装的 TypeScript；
-最终用户不需要。组包入口不下载文件、不调用 npm 生命周期、不读取用户配置。
+## 日志与故障
 
-在 runtime 根目录，先本地提交源码，再执行：
+`%LOCALAPPDATA%\sunmoon-agent\logs\agent.log`：每份 2 MiB，共 5 份。
+不记录令牌、确认码、用户输入、命令正文和执行器原始输出。托盘状态显示 `lastError`/`lastNotice`。
+配置保持私有，执行器家不含登录态。退出或禁用自启不会删除配置和项目文件。
+脚本被策略拒绝时 GUI/任务会失败，仍保留前台诊断入口，不能自动 bypass 策略。
+
+## 卸载和手动升级
+
+使用保留的**外部交付目录**运行，不能让正在使用的 installed node.exe 删除自己。
+
+```powershell
+.\uninstall.cmd --manifest-sha256 '<交付摘要>'
+.\uninstall.cmd --manifest-sha256 '<同一摘要>' --apply
+# 明确不要配置与令牌时，额外加 --remove-config；默认不删除。
+```
+
+先全目录验真，再删除本实例的自启任务、关闭托盘、正常停代理。全部成功后才按清单
+逐文件移除安装目录；未知文件、修改或链接导致停止，不使用递归强删。部分文件被占用时
+保留现场并报告失败，不宣称卸载完成。默认配置和日志保留。
+
+`--remove-config` 只允许删除默认专用 `.sunmoon-agent`，另删五个自有日志文件；
+自定义配置目录、未知顶层文件、链接均拒绝。用户 `.codex` 和项目目录不删除。
+外部包与已装版本不同时，增加 `--installed-manifest-sha256 '<已装版本可信摘要>'`。
+
+第一期手动升级：核对新包 → 卸载旧程序（保留配置）→ 安装新包 → 启动/检查 →
+按需重新启用自启。失败保留配置并用旧可信包重装。自动下载、验签更新与自动回滚属第二期。
+
+## 维护者组包与回归
+
+依赖必须由 `agent/pnpm-lock.yaml` 冻结安装在 Windows agent 目录。
+不下载、不执行 npm 生命周期、不复制用户配置。提交源码后从 runtime 根目录：
 
 ```sh
 node agent/distribution/build.mjs \
   --node-exe '/path/to/verified/node.exe' \
-  --dependencies '/path/to/windows-agent-with-frozen-node_modules' \
-  --output '/path/to/new/sunmoon-agent-win-x64'
-```
-
-- `--dependencies` 指 Windows **agent 目录**，含 package.json、锁文件和已安装 node_modules；不会整目录复制。
-- 重新编译本仓干净源码，只复制 dist、native helper、四个固定生产包、许可证和安装入口；不带 pnpm/npm、测试、源码映射、日志、`.codex` 或代理私有家。
-- 同时带平台包的 sandbox setup、command runner、code-mode host、rg 等资源，不能只抄 `codex.exe`。
-- pnpm 的根链接解析成实目录后，逐文件复制成普通文件；输出不依赖开发机 node_modules 的链接。
-- 输出目录必须不存在。失败的 `.sunmoon-package-*` 工作目录保留定位，按结果清单处理；入口不自动清理旧包。
-- 构建收据含源码提交、锁文件摘要、文件数、总字节数和 `bundle-manifest.json` 的 SHA256。
-- 每次组包要求源码固定、锁文件一致；依赖来自可信的冻结安装环境。版本名与组包后摘要本身不能证明上游供应链未被篡改。
-
-## 候选首次安装
-
-交付包另附可信渠道提供的校验摘要，**执行前**核对。目录内清单用于查损坏与遗漏，
-不构成发布者签名；不能把“包自带的摘要等于自己”当来源认证。
-这里只支持首次安装。尚未实现安全升级、停后台进程和卸载，所以已有目标目录时必须停止。
-
-```powershell
-.\sunmoon-agent.cmd --version
-.\install.cmd --manifest-sha256 '<交付记录中的清单 SHA256>'
-# 确认预览后再执行：
-.\install.cmd --manifest-sha256 '<同一个 SHA256>' --apply
-```
-
-固定目标 `%LOCALAPPDATA%\Programs\sunmoon-agent`。默认不启动、不提权、不设 PATH、不注册任务；
-已有 `%USERPROFILE%\.sunmoon-agent` 配置/令牌保持原样。首次安装用独占目录并保留未完成标记；
-复制中断会拒绝重复覆盖，不能声称已安装。路径检查拒绝链接、联接、ADS、目录穿越等，
-但普通用户安装器不构成对同一 Windows 账号下恶意本地进程的隔离边界。
-
-安装后当前 CLI 仍可通过安装目录内的 `sunmoon-agent.cmd` 使用；令牌只来自用户本人的工作台。
-第三段完整验收前，仍按第二段既定方式联调，不把此候选自动连接到现网。
-
-## 检查与尚待验收
-
-```sh
+  --dependencies '/path/to/windows-agent' \
+  --output '/path/to/new/delivery'
+pnpm --dir agent build
+pnpm --dir agent test
 node --test agent/distribution/test/bundle.test.mjs
 ```
 
-Linux/Windows 都运行同一份组包检查与隔离安装测试。原生 Windows 还须对真实包检查
-Node/Codex/代理版本、依赖和 helper 定位、首次安装；用清空 Node 搜索路径的子进程验证
-启动器只用包内运行时。这与“未装过 Node 的新机器验收”分别记录。
+组包仅复制白名单生产文件、完整 Codex Windows 资源、固定依赖、许可证与入口。
+Node 版本/摘要来自已固定的官方物料；生成全文件 SHA256、固定源码提交和锁文件摘要。
+Node/Codex LICENSE/NOTICE 存 `licenses/`，其余许可证随依赖。输出不能预先存在。
 
-本次不会创建后台任务、触发 UAC、调整应用控制、复用真实令牌或覆盖 Cursor 的第 2 段测试目录。
-后续托盘确认不能变成任何云端命令都能调用的 localhost 提权接口；在接入前必须单独审查 IPC 身份与权限边界。
+## 第三阶段任务表
+
+| 项目 | 实现状态 | 验收边界 |
+| --- | --- | --- |
+| 发行目录、校验、首次安装 | 已实现 | 原生真实包验证记录见最新 windows-agent-3 报告 |
+| 单实例后台、启停、状态、托盘 | 已实现 | 普通用户原生启停及关托盘后保活已验证 |
+| 设置窗口、确认窗口 | 已实现 | 取消拒绝已验证；GUI 人工正向确认待补 |
+| 登录任务 | 已实现 | 当前用户 Limited 注册/触发/清理已验证；真实重启待补 |
+| 可选 UAC setup | 已实现 | 静态解析通过，实际 UAC 未执行 |
+| 卸载、保留或删除配置 | 已实现 | 隔离真实包结果见最新报告；不触及真实配置 |
+| 干净 Windows 10/11 | 待所有者 | 不能用开发机清空 PATH 宣布通过 |
+| 真实 MCP、旧投影追踪 | 所有者决定延后 | 属第二阶段未完成验收，不阻塞本轮第三阶段代码 |

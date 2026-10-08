@@ -19,6 +19,8 @@ import { type WindowsHelper, WindowsTemporary, assertWindowsHome, locateWindowsH
 import { canonicalPath } from "./pathuri.js";
 import { importCandidates, loadMcp, saveMcp } from "./mcp.js";
 import { localConfirm } from "./localConfirm.js";
+import { windowsConfirm } from "./windowsDesktop.js";
+import { acquireResident, autostart, preferences, readResidentStatus, residentAlive, runTray, closeTray, startResident, stopResident, setupElevated } from "./resident.js";
 
 const VERSION = "0.2.0";
 const STATUS_PATH = path.join(CONFIG_DIR, "status.json");
@@ -43,6 +45,7 @@ async function main(argv: string[]): Promise<number> {
   if (cmd === "--version") { console.log(VERSION); return 0; }
 
   if (cmd === "init") {
+    if (process.platform === "win32" && await residentAlive()) throw new Error("Stop the running agent before replacing its configuration");
     const cfg: AgentConfig = { ...defaultConfig() };
     cfg.relayUrl = arg("--relay", argv) ?? cfg.relayUrl;
     cfg.userId = arg("--user", argv) ?? cfg.userId;
@@ -60,6 +63,15 @@ async function main(argv: string[]): Promise<number> {
 
   const cfg = loadConfig();
   registerSecret(cfg.token);
+  if (["stop", "tray", "autostart", "settings", "sandbox-setup"].includes(cmd)) {
+    if (process.platform !== "win32") throw new Error("Windows lifecycle command");
+    if (cmd === "stop") console.log(JSON.stringify({ stopped: await stopResident() }));
+    if (cmd === "tray") { if (argv[1] === "stop") console.log(JSON.stringify({ closed: await closeTray() })); else if (!argv[1]) await runTray(); else throw new Error("tray [stop]"); }
+    if (cmd === "autostart") console.log(JSON.stringify(await autostart(argv[1] ?? "status")));
+    if (cmd === "settings") console.log(JSON.stringify(preferences(argv.slice(1))));
+    if (cmd === "sandbox-setup") { if(argv.length!==2||argv[1]!=="--elevated")throw new Error("Optional UAC: sandbox-setup --elevated"); console.log(JSON.stringify(await setupElevated())); }
+    return 0;
+  }
   if (cmd === "mcp") {
     const file = path.join(CONFIG_DIR, "mcp.json");
     if (argv[1] === "list") { console.log(JSON.stringify(loadMcp(file), null, 2)); return 0; }
@@ -73,7 +85,7 @@ async function main(argv: string[]): Promise<number> {
     let imported = 0;
     console.log(`可导入 ${Object.keys(servers).length} 个 HTTP MCP；跳过 ${skipped} 个不支持/含认证字段的条目。`);
     for (const [name, server] of Object.entries(servers)) {
-      const approved = await localConfirm(`导入 MCP ${JSON.stringify(name)}：${JSON.stringify(server)}\n它的 URL/公开配置会供云端读取；请确认 URL 路径本身也不含口令。连接由云端发起，本机 localhost 不能当作云端 localhost。`);
+      const approved = await localConfirm(`导入 MCP ${JSON.stringify(name)}：${JSON.stringify(server)}\n它的 URL/公开配置会供云端读取；请确认 URL 路径本身也不含口令。固定版 Codex 将 HTTP 请求交给本机执行；localhost 指本机。还须本机网络上限开启，导入不会自动开启网络。`);
       if (approved) { selected[name] = server; imported++; }
     }
     if (!imported) { console.log("没有条目获得本机确认，配置未变更。"); return 1; }
@@ -97,14 +109,22 @@ async function main(argv: string[]): Promise<number> {
     usage(); return 2;
   }
   if (cmd === "status") {
+    if (process.platform === "win32") { console.log(JSON.stringify({ ...(readResidentStatus() ?? {}), running: await residentAlive() })); return 0; }
     if (!fs.existsSync(STATUS_PATH)) { console.log("没在跑（没有 status.json）"); return 1; }
     console.log(fs.readFileSync(STATUS_PATH, "utf8")); return 0;
   }
-  if (cmd === "start") return start(cfg);
+  if (cmd === "start") {
+    if (argv.slice(1).some(v => !["--background", "--background-worker"].includes(v)) || argv.length > 2) throw new Error("start [--background]");
+    if (argv[1] === "--background") { await startResident(); console.log(JSON.stringify({ started: true })); return 0; }
+    return start(cfg, argv[1] === "--background-worker");
+  }
   usage(); return 2;
 }
 
-async function start(cfg: AgentConfig): Promise<number> {
+async function start(cfg: AgentConfig, windowed = false): Promise<number> {
+  if (windowed && process.platform !== "win32") throw new Error("Background worker is Windows-only");
+  let requestedStop = false;
+  const resident = process.platform === "win32" ? await acquireResident(() => { requestedStop = true; process.emit("SIGINT"); }) : undefined;
   if (process.platform === "win32") {
     if (!process.env.LOCALAPPDATA) throw new Error("LOCALAPPDATA is required for agent logs");
     configureWindowsLogs(path.join(process.env.LOCALAPPDATA, "sunmoon-agent", "logs"), cfg.token);
@@ -134,12 +154,12 @@ async function start(cfg: AgentConfig): Promise<number> {
     windows: windows ? { ...windows, executorEnvironment: () => es.windowsEnv } : undefined, relayUrl: cfg.relayUrl, userId: cfg.userId, token: cfg.token, codexVersion: codex.version, softwareVersion: VERSION,
     localUrl: () => es.url, ceiling: () => cfg.ceiling, roots: () => cfg.roots, machineName: () => cfg.machineName,
     onRejected: (reason) => onRejected(reason),
-    confirmPermission: windows ? localConfirm : undefined,
+    confirmPermission: windows ? (windowed ? windowsConfirm : localConfirm) : undefined,
   });
   relay.start();
 
   const writeStatus = () => {
-    const st = { version: VERSION, pid: process.pid, codex: codex.version, execServer: { url: es.url, alive: es.alive, sandboxed: es.sandboxed, generation: es.generation, ...(windows ? { protection: "inner-sandbox+strict-protocol", windowsSandbox: cfg.windowsSandbox } : {}) }, relay: { url: cfg.relayUrl, status: relay.status, lastError: relay.lastError, lastNotice: relay.lastNotice }, ceiling: cfg.ceiling, roots: cfg.roots, bridge: relay.stats, at: new Date().toISOString() };
+    const st = { version: VERSION, pid: process.pid, ...(resident ? { runId: resident.runId, background: windowed } : {}), codex: codex.version, execServer: { url: es.url, alive: es.alive, sandboxed: es.sandboxed, generation: es.generation, ...(windows ? { protection: "inner-sandbox+strict-protocol", windowsSandbox: cfg.windowsSandbox } : {}) }, relay: { url: cfg.relayUrl, status: relay.status, lastError: relay.lastError, lastNotice: relay.lastNotice }, ceiling: cfg.ceiling, roots: cfg.roots, bridge: relay.stats, at: new Date().toISOString() };
     fs.mkdirSync(CONFIG_DIR, { recursive: true, mode: 0o700 });
     const safe = safeData(st);
     fs.writeFileSync(STATUS_PATH, JSON.stringify(safe, null, 2), { mode: 0o600 });
@@ -164,11 +184,13 @@ async function start(cfg: AgentConfig): Promise<number> {
       if (code !== 0) writeStatus(); // 保留最后状态（含被拒原因），便于用户与托盘查看
       relay.stop(); srv.close(); await es.stop(); releaseRoots?.(); await windows?.temporary.close();
       if (code === 0) { try { fs.unlinkSync(STATUS_PATH); } catch {} }
+      await resident?.close();
       resolve(code);
     };
     onRejected = (reason) => void shutdown(`relay rejected: ${reason}`, EXIT_REJECTED);
     process.once("SIGINT", () => void shutdown("SIGINT", 0));
     process.once("SIGTERM", () => void shutdown("SIGTERM", 0));
+    if (requestedStop) void shutdown("stop requested during startup", 0);
   });
 }
 
@@ -179,7 +201,13 @@ function usage(): void {
   mcp import | list   本机逐项确认导入无凭据 HTTP MCP；拒绝管道输入确认
   ceiling show | set [--sandbox read-only|workspace-write|danger-full-access] [--network on|off]
   start      前台运行；被会合点拒绝（令牌无效、被吊销、被同用户的新代理顶掉）时退出，退出码 3
-  status`);
+  status
+  start --background   Windows 后台运行，本机确认用独立窗口
+  stop                 Windows 正常停止；不强杀未知进程
+  tray [stop]          Windows 托盘；关闭托盘不停止代理
+  settings show|set    本机设置；set 从 stdin 读非秘密 JSON，重启后生效
+  autostart status|enable|disable   当前用户登录任务，默认关闭
+  sandbox-setup --elevated         可选 UAC；先停止代理，仅同一 Windows 用户`);
 }
 
 main(process.argv.slice(2)).then((code) => process.exit(code), (e) => { log("error", "fatal", { error: String(e?.stack ?? e) }); process.exit(1); });

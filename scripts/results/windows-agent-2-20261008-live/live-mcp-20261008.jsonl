@@ -1,0 +1,36 @@
+{"at":"2026-10-08T14:29:20.469Z","event":"native-console","pid":30640,"tty":true,"ceiling":"read-only","lifetimeMinutes":45}
+{"at":"2026-10-08T14:30:48.828Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:30:48.830Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:30:48.831Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:30:48.833Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:30:48.834Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:30:48.835Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:30:48.836Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:30:48.872Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:30:48.927Z","event":"projection","keys":["cwd","configPaths","requirementsPaths"],"configPaths":[["mcp_servers"]],"requirementsPaths":[["mcp_servers"]],"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject"}
+{"at":"2026-10-08T14:30:48.960Z","event":"denied","method":"unsupported-method","reason":"method is not in the Windows allowlist"}
+{"at":"2026-10-08T14:30:48.966Z","event":"projection","keys":["cwd","configPaths","requirementsPaths"],"configPaths":[["mcp_servers"]],"requirementsPaths":[["mcp_servers"]],"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject"}
+{"at":"2026-10-08T14:30:48.974Z","event":"denied","method":"unsupported-method","reason":"method is not in the Windows allowlist"}
+{"at":"2026-10-08T14:30:48.986Z","event":"denied","method":"unsupported-method","reason":"method is not in the Windows allowlist"}
+{"at":"2026-10-08T14:30:50.004Z","event":"projection","keys":["cwd","configPaths","requirementsPaths"],"configPaths":[["mcp_servers"]],"requirementsPaths":[["mcp_servers"]],"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject"}
+{"at":"2026-10-08T14:30:50.013Z","event":"denied","method":"unsupported-method","reason":"method is not in the Windows allowlist"}
+{"at":"2026-10-08T14:30:50.027Z","event":"denied","method":"unsupported-method","reason":"method is not in the Windows allowlist"}
+{"at":"2026-10-08T14:30:51.041Z","event":"projection","keys":["cwd","configPaths","requirementsPaths"],"configPaths":[["mcp_servers"]],"requirementsPaths":[["mcp_servers"]],"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject"}
+{"at":"2026-10-08T14:30:51.047Z","event":"denied","method":"unsupported-method","reason":"method is not in the Windows allowlist"}
+{"at":"2026-10-08T14:30:51.057Z","event":"denied","method":"unsupported-method","reason":"method is not in the Windows allowlist"}
+{"at":"2026-10-08T14:30:52.073Z","event":"projection","keys":["cwd","configPaths","requirementsPaths"],"configPaths":[["mcp_servers"]],"requirementsPaths":[["mcp_servers"]],"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject"}
+{"at":"2026-10-08T14:30:52.080Z","event":"denied","method":"unsupported-method","reason":"method is not in the Windows allowlist"}
+{"at":"2026-10-08T14:30:52.091Z","event":"denied","method":"unsupported-method","reason":"method is not in the Windows allowlist"}
+{"at":"2026-10-08T14:30:53.108Z","event":"projection","keys":["cwd","configPaths","requirementsPaths"],"configPaths":[["mcp_servers"]],"requirementsPaths":[["mcp_servers"]],"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject"}
+{"at":"2026-10-08T14:30:53.115Z","event":"denied","method":"unsupported-method","reason":"method is not in the Windows allowlist"}
+{"at":"2026-10-08T14:30:53.128Z","event":"denied","method":"unsupported-method","reason":"method is not in the Windows allowlist"}
+{"at":"2026-10-08T14:30:54.144Z","event":"projection","keys":["cwd","configPaths","requirementsPaths"],"configPaths":[["mcp_servers"]],"requirementsPaths":[["mcp_servers"]],"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject"}
+{"at":"2026-10-08T14:30:54.152Z","event":"denied","method":"unsupported-method","reason":"method is not in the Windows allowlist"}
+{"at":"2026-10-08T14:30:54.162Z","event":"denied","method":"unsupported-method","reason":"method is not in the Windows allowlist"}
+{"at":"2026-10-08T14:30:55.177Z","event":"projection","keys":["cwd","configPaths","requirementsPaths"],"configPaths":[["mcp_servers"]],"requirementsPaths":[["mcp_servers"]],"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject"}
+{"at":"2026-10-08T14:30:55.184Z","event":"denied","method":"unsupported-method","reason":"method is not in the Windows allowlist"}
+{"at":"2026-10-08T14:30:55.196Z","event":"denied","method":"unsupported-method","reason":"method is not in the Windows allowlist"}
+{"at":"2026-10-08T14:30:56.212Z","event":"projection","keys":["cwd","configPaths","requirementsPaths"],"configPaths":[["mcp_servers"]],"requirementsPaths":[["mcp_servers"]],"cwd":"file:///C:/Users/zymun/sunmoon-probe-runs/windows-agent-1b-20261007/workspace/myproject"}
+{"at":"2026-10-08T14:30:56.220Z","event":"denied","method":"unsupported-method","reason":"method is not in the Windows allowlist"}
+{"at":"2026-10-08T14:30:56.231Z","event":"denied","method":"unsupported-method","reason":"method is not in the Windows allowlist"}
+{"at":"2026-10-08T14:32:04.674Z","event":"exit","code":0}

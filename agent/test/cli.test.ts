@@ -37,7 +37,8 @@ describe.skipIf(process.platform !== "win32")("Windows CLI capability admission"
       expect(run("roots", "list").stdout).toContain(workspace);
       expect(run("ceiling", "set", "--sandbox", "read-only", "--network", "off").status).toBe(0);
       expect(JSON.parse(run("ceiling", "show").stdout)).toEqual({ sandbox: "read-only", network: false });
-      expect(run("status").status).toBe(1);
+      expect(run("status").status).toBe(0);
+      expect(JSON.parse(run("status").stdout).running).toBe(false);
       const cfg = JSON.parse(readFileSync(path.join(home, "config.json"), "utf8"));
       expect(cfg.windowsSandbox.mode).toBe("unelevated"); expect(cfg.windowsSandbox.probe).toBe("process/start");
       delete cfg.windowsSandbox; writeFileSync(path.join(home, "config.json"), JSON.stringify(cfg));

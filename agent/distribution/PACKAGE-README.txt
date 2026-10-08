@@ -1,31 +1,53 @@
-SunMoonAI Windows agent — stage 3a candidate, not the final desktop installer
+SunMoonAI Windows agent — stage 3 candidate
 
-This directory includes official Node 24.19.0 and Codex 0.155.1 executables.
-No separately installed Node/npm/pnpm/Python is required to run it.
-The agent and its exec-server use the required Windows inner sandbox.
-Node and Codex license/notice files are in licenses/; other library licenses
-remain beside their packages in app/node_modules/.
+Official Node 24.19.0 + Codex 0.155.1 + JavaScript. No separately installed
+Node, npm, pnpm, Python or custom compiled executable is needed.
+Licenses are included. Windows 10/11 x64, current user's interactive session.
 
-Obtain this candidate only from the owner-approved delivery, and verify the
-delivery checksum BEFORE executing anything. bundle-manifest.json checks file
-integrity; an unsigned manifest is NOT proof of who published the package.
-This package is unsigned. Do not disable Windows application control to run it.
-If Windows blocks it, record the program name and policy and stop for review.
+Obtain the directory and manifest SHA256 through the owner-approved channel.
+An unsigned manifest checks integrity, not publisher identity. Do not disable
+application control or bypass PowerShell execution policy if blocked.
 
-In PowerShell, from this directory:
-  .\sunmoon-agent.cmd --version
-  .\sunmoon-agent.cmd --help
-  .\install.cmd --manifest-sha256 <SHA256 from the delivery record>
-The last command is a preview only. Add --apply for first installation into
-%LOCALAPPDATA%\Programs\sunmoon-agent. Existing installations are refused.
-An interrupted installation is kept for inspection, never deleted silently.
+From the delivery directory, PowerShell:
+  .\install.cmd --manifest-sha256 <delivery SHA256>
+  .\install.cmd --manifest-sha256 <delivery SHA256> --apply
+First command previews; second installs into
+%LOCALAPPDATA%\Programs\sunmoon-agent. Existing targets are never overwritten.
+Installation does not start, enable autostart, change PATH or elevate.
 
-Installation does not start the agent, create a logon task, request elevation,
-change PATH, initialize an account or touch existing ~/.sunmoon-agent data.
-After installation, use the installed sunmoon-agent.cmd for current CLI actions.
-Get the init command/token from your own workbench, never from another user's
-configuration or from a shared package. Do not send tokens in bug reports.
+Use sunmoon-agent.cmd in the INSTALLED directory:
+  init ...                 Paste your own workbench-issued init arguments.
+                           Never share the token. Select specific project roots.
+  start --background       One background agent; local approvals use a GUI.
+  tray                     Status, start/stop, roots and permissions settings.
+  tray stop                Close tray only; background stays running.
+  status                   Running state, connectivity and refusal reason.
+  stop                     Gracefully stop this agent and its executor tree.
+  autostart enable          Current-user logon task, Limited privileges.
+  autostart disable         Remove this configuration's matching task.
+  autostart status          Inspect task without changes.
+  sandbox-setup --elevated  Optional UAC after init, while stopped. Same user only.
+                           Skip it to use the unelevated sandbox.
+  mcp import               Foreground confirmation; no credentials imported.
+                           HTTP runs locally and requires network ceiling on.
 
-Tray, background lifecycle, optional logon task, optional elevated setup,
-upgrade/uninstall, and clean-Windows owner acceptance are still pending.
-Keep using the agreed stage-2 test workflow until those pieces are accepted.
+Settings take effect after stop/start. Local approval requires the displayed
+fresh code and Allow button. Close, timeout or disconnect refuses. It cannot
+remove sandboxing or add roots; a durable server audit receipt is also required.
+
+Uninstall from the EXTERNAL delivery directory (keep it until uninstall):
+  .\uninstall.cmd --manifest-sha256 <delivery SHA256>
+  .\uninstall.cmd --manifest-sha256 <delivery SHA256> --apply
+Removes matching task, closes tray, stops agent, removes verified program files.
+Configuration/token and logs remain by default. Add --remove-config explicitly
+only to delete the dedicated DEFAULT %USERPROFILE%\.sunmoon-agent and the five
+owned rotating logs. Custom SUNMOON_AGENT_HOME deletion is refused. Unknown or
+modified installed files stop removal. For a different installed version add
+--installed-manifest-sha256 with that version's trusted delivery checksum.
+Manual upgrade: uninstall preserving config, install the verified new package,
+start and re-enable autostart if desired. Automatic update is out of scope.
+Your separate %USERPROFILE%\.codex is untouched.
+
+Candidate for owner/Fable review. Clean Windows 10/11, actual reboot, optional
+UAC setup and live GUI approval are separate acceptance items. Local tests alone
+do not mean full production acceptance.

@@ -1,5 +1,94 @@
 # CHECKPOINT（runtime 仓，分支 luna）
 
+## 当前停点：先提交现状，再收窄 HTTP，最后安装闭环（2026-10-08 23:20）
+
+所有者最新顺序：①先提交全部改动与本节；②`http/request` 只准本机确认过的精确 MCP
+地址/路径、禁止跳转、禁网拒绝，补越界测试并提交；③有时间再实跑安装→启动→关托盘→
+停止→卸载并提交。**23:50 前停手做最后提交**。真实 MCP、整机重启自启、干净机器仍待验。
+
+### 本次已在 Windows 真机验证
+
+- 第二段真实本机 CLI 人工批准、后端事务提交、relay recorded 回执、随后 Windows 写入；
+  网络仍关闭。报告 `scripts/results/windows-agent-2.20261008-2315.md`。
+- 本机普通用户原生回归 **179/179**；Linux **148 通过、31 Windows 专用跳过**。
+- 发行清单/隔离安装与卸载单元检查 Windows、Linux 各 **27/27**。
+- 原生后台单实例、停止/再启动、关托盘后后台仍在、设置保存、拒绝配置根变为可写根、
+  拒绝过期 stop 身份、GUI 取消不放行、登录任务 Limited 注册→手动触发→移除。
+- 原生固定 Codex HTTP 的普通/流式回环响应；**只在合成配置、隔离端口测试**。
+- 20 秒连接闪断后执行器保活、吊销退出和进程树清理仍通过。
+
+### 只有代码，或不能当作已通过
+
+- 新版完整发行包还未组包；`probe/windows-stage3-package.mjs` 已写但**尚未执行**。
+  已测的是源码原生后台和发行器单元，不是本轮真实安装包的完整闭环。
+- 可选 UAC setup：脚本解析已验，真实 UAC 与 elevated 安装未执行。
+- GUI 真实人工“允许”后完整审计链未验；已验 CLI 真实批准和 GUI 取消拒绝。
+- 真实联网 MCP、两次旧投影拒绝的完整 cwd 定位、真实重启自启、干净 Windows 10/11
+  **待验**。开发机去掉 Node PATH 也不能代表干净机器。
+- 当前 HTTP 代码仅检查协议字段及网络上限，**地址约束尚未达到所有者最新要求**，下一提交
+  必须收窄之后才组交付候选；不把这一中间提交作为完成品。
+
+### 本轮失败输出与处置（保留，不掩盖）
+
+第一次 Linux 在工作区沙箱内运行，回环/子进程权限被阻止，并误收 node:test 文件：
+
+```text
+Error: listen EPERM: operation not permitted 127.0.0.1
+Error: No test suite found in file .../distribution/test/bundle.test.mjs
+Tests 21 failed | 126 passed | 28 skipped (175)
+```
+
+改为经批准的宿主测试；新增 `vitest.config.ts` 明确只收 `test/**/*.test.ts`，发行测试用
+`node --test` 单独运行。最新 Linux 148/31、发行 27 通过。
+
+Windows 第一次多出一个旧 status 退出码断言失败（此前无 status 文件退出 1，现在查询
+成功返回 JSON `running:false`、退出 0）：
+
+```text
+FAIL test/cli.test.ts > Windows CLI capability admission
+AssertionError: expected +0 to be 1
+expect(run("status").status).toBe(1);
+Tests 1 failed | 175 passed (176)
+```
+
+更新为检查退出 0 和 running:false。第二次新增桌面测试把已经被策略拒绝的 false 当作
+应被转发，失败如下（完整输出见 `windows-failed-before-assertion-fix.log`）：
+
+```text
+FAIL test/windowsBridge.test.ts > Windows bridge follow-up contracts
+> forces a private desktop even if a remote client requests the interactive desktop
+SyntaxError: "undefined" is not valid JSON
+Tests 1 failed | 178 passed (179)
+```
+
+保留拒绝策略，修正断言为“false 拒绝；省略时转发强制 true”。最新 Windows 179/179，
+完整输出：`scripts/results/windows-agent-3-20261008/windows-179-pass.log`。
+未解决的真实 MCP 拒绝/旧投影信息见第二段最新报告，不列为测试已通过。
+
+### Windows 如何重跑（普通 PowerShell，无真实令牌）
+
+当前隔离副本：`C:\Users\zymun\sunmoon-probe-runs\windows-agent-2-20261008\agent`。
+先用当前提交更新 src、test、native、distribution、vitest.config.ts；副本依赖保持锁定。
+
+```powershell
+Set-Location 'C:\Users\zymun\sunmoon-probe-runs\windows-agent-2-20261008\agent'
+$Node = 'C:\Program Files\nodejs\node.exe'
+$env:SUNMOON_TEST_ELEVATED_HOME = 'C:\Users\zymun\.codex-probe-exec'
+$env:SUNMOON_TEST_SYMLINK_FIXTURE = 'C:\Users\zymun\sunmoon-probe-runs\windows-agent-2-native-links-20261008'
+& $Node node_modules/typescript/bin/tsc -p tsconfig.json
+if ($LASTEXITCODE -ne 0) { throw 'compile failed' }
+& $Node node_modules/vitest/vitest.mjs run
+if ($LASTEXITCODE -ne 0) { throw 'native tests failed' }
+& $Node --test distribution/test/bundle.test.mjs
+if ($LASTEXITCODE -ne 0) { throw 'distribution tests failed' }
+```
+
+既有 elevated 家必须无认证数据，不复制 `.sandbox-secrets`；符号链接夹具是此前单独准备的。
+测试创建独立临时目录和本用户任务，使用合成令牌/本机回环，最后移除自己的任务。
+GUI 取消测试会短暂打开明确标注的隔离窗口，不要批准它；不执行 UAC 或真实重启。
+
+以下是此前记录，状态以本节及之后追加的停点为准。
+
 ## 并行准备：第 3 段组包与首次安装（2026-10-08）
 
 所有者明确允许先做第三段独立工作，覆盖任务书原先“等第二段审完再开始”的顺序限制。

@@ -13,6 +13,12 @@ const send = (bridge: WindowsBridge, frame: any) => bridge.receive(JSON.stringif
 const terminate = (bridge: WindowsBridge, processId = "p1") => send(bridge, { id: 9, method: "process/terminate", params: { processId } });
 afterEach(() => { vi.useRealTimers(); vi.clearAllMocks(); });
 describe("Windows bridge follow-up contracts", () => {
+  it("rejects interactive desktop requests and adds a private desktop when the field is omitted",async()=>{
+    const bridge=new WindowsBridge(options), frame:any=start(1);frame.params.sandbox.windowsSandboxPrivateDesktop=false;
+    expect((await send(bridge,frame)).reason).toBeTruthy();delete frame.params.sandbox.windowsSandboxPrivateDesktop;
+    const response=await send(bridge,frame);expect(JSON.parse(response.forward!).params.sandbox.windowsSandboxPrivateDesktop).toBe(true);
+    await bridge.close();
+  });
   it("removes POSIX read/skip from the forwarded permissions and preserves Windows guards", async () => {
     const bridge = new WindowsBridge(options), frame: any = start(1);
     const guard = (uri: string) => ({ path: { type: "path", path: uri }, access: "read", missing_path_behavior: "skip" });

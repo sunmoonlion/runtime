@@ -62,7 +62,7 @@ export function validate(cfg: AgentConfig): void {
   try { const u = new URL(cfg.relayUrl); if (!["ws:", "wss:"].includes(u.protocol) || u.username || u.password || u.search || u.hash) throw new Error(); }
   catch { throw new Error("relayUrl 必须是 ws:// 或 wss://，且不能包含口令、查询参数或片段"); }
   if (!cfg.userId) throw new Error("userId 不能为空");
-  if (!cfg.machineName || cfg.machineName.length > 128) throw new Error("machineName 要有，且不超过 128 个字符");
+  if (typeof cfg.machineName !== "string" || !cfg.machineName.trim() || cfg.machineName.length > 128 || /[\x00-\x1f\x7f]/.test(cfg.machineName)) throw new Error("machineName 要有，且不超过 128 个字符、不含控制字符");
   for (const r of cfg.roots) {
     if (canonicalPath(r) === null) throw new Error(`白名单根必须是受支持的本地绝对路径：${r}`);
   }

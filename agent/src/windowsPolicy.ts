@@ -36,6 +36,7 @@ const METHODS: Record<string, string[]> = {
   "fs/walk": ["path", "options", "sandbox"],
   "fs/open": ["path", "handleId", "sandbox"],
   "fs/readBlock": ["handleId", "offset", "len"], "fs/close": ["handleId"],
+  "http/request": ["method", "url", "headers", "bodyBase64", "timeoutMs", "redirectPolicy", "requestId", "streamResponse"],
 };
 export const windowsMethodLabel = (method: unknown): string => typeof method === "string" && Object.hasOwn(METHODS, method) ? method : "unsupported-method";
 export const FS_WRITES = new Set(["fs/writeFile", "fs/createDirectory", "fs/remove", "fs/copy"]);
@@ -54,7 +55,7 @@ export function isInapplicableWindowsReadGuard(entry: any): boolean {
 
 export function windowsDecision(frame: any, ceiling: Ceiling, roots: readonly string[], codexHome?: string, temporary?: string): Decision {
   const method = typeof frame?.method === "string" ? frame.method : "";
-  const kind: Decision["kind"] = method.startsWith("process/") ? "process" : FS_WRITES.has(method) ? "fs-write" : method.startsWith("fs/") ? "fs-read" : "other";
+  const kind: Decision["kind"] = method.startsWith("process/") ? "process" : FS_WRITES.has(method) ? "fs-write" : method.startsWith("fs/") ? "fs-read" : method === "http/request" ? "http" : "other";
   const no = (reason: string): Decision => ({ allow: false, kind, reason });
   const ok: Decision = { allow: true, kind };
   if (!only(frame, ["id", "method", "params", "jsonrpc"]) || (frame.jsonrpc !== undefined && frame.jsonrpc !== "2.0")) return no("invalid RPC envelope");
@@ -82,6 +83,29 @@ export function windowsDecision(frame: any, ceiling: Ceiling, roots: readonly st
     // No arbitrary TOML key, filename, requirements file or project config.
     const selection = (v: any) => Array.isArray(v) && v.length === 1 && Array.isArray(v[0]) && v[0].length === 1 && v[0][0] === "mcp_servers";
     return codexHome && within(p.cwd, true) && selection(p.configPaths) && selection(p.requirementsPaths) ? ok : no("unsupported executor config projection");
+  }
+  if (method === "http/request") {
+    if (!ceiling.network) return no("http/request exceeds local ceiling (network disabled)");
+    if (!["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"].includes(p.method)
+      || !string(p.url) || p.url.length > 8192 || /[\x00-\x20\x7f\\]/.test(p.url)) return no("invalid HTTP method or URL");
+    try {
+      const u = new URL(p.url);
+      if (!["http:", "https:"].includes(u.protocol) || u.username || u.password || u.hash) return no("unsupported HTTP URL");
+    } catch { return no("invalid HTTP URL"); }
+    // Never resolve headers from local environment variables. That would let
+    // a cloud caller exfiltrate values held only on the user's Windows machine.
+    const headers = p.headers === undefined ? [] : p.headers;
+    if (!Array.isArray(headers) || headers.length > 64 || !headers.every(h =>
+      only(h, ["name", "value"]) && string(h.name) && /^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/.test(h.name)
+      && typeof h.value === "string" && !/[\x00-\x08\x0a-\x1f\x7f]/.test(h.value))
+      || JSON.stringify(headers).length > 32768) return no("invalid HTTP headers or local environment lookup");
+    if (p.bodyBase64 != null && (typeof p.bodyBase64 !== "string" || p.bodyBase64.length > 12 * 1024 * 1024
+      || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(p.bodyBase64))) return no("invalid HTTP body");
+    if (p.timeoutMs != null && (!Number.isSafeInteger(p.timeoutMs) || p.timeoutMs < 0 || p.timeoutMs > 600000)) return no("invalid HTTP timeout");
+    if (p.redirectPolicy !== undefined && !["follow", "stop"].includes(p.redirectPolicy)) return no("invalid HTTP redirect policy");
+    if (!string(p.requestId) || p.requestId.length > 128 || /[\x00-\x20\x7f]/.test(p.requestId)
+      || (p.streamResponse !== undefined && typeof p.streamResponse !== "boolean")) return no("invalid HTTP stream fields");
+    return ok;
   }
   if (method === "process/start") {
     if (!string(p.processId) || !Array.isArray(p.argv) || !p.argv.length || !p.argv.every(string) || !object(p.env) || !Object.values(p.env).every(v => typeof v === "string") || typeof p.tty !== "boolean") return no("invalid process fields");

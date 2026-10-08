@@ -79,7 +79,7 @@ try {
     version: sourcePackage.version, private: true, type: 'module', engines: sourcePackage.engines,
     dependencies: Object.fromEntries(settings.packages.filter(p => !p.resolveFrom).map(p => [p.installName, p.version])),
   }, null, 2) + '\n', { flag: 'wx' });
-  copyFile(path.join(agent, 'native/helper.mjs'), path.join(staging, 'app/native/helper.mjs'));
+  for (const name of ['helper.mjs', 'desktop.ps1', 'run-hidden.vbs', 'elevated-setup.ps1']) copyFile(path.join(agent, 'native', name), path.join(staging, 'app/native', name));
   for (const [spec, directory] of roots) {
     const target = `app/node_modules/${spec.installName}`;
     makeSubdirectory(staging, target);
@@ -89,8 +89,8 @@ try {
   for (const file of ['node-LICENSE', 'codex-LICENSE', 'codex-NOTICE']) {
     copyFile(path.join(here, 'licenses', file), path.join(staging, 'licenses', file));
   }
-  for (const file of ['bundle.mjs', 'install.mjs']) copyFile(path.join(here, file), path.join(staging, 'installer', file));
-  for (const file of ['sunmoon-agent.cmd', 'install.cmd']) {
+  for (const file of ['bundle.mjs', 'install.mjs', 'uninstall.mjs']) copyFile(path.join(here, file), path.join(staging, 'installer', file));
+  for (const file of ['sunmoon-agent.cmd', 'install.cmd', 'uninstall.cmd']) {
     const content = fs.readFileSync(path.join(here, file), 'utf8').replace(/\r?\n/g, '\r\n');
     fs.writeFileSync(path.join(staging, file), content, { flag: 'wx' });
   }

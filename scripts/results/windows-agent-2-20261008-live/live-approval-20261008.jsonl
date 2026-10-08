@@ -1,0 +1,45 @@
+{"at":"2026-10-08T14:13:09.226Z","event":"native-console","pid":2052,"tty":true,"ceiling":"read-only","lifetimeMinutes":45}
+{"at":"2026-10-08T14:15:00.331Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.333Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.381Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.385Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.422Z","event":"projection","keys":["cwd","configPaths","requirementsPaths"],"configPaths":[["mcp_servers"]],"requirementsPaths":[["mcp_servers"]],"cwdKind":"other"}
+{"at":"2026-10-08T14:15:00.423Z","event":"denied","method":"environmentConfig/read","reason":"unsupported executor config projection"}
+{"at":"2026-10-08T14:15:00.433Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.437Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.448Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.546Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.550Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.554Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.576Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.581Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.582Z","event":"projection","keys":["cwd","configPaths","requirementsPaths"],"configPaths":[["mcp_servers"]],"requirementsPaths":[["mcp_servers"]],"cwdKind":"other"}
+{"at":"2026-10-08T14:15:00.735Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.805Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.807Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.808Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.809Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.811Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.873Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.875Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.875Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.877Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:15:00.877Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:16:16.090Z","event":"permission-report","id":"f80d21de-d8c2-4945-b2af-1cff2bc7863e","conn":"375f1368","threadId":"01a11ad1-53f3-7711-8509-b367c7696c65","requestDigest":"0bbcb74134f3d64c773ded8138865cb59e5f2ec135af340ffb67511bf353eb6d","permissionDigest":"e55b44ee8a7145beea28c4a8a9d4750d019b2d5f3d1f188effb20dc8d6757604","decision":"denied","scope":{"sandbox":"workspace-write","network":false},"expiresAt":1791470716}
+{"at":"2026-10-08T14:16:20.830Z","event":"permission-receipt","id":"f80d21de-d8c2-4945-b2af-1cff2bc7863e","recorded":true}
+{"at":"2026-10-08T14:16:20.831Z","event":"denied","method":"process/start","reason":"write permission exceeds local ceiling read-only"}
+{"at":"2026-10-08T14:17:31.470Z","event":"permission-report","id":"a8295021-df6b-4f8e-b425-bb4c8a6203ff","conn":"375f1368","threadId":"01a11ad1-53f3-7711-8509-b367c7696c65","requestDigest":"685578b4338fcdcead09ae66f15196fe71211d8e23f45f9772fb82dcea92ecdd","permissionDigest":"e55b44ee8a7145beea28c4a8a9d4750d019b2d5f3d1f188effb20dc8d6757604","decision":"denied","scope":{"sandbox":"workspace-write","network":false},"expiresAt":1791470795}
+{"at":"2026-10-08T14:17:40.941Z","event":"permission-receipt","id":"a8295021-df6b-4f8e-b425-bb4c8a6203ff","recorded":true}
+{"at":"2026-10-08T14:17:40.941Z","event":"denied","method":"process/start","reason":"write permission exceeds local ceiling read-only"}
+{"at":"2026-10-08T14:19:32.947Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:19:32.949Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:19:32.953Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:19:32.974Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:19:32.976Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:19:32.977Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:19:32.978Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:19:32.980Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:20:35.396Z","event":"permission-report","id":"0f4e206d-2968-4904-b4b4-5823b96b2066","conn":"375f1368","threadId":"01a11ad1-53f3-7711-8509-b367c7696c65","requestDigest":"57f033c6b61718a201e670d7ab14fe46a71ed1987201165f6c111fde85f0d623","permissionDigest":"e55b44ee8a7145beea28c4a8a9d4750d019b2d5f3d1f188effb20dc8d6757604","decision":"denied","scope":{"sandbox":"workspace-write","network":false},"expiresAt":1791470981}
+{"at":"2026-10-08T14:20:41.177Z","event":"permission-receipt","id":"0f4e206d-2968-4904-b4b4-5823b96b2066","recorded":true}
+{"at":"2026-10-08T14:20:41.177Z","event":"denied","method":"process/start","reason":"write permission exceeds local ceiling read-only"}
+{"at":"2026-10-08T14:24:34.622Z","event":"exit","code":0}

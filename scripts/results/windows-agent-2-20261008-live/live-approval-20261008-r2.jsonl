@@ -1,0 +1,15 @@
+{"at":"2026-10-08T14:25:05.406Z","event":"native-console","pid":13800,"tty":true,"ceiling":"read-only","lifetimeMinutes":45}
+{"at":"2026-10-08T14:25:51.690Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:25:51.693Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:25:51.743Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:25:51.907Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:25:51.910Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:25:51.911Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:25:51.912Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:25:51.914Z","event":"denied","method":"fs/getMetadata","reason":"filesystem path outside the whitelisted roots"}
+{"at":"2026-10-08T14:25:59.648Z","event":"local-prompt-open"}
+{"at":"2026-10-08T14:26:10.103Z","event":"local-prompt-result","approved":true}
+{"at":"2026-10-08T14:26:10.103Z","event":"permission-report","id":"5bc865c4-f0df-4f76-aee9-5624746c4f32","conn":"b71b5ab8","threadId":"01a11ad1-53f3-7711-8509-b367c7696c65","requestDigest":"6ac91404ca95e804981eaaa55928a4b59d0cafc8b6d8343909efd6ddaaf1cb80","permissionDigest":"e55b44ee8a7145beea28c4a8a9d4750d019b2d5f3d1f188effb20dc8d6757604","decision":"approved","scope":{"sandbox":"workspace-write","network":false},"expiresAt":1791471359}
+{"at":"2026-10-08T14:26:11.560Z","event":"permission-receipt","id":"5bc865c4-f0df-4f76-aee9-5624746c4f32","recorded":true}
+{"at":"2026-10-08T14:26:11.639Z","event":"process-forwarded"}
+{"at":"2026-10-08T14:28:58.341Z","event":"exit","code":0}

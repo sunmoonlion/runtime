@@ -5,17 +5,20 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
-import { MANIFEST, relativeFile, digest, inventory, firstInstall, verifyBundle, validateManifest } from '../bundle.mjs';
+import { MANIFEST, relativeFile, digest, inventory, firstInstall, verifyBundle, validateManifest, removeVerifiedBundle } from '../bundle.mjs';
 
 const samplePaths = [
   'node/node.exe', 'licenses/node-LICENSE', 'licenses/codex-LICENSE', 'licenses/codex-NOTICE',
   'app/package.json', 'app/dist/cli.js', 'app/native/helper.mjs',
+  'app/dist/resident.js', 'app/dist/windowsDesktop.js', 'app/native/desktop.ps1', 'app/native/run-hidden.vbs',
   'app/node_modules/@openai/codex/package.json',
   'app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/bin/codex.exe',
   'app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-resources/codex-command-runner.exe',
   'app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-resources/codex-windows-sandbox-setup.exe',
   'app/node_modules/smol-toml/package.json', 'app/node_modules/ws/package.json',
   'sunmoon-agent.cmd', 'install.cmd', 'installer/install.mjs', 'installer/bundle.mjs',
+  'uninstall.cmd', 'installer/uninstall.mjs',
+  'app/native/elevated-setup.ps1',
 ];
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'sunmoon-dist-test-'));
@@ -32,6 +35,24 @@ function fixture(t) {
   const save = () => { fs.writeFileSync(path.join(source, MANIFEST), JSON.stringify(manifest)); return digest(path.join(source, MANIFEST)).sha256; };
   return { root, source, localAppData, manifest, expectedManifestHash: save(), save };
 }
+
+test('uninstall preview keeps all files; apply removes only exact verified program inventory', t => {
+  const f=fixture(t); const installed=firstInstall({...f,apply:true});
+  const before=inventory(installed.destination);
+  removeVerifiedBundle(installed.destination,f.expectedManifestHash);
+  assert.deepEqual(inventory(installed.destination),before);
+  removeVerifiedBundle(installed.destination,f.expectedManifestHash,true);
+  assert.equal(fs.existsSync(installed.destination),false);assert.equal(fs.existsSync(f.source),true);
+});
+test('uninstall refuses unknown file and modified byte without partial deletion',t=>{
+  const f=fixture(t);const installed=firstInstall({...f,apply:true});
+  const unknown=path.join(installed.destination,'user-data.txt');fs.writeFileSync(unknown,'keep');
+  assert.throws(()=>removeVerifiedBundle(installed.destination,f.expectedManifestHash,true),/mismatch/);
+  assert.equal(fs.readFileSync(unknown,'utf8'),'keep');
+  fs.unlinkSync(unknown);fs.appendFileSync(path.join(installed.destination,'app/dist/cli.js'),'tamper');
+  assert.throws(()=>removeVerifiedBundle(installed.destination,f.expectedManifestHash,true),/mismatch/);
+  assert.equal(fs.existsSync(path.join(installed.destination,MANIFEST)),true);
+});
 
 test('complete inventory is deterministic and requires independent expected checksum', t => {
   const f = fixture(t);

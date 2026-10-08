@@ -68,6 +68,8 @@ export class WindowsBridge {
         this.guards.set(p.processId, release); this.starts.set(frame.id, p.processId);
         // Selection is local. Remote clients cannot downgrade elevated to unelevated.
         p.sandbox.windowsSandboxLevel = this.opts.mode === "elevated" ? "elevated" : "restricted-token";
+        // Remote commands must not share the desktop that hosts human approval.
+        p.sandbox.windowsSandboxPrivateDesktop = true;
         p.env = windowsEnvironment(this.opts.home, Object.fromEntries(Object.entries(p.env).filter(([key]) => !isClientWindowsEnvAnnotation(p, key))) as Record<string, string>, process.env, this.opts.temporary?.directory);
         // The complete, filtered local environment is now explicit. Do not
         // inherit executor internals or apply a second remote merge afterward.

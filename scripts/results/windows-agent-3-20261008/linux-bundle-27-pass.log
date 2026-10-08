@@ -1,0 +1,35 @@
+✔ uninstall preview keeps all files; apply removes only exact verified program inventory (79.118105ms)
+✔ uninstall refuses unknown file and modified byte without partial deletion (50.846926ms)
+✔ complete inventory is deterministic and requires independent expected checksum (10.560791ms)
+✔ reject Windows/path alias: ../outside (0.168649ms)
+✔ reject Windows/path alias: /absolute (0.05827ms)
+✔ reject Windows/path alias: a/../outside (0.198154ms)
+✔ reject Windows/path alias: C:/outside (0.165332ms)
+✔ reject Windows/path alias: a\b (0.150805ms)
+✔ reject Windows/path alias: file:stream (0.241897ms)
+✔ reject Windows/path alias: dir/NUL.txt (0.247698ms)
+✔ reject Windows/path alias: dir/COM1 (0.126919ms)
+✔ reject Windows/path alias: file. (0.05842ms)
+✔ reject Windows/path alias: dir//file (0.145755ms)
+✔ reject Windows/path alias: ./file (0.213633ms)
+✔ reject Windows/path alias: file  (0.117151ms)
+✔ reject Windows/path alias: dir/.. (0.069201ms)
+✔ tampered, missing and additional files all stop before creating a destination (29.029927ms)
+✔ manifest rejects duplicate, case aliases, private extra fields and missing helper (9.871468ms)
+✔ manifest rejects negative sizes, manifest-self entries and traversal (6.057938ms)
+✔ preview is read-only and first install copies exact bytes without modifying separate user config (66.190606ms)
+✔ existing empty directory is not replaced or removed (8.57483ms)
+✔ copy interruption keeps an incomplete marker and refuses a blind second install (15.433119ms)
+✔ source-destination nesting is refused (6.965458ms)
+✔ junction/directory-link in Programs is refused, target untouched (7.152518ms)
+✔ bundle directory links are rejected (13.439917ms)
+✔ installer refuses unsupported switches rather than accidentally applying (42.061246ms)
+✔ only explicit source inputs are included by builder; launcher uses bundled node (0.681517ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 437.902363

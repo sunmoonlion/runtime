@@ -15,8 +15,8 @@ sunmoon-agent start
 └── status.json + 仅回环状态口
 ```
 
-开发入口已验证；第 3 段的[单目录包与首次安装候选](distribution/README.md)已准备，
-托盘、开机常驻和干净 Windows 10/11 验收仍未完成。
+Windows 安装、后台、托盘、登录自启和卸载入口见[发行与日常操作](distribution/README.md)。
+本机原生检查与所有者在干净 Windows 上的验收分别记录，不能互相代替。
 阶段结果及限制见 `../scripts/results/windows-agent-1.*.md`。
 
 ## 命令
@@ -25,7 +25,11 @@ sunmoon-agent start
 sunmoon-agent init --relay wss://edge.example.com/relay --user <id> --token <t> --root ~/research
 sunmoon-agent roots add|remove|list <dir>          # 改完要重启 start（外沙箱的 bind 在启动时定）
 sunmoon-agent ceiling show | set --sandbox read-only|workspace-write|danger-full-access --network on|off
-sunmoon-agent start                                # 前台；systemd/launchd 由安装器管
+sunmoon-agent start                                # 前台调试
+sunmoon-agent start --background                   # Windows 后台，确认用本机窗口
+sunmoon-agent tray                                 # Windows 托盘；退出后后台继续
+sunmoon-agent stop                                 # Windows 正常停止
+sunmoon-agent autostart enable|disable|status        # 当前用户登录自启，默认关闭
 sunmoon-agent status
 sunmoon-agent mcp import                          # Windows：本机逐项确认 HTTP MCP
 sunmoon-agent mcp list                            # 查看已确认配置；不读取用户凭据
@@ -34,7 +38,8 @@ sunmoon-agent mcp list                            # 查看已确认配置；不�
 ## Windows MCP 与临时权限（第 2 段候选）
 
 这部分源码已有本地回归。2026-10-08 Cursor 已补齐普通用户 Windows 150/150，
-并发布投资后端与 relay；MCP、本机确认到审计回执和旧投影定位仍待真实联调，不能据发布成功判整段通过。
+并发布投资后端与 relay。随后真实本机确认→工作台提交→回执→执行链已通过；
+真实 MCP 调用、两次旧投影拒绝的完整定位由所有者决定延后，整段不标全通过。
 
 `mcp import` 固定读取当前 Windows 用户的 `~/.codex/config.toml`，只选择 HTTP/HTTPS
 `mcp_servers` 条目。在本机交互终端逐项列出、输入本次随机确认码后，保存到代理配置目录
@@ -44,8 +49,9 @@ sunmoon-agent mcp list                            # 查看已确认配置；不�
 支持 URL、enabled/required、超时和工具白/黑名单；带 command/args/env、HTTP 认证头、
 bearer 环境变量、URL 用户信息/查询串/fragment 的整项跳过，不悄悄删掉认证字段后导入。
 模型、偏好、skills、auth.json、OAuth 缓存均不复制。URL 路径也可能含秘密，确认前须人工核对；
-代码不能判断任意路径中的不透明字符串是否是令牌。HTTP 端点须能从云端沙箱访问，
-`localhost` 指向云端沙箱，不是用户电脑；本功能不是 MCP 网络隧道。
+代码不能判断任意路径中的不透明字符串是否是令牌。固定版 Codex 会经 `http/request`
+交给本机 exec-server 发 HTTP；这里的 `localhost` 是本机。必须明确开启本机网络上限，
+禁网时立即拒绝；导入不会替你开启联网。此前“请求从云端发出”的说明已按真实帧纠正。
 需要认证的 MCP 仍由服务端自己的受保护配置管理，本轮不支持转交个人 MCP 凭据。
 
 移除已导入条目：停止代理，在本机编辑代理配置目录 `mcp.json` 删除整个服务键，
@@ -53,7 +59,9 @@ bearer 环境变量、URL 用户信息/查询串/fragment 的整项跳过，不�
 解析器新增 `smol-toml@1.4.2`，用于完整 TOML 解析和重新序列化，纯 JS、无原生编译。
 
 超出当前配置上限但仍在 Windows 固定沙箱和目录白名单以内的 `process/start`，
-可在前台 `start` 所在的本机终端确认。提示包含线程、目录、程序、权限范围、请求摘要；
+前台 `start` 在本机终端确认，`start --background` 使用系统 WinForms 窗口。
+后台窗口走私有子进程管道，没有网络批准接口；远端命令强制私有桌面。
+提示包含线程、目录、程序、权限范围、请求摘要；
 60 秒内输入当次随机码才同意，无 TTY、超时、断线或拒绝均不放行。云端不能填写此答案。
 同意后还要收到工作台事务提交后的 `recorded` 回执，最长等 30 秒；旧 relay、不匹配的会话、
 审计失败均拒绝。回执证明决定已记账，不证明命令已执行。
@@ -126,7 +134,7 @@ process 的显式文件权限目标目前须为可固定的现有目录；只读
 `process/terminate` 返回 `running:false`；陌生或其他流的进程 ID 不放行。
 `environmentConfig/read` 目前只接受已捕获的 `mcp_servers` 查询字段，
 由沙箱助手只读代理生成的 `config.toml`，返回与原生相同的空配置层。
-其他配置内容、项目配置和 requirements 文件不读取。HTTP MCP 的导入和合并留第 2 段实现。
+其他配置内容、项目配置和 requirements 文件不读取。HTTP MCP 导入与合并见上文。
 
 文件助手和目录固定助手均复用正在运行代理的本机 Node。**不依赖 Python，
 不编译自有 exe，不使用 native addon/FFI。**第 3 段打包采用官方 Node 运行时 + JS

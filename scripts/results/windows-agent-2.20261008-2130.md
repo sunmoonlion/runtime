@@ -1,5 +1,10 @@
 # Windows 代理第 2 段：本地候选，待 Cursor 补验与发布
 
+> 2026-10-08 后续回执：Cursor 已完成普通用户 Windows **150/150** 和两个镜像发布，
+> 见 k8s `ee9adbb8` 的 `sunmoonai/scripts/results/luna-stage2-cursor.20261008-2146.md`。
+> 原生夹具已补齐；候选 `f6e9aa0b`、晋级 `8d07a0c0`，71 个 Kustomization Ready。
+> 以下保留初次检查记录。MCP 真实调用、本机审批到审计回执和两次旧投影定位尚待验，整段仍未通过。
+
 结论：**undecidable，未完成第 2 段验收**。没有把缺夹具失败算通过，没有发布生产镜像，
 没有重连或替换真实代理。Fable 在 k8s `434241be` 接受 1b 后，本轮按第 2 段任务继续。
 所有者明确授权必要的跨仓源码修改，并要求试验成功后报备 Fable；又明确 Cursor 与 Luna 同机，

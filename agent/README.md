@@ -15,7 +15,8 @@ sunmoon-agent start
 └── status.json + 仅回环状态口
 ```
 
-开发入口已验证；安装器、托盘、开机常驻和干净 Windows 10/11 验收留第 3 段。
+开发入口已验证；第 3 段的[单目录包与首次安装候选](distribution/README.md)已准备，
+托盘、开机常驻和干净 Windows 10/11 验收仍未完成。
 阶段结果及限制见 `../scripts/results/windows-agent-1.*.md`。
 
 ## 命令
@@ -32,7 +33,8 @@ sunmoon-agent mcp list                            # 查看已确认配置；不�
 
 ## Windows MCP 与临时权限（第 2 段候选）
 
-这部分源码已有本地回归，服务端镜像尚需按 switch-test 待办发布后联调；不表示现网已经支持。
+这部分源码已有本地回归。2026-10-08 Cursor 已补齐普通用户 Windows 150/150，
+并发布投资后端与 relay；MCP、本机确认到审计回执和旧投影定位仍待真实联调，不能据发布成功判整段通过。
 
 `mcp import` 固定读取当前 Windows 用户的 `~/.codex/config.toml`，只选择 HTTP/HTTPS
 `mcp_servers` 条目。在本机交互终端逐项列出、输入本次随机确认码后，保存到代理配置目录

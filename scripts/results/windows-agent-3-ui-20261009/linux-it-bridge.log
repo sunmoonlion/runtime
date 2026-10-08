@@ -1,0 +1,6 @@
+2026-10-09 00:50:30,062 INFO server listening on 127.0.0.1:47002
+2026-10-09 00:50:30,062 INFO listening ws://127.0.0.1:47002 -> ws://127.0.0.1:47100
+2026-10-09 00:50:30,728 INFO connection open
+2026-10-09 00:50:30,728 INFO app-server connected; dialing ws://127.0.0.1:47100/sandbox
+2026-10-09 00:50:30,737 INFO paired conn=9be911ee
+2026-10-09 00:51:31,824 INFO stream closed

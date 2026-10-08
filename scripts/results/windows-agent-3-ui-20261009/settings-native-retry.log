@@ -1,0 +1,28 @@
+Isolated settings fixture retained: C:\Users\zymun\sunmoon-settings-test-rdEeQc
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: 
+Save notice helper: Missing IDOK button: 
+����λ�� C:\Users\zymun\sunmoon-settings-test-rdEeQc\notice.ps1:16 �ַ�: 25
++ ... ount -ne 1){throw ('Missing IDOK button: '+(($Buttons|ForEach-Object  ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (Missing IDOK button: :String) [], RuntimeException
+    + FullyQualifiedErrorId : Missing IDOK button: 
+ 
+
+
+null !== 0
+
+    at file://wsl.localhost/Ubuntu/home/zymun/worktrees/luna/runtime/probe/windows-stage3-settings.mjs:116:14
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: null,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

@@ -1,0 +1,21 @@
+environment/add: {}
+L0 environment/info: {"shell": {"name": "zsh", "path": "/usr/bin/zsh"}, "cwd": "file:///home/zymun/worktrees/luna/runtime"}
+  ordinary-user write control passed: /home/zymun/probe-ceiling-L1-1791478230549306983.txt
+===== L1 danger-full-access, write outside cwd: sandbox=danger-full-access cwd=/home/zymun/worktrees/luna/runtime/probe/user-ws
+2026-10-08T16:50:35.708258Z ERROR codex_models_manager::manager: failed to refresh available models: timeout waiting for child process to exit
+2026-10-08T16:50:35.798038Z ERROR codex_models_manager::manager: failed to refresh available models: timeout waiting for child process to exit
+2026-10-08T16:50:47.695393Z ERROR codex_models_manager::manager: failed to refresh available models: timeout waiting for child process to exit
+2026-10-08T16:50:51.052067Z ERROR codex_core::tools::router: error=exec_command failed: CreateProcess { message: "Rejected(\"Failed to create unified exec process: exec-server rejected request (-32001): sunmoon-agent local ceiling: sandbox mode danger-full-access exceeds local ceiling workspace-write\")" }
+2026-10-08T16:50:57.036233Z ERROR codex_models_manager::manager: failed to refresh available models: timeout waiting for child process to exit
+  note: ('turn/completed', '{"threadId": "01a11c6c-8296-75e3-ad60-ede9ba7d1309", "turn": {"id": "01a11c6c-82f3-7ca3-8bdf-c9de9654a599", "items": [{"type": "agentMessage", "id": "msg_0996067f5e75c8bd016ac7c9f02c3487d088f31d9361fa4500", "text": "`exec_command failed: CreateProcess { messag')
+  final: `exec_command failed: CreateProcess { message: "Rejected(\"Failed to create unified exec process: exec-server rejected request (-32001): sunmoon-agent local ceiling: sandbox mode danger-full-access exceeds local ceiling workspace-write\")" }`
+  VERDICT L1 (file outside cwd created although executor config says read-only): None
+  ordinary-user write control passed: /home/zymun/worktrees/luna/runtime/probe/user-ws/PROBE_L3_1791478230549306983.txt
+===== L3 workspace-write, write inside cwd: sandbox=workspace-write cwd=/home/zymun/worktrees/luna/runtime/probe/user-ws
+2026-10-08T16:51:02.079581Z ERROR codex_models_manager::manager: failed to refresh available models: timeout waiting for child process to exit
+2026-10-08T16:51:24.942287Z ERROR codex_models_manager::manager: failed to refresh available models: timeout waiting for child process to exit
+2026-10-08T16:51:31.759323Z ERROR codex_models_manager::manager: failed to refresh available models: timeout waiting for child process to exit
+  cmd: "/usr/bin/zsh -c 'echo L3 > PROBE_L3_1791478230549306983.txt && cat PROBE_L3_1791478230549306983.txt'" | exit 0 | status completed | L3 | 
+  note: ('turn/completed', '{"threadId": "01a11c6c-e940-7472-9181-cd0fab5ab608", "turn": {"id": "01a11c6c-e9a7-78c1-a1fd-f87eb24a392c", "items": [{"type": "agentMessage", "id": "msg_0654acf74d899012016ac7ca109dc887d0bffe4db42c7c22d6", "text": "L3", "phase": "final_answer", "memoryCitatio')
+  final: L3
+  VERDICT L3 (inside write succeeded): True

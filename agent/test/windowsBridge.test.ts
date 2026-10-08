@@ -13,6 +13,40 @@ const send = (bridge: WindowsBridge, frame: any) => bridge.receive(JSON.stringif
 const terminate = (bridge: WindowsBridge, processId = "p1") => send(bridge, { id: 9, method: "process/terminate", params: { processId } });
 afterEach(() => { vi.useRealTimers(); vi.clearAllMocks(); });
 describe("Windows bridge follow-up contracts", () => {
+  it("holds a write request until both local confirmation and durable receipt finish", async () => {
+    let consent!: (yes: boolean) => void, receipt!: (recorded: boolean) => void;
+    const report = vi.fn(() => new Promise<boolean>(resolve => { receipt = resolve; }));
+    const bridge = new WindowsBridge({ ...options, ceiling: { sandbox: "read-only", network: false },
+      localPermissions: { available: () => true, epoch: () => 1,
+        confirm: () => new Promise<boolean>(resolve => { consent = resolve; }), report },
+    });
+    const frame: any = start(1); frame.params.metadata = { threadId: "11111111-1111-1111-1111-111111111111", toolCallId: "local-gui-contract" };
+    let settled = false;
+    const pending = send(bridge, frame).then(value => { settled = true; return value; });
+    try {
+      await Promise.resolve(); expect(settled).toBe(false); expect(report).not.toHaveBeenCalled();
+      consent(true); await vi.waitFor(() => expect(report).toHaveBeenCalledTimes(1));
+      expect(settled).toBe(false); expect(mocks.release).not.toHaveBeenCalled();
+      receipt(true);
+      const accepted = await pending;
+      expect(accepted.reason).toBeUndefined();
+      expect(JSON.parse(accepted.forward!).params.sandbox.windowsSandboxPrivateDesktop).toBe(true);
+      expect(report.mock.calls[0][0]).toMatchObject({ decision: "approved", scope: { sandbox: "workspace-write", network: false } });
+    } finally { await bridge.close(); }
+  });
+  it("does not forward a late approved receipt after the requesting stream closes", async () => {
+    let receipt!: (recorded: boolean) => void;
+    const report = vi.fn(() => new Promise<boolean>(resolve => { receipt = resolve; }));
+    const bridge = new WindowsBridge({ ...options, ceiling: { sandbox: "read-only", network: false },
+      localPermissions: { available: () => true, epoch: () => 1, confirm: async () => true, report },
+    });
+    const frame: any = start(1); frame.params.metadata = { threadId: "11111111-1111-1111-1111-111111111111", toolCallId: "late-receipt" };
+    const pending = send(bridge, frame);
+    await vi.waitFor(() => expect(report).toHaveBeenCalledTimes(1));
+    await bridge.close(); receipt(true);
+    const rejected = await pending;
+    expect(rejected.forward).toBeUndefined(); expect(rejected.reason).toBeTruthy();
+  });
   it("rejects interactive desktop requests and adds a private desktop when the field is omitted",async()=>{
     const bridge=new WindowsBridge(options), frame:any=start(1);frame.params.sandbox.windowsSandboxPrivateDesktop=false;
     expect((await send(bridge,frame)).reason).toBeTruthy();delete frame.params.sandbox.windowsSandboxPrivateDesktop;

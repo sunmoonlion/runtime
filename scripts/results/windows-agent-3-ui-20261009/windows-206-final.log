@@ -1,0 +1,114 @@
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mC:/Users/zymun/sunmoon-probe-runs/windows-agent-2-20261008/agent[39m
+
+ [32m✓[39m test/outerSandbox.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/localConfirm.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m test/windowsPolicy.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m test/filter.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m test/windowsFilter.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m test/windowsEnvironment.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m test/relayContract.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+{"t":"2026-10-08T16:51:00.640Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:51:00.679Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:51:00.703Z","level":"info","msg":"stream bridged","conn":"177e71ba","local":"ws://127.0.0.1:53663/"}
+{"t":"2026-10-08T16:51:00.704Z","level":"info","msg":"stream closed","conn":"177e71ba","why":"agent stopped"}
+{"t":"2026-10-08T16:51:00.712Z","level":"info","msg":"relay connected"}
+ [32m✓[39m test/windowsBridge.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 141[2mms[22m[39m
+{"t":"2026-10-08T16:51:00.750Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:51:00.774Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:51:00.843Z","level":"info","msg":"relay connected"}
+ [32m✓[39m test/stage2.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 224[2mms[22m[39m
+{"t":"2026-10-08T16:51:00.870Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:51:00.917Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-08T16:51:00.922Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:51:00.947Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:51:00.985Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:51:01.010Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:51:01.041Z","level":"warn","msg":"沙箱与本地代理的 Codex 版本不一致，已拒绝连接；请更新成配套版本后重试。代理继续等待兼容的连接。"}
+{"t":"2026-10-08T16:51:01.078Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:51:01.108Z","level":"info","msg":"stream bridged","conn":"c2d5a42e","local":"ws://127.0.0.1:53694/"}
+{"t":"2026-10-08T16:51:01.170Z","level":"info","msg":"stream closed","conn":"c2d5a42e","why":"agent stopped"}
+{"t":"2026-10-08T16:51:01.175Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:51:01.201Z","level":"info","msg":"stream bridged","conn":"934b1bf5","local":"ws://127.0.0.1:53699/"}
+{"t":"2026-10-08T16:51:01.261Z","level":"warn","msg":"denied by local ceiling","method":"process/start","reason":"sandbox mode danger-full-access exceeds local ceiling workspace-write"}
+{"t":"2026-10-08T16:51:01.262Z","level":"info","msg":"stream closed","conn":"934b1bf5","why":"agent stopped"}
+{"t":"2026-10-08T16:51:01.266Z","level":"error","msg":"代理令牌无效或已过期。请从网页重新取得 init 命令；不要在日志或对话里粘贴令牌。"}
+{"t":"2026-10-08T16:51:01.296Z","level":"error","msg":"代理令牌无效或已过期。请从网页重新取得 init 命令；不要在日志或对话里粘贴令牌。"}
+{"t":"2026-10-08T16:51:01.529Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:51:01.558Z","level":"error","msg":"同一账号已有另一台代理连接，本代理已停止。请保留需要使用的那一个代理。","code":4000}
+{"t":"2026-10-08T16:51:01.796Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:51:01.824Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-08T16:51:02.233Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:51:02.262Z","level":"error","msg":"同一账号已有另一台代理连接，本代理已停止。请保留需要使用的那一个代理。","code":4000}
+{"t":"2026-10-08T16:51:03.809Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:51:03.838Z","level":"error","msg":"代理令牌已吊销。请在网页“设置 → 本地代理”重新取得 init 命令，在本机执行后再启动。","code":4003}
+ [32m✓[39m test/windowsHttp.test.ts [2m([22m[2m45 tests[22m[2m)[22m[33m 3312[2mms[22m[39m
+   [33m[2m✓[22m[39m native pinned executor HTTP (isolated loopback, no relay)[2m > [22mpasses confirmed endpoint without redirects: streamed=false status=200 [33m 1111[2mms[22m[39m
+   [33m[2m✓[22m[39m native pinned executor HTTP (isolated loopback, no relay)[2m > [22mpasses confirmed endpoint without redirects: streamed=true status=200 [33m 1063[2mms[22m[39m
+   [33m[2m✓[22m[39m native pinned executor HTTP (isolated loopback, no relay)[2m > [22mpasses confirmed endpoint without redirects: streamed=false status=302 [33m 1111[2mms[22m[39m
+{"t":"2026-10-08T16:51:05.387Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:51:05.415Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+ [32m✓[39m test/cli.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 5609[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows CLI capability admission[2m > [22msupports configuration commands and refuses start without a recorded capability probe [33m 4915[2mms[22m[39m
+{"t":"2026-10-08T16:51:06.418Z","level":"info","msg":"relay connected"}
+ [32m✓[39m test/relayClient.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 5851[2mms[22m[39m
+   [33m[2m✓[22m[39m RelayClient[2m > [22mdoes not call onRejected on an ordinary disconnect [33m 437[2mms[22m[39m
+   [33m[2m✓[22m[39m RelayClient[2m > [22mdoes not reconnect after close 4000 (replaced by a newer agent for this user) [33m 1577[2mms[22m[39m
+   [33m[2m✓[22m[39m RelayClient[2m > [22mdoes not reconnect after close 4003 (token revoked) [33m 1577[2mms[22m[39m
+   [33m[2m✓[22m[39m RelayClient[2m > [22mreconnects the control channel after the relay drops it [33m 1065[2mms[22m[39m
+ [32m✓[39m test/windowsNative.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 6688[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows adversarial admission[2m > [22melevated OS sandbox blocks ordinary Node writes after a directory swap [33m 829[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows adversarial admission[2m > [22mprobes an existing elevated setup and runs the protected file helper under it [33m 2803[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows adversarial admission[2m > [22mrejects precreated native symbolic links as an ordinary user [33m 816[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows adversarial admission[2m > [22mpins sandbox roots against replacement throughout command launch [33m 401[2mms[22m[39m
+ [32m✓[39m test/windowsFollowup.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 7386[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows stage 1b follow-up[2m > [22mprojects confirmed HTTP MCP with the native 0.155.1 contract and no project settings [33m 995[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows stage 1b follow-up[2m > [22mrequires local approval and durable audit before a real Windows write; outside remains denied [33m 417[2mms[22m[39m
+   [33m[2m✓[22m[39m native Windows stage 1b follow-up[2m > [22mpins temp against swaps and refuses a replaced directory after guard failure [33m 1960[2mms[22m[39m
+ [32m✓[39m test/windowsResident.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 42149[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows background + tray lifecycle (no real account)[2m > [22mone resident, closing tray keeps it alive, settings remain local, exact stop and restart [33m 39712[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows background + tray lifecycle (no real account)[2m > [22mcloses an aborted local GUI prompt without granting permission [33m 2019[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows background + tray lifecycle (no real account)[2m > [22mall shipped PowerShell scripts parse without altering execution policy [33m 416[2mms[22m[39m
+ [32m✓[39m test/windowsLifecycle.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 49739[2mms[22m[39m
+   [33m[2m✓[22m[39m Windows CLI real lifecycle + loopback relay[2m > [22minitializes, filters, runs commands, survives 20s relay loss, reports revocation and cleans executor tree [33m 49738[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+[2m      Tests [22m [1m[32m206 passed[39m[22m[90m (206)[39m
+[2m   Start at [22m 00:50:59
+[2m   Duration [22m 50.87s[2m (transform 1.44s, setup 0ms, collect 3.99s, tests 121.17s, environment 2ms, prepare 3.15s)[22m
+
+✔ uninstall preview keeps all files; apply removes only exact verified program inventory (171.1952ms)
+✔ uninstall refuses unknown file and modified byte without partial deletion (138.3854ms)
+✔ complete inventory is deterministic and requires independent expected checksum (47.6409ms)
+✔ reject Windows/path alias: ../outside (0.3087ms)
+✔ reject Windows/path alias: /absolute (0.1558ms)
+✔ reject Windows/path alias: a/../outside (0.1401ms)
+✔ reject Windows/path alias: C:/outside (0.1155ms)
+✔ reject Windows/path alias: a\b (1.3035ms)
+✔ reject Windows/path alias: file:stream (0.1362ms)
+✔ reject Windows/path alias: dir/NUL.txt (0.2174ms)
+✔ reject Windows/path alias: dir/COM1 (0.1326ms)
+✔ reject Windows/path alias: file. (0.0842ms)
+✔ reject Windows/path alias: dir//file (0.1333ms)
+✔ reject Windows/path alias: ./file (0.1345ms)
+✔ reject Windows/path alias: file  (0.1351ms)
+✔ reject Windows/path alias: dir/.. (0.129ms)
+✔ tampered, missing and additional files all stop before creating a destination (62.9368ms)
+✔ manifest rejects duplicate, case aliases, private extra fields and missing helper (40.8877ms)
+✔ manifest rejects negative sizes, manifest-self entries and traversal (44.1802ms)
+✔ preview is read-only and first install copies exact bytes without modifying separate user config (174.1766ms)
+✔ existing empty directory is not replaced or removed (38.8274ms)
+✔ copy interruption keeps an incomplete marker and refuses a blind second install (51.9675ms)
+✔ source-destination nesting is refused (40.6161ms)
+✔ junction/directory-link in Programs is refused, target untouched (39.2226ms)
+✔ bundle directory links are rejected (47.6072ms)
+✔ installer refuses unsupported switches rather than accidentally applying (75.5453ms)
+✔ only explicit source inputs are included by builder; launcher uses bundled node (1.4603ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1080.0975

@@ -1,0 +1,20 @@
+Isolated settings fixture retained: C:\Users\zymun\sunmoon-settings-test-2IUxZL
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+null !== 0
+
+    at file://wsl.localhost/Ubuntu/home/zymun/worktrees/luna/runtime/probe/windows-stage3-settings.mjs:112:14
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: null,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

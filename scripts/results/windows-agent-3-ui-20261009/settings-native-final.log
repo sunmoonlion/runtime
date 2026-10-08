@@ -1,0 +1,28 @@
+Isolated settings fixture retained: C:\Users\zymun\sunmoon-settings-test-0lyNpi
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: 
+Save notice helper: Save notice did not appear
+����λ�� C:\Users\zymun\sunmoon-settings-test-0lyNpi\notice.ps1:23 �ַ�: 1
++ throw 'Save notice did not appear'
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (Save notice did not appear:String) [], RuntimeException
+    + FullyQualifiedErrorId : Save notice did not appear
+ 
+
+
+null !== 0
+
+    at file://wsl.localhost/Ubuntu/home/zymun/worktrees/luna/runtime/probe/windows-stage3-settings.mjs:117:14
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: null,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

@@ -31,7 +31,12 @@ Use sunmoon-agent.cmd in the INSTALLED directory:
   mcp import               Foreground confirmation; no credentials imported.
                            HTTP runs locally and requires network ceiling on.
 
-Settings take effect after stop/start. Local approval requires the displayed
+In tray settings, check each directory to grant access. Adding a directory only
+remembers a candidate; unchecked directories grant no access. You can uncheck
+all directories. Save, then stop/start to apply. Double-click the tray icon for
+online/offline state and the latest connection reason.
+
+Local approval requires the displayed
 fresh code and Allow button. Close, timeout or disconnect refuses. It cannot
 remove sandboxing or add roots; a durable server audit receipt is also required.
 

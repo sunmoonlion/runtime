@@ -1,0 +1,13 @@
+2026-10-09 00:50:28,972 INFO server listening on 127.0.0.1:47100
+2026-10-09 00:50:28,973 INFO listening ws://127.0.0.1:47100 users=1
+2026-10-09 00:50:29,417 INFO connection rejected (200 OK)
+2026-10-09 00:50:29,761 INFO connection open
+2026-10-09 00:50:29,765 INFO agent up user=local codex=0.155.1 software=0.2.0
+2026-10-09 00:50:30,730 INFO connection open
+2026-10-09 00:50:30,734 INFO connection open
+2026-10-09 00:50:30,736 INFO paired user=local conn=9be911ee
+2026-10-09 00:51:31,826 INFO closed user=local conn=9be911ee after 61.1s
+2026-10-09 00:51:31,881 INFO server closing
+2026-10-09 00:51:31,888 INFO agent down user=local
+2026-10-09 00:51:31,889 INFO server closed
+2026-10-09 00:51:31,889 INFO stopped

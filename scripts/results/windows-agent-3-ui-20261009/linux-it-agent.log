@@ -1,0 +1,10 @@
+{"t":"2026-10-08T16:50:29.543Z","level":"info","msg":"sunmoon-agent starting","version":"0.2.0","machine":"wsl-dev","codex":"0.155.1","codexBin":"/home/zymun/worktrees/luna/runtime/agent/node_modules/.pnpm/@openai+codex@0.155.1-linux-x64/node_modules/@openai/codex/vendor/x86_64-unknown-linux-musl/bin/codex","bwrap":"/home/zymun/worktrees/luna/runtime/agent/node_modules/.pnpm/@openai+codex@0.155.1-linux-x64/node_modules/@openai/codex/vendor/x86_64-unknown-linux-musl/codex-resources/bwrap","platform":"linux"}
+{"t":"2026-10-08T16:50:29.549Z","level":"info","msg":"exec-server starting","port":39243,"sandboxed":true,"roots":["/home/zymun/worktrees/luna/runtime/probe/user-ws"],"generation":1}
+{"t":"2026-10-08T16:50:29.755Z","level":"info","msg":"exec-server ready","url":"ws://127.0.0.1:39243/","generation":1}
+{"t":"2026-10-08T16:50:29.760Z","level":"info","msg":"status endpoint","url":"http://127.0.0.1:43283/"}
+{"t":"2026-10-08T16:50:29.766Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-08T16:50:30.736Z","level":"info","msg":"stream bridged","conn":"9be911ee","local":"ws://127.0.0.1:39243/"}
+{"t":"2026-10-08T16:50:51.050Z","level":"warn","msg":"denied by local ceiling","method":"process/start","reason":"sandbox mode danger-full-access exceeds local ceiling workspace-write"}
+{"t":"2026-10-08T16:51:31.826Z","level":"info","msg":"stream closed","conn":"9be911ee","why":"relay side close 1000"}
+{"t":"2026-10-08T16:51:31.881Z","level":"info","msg":"shutting down","why":"SIGTERM","exitCode":0}
+{"t":"2026-10-08T16:51:31.883Z","level":"info","msg":"exec-server exited","code":null,"signal":"SIGTERM","generation":1}

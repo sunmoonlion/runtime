@@ -30,19 +30,26 @@ Pod 内对比验证：不加结尾点的短服务名解析约 4 秒；完整服�
 
 ## 韧性代码候选
 
-提交 `05d2f7d0` 在 app-platform 的共用 API/Worker/Scheduler/Runner、Web/Admin 模板及身份、数据库、迁移、Redis、RabbitMQ、对象存储和初始化 Job 模板中加入 `dnsConfig.options.ndots=2`。它减少多标签服务名先拼接搜索域再查询的机会；短服务名仍保留 Kubernetes 搜索域解析。
+提交 `05d2f7d0` 最初在 app-platform 的共用 API/Worker/Scheduler/Runner、Web/Admin 模板及身份、数据库、迁移、Redis、RabbitMQ、对象存储和初始化 Job 模板中加入 `dnsConfig.options.ndots=2`。后经 Fable 审阅，已修正为只作用于长期运行的 Deployment（共用 backend runtime、Web、Admin）和 Casdoor 主服务；所有一次性初始化/迁移/身份/Redis/RabbitMQ/存储 Job 均保持默认 DNS 配置，避免改变不可变 Job 并触发重复初始化。修正候选尚未发布。
 
 同一提交把 DNS 健康检查接入原生 `cluster-status`。超过 200 ms、没有有效 nameserver、或节点搜索域包含路径/CIDR/非法域名时会以非零退出，并提示检查宿主 DNS suffix 与 WSL DNS tunnel。
 
 ### 候选验证
 
-- `cluster/tests/test_check_dns.py`：5 项通过，覆盖有效/非法 resolver 搜索域和 200 ms 门槛。
+- `cluster/tests/test_check_dns.py`：首轮 5 项通过，覆盖有效/非法 resolver 搜索域和 200 ms 门槛。审阅修正后再次运行，6 项通过；新增断言确保只有长期运行工作负载设置 `ndots=2`、Job 不设置。
 - Jinja AST：app-platform 下 21 个 `.j2` 模板，语法错误 0。
 - 原生 `application-render`：`tpl`、`info`、`knowledge` 成功；对应 27 个 Kustomize 目录全部构建成功。
 - `investment` 渲染未完成：现有源锁断言失败，输出为 `app_images.backend.source_revision == source_lock.backend_revision`。本次没有改镜像锁或业务源码来绕过。
 - `make cluster-dns-check` 对真实集群通过。
-- `make cluster-status` 的集群总控验证未通过：当前 Luna 工位缺少 `infrastructure/.tools/bin/kind`，在 `kind get clusters` 前置步骤退出。失败不是集群 API/DNS 错误；本次没有为此下载或安装工具。
+- 首轮 `make cluster-status` 因当前 Luna 工位缺少 `infrastructure/.tools/bin/kind` 未完成。之后按现有锁定物料执行 `make install-binaries BINARIES=kind`，校验成功安装；再次运行 `make cluster-status` 全部通过（失败 0），并运行 DNS 探针通过：节点 nameserver 均为 `172.18.0.1`、无 search，Pod 查询 `postgresql.data-platform-dev.svc.cluster.local` 十次最大 `6.6 ms`，阈值 `200 ms`。没有另找物料来源。
 - 渲染检查发现 `info` 和 `knowledge` 的既有私有 TLS 主备输入均缺失；现有 prepare 流程按其“首次生成并独立备份”规则，在 `/etc/sunmoon/applications/sunmoon-kind/{info,knowledge}/tls/` 和对应备份目录生成了新的证书输入。值没有输出、没有进入 Git；没有把候选证书应用到集群。重新渲染前应核对这些本地输入与服务当前证书的关系。
+
+### Fable 审阅跟进：Job 范围与 TLS 证书核对
+
+- Fable 已确认第 35 号 Cursor 发布卡可按原卡重跑，顺序必须在 ndots 发布之前；投资渲染锁差异待卡 35 构建固定 `a01db6f` 镜像后再复核。本次没有修改该发布卡，也没有开始其 A/B/C。
+- 审阅要求先查明 info/knowledge 本地 TLS 输入为何缺失，并比较公有证书元数据后才允许重新渲染或 stage。当前工具会话能读取线上 `info-tls`、`knowledge-tls` Secret 的公开证书元数据，但不能遍历 `/etc/sunmoon/applications/sunmoon-kind/{info,knowledge}/tls` 或 `/mnt/sunmoon-data/backups/applications/...`：文件系统返回 `Permission denied`；`sudo` 在当前会话因 `no new privileges` 被禁用。没有读取或输出任何私钥、没有移动文件、没有覆盖证书。
+- 线上 `info-tls` SHA-256 指纹为 `2B:FC:94:78:85:4B:D0:23:63:E7:6E:51:D2:A9:31:A1:1B:A2:07:53:8E:57:98:67:D0:09:B7:0E:C6:93:72:41`，序列号 `B37D56C04A02644DF57E8B0C306CCCB1`，到期 `2031-10-02 13:45:30 UTC`；`knowledge-tls` SHA-256 指纹为 `8C:B0:C1:1E:20:CD:58:9E:90:40:26:27:D1:7D:43:74:44:54:9F:A5:BD:A5:FB:80:76:0F:71:DB:0A:69:B3:8F`，序列号 `8CB2AD30D84F887E26178623A98E4F92`，到期 `2031-10-02 15:19:32 UTC`。这些只证明线上证书身份，不能证明受保护本地输入是否相同。
+- 结论：本地与备份证书比较仍未完成。不得再次渲染 info/knowledge、不得 stage 相关 GitOps 输出；须先在能访问受保护私有目录的主机上下文只读计算本地及备份证书指纹/序列号/到期时间，再按与线上 Secret 的比对结果决定恢复旧输入或将不同的新输入移入 root:root、0700 的日期隔离目录。
 
 ### 发布约束
 

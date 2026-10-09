@@ -42,14 +42,14 @@ Pod 内对比验证：不加结尾点的短服务名解析约 4 秒；完整服�
 - `investment` 渲染未完成：现有源锁断言失败，输出为 `app_images.backend.source_revision == source_lock.backend_revision`。本次没有改镜像锁或业务源码来绕过。
 - `make cluster-dns-check` 对真实集群通过。
 - 首轮 `make cluster-status` 因当前 Luna 工位缺少 `infrastructure/.tools/bin/kind` 未完成。之后按现有锁定物料执行 `make install-binaries BINARIES=kind`，校验成功安装；再次运行 `make cluster-status` 全部通过（失败 0），并运行 DNS 探针通过：节点 nameserver 均为 `172.18.0.1`、无 search，Pod 查询 `postgresql.data-platform-dev.svc.cluster.local` 十次最大 `6.6 ms`，阈值 `200 ms`。没有另找物料来源。
-- 渲染检查发现 `info` 和 `knowledge` 的既有私有 TLS 主备输入均缺失；现有 prepare 流程按其“首次生成并独立备份”规则，在 `/etc/sunmoon/applications/sunmoon-kind/{info,knowledge}/tls/` 和对应备份目录生成了新的证书输入。值没有输出、没有进入 Git；没有把候选证书应用到集群。重新渲染前应核对这些本地输入与服务当前证书的关系。
+- 此前把 info/knowledge TLS 输入写成“缺失并新生成”是误判：当时没有 `sudo` 权限，读不到受保护目录，却把读取失败当成文件不存在。Fable 后续核实线上 Secret、私有 `server.crt`、备份 `server.crt` 的 SHA-256 指纹一致，相关证书文件均为 2026-10-03 创建；`tls-identity.yaml` 的 `creates:` 守卫也说明文件存在时不会重新生成。渲染没有生成新证书，此前回执的该句已更正。
 
 ### Fable 审阅跟进：Job 范围与 TLS 证书核对
 
 - Fable 已确认第 35 号 Cursor 发布卡可按原卡重跑，顺序必须在 ndots 发布之前；投资渲染锁差异待卡 35 构建固定 `a01db6f` 镜像后再复核。本次没有修改该发布卡，也没有开始其 A/B/C。
-- 审阅要求先查明 info/knowledge 本地 TLS 输入为何缺失，并比较公有证书元数据后才允许重新渲染或 stage。当前工具会话能读取线上 `info-tls`、`knowledge-tls` Secret 的公开证书元数据，但不能遍历 `/etc/sunmoon/applications/sunmoon-kind/{info,knowledge}/tls` 或 `/mnt/sunmoon-data/backups/applications/...`：文件系统返回 `Permission denied`；`sudo` 在当前会话因 `no new privileges` 被禁用。没有读取或输出任何私钥、没有移动文件、没有覆盖证书。
-- 线上 `info-tls` SHA-256 指纹为 `2B:FC:94:78:85:4B:D0:23:63:E7:6E:51:D2:A9:31:A1:1B:A2:07:53:8E:57:98:67:D0:09:B7:0E:C6:93:72:41`，序列号 `B37D56C04A02644DF57E8B0C306CCCB1`，到期 `2031-10-02 13:45:30 UTC`；`knowledge-tls` SHA-256 指纹为 `8C:B0:C1:1E:20:CD:58:9E:90:40:26:27:D1:7D:43:74:44:54:9F:A5:BD:A5:FB:80:76:0F:71:DB:0A:69:B3:8F`，序列号 `8CB2AD30D84F887E26178623A98E4F92`，到期 `2031-10-02 15:19:32 UTC`。这些只证明线上证书身份，不能证明受保护本地输入是否相同。
-- 结论：本地与备份证书比较仍未完成。不得再次渲染 info/knowledge、不得 stage 相关 GitOps 输出；须先在能访问受保护私有目录的主机上下文只读计算本地及备份证书指纹/序列号/到期时间，再按与线上 Secret 的比对结果决定恢复旧输入或将不同的新输入移入 root:root、0700 的日期隔离目录。
+- 最初受限会话对私有目录返回 `Permission denied`；经获准的提升读取后，实际检查了两个目录，没有读取密钥或证书内容。`info/tls` 中的 `extensions.cnf`、`server.csr`、`server.crt`、`server.key` 均为 2026-10-03 文件；`knowledge/tls` 中对应四个文件也均为 2026-10-03 文件。`extensions.cnf` 与 `server.csr` 是现存中间文件，按要求保留，未删除。两个 TLS 目录的精确权限和时间戳已由只读 `ls -la --time-style=full-iso` 核验。
+- Fable 已确认 info 与 knowledge 的线上 Secret、私有证书及备份证书指纹三方一致；证书完好，info/knowledge 解冻。线上证书元数据此前记录为：`info-tls` 序列号 `B37D56C04A02644DF57E8B0C306CCCB1`、到期 `2031-10-02 13:45:30 UTC`；`knowledge-tls` 序列号 `8CB2AD30D84F887E26178623A98E4F92`、到期 `2031-10-02 15:19:32 UTC`。没有移动、覆盖或删除证书文件。
+- 结论：证书核验已通过；错误来自权限不足时把“读不到”误记成“缺失”。今后私有目录不可读时必须明确记“读不到”，不得据此判断文件不存在。`info`、`knowledge` 不再因这项证书误判被冻结。
 
 ### 发布约束
 
@@ -57,4 +57,4 @@ Pod 内对比验证：不加结尾点的短服务名解析约 4 秒；完整服�
 
 ## 当前结论
 
-宿主 DNS 修复、WSL 重启和真实集群健康验收通过。`ndots=2` 与持续健康探针已形成供 Fable 审阅的本地代码候选；候选尚未进入 GitOps 发布，因此不宣称它已在运行集群生效。Docker/kind 工具缺失和 investment 源锁不一致仍是本工位的候选验证阻塞项。
+宿主 DNS 修复、WSL 重启和真实集群健康验收通过。按 Fable 审阅修正后的 `ndots=2` 与持续健康探针已提交到本地 k8s luna；候选尚未进入 GitOps 发布，因此不宣称它已在运行集群生效。`kind` 已从锁定物料安装，后续 `make cluster-status` 通过。投资源锁应在第 35 号 Cursor 发布卡完成后再复核。依 Fable 最新要求，在其看到并审阅卡 35 回执前，不再操作集群或部署 `ndots` 候选。

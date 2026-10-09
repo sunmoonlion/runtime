@@ -1,15 +1,14 @@
 # CHECKPOINT（runtime 仓，分支 luna）
 
-## 当前：安装体验改造卡 A 命中策略拦截，等待所有者决定（2026-10-09）
+## 当前：安装体验改造卡 A2 停在现有安装保护（2026-10-09）
 
 设计由 Fable 定稿，唯一实施依据为 k8s
 [SDD 0012：Windows 本地代理安装与首次接入](../k8s/sunmoonai/docs/dev-investment-agent/tree-build/SDD/modules/0012-agent-onboarding.md)。
 上一版一页方案已标为历史，不可据其冲突内容实施。
 
-卡 A 已用 Edge 原始 ZIP 完成：包 SHA 与发布记录一致、ZoneId=3；Explorer 解压后 90 个文件通过清单核验，关键文件保留 Zone.Identifier。Smart App Control 为 On、Device Guard enforcement 值为 2。`.cmd`、`.vbs`、指向签名包内 Node 的 `.lnk` 默认打开均被策略拒绝；Code Integrity 有 3033/3118 事件。详细证据见
-[卡 A 回执](scripts/results/windows-agent-onboarding-card-a.20261009.md)。
+卡 A 已用 Edge 原始 ZIP 完成：包 SHA 与发布记录一致、ZoneId=3；Explorer 解压后 90 个文件通过清单核验，关键文件保留 Zone.Identifier。Smart App Control 为 On、Device Guard enforcement 值为 2。`.cmd`、`.vbs`、指向签名包内 Node 的 `.lnk` 默认打开均被策略拒绝；Code Integrity 有 3033/3118 事件。详见[卡 A 回执](scripts/results/windows-agent-onboarding-card-a.20261009.md)。所有者决定不购买代码签名证书。
 
-按 SDD 全部入口被拦即停止，**等待所有者决定是否购买代码签名证书**；不推测签名必然解决，不更改系统策略，不进入 B/C/D/E。令牌期限核对未做，避免在明确停止点后轮换令牌；当前代理连接、沙箱和集群未改。隔离目录保留至审读后清理。
+卡 A2 的 WSL loopback 单次下载、ZIP 摘要、无 `Zone.Identifier`、`Expand-Archive`、90 文件和 manifest 摘要均通过。包内 Node 安装预览被现存 `%LOCALAPPDATA%\Programs\sunmoon-agent` 安装挡住；按 SDD 停止规则，没有换目标绕过保护，没有运行 `desktop.ps1`，也没有查令牌到期状态。未安装、未改令牌或策略。原卡 A 临时目录按精确路径核实无 reparse point 后清理；A2 隔离目录保留供审读。详见[卡 A2 回执](scripts/results/windows-agent-onboarding-card-a2.20261009.md)。
 
 以下记录为先前阶段；与本节冲突时以本节和 SDD 0012 为准。
 

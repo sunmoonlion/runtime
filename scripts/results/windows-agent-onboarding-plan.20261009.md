@@ -1,4 +1,12 @@
-# Windows 代理安装与首次接入改造方案
+# Windows 代理安装与首次接入改造方案（已由 SDD 0012 取代）
+
+> **本页不再是实施依据。** Fable 已按所有者授权定稿
+> [SDD 0012：Windows 本地代理安装与首次接入](../../../k8s/sunmoonai/docs/dev-investment-agent/tree-build/SDD/modules/0012-agent-onboarding.md)。
+> 特别是站点 CA 信任、连接码流向、是否需要模型 key/沙箱等细节，均以 SDD 0012 为准；不得按下方旧建议实现。
+> 卡 A 已按 SDD 0012 执行；三个入口均被 Windows 应用控制拦截，现停下等待所有者决定是否购买代码签名证书。详见
+> [卡 A 回执](windows-agent-onboarding-card-a.20261009.md)。
+
+以下正文保留为被审方案的历史记录，不作为设计或开发指令。
 
 > 状态：方案待 Fable 审读和所有者确认；本文件只定方案，不代表已实现或验收。
 > 基线：真实下载、PowerShell 解压、手工领令牌后已连通；开发 CA 信任和首次安装体验未达目标。

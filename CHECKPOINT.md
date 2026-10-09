@@ -1,17 +1,17 @@
 # CHECKPOINT（runtime 仓，分支 luna）
 
-## 当前：Windows 安装与首次接入改造方案待审（2026-10-09）
+## 当前：安装体验改造卡 A 命中策略拦截，等待所有者决定（2026-10-09）
 
-最新 Fable 反馈要求先交一页方案，审定后再改代码。本轮已更新
-[Windows 代理安装与首次接入改造方案](scripts/results/windows-agent-onboarding-plan.20261009.md)：
-把资源管理器双击入口实测、开发 CA 信任、浏览器配对、包校验、首次设置向导和「我的电脑」并入设置
-纳入同一交付，保留现有 30 天令牌签发器及手动领令牌备用路径。
+设计由 Fable 定稿，唯一实施依据为 k8s
+[SDD 0012：Windows 本地代理安装与首次接入](../k8s/sunmoonai/docs/dev-investment-agent/tree-build/SDD/modules/0012-agent-onboarding.md)。
+上一版一页方案已标为历史，不可据其冲突内容实施。
 
-**当前只有方案，没有实现。** 未改后端、网页、runtime 或 k8s 代码；未构建、发布、部署或操作集群。
-下一步等 Fable 审读与所有者确认，之后按方案中的实验、配对、网页/代理、发行验收分卡实施。
-资源管理器双击、打包版首次配对、登录自启和干净 Windows 尚未通过真人验收。
+卡 A 已用 Edge 原始 ZIP 完成：包 SHA 与发布记录一致、ZoneId=3；Explorer 解压后 90 个文件通过清单核验，关键文件保留 Zone.Identifier。Smart App Control 为 On、Device Guard enforcement 值为 2。`.cmd`、`.vbs`、指向签名包内 Node 的 `.lnk` 默认打开均被策略拒绝；Code Integrity 有 3033/3118 事件。详细证据见
+[卡 A 回执](scripts/results/windows-agent-onboarding-card-a.20261009.md)。
 
-以下记录为先前阶段；与本节冲突时以本节和上述方案为准。
+按 SDD 全部入口被拦即停止，**等待所有者决定是否购买代码签名证书**；不推测签名必然解决，不更改系统策略，不进入 B/C/D/E。令牌期限核对未做，避免在明确停止点后轮换令牌；当前代理连接、沙箱和集群未改。隔离目录保留至审读后清理。
+
+以下记录为先前阶段；与本节冲突时以本节和 SDD 0012 为准。
 
 ## 当前：托管候选已审读接受，Cursor 发布卡已准备（2026-10-09）
 

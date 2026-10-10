@@ -1,6 +1,6 @@
 # CHECKPOINT（runtime 仓，分支 luna）
 
-## 当前：安装体验改造卡 A2 停在现有安装保护（2026-10-09）
+## 当前：卡 B 后端候选已实现，停下交 Fable 审读（2026-10-09）
 
 设计由 Fable 定稿，唯一实施依据为 k8s
 [SDD 0012：Windows 本地代理安装与首次接入](../k8s/sunmoonai/docs/dev-investment-agent/tree-build/SDD/modules/0012-agent-onboarding.md)。
@@ -8,7 +8,11 @@
 
 卡 A 已用 Edge 原始 ZIP 完成：包 SHA 与发布记录一致、ZoneId=3；Explorer 解压后 90 个文件通过清单核验，关键文件保留 Zone.Identifier。Smart App Control 为 On、Device Guard enforcement 值为 2。`.cmd`、`.vbs`、指向签名包内 Node 的 `.lnk` 默认打开均被策略拒绝；Code Integrity 有 3033/3118 事件。详见[卡 A 回执](scripts/results/windows-agent-onboarding-card-a.20261009.md)。所有者决定不购买代码签名证书。
 
-卡 A2 的 WSL loopback 单次下载、ZIP 摘要、无 `Zone.Identifier`、`Expand-Archive`、90 文件和 manifest 摘要均通过。包内 Node 安装预览被现存 `%LOCALAPPDATA%\Programs\sunmoon-agent` 安装挡住；按 SDD 停止规则，没有换目标绕过保护，没有运行 `desktop.ps1`，也没有查令牌到期状态。未安装、未改令牌或策略。原卡 A 临时目录按精确路径核实无 reparse point 后清理；A2 隔离目录保留供审读。详见[卡 A2 回执](scripts/results/windows-agent-onboarding-card-a2.20261009.md)。
+卡 A2 按所有者/Fable 判定通过：loopback 单次下载、SHA256、无 `Zone.Identifier`（原检查输出 `"zoneIdentifier":false`）、解压 90 文件及 manifest 摘要均通过；包内 Node 执行并触发安装器自身“已安装不能覆盖”保护，证明该 Node 执行路径没有被智能应用控制拦截。所有者确认等价路径此前已打开 `desktop.ps1` 托盘；网页登录确认换令牌后到期为 2026-11-08（30 天）。A2 与卡 A 的精确临时目录均已清理，单次服务已退出；未安装、卸载或改令牌。详见[卡 A2 回执](scripts/results/windows-agent-onboarding-card-a2.20261009.md)。
+
+卡 B 后端候选已本地实现：配对/安装凭证迁移与接口、单次交付、用户级身份锁、过期清理任务、限速、可信代理 CIDR 默认空及凭证日志脱敏。真实 Postgres 用例已写，但因 `AGENT_TEST_DATABASE_URL` 未配置而跳过；现有 HTTP 契约用例在认证依赖处挂起，未判通过。ruff、指定文件 pyright、import-linter 通过；新增单测 10 通过，9 个旧下载配置校验测试通过。详情：[卡 B 实施回执](scripts/results/windows-agent-onboarding-card-b.20261009.md)。
+
+**停点：**只交 Fable 审读，不进入卡 C/D，不发布、不改集群、不推远端。Card B 代码候选不等于 SDD 验收通过；真实 PostgreSQL 并发/回退验证和 HTTP 路由认证验收待审读后补齐。
 
 以下记录为先前阶段；与本节冲突时以本节和 SDD 0012 为准。
 

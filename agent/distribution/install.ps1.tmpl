@@ -1,0 +1,91 @@
+﻿$ErrorActionPreference = 'Stop'
+if (-not [Environment]::Is64BitOperatingSystem) { throw '需要 64 位 Windows。' }
+if ($PSVersionTable.PSVersion.Major -lt 5) { throw '需要 Windows PowerShell 5.1 或更高版本。' }
+
+$PackageUrl = '{{PACKAGE_URL}}'
+$Version = '{{VERSION}}'
+$SizeBytes = [int64]'{{SIZE_BYTES}}'
+$ZipSha256 = '{{ZIP_SHA256}}'
+$ManifestSha256 = '{{MANIFEST_SHA256}}'
+$CodexVersion = '{{CODEX_VERSION}}'
+$Temp = Join-Path $env:TEMP ('sunmoon-agent-' + [guid]::NewGuid().ToString('n'))
+$Zip = Join-Path $Temp 'pkg.zip'
+$Expanded = Join-Path $Temp 'pkg'
+$Dest = Join-Path $env:LOCALAPPDATA 'Programs\sunmoon-agent'
+
+function Save-Package {
+    New-Item -ItemType Directory -Path $Temp | Out-Null
+    $Offset = [int64]0
+    for ($Try = 1; $Try -le 4; $Try++) {
+        try {
+            $Request = [System.Net.HttpWebRequest]::Create($PackageUrl)
+            $Request.UserAgent = 'SunMoonAgentInstaller'
+            $Request.AllowAutoRedirect = $true
+            if ($Offset -gt 0) { [void]$Request.AddRange($Offset) }
+            $Response = $Request.GetResponse()
+            $Status = [int]$Response.StatusCode
+            try {
+                $Stream = $Response.GetResponseStream()
+                $Mode = if ($Offset -gt 0 -and $Status -eq 206) { [System.IO.FileMode]::Append } else { [System.IO.FileMode]::Create }
+                $File = New-Object System.IO.FileStream($Zip, $Mode, [System.IO.FileAccess]::Write)
+                try { $Stream.CopyTo($File) } finally { $File.Dispose() }
+            } finally { $Response.Dispose() }
+            $Offset = (Get-Item -LiteralPath $Zip).Length
+            if ($Offset -eq $SizeBytes) { return }
+        } catch {
+            if (Test-Path -LiteralPath $Zip) { $Offset = (Get-Item -LiteralPath $Zip).Length }
+            if ($Try -ge 4) { throw '安装包下载失败。' }
+        }
+    }
+    throw '安装包没有下完整。'
+}
+
+function New-StartMenuShortcut {
+    $Programs = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs'
+    $Shell = New-Object -ComObject WScript.Shell
+    $Link = $Shell.CreateShortcut((Join-Path $Programs 'SunMoon 代理.lnk'))
+    $Link.TargetPath = Join-Path $Dest 'sunmoon-agent.cmd'
+    $Link.Arguments = 'menu'
+    $Link.WorkingDirectory = $Dest
+    $Link.WindowStyle = 7
+    $Link.Description = 'SunMoon 代理'
+    $Link.Save()
+}
+
+function Show-AgentWindow {
+    New-StartMenuShortcut
+    & (Join-Path $Dest 'sunmoon-agent.cmd') menu
+    if ($LASTEXITCODE -ne 0) { throw '窗口没有打开。' }
+    Write-Output ('已准备 SunMoon 代理 ' + $Version + '（Codex ' + $CodexVersion + '）。请在弹出的窗口里继续。')
+}
+
+try {
+    Save-Package
+    $Length = (Get-Item -LiteralPath $Zip).Length
+    $Hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $Zip).Hash.ToLower()
+    if ($Length -ne $SizeBytes -or $Hash -ne $ZipSha256.ToLower()) { throw '安装包校验没有通过。' }
+    New-Item -ItemType Directory -Path $Expanded | Out-Null
+    Expand-Archive -LiteralPath $Zip -DestinationPath $Expanded -Force
+    $ManifestFile = Join-Path $Expanded 'bundle-manifest.json'
+    $ManifestHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $ManifestFile).Hash.ToLower()
+    if ($ManifestHash -ne $ManifestSha256.ToLower()) { throw '安装包清单校验没有通过。' }
+    $Node = Join-Path $Expanded 'node\node.exe'
+    $PlanJson = & $Node (Join-Path $Expanded 'installer\upgrade.mjs') --installed $Dest --incoming-version $Version
+    if ($LASTEXITCODE -ne 0) { throw '无法核对已安装的版本，没有覆盖现有安装。' }
+    $Plan = $PlanJson | ConvertFrom-Json
+    if ($Plan.preserveConfig -ne $true) { throw '安装必须保留已有配置。' }
+    if ($Plan.action -eq 'refuse') { throw '已安装的版本比这个安装包新，没有更换程序。' }
+    if ($Plan.action -eq 'open') { Show-AgentWindow; return }
+    if ($Plan.action -eq 'upgrade') {
+        & $Node (Join-Path $Expanded 'installer\uninstall.mjs') --apply --manifest-sha256 $ManifestSha256 --installed-manifest-sha256 $Plan.installedManifestSha256
+        if ($LASTEXITCODE -ne 0) { throw '旧版本没有卸下来，配置仍保留，新版本没有安装。' }
+    } elseif ($Plan.action -ne 'install') { throw '无法识别的安装动作，没有改动现有安装。' }
+    if (Test-Path -LiteralPath $Dest) { throw '安装目录还在，没有覆盖已有安装。' }
+    & $Node (Join-Path $Expanded 'installer\install.mjs') --apply --manifest-sha256 $ManifestSha256
+    if ($LASTEXITCODE -ne 0 -or (Test-Path -LiteralPath (Join-Path $Dest '.install-incomplete'))) { throw '新版本没有装上，原来的配置还在。' }
+    & (Join-Path $Dest 'sunmoon-agent.cmd') autostart enable
+    if ($LASTEXITCODE -ne 0) { throw '程序已安装，但登录自启没有打开。' }
+    Show-AgentWindow
+} finally {
+    if (Test-Path -LiteralPath $Temp) { Remove-Item -LiteralPath $Temp -Recurse -Force }
+}

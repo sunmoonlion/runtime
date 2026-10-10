@@ -17,7 +17,7 @@ const REQUIRED = [
   'app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-resources/codex-windows-sandbox-setup.exe',
   'app/node_modules/smol-toml/package.json', 'app/node_modules/ws/package.json',
   'sunmoon-agent.cmd', 'install.cmd', 'installer/install.mjs', 'installer/bundle.mjs',
-  'uninstall.cmd', 'installer/uninstall.mjs', 'installer/launch.mjs',
+  'uninstall.cmd', 'installer/uninstall.mjs', 'installer/launch.mjs', 'installer/upgrade.mjs',
   'app/native/elevated-setup.ps1',
 ];
 
@@ -95,7 +95,7 @@ function shape(value, keys) {
       Object.keys(value).sort().join(',') !== keys.sort().join(',')) throw new Error('Unexpected manifest fields');
 }
 
-export function validateManifest(manifest) {
+export function validateManifest(manifest, options = {}) {
   shape(manifest, ['schema', 'platform', 'architecture', 'agentVersion', 'codexVersion', 'nodeVersion',
     'relayProtocol', 'sourceRevision', 'dependencyLockSha256', 'files']);
   if (manifest.schema !== 1 || manifest.platform !== 'win32' || manifest.architecture !== 'x64' ||
@@ -112,17 +112,20 @@ export function validateManifest(manifest) {
         !isHash(file.sha256)) throw new Error('Invalid manifest file');
     seen.add(key); total += file.size;
   }
-  if (total > 2 * 1024 ** 3 || !REQUIRED.every(name => seen.has(name.toLowerCase()))) throw new Error('Incomplete or oversized bundle');
+  if (total > 2 * 1024 ** 3) throw new Error('Incomplete or oversized bundle');
+  // The current file list is for packing and first install of a new package.
+  // An already-installed directory is checked against its own manifest.
+  if (options.requireLayout !== false && !REQUIRED.every(name => seen.has(name.toLowerCase()))) throw new Error('Incomplete or oversized bundle');
   return manifest;
 }
 
-export function verifyBundle(directory, expectedManifestHash) {
+export function verifyBundle(directory, expectedManifestHash, options = {}) {
   if (!isHash(expectedManifestHash)) throw new Error('Expected manifest SHA256 is required');
   plainDirectory(directory);
   const manifestFile = path.join(directory, MANIFEST);
   const stat = digest(manifestFile);
   if (stat.size > 4 * 1024 * 1024 || stat.sha256 !== expectedManifestHash) throw new Error('Manifest digest mismatch');
-  const manifest = validateManifest(JSON.parse(fs.readFileSync(manifestFile, 'utf8')));
+  const manifest = validateManifest(JSON.parse(fs.readFileSync(manifestFile, 'utf8')), options);
   const actual = inventory(directory).filter(item => item.path !== MANIFEST);
   const expected = [...manifest.files].sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0);
   if (actual.length !== expected.length || actual.some((f, i) => f.path !== expected[i].path ||
@@ -187,7 +190,7 @@ export function firstInstall({ source, localAppData, expectedManifestHash, apply
 
 // No recursive rm. Unknown, modified or linked files fail before any removal.
 export function removeVerifiedBundle(directory, expectedManifestHash, apply = false) {
-  const manifest = verifyBundle(directory, expectedManifestHash);
+  const manifest = verifyBundle(directory, expectedManifestHash, { requireLayout: false });
   const plan = { directory, files: manifest.files.length + 1, apply };
   if (!apply) return plan;
   for (const entry of [...manifest.files, {path: MANIFEST}]) {

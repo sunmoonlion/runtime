@@ -84,14 +84,45 @@ export async function startResident(): Promise<void> {
   }
   throw new Error("Background agent startup timed out; inspect status before retrying");
 }
-export async function closeTray(): Promise<boolean> {
-  checkControlDirectory();
-  const file = path.join(CONFIG_DIR, "tray.json"), stop = path.join(CONFIG_DIR, "tray-stop.json");
-  if (!fs.existsSync(file)) return false;
+function readTrayControl(file: string): { pid: number; runId: string } {
   const st = fs.lstatSync(file);
   if (!st.isFile() || st.isSymbolicLink() || st.nlink !== 1 || st.size > 1024) throw new Error("Unsafe tray status");
   const current = JSON.parse(fs.readFileSync(file, "utf8").replace(/^\uFEFF/, ""));
-  if (!Number.isInteger(current.pid) || !/^[a-f0-9-]{36}$/.test(current.runId)) throw new Error("Invalid tray status");
+  if (!Number.isInteger(current.pid) || current.pid <= 0 || !/^[a-f0-9-]{36}$/.test(current.runId)) throw new Error("Invalid tray status");
+  return current;
+}
+function removePlainControl(file: string): void {
+  if (!fs.existsSync(file)) return;
+  const st = fs.lstatSync(file);
+  if (!st.isFile() || st.isSymbolicLink() || st.nlink !== 1) throw new Error("Unsafe tray status");
+  fs.unlinkSync(file);
+}
+export function pidAlive(pid: number): boolean {
+  try { process.kill(pid, 0); return true; }
+  catch (error) { return (error as NodeJS.ErrnoException).code === "EPERM"; }
+}
+/** A leftover stop file whose recorded tray process is gone is cleared and treated as stopped. */
+export function discardDeadTrayStop(directory: string, alive: (pid: number) => boolean): "cleared" | "pending" | "continue" {
+  const file = path.join(directory, "tray.json"), stop = path.join(directory, "tray-stop.json");
+  if (fs.existsSync(stop)) {
+    const current = readTrayControl(stop);
+    if (!alive(current.pid)) { removePlainControl(stop); removePlainControl(file); return "cleared"; }
+    return "pending";
+  }
+  if (fs.existsSync(file)) {
+    const current = readTrayControl(file);
+    if (!alive(current.pid)) { removePlainControl(file); return "cleared"; }
+  }
+  return "continue";
+}
+export async function closeTray(): Promise<boolean> {
+  checkControlDirectory();
+  const decision = discardDeadTrayStop(CONFIG_DIR, pidAlive);
+  if (decision === "cleared") return true;
+  if (decision === "pending") throw new Error("A tray stop request is already pending");
+  const file = path.join(CONFIG_DIR, "tray.json"), stop = path.join(CONFIG_DIR, "tray-stop.json");
+  if (!fs.existsSync(file)) return false;
+  const current = readTrayControl(file);
   if (fs.existsSync(stop)) throw new Error("A tray stop request is already pending");
   fs.writeFileSync(stop, JSON.stringify(current), { flag: "wx" });
   for (let i = 0; i < 50; i++) { if (!fs.existsSync(file)) return true; await sleep(200); }
@@ -102,6 +133,15 @@ export async function runTray(): Promise<void> {
   const child = spawn(powershell(), ["-NoLogo", "-NoProfile", "-NonInteractive", "-File", path.join(nativeDirectory, "desktop.ps1"), "-Action", "tray"], { windowsHide: true, stdio: ["pipe", "ignore", "ignore"] });
   child.stdin.end(JSON.stringify({ node: process.execPath, cli, state: CONFIG_DIR, instance: instanceKey(CONFIG_DIR) }));
   await new Promise<void>((resolve, reject) => { child.once("error", reject); child.once("exit", code => code === 0 ? resolve() : reject(new Error("Tray failed; check Windows script policy"))); });
+}
+export function openDesktop(action: "tray" | "onboard"): Promise<void> {
+  checkControlDirectory();
+  const child = spawn(powershell(), ["-NoLogo", "-NoProfile", "-NonInteractive", "-File", path.join(nativeDirectory, "desktop.ps1"), "-Action", action], { detached: true, windowsHide: true, stdio: ["pipe", "ignore", "ignore"] });
+  child.stdin.end(JSON.stringify({ node: process.execPath, cli, state: CONFIG_DIR, instance: instanceKey(CONFIG_DIR) }));
+  return new Promise((resolve, reject) => {
+    child.once("error", reject);
+    child.once("spawn", () => { child.unref(); resolve(); });
+  });
 }
 export async function autostart(action: string): Promise<any> {
   checkControlDirectory();
@@ -132,6 +172,7 @@ export function preferences(argv: string[]): object {
     const keys = choices.map((root: string) => canonicalPath(root, "win32"));
     if (new Set(keys).size !== keys.length || new Set(input.roots.map((root: string) => canonicalPath(root, "win32"))).size !== input.roots.length
       || input.roots.some((root: string) => !keys.includes(canonicalPath(root, "win32")))) throw new Error("Invalid directory selection");
+    fs.mkdirSync(cfg.codexHome, { recursive: true, mode: 0o700 });
     assertWindowsHome(CONFIG_DIR, choices); assertWindowsHome(cfg.codexHome, choices);
     cfg.roots = input.roots; cfg.rootChoices = choices; cfg.machineName = input.machineName; cfg.ceiling = input.ceiling; saveConfig(cfg);
   } else if (argv[0] && argv[0] !== "show") throw new Error("settings show|set");

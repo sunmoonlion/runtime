@@ -19,7 +19,7 @@ try {
   const target = path.join(plainDirectory(process.env.LOCALAPPDATA), 'Programs', 'sunmoon-agent');
   if (path.relative(target, source) === '' || !path.relative(target, source).startsWith('..')) throw new Error('Use the external distribution to uninstall');
   const expected = values['installed-manifest-sha256'] ?? values['manifest-sha256'];
-  verifyBundle(target, expected);
+  verifyBundle(target, expected, { requireLayout: false });
   const state = process.env.SUNMOON_AGENT_HOME ?? path.join(os.homedir(), '.sunmoon-agent');
   const plan = { action: values.apply ? 'uninstall' : 'preview', target, preserveConfig: !values['remove-config'], stopsOnlyThisAgent: true };
   // Config deletion is intentionally narrower than configurable runtime homes.

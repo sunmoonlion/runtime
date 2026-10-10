@@ -30,7 +30,7 @@ sunmoon-agent start                                # 前台调试
 sunmoon-agent start --background                   # Windows 后台，确认用本机窗口
 sunmoon-agent tray                                 # Windows 托盘；退出后后台继续
 sunmoon-agent stop                                 # Windows 正常停止
-sunmoon-agent autostart enable|disable|status        # 当前用户登录自启，默认关闭
+sunmoon-agent autostart enable|disable|status        # 当前用户登录自启；安装时默认打开，可关闭
 sunmoon-agent status
 sunmoon-agent mcp import                          # Windows：本机逐项确认 HTTP MCP
 sunmoon-agent mcp list                            # 查看已确认配置；不读取用户凭据

@@ -49,7 +49,7 @@ Get-FileHash .\bundle-manifest.json -Algorithm SHA256
 | 托盘 | `sunmoon-agent.cmd tray` | 查看连接原因、启停、白名单、权限、自启 |
 | 关闭界面 | 托盘“退出托盘”或 `tray stop` | 后台继续；不等于停止代理 |
 | 停止 | `sunmoon-agent.cmd stop` | 匹配 PID 与本轮随机身份，正常清理执行进程，不杀未知进程 |
-| 自启开关 | `autostart enable / disable / status` | 当前用户登录任务，Limited、非管理员；默认关闭 |
+| 自启开关 | `autostart enable / disable / status` | 当前用户登录任务，Limited、非管理员；安装时默认打开，可关闭 |
 | 配置 | 托盘“白名单与上限设置” | 逐项勾选目录、只读/工作区写入、网络开关；保存后 stop/start 生效 |
 | 前台诊断 | `sunmoon-agent.cmd start` | 终端交互和日志；前台/后台共用单实例锁 |
 

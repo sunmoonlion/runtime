@@ -21,8 +21,9 @@ import { importCandidates, loadMcp, saveMcp, confirmedMcpUrls } from "./mcp.js";
 import { localConfirm } from "./localConfirm.js";
 import { readHiddenToken } from "./hiddenToken.js";
 import { windowsConfirm } from "./windowsDesktop.js";
-import { acquireResident, autostart, preferences, readResidentStatus, residentAlive, runTray, closeTray, startResident, stopResident, setupElevated } from "./resident.js";
+import { acquireResident, autostart, preferences, readResidentStatus, residentAlive, runTray, closeTray, startResident, stopResident, setupElevated, openDesktop } from "./resident.js";
 import { installedLaunchError } from "./siteTrust.js";
+import { configHasToken, menuTarget, osLabel, runPair, siteOrigin } from "./pair.js";
 
 const VERSION = "0.2.2";
 const STATUS_PATH = path.join(CONFIG_DIR, "status.json");
@@ -39,6 +40,17 @@ function args(flag: string, argv: string[]): string[] {
 
 /** 被会合点拒绝（令牌无效、被吊销、被同用户的新代理顶掉）后退出用的码；换令牌后重新 init 再 start。 */
 const EXIT_REJECTED = 3;
+
+async function postPair(url: string, body: Record<string, string>): Promise<{ status: number; body: unknown }> {
+  let response: Response;
+  try {
+    response = await fetch(url, { method: "POST", headers: { "content-type": "application/json", accept: "application/json" }, body: JSON.stringify(body) });
+  } catch { throw new Error("连不上站点。检查网络或代理设置。"); }
+  const text = await response.text();
+  if (!text) return { status: response.status, body: null };
+  try { return { status: response.status, body: JSON.parse(text) }; }
+  catch { return { status: response.status, body: null }; }
+}
 
 async function main(argv: string[]): Promise<number> {
   const cmd = argv[0];
@@ -63,6 +75,39 @@ async function main(argv: string[]): Promise<number> {
     if (process.platform === "win32") { cfg.windowsSandbox = await detectWindowsSandbox(cfg.codexHome, cfg.roots); console.log(`Windows sandbox: ${cfg.windowsSandbox.mode} (real process/start verified)`); }
     saveConfig(cfg);
     console.log(`已写 ${CONFIG_PATH}`);
+    return 0;
+  }
+
+  if (cmd === "pair") {
+    if (argv.length) throw new Error("pair 不接受参数");
+    let cancel = false;
+    process.stdin.on("data", (chunk: Buffer | string) => { if (String(chunk).includes("cancel")) cancel = true; });
+    const machineName = fs.existsSync(CONFIG_PATH) ? loadConfig().machineName : defaultConfig().machineName;
+    return runPair({
+      webOrigin: siteOrigin(import.meta.url),
+      machineName,
+      osName: osLabel(),
+      agentVersion: VERSION,
+      codexVersion: locateCodex().version,
+      configPath: CONFIG_PATH,
+      post: postPair,
+      sleep: ms => new Promise(resolve => setTimeout(resolve, ms)),
+      cancelled: () => cancel,
+      stdout: line => console.log(line),
+      stopIfRunning: async () => {
+        if (process.platform === "win32" && await residentAlive() && !await stopResident()) throw new Error("请先停止正在运行的代理，再连接账号。");
+      },
+    });
+  }
+  if (cmd === "menu") {
+    const action = menuTarget(configHasToken());
+    console.log(JSON.stringify({ action }));
+    if (process.platform === "win32") await openDesktop(action);
+    return 0;
+  }
+  if (cmd === "onboard") {
+    if (process.platform !== "win32") throw new Error("Windows lifecycle command");
+    await openDesktop("onboard");
     return 0;
   }
 
@@ -213,7 +258,10 @@ function usage(): void {
   stop                 Windows 正常停止；不强杀未知进程
   tray [stop]          Windows 托盘；关闭托盘不停止代理
   settings show|set    本机设置；set 从 stdin 读非秘密 JSON，重启后生效
-  autostart status|enable|disable   当前用户登录任务，默认关闭
+  pair                       连接账号：显示连接码并轮询，令牌只写入本机配置
+  menu                       已连接则打开托盘，否则打开设置向导
+  onboard                    Windows 设置向导
+  autostart status|enable|disable   当前用户登录任务；安装时默认打开，可关闭
   sandbox-setup --elevated         可选 UAC；先停止代理，仅同一 Windows 用户`);
 }
 

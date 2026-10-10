@@ -1,4 +1,4 @@
-﻿param([Parameter(Mandatory=$true)][ValidateSet('confirm','tray','autostart','setup')][string]$Action)
+﻿param([Parameter(Mandatory=$true)][ValidateSet('confirm','tray','autostart','setup','onboard')][string]$Action)
 $ErrorActionPreference = 'Stop'
 [Console]::InputEncoding = New-Object System.Text.UTF8Encoding($false)
 [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
@@ -77,13 +77,10 @@ if ($Action -eq 'confirm') {
 }
 
 # The tray is a separate process. Closing it never stops the background agent.
-if ($InputData.instance -notmatch '^[a-f0-9]{24}$') { throw 'Invalid instance' }
-$Mutex = New-Object System.Threading.Mutex($false,('Local\SunMoonAgentTray-' + $InputData.instance))
-if (-not $Mutex.WaitOne(0,$false)) { $Mutex.Dispose(); exit 0 }
 $Node = [string]$InputData.node; $Cli = [string]$InputData.cli; $State = [string]$InputData.state
 if ($Node -match '["\r\n]' -or $Cli -match '["\r\n]') { throw 'Unsupported executable path' }
 
-function Invoke-Agent([string[]]$Command, $Body=$null) {
+function New-AgentProcess([string[]]$Command) {
     # Command strings are fixed menu verbs. User values are only JSON on stdin.
     if (@($Command | Where-Object { $_ -notmatch '^[a-z-]+$' }).Count) { throw 'Invalid menu action' }
     $Exec = @(); $ExtraCa = $null
@@ -113,6 +110,10 @@ function Invoke-Agent([string[]]$Command, $Body=$null) {
     }
     $Process=New-Object System.Diagnostics.Process; $Process.StartInfo=$Info
     $Process.Start() | Out-Null
+    return $Process
+}
+function Invoke-Agent([string[]]$Command, $Body=$null) {
+    $Process=New-AgentProcess $Command
     if ($null -ne $Body) { $Process.StandardInput.Write(($Body | ConvertTo-Json -Depth 8 -Compress)) }
     $Process.StandardInput.Close()
     $ReadOut=$Process.StandardOutput.ReadToEndAsync(); $ReadErr=$Process.StandardError.ReadToEndAsync()
@@ -180,6 +181,99 @@ function Show-Preferences {
     try{$Dialog.ShowDialog()|Out-Null}finally{$Dialog.Dispose()}
 }
 
+function Show-Onboard {
+    $Form=New-Object System.Windows.Forms.Form
+    $Form.Text='SunMoon - 设置'; $Form.Size=New-Object System.Drawing.Size(700,480); $Form.StartPosition='CenterScreen'
+    $script:Pair=$null; $script:Account=''; $script:Remaining=0
+    $Intro=New-Object System.Windows.Forms.Label; $Intro.Text='连接账号'; $Intro.SetBounds(15,15,650,24)
+    $Connect=New-Object System.Windows.Forms.Button; $Connect.Text='连接我的账号'; $Connect.SetBounds(15,48,160,32)
+    $Code=New-Object System.Windows.Forms.Label; $Code.Font=New-Object System.Drawing.Font('Segoe UI',28); $Code.SetBounds(15,95,650,60)
+    $Clock=New-Object System.Windows.Forms.Label; $Clock.SetBounds(15,160,650,24)
+    $Connected=New-Object System.Windows.Forms.Label; $Connected.SetBounds(15,190,650,28)
+    $CancelPair=New-Object System.Windows.Forms.Button; $CancelPair.Text='取消'; $CancelPair.SetBounds(15,230,120,30)
+    $Refresh=New-Object System.Windows.Forms.Button; $Refresh.Text='重新获取连接码'; $Refresh.SetBounds(150,230,160,30)
+    $Next1=New-Object System.Windows.Forms.Button; $Next1.Text='下一步'; $Next1.Enabled=$false; $Next1.SetBounds(545,390,120,30)
+    $FolderNote=New-Object System.Windows.Forms.Label; $FolderNote.Text='不选的话工作和专家碰不到你的文件'; $FolderNote.Visible=$false; $FolderNote.SetBounds(15,15,650,24)
+    $Roots=New-Object System.Windows.Forms.CheckedListBox; $Roots.Visible=$false; $Roots.CheckOnClick=$true; $Roots.SetBounds(15,48,650,250)
+    $Add=New-Object System.Windows.Forms.Button; $Add.Text='添加待选目录'; $Add.Visible=$false; $Add.SetBounds(15,310,135,30)
+    $Remove=New-Object System.Windows.Forms.Button; $Remove.Text='移除选中行'; $Remove.Visible=$false; $Remove.SetBounds(165,310,135,30)
+    $Next2=New-Object System.Windows.Forms.Button; $Next2.Text='下一步'; $Next2.Visible=$false; $Next2.SetBounds(545,390,120,30)
+    $Auto=New-Object System.Windows.Forms.CheckBox; $Auto.Text='开机自动运行'; $Auto.Checked=$true; $Auto.Visible=$false; $Auto.SetBounds(15,48,300,28)
+    $Next3=New-Object System.Windows.Forms.Button; $Next3.Text='下一步'; $Next3.Visible=$false; $Next3.SetBounds(545,390,120,30)
+    $Finish=New-Object System.Windows.Forms.Button; $Finish.Text='完成'; $Finish.Visible=$false; $Finish.SetBounds(405,390,120,30)
+    $Retry=New-Object System.Windows.Forms.Button; $Retry.Text='重试'; $Retry.Visible=$false; $Retry.SetBounds(15,230,120,30)
+    $Online=New-Object System.Windows.Forms.Label; $Online.Visible=$false; $Online.SetBounds(15,48,650,80)
+    $script:Lines = New-Object 'System.Collections.Concurrent.ConcurrentQueue[string]'
+    $Timer=New-Object System.Windows.Forms.Timer; $Timer.Interval=1000
+    $Timer.Add_Tick({
+        if($script:Remaining -gt 0){ $script:Remaining--; $Clock.Text=('剩余 ' + $script:Remaining + ' 秒') }
+        $Line=$null
+        while($script:Lines.TryDequeue([ref]$Line)){
+            try{$Msg=$Line|ConvertFrom-Json}catch{continue}
+            if($Msg.event -eq 'code'){
+                $Code.Text=[string]$Msg.user_code
+                $script:Remaining=[int]$Msg.expires_in
+                $Clock.Text=('剩余 ' + $script:Remaining + ' 秒')
+                if([string]$Msg.verify_url -match '^https?://[^ \r\n]+$'){ Start-Process ([string]$Msg.verify_url) }
+            } elseif($Msg.event -eq 'result' -and $Msg.status -eq 'approved'){
+                $script:Account=[string]$Msg.account
+                $Connected.Text='已连接到 ' + $script:Account
+                $Next1.Enabled=$true
+            } elseif($Msg.event -eq 'result'){
+                $Connected.Text=[string]$Msg.message
+            }
+        }
+    })
+    function Stop-Pair { if($script:Pair -and -not $script:Pair.HasExited){ try{$script:Pair.StandardInput.WriteLine('cancel')}catch{} } }
+    $Connect.Add_Click({
+        Stop-Pair
+        $script:Pair=New-AgentProcess @('pair')
+        $script:Pair.add_OutputDataReceived({ if($_.Data){ $script:Lines.Enqueue([string]$_.Data) } })
+        $script:Pair.BeginOutputReadLine()
+    })
+    $CancelPair.Add_Click({ Stop-Pair; $Connected.Text='已取消连接。' })
+    $Refresh.Add_Click({ $Connect.PerformClick() })
+    $Add.Add_Click({ $Picker=New-Object System.Windows.Forms.FolderBrowserDialog; try { if($Picker.ShowDialog() -eq 'OK' -and -not $Roots.Items.Contains($Picker.SelectedPath)){$Roots.Items.Add($Picker.SelectedPath,$false)|Out-Null} } finally{$Picker.Dispose()} })
+    $Remove.Add_Click({ if($Roots.SelectedIndex -ge 0){$Roots.Items.RemoveAt($Roots.SelectedIndex)} })
+    function Show-Step([int]$Step) {
+        $first=$Step -eq 1; $second=$Step -eq 2; $third=$Step -eq 3; $fourth=$Step -eq 4
+        foreach($Item in @($Intro,$Connect,$Code,$Clock,$Connected,$CancelPair,$Refresh,$Next1)){ $Item.Visible=$first }
+        foreach($Item in @($FolderNote,$Roots,$Add,$Remove,$Next2)){ $Item.Visible=$second }
+        foreach($Item in @($Auto,$Next3)){ $Item.Visible=$third }
+        foreach($Item in @($Online,$Finish,$Retry)){ $Item.Visible=$fourth }
+    }
+    $Next1.Add_Click({ Show-Step 2 })
+    $Next2.Add_Click({ Show-Step 3 })
+    $Next3.Add_Click({ Show-Step 4 })
+    function Complete-Setup {
+        $Chosen=@($Roots.CheckedItems | ForEach-Object{[string]$_})
+        $All=@($Roots.Items | ForEach-Object{[string]$_})
+        $Prefs=Invoke-Agent @('settings','show')
+        Invoke-Agent @('settings','set') @{machineName=$Prefs.machineName; roots=$Chosen; rootChoices=$(if($All.Count){$All}else{$Chosen}); ceiling=$Prefs.ceiling} | Out-Null
+        if($Auto.Checked){ Invoke-Agent @('autostart','enable') | Out-Null } else { Invoke-Agent @('autostart','disable') | Out-Null }
+        try { Invoke-Agent @('start','--background') | Out-Null } catch {}
+        $Deadline=(Get-Date).AddSeconds(30)
+        do {
+            Start-Sleep -Seconds 1
+            $Current=Invoke-Agent @('status')
+            if($Current.running -and $Current.relay.status -eq 'connected'){ $Online.Text='已在线'; return }
+            if($Current.relay.lastError){ $Online.Text=[string]$Current.relay.lastError }
+        } while((Get-Date) -lt $Deadline)
+        if(-not $Online.Text){ $Online.Text='还没有连上。' }
+    }
+    $Finish.Add_Click({ try{ Complete-Setup }catch{ $Online.Text=$_.Exception.Message } })
+    $Retry.Add_Click({ $Finish.PerformClick() })
+    $Form.Controls.AddRange(@($Intro,$Connect,$Code,$Clock,$Connected,$CancelPair,$Refresh,$Next1,$FolderNote,$Roots,$Add,$Remove,$Next2,$Auto,$Next3,$Online,$Finish,$Retry))
+    Show-Step 1
+    $Timer.Start()
+    try{$Form.ShowDialog()|Out-Null}finally{ $Timer.Stop(); $Timer.Dispose(); Stop-Pair; $Form.Dispose() }
+}
+
+if ($Action -eq 'onboard') { Show-Onboard; exit 0 }
+if ($InputData.instance -notmatch '^[a-f0-9]{24}$') { throw 'Invalid instance' }
+$Mutex = New-Object System.Threading.Mutex($false,('Local\SunMoonAgentTray-' + $InputData.instance))
+if (-not $Mutex.WaitOne(0,$false)) { $Mutex.Dispose(); exit 0 }
+
 $Tray=New-Object System.Windows.Forms.NotifyIcon; $Tray.Icon=[System.Drawing.SystemIcons]::Application; $Tray.Text='SunMoon Agent'; $Tray.Visible=$true
 $Menu=New-Object System.Windows.Forms.ContextMenuStrip
 $Connection=$Menu.Items.Add('状态：正在读取'); $Connection.Enabled=$false
@@ -188,6 +282,17 @@ $Tray.Add_DoubleClick({Show-Status})
 $Start=$Menu.Items.Add('启动代理'); $Start.Add_Click({ Show-Result { Invoke-Agent @('start','--background') } })
 $Stop=$Menu.Items.Add('停止代理'); $Stop.Add_Click({ Show-Result { Invoke-Agent @('stop') } })
 $Preferences=$Menu.Items.Add('白名单与上限设置'); $Preferences.Add_Click({ try{Show-Preferences}catch{[System.Windows.Forms.MessageBox]::Show($_.Exception.Message,'SunMoon')|Out-Null} })
+$Reconnect=$Menu.Items.Add('重新连接账号'); $Reconnect.Add_Click({
+    $Ps=Join-Path $PSHOME 'powershell.exe'
+    $Info=New-Object System.Diagnostics.ProcessStartInfo
+    $Info.FileName=$Ps
+    $Info.Arguments='-NoLogo -NoProfile -NonInteractive -File "'+$PSCommandPath+'" -Action onboard'
+    $Info.UseShellExecute=$false; $Info.RedirectStandardInput=$true; $Info.CreateNoWindow=$true
+    $Child=New-Object System.Diagnostics.Process; $Child.StartInfo=$Info
+    $Child.Start()|Out-Null
+    $Child.StandardInput.Write((@{node=$Node;cli=$Cli;state=$State;instance=$InputData.instance}|ConvertTo-Json -Compress))
+    $Child.StandardInput.Close()
+})
 $Enable=$Menu.Items.Add('启用登录自启'); $Enable.Add_Click({ Show-Result { Invoke-Agent @('autostart','enable') } })
 $Disable=$Menu.Items.Add('关闭登录自启'); $Disable.Add_Click({ Show-Result { Invoke-Agent @('autostart','disable') } })
 $Menu.Items.Add('-')|Out-Null

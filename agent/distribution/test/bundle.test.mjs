@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { MANIFEST, relativeFile, digest, inventory, firstInstall, verifyBundle, validateManifest, removeVerifiedBundle } from '../bundle.mjs';
+import { decideUpgrade, inspectInstalled } from '../upgrade.mjs';
 import { certificateDerSha256, siteDocument, writeSite } from '../launch.mjs';
 
 const samplePaths = [
@@ -18,7 +19,7 @@ const samplePaths = [
   'app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-resources/codex-windows-sandbox-setup.exe',
   'app/node_modules/smol-toml/package.json', 'app/node_modules/ws/package.json',
   'sunmoon-agent.cmd', 'install.cmd', 'installer/install.mjs', 'installer/bundle.mjs',
-  'uninstall.cmd', 'installer/uninstall.mjs', 'installer/launch.mjs',
+  'uninstall.cmd', 'installer/uninstall.mjs', 'installer/launch.mjs', 'installer/upgrade.mjs',
   'app/native/elevated-setup.ps1',
 ];
 function fixture(t) {
@@ -184,4 +185,66 @@ test('dev site CA is the registry local CA and its DER hash is written only at p
   const site = JSON.parse(fs.readFileSync(siteFile, 'utf8')); site.trust.ca_sha256 = '0'.repeat(64);
   fs.writeFileSync(siteFile, JSON.stringify(site));
   assert.throws(() => verifyBundle(f.source, reseal()), /Site CA digest mismatch/);
+});
+
+function shaped(t, agentVersion, omit) {
+  const f = fixture(t);
+  for (const name of omit) fs.rmSync(path.join(f.source, name), { force: true });
+  fs.rmSync(path.join(f.source, MANIFEST));
+  f.manifest.agentVersion = agentVersion;
+  f.manifest.files = inventory(f.source);
+  f.expectedManifestHash = f.save();
+  return f;
+}
+
+test('an installed 0.2.1-shaped tree is removed from its own manifest and a new package still requires the current layout', t => {
+  const old = shaped(t, '0.2.1', ['installer/launch.mjs', 'installer/upgrade.mjs']);
+  assert.equal(fs.existsSync(path.join(old.source, 'site')), false);
+  assert.throws(() => verifyBundle(old.source, old.expectedManifestHash), /Incomplete or oversized bundle/);
+  assert.throws(() => firstInstall({ ...old, apply: true }), /Incomplete or oversized bundle/);
+  assert.equal(fs.existsSync(path.join(old.localAppData, 'Programs')), false);
+  const installed = path.join(old.root, 'installed-021');
+  fs.cpSync(old.source, installed, { recursive: true });
+  const outside = path.join(old.root, 'kept-config.json');
+  fs.writeFileSync(outside, 'synthetic-config-keep');
+  const found = inspectInstalled(installed);
+  assert.equal(found.installedVersion, '0.2.1');
+  assert.equal(found.installedManifestSha256, old.expectedManifestHash);
+  assert.deepEqual(decideUpgrade(found.installedVersion, '0.2.2'), { action: 'upgrade', preserveConfig: true, installedVersion: '0.2.1' });
+  removeVerifiedBundle(installed, found.installedManifestSha256, true);
+  assert.equal(fs.existsSync(installed), false);
+  assert.equal(fs.readFileSync(outside, 'utf8'), 'synthetic-config-keep');
+});
+
+test('0.2.2 and same-version decisions keep config and never replace a newer install', t => {
+  const current = shaped(t, '0.2.2', []);
+  const found = inspectInstalled(current.source);
+  assert.equal(found.installedVersion, '0.2.2');
+  assert.deepEqual(decideUpgrade('0.2.2', '0.2.2'), { action: 'open', preserveConfig: true, installedVersion: '0.2.2' });
+  assert.deepEqual(decideUpgrade('0.2.1', '0.2.2'), { action: 'upgrade', preserveConfig: true, installedVersion: '0.2.1' });
+  assert.deepEqual(decideUpgrade('0.2.2', '0.2.3'), { action: 'upgrade', preserveConfig: true, installedVersion: '0.2.2' });
+  assert.deepEqual(decideUpgrade('0.2.3', '0.2.2'), { action: 'refuse', preserveConfig: true, installedVersion: '0.2.3' });
+  assert.deepEqual(decideUpgrade(null, '0.2.2'), { action: 'install', preserveConfig: true });
+  assert.equal(fs.existsSync(path.join(current.source, 'installer/launch.mjs')), true);
+});
+
+test('install script upgrades either installed shape without an overwrite switch', () => {
+  const text = fs.readFileSync(fileURLToPath(new URL('../install.ps1.tmpl', import.meta.url)), 'utf8');
+  const names = ['PACKAGE_URL', 'VERSION', 'SIZE_BYTES', 'ZIP_SHA256', 'MANIFEST_SHA256', 'CODEX_VERSION'];
+  for (const name of names) assert.equal(text.split(`{{${name}}}`).length - 1, 1, name);
+  const leftover = text.replace(/\{\{(?:PACKAGE_URL|VERSION|SIZE_BYTES|ZIP_SHA256|MANIFEST_SHA256|CODEX_VERSION)\}\}/g, '');
+  assert.equal(/\{\{[A-Z0-9_]+\}\}/.test(leftover), false);
+  assert.match(text, /installer\\upgrade\.mjs/);
+  assert.match(text, /installer\\uninstall\.mjs/);
+  assert.match(text, /installer\\install\.mjs/);
+  assert.equal(text.includes('--remove-config'), false);
+  assert.equal(text.includes('ExecutionPolicy'), false);
+  assert.match(text, /安装目录还在，没有覆盖已有安装/);
+  assert.match(text, /SunMoon 代理/);
+  assert.match(text, /autostart enable/);
+  assert.match(text, /请在弹出的窗口里继续/);
+  const desktop = fs.readFileSync(fileURLToPath(new URL('../../native/desktop.ps1', import.meta.url)), 'utf8');
+  for (const label of ['连接我的账号', '不选的话工作和专家碰不到你的文件', '开机自动运行', '重新连接账号', '已在线', '重新获取连接码']) {
+    assert.equal(desktop.includes(label), true, label);
+  }
 });

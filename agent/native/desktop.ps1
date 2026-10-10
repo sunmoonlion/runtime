@@ -1,7 +1,10 @@
 ﻿param([Parameter(Mandatory=$true)][ValidateSet('confirm','tray','autostart','setup','onboard')][string]$Action)
 $ErrorActionPreference = 'Stop'
-[Console]::InputEncoding = New-Object System.Text.UTF8Encoding($false)
-[Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
+try {
+    # detached PowerShell has no console; assigning these throws. Redirected stdin still works.
+    [Console]::InputEncoding = New-Object System.Text.UTF8Encoding($false)
+    [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
+} catch {}
 $InputData = [Console]::In.ReadToEnd() | ConvertFrom-Json
 
 if($Action -eq 'setup'){

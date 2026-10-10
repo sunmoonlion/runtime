@@ -143,10 +143,18 @@ type DesktopChild = {
 };
 /** Resolve after stdin is flushed and the window loop has started. menu then process.exit must not drop either. */
 export function deliverDesktop(
-  launch: (command: string, args: string[], options: { windowsHide: true; stdio: ["pipe", "pipe", "ignore"] }) => DesktopChild,
+  launch: (command: string, args: string[], options: { detached: true; windowsHide: true; stdio: ["pipe", "pipe", number] }) => DesktopChild,
   command: string, args: string[], payload: string,
 ): Promise<void> {
-  const child = launch(command, args, { windowsHide: true, stdio: ["pipe", "pipe", "ignore"] });
+  // Keep this file until the owner confirms the tray survives closing their PowerShell.
+  const errFile = path.join(process.env.TEMP || process.env.TMP || process.env.TMPDIR || "/tmp", "sunmoon-tray-err.txt");
+  const errFd = fs.openSync(errFile, "w");
+  let child: DesktopChild;
+  try {
+    child = launch(command, args, { detached: true, windowsHide: true, stdio: ["pipe", "pipe", errFd] });
+  } finally {
+    fs.closeSync(errFd);
+  }
   return new Promise((resolve, reject) => {
     let settled = false, flushed = false, ready = false;
     const finish = (error?: Error) => {

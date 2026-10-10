@@ -28,17 +28,34 @@
 | PowerShell 解析 `desktop.ps1` | 上一轮 `parse-ok`。本轮未改该文件，未重跑 |
 | `cscript run-hidden.vbs` 不带参数 | 上一轮退出码 2。本轮未改该文件，未重跑 |
 
-## 未做
+## 0.2.2 包（未发布）
 
-- 没有用官方 `node.exe` 组 Windows 包，因此没有新的 ZIP、清单摘要或安装目录。
-- 没有在所有者的 Windows 上去掉会话 `NODE_OPTIONS`、重启，或确认代理靠随包 CA 自己连上。
-- 没有安装、卸载或改已在运行的 0.2.1。没有发布，没有推送，没有改集群。
-- C2 的配对、四步设置、开始菜单快捷方式、自启默认开启和 `install.ps1.tmpl` 都没写。
+组包用已核过的官方 `node.exe`（SHA256 `3602f2bb1a10f2cbab4c36886218a33c1ab3db87290e73b033c46c77147d0237`）和 `C:\Users\zymun\sunmoon-probe-runs\windows-agent-2-20261008\agent`。锁文件与源码一致。站点参数为 `--site agent/distribution/sites/dev-kind.json --ca-pem agent/distribution/sites/dev-kind-ca.pem`。
 
-## 审过之后才需要所有者在 Windows 上做的事
+| 项目 | 值 |
+| --- | --- |
+| 源码 | `dcb3a10e9a2fca883915084683aa678c01facafd` |
+| 目录 | `C:\Users\zymun\sunmoon-probe-runs\windows-agent-c1-20261010\sunmoon-agent-dcb3a10` |
+| ZIP | 同一目录下 `sunmoon-agent-0.2.2-dcb3a10-windows-x64.zip` |
+| 清单内文件 | 94 个，合计 500978887 字节；加上清单本身是 95 个 |
+| ZIP 大小 | 175297560 字节 |
+| ZIP SHA256 | `43dc2e2cf0816b6d8413d14d6237c4f961898302dff44225b5d251a13bb8bd5b` |
+| 清单 SHA256 | `53d27a66112dc79be809b696fb0c98f3a013757db3eeda8b1abbe43496f2f64c` |
+| `site/site.json` 的 `ca_sha256` | `79562e076be4c90442edba46de5a4ae2b6009d1c35dab0a895cb8797f6bce1ef` |
 
-1. 用审过的 0.2.2 源码在 Windows 上组新包。不要拿已经装上的 0.2.1 包代替。
-2. 安装前先停掉当前代理。这次还没有 C2 的升级脚本：按现有卸载保留配置，再安装新包。不要往安装目录里直接覆盖。
-3. 去掉用户会话里的 `NODE_OPTIONS`。如果 `NODE_EXTRA_CA_CERTS` 只是为了这张开发 CA 设的，也去掉，让会话变量不再成为连接条件。
-4. 重启。
-5. 确认代理自己连上（开发证书经随包 `site\ca.pem`）。托盘和状态里的失败应是人话加原始错误码，且不出现令牌。
+ZIP 无外层目录，路径用正斜杠。回读 94 个清单文件的 SHA256 与清单一致，`site/site.json` 里的 `ca_sha256` 与证书 DER 一致。隔离安装检查 `windows-candidate.mjs` 用包内 Node 通过：版本 0.2.2，95 个文件，没有启动代理，隔离目录已删。
+
+## 本机替换 0.2.1
+
+按这个顺序做的：
+
+1. 停掉当时在跑的 0.2.1 后台，保留配置卸载，再安装 0.2.2。
+2. 用户级、计算机级和 `HKCU\Environment` 里都没有 `NODE_OPTIONS`，也没有 `NODE_EXTRA_CA_CERTS`。没有需要删除的值。
+3. 用安装目录的 `sunmoon-agent.cmd start --background` 启动。该进程的命令行带 `--use-system-ca`。`status.json` 为版本 0.2.2、`relay.status=connected`、`lastError` 空。日志 `2026-10-10T05:38:27Z` 有 `relay connected`。配置文件仍在。
+
+两处过程记录：
+
+- 0.2.2 的卸载器核验 0.2.1 安装目录时报 `Incomplete or oversized bundle`，因为新清单要求 `installer/launch.mjs`，0.2.1 没有这个文件。随后改用保留的 0.2.1 外部目录 `sunmoon-agent-6de6002` 卸载，预览为保留配置，结果 `removed`。安装目录已消失，`C:\Users\zymun\.sunmoon-agent\config.json` 还在。
+- 第一次卸载停在 `Cannot complete tray`。托盘进程 4756 当时已经不在，`tray-stop.json` 留着，第二次会被拒。确认该进程不存在后，删掉这两个托盘控制文件，卸载才完成。没有强杀 node 进程。
+
+没有登录计划任务、启动文件夹快捷方式或 Run 项。因此没有重启：重启后这个代理不会自己起来，而它当时已经连上。没有发布到网页，没有改集群，没有做 C2。

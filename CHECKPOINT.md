@@ -1,12 +1,12 @@
 # CHECKPOINT（runtime 仓，分支 luna）
 
-## 当前：卡 C1 审读两处已改，停下交审（2026-10-10）
+## 当前：0.2.2 已在本机换上并连上，停下交审（2026-10-10）
 
-依据 k8s `e9573559`「卡 C1 审读」。证书类补上 `UNABLE_TO_GET_ISSUER_CERT*`、`CERT_*`、`ERR_TLS_CERT_ALTNAME_INVALID`，这五个码各有一条测试。`installedLaunchError` 比较 `NODE_EXTRA_CA_CERTS` 与 `caPath` 时两边先 `realpathSync.native`，win32 再统一小写；打不开的路径算不匹配。三个 `.cmd` 已去掉 `call :launch`，启动命令内联在 `setlocal` 里。
+依据 k8s `2dce0e1e`「卡 C1 复审」。开发站点包在 `C:\Users\zymun\sunmoon-probe-runs\windows-agent-c1-20261010\`。ZIP SHA256 `43dc2e2cf0816b6d8413d14d6237c4f961898302dff44225b5d251a13bb8bd5b`，清单 SHA256 `53d27a66112dc79be809b696fb0c98f3a013757db3eeda8b1abbe43496f2f64c`。包内 `ca_sha256` 为 `79562e076be4c90442edba46de5a4ae2b6009d1c35dab0a895cb8797f6bce1ef`。
 
-先 `pnpm build`，再 `pnpm test`：200 通过、32 跳过。`tsc --noEmit` 通过。`node --test agent/distribution/test/bundle.test.mjs` 28 通过。没有组 Windows 包，没有发布，没有改集群。C2 未开始。详情见[卡 C1 回执](scripts/results/windows-agent-onboarding-card-c1.20261010.md)。
+本机已保留配置卸下 0.2.1 并装上 0.2.2。用户环境里本来就没有 `NODE_OPTIONS` 和 `NODE_EXTRA_CA_CERTS`。安装目录入口启动后会合点状态为 connected。没有登录自启，所以没有重启。没有发布，没有改集群。C2 未开始。详情见[卡 C1 回执](scripts/results/windows-agent-onboarding-card-c1.20261010.md)。
 
-**停点：**交审。审过后再组 0.2.2，所有者按回执五步在 Windows 上验收。只本地提交，不推送。
+**停点：**交审。只本地提交，不推送。
 
 以下记录为先前阶段；与本节冲突时以本节和 SDD 0012 为准。
 

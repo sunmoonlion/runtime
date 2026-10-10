@@ -1,6 +1,6 @@
 # CHECKPOINT（runtime 仓，分支 luna）
 
-## 当前：卡 B 后端候选已实现，停下交 Fable 审读（2026-10-09）
+## 当前：卡 B 三项审读修正已提交；全量测试有环境挂起；DNS 只读核实完成（2026-10-10）
 
 设计由 Fable 定稿，唯一实施依据为 k8s
 [SDD 0012：Windows 本地代理安装与首次接入](../k8s/sunmoonai/docs/dev-investment-agent/tree-build/SDD/modules/0012-agent-onboarding.md)。
@@ -10,9 +10,11 @@
 
 卡 A2 按所有者/Fable 判定通过：loopback 单次下载、SHA256、无 `Zone.Identifier`（原检查输出 `"zoneIdentifier":false`）、解压 90 文件及 manifest 摘要均通过；包内 Node 执行并触发安装器自身“已安装不能覆盖”保护，证明该 Node 执行路径没有被智能应用控制拦截。所有者确认等价路径此前已打开 `desktop.ps1` 托盘；网页登录确认换令牌后到期为 2026-11-08（30 天）。A2 与卡 A 的精确临时目录均已清理，单次服务已退出；未安装、卸载或改令牌。详见[卡 A2 回执](scripts/results/windows-agent-onboarding-card-a2.20261009.md)。
 
-卡 B 后端候选已本地实现：配对/安装凭证迁移与接口、单次交付、用户级身份锁、过期清理任务、限速、可信代理 CIDR 默认空及凭证日志脱敏。真实 Postgres 用例已写，但因 `AGENT_TEST_DATABASE_URL` 未配置而跳过；现有 HTTP 契约用例在认证依赖处挂起，未判通过。ruff、指定文件 pyright、import-linter 通过；新增单测 10 通过，9 个旧下载配置校验测试通过。详情：[卡 B 实施回执](scripts/results/windows-agent-onboarding-card-b.20261009.md)。
+卡 B 初始提交 `9bcff86` 经 Fable 审读后，三项修正提交为后端 `304f8a3`：CTE 锁定并返回旧令牌密文后清空；迁移不变量纳入 0014；来源 IP 从右向左剥可信转发跳、支持多条 XFF，并补伪造链用例。投资父仓子模块指针待同步提交。ruff、import-linter、实现文件 pyright 通过；单测与迁移不变量 21 通过。全量 943 项在第 9 项后挂于既有下载 HTTP 合约测试，Ctrl+C 退出 130；两个测试数据库变量均未配置，3 个真实 PostgreSQL 用例跳过，故全量/数据库验收未通过。详情：[卡 B 实施回执](scripts/results/windows-agent-onboarding-card-b.20261009.md)。
 
-**停点：**只交 Fable 审读，不进入卡 C/D，不发布、不改集群、不推远端。Card B 代码候选不等于 SDD 验收通过；真实 PostgreSQL 并发/回退验证和 HTTP 路由认证验收待审读后补齐。
+随后按排队事项只读检查边缘集群 DNS：所有节点 Ready；CoreDNS 只固定 Harbor 到 `172.18.0.1`。投资 API Pod 的 `getent hosts` 显示 casdoor、relay、investment 均为 `127.0.0.1`，而 Harbor 为 `172.18.0.1`；Pod `/etc/hosts` 无对应项。**未改集群、未发版、未动公网 DNS**。完整原始输出见卡 B 回执；交 Fable/所有者复核后再决定下一步。
+
+**停点：**交 Fable 复审三项修正与环境挂起证据。卡 B 全量/数据库验收未通过，不进入卡 C/D，不发布、不改集群。DNS 仅完成指定只读核实；三个域名当前得到 `127.0.0.1`，未擅自改 CoreDNS，等审读定下一步。只本地提交，不推送。
 
 以下记录为先前阶段；与本节冲突时以本节和 SDD 0012 为准。
 

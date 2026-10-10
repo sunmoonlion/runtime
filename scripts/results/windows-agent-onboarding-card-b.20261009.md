@@ -53,3 +53,49 @@ Set `AGENT_TEST_DATABASE_URL` only to the disposable PostgreSQL test database wh
 ## Stop point
 
 Stop here for Fable review. Do not start Card C/D, publish the backend or package, change cluster configuration, inspect/change Traefik, or run against a live relay until the HTTP test stop and PostgreSQL acceptance gap are resolved and reviewed.
+
+## 2026-10-10 · Fable review corrections and rerun
+
+Fable reviewed backend commit `9bcff86` and required three corrections:
+
+1. **One-time token delivery:** changed delivery to a PostgreSQL CTE that locks and snapshots the approved row's old ciphertext, then clears it while returning the snapshot. A poll that sees a missing/empty ciphertext now returns `delivered` without attempting to decrypt `None`.
+2. **Migration-chain invariant:** added `20261009_0014_agent_onboarding.py` to `test_one_linear_canonical_migration_chain` and asserted its parent is `20261007_0013`.
+3. **Forwarded client chain:** `source_ip` accepts every `X-Forwarded-For` header field, parses all comma-separated addresses, walks right-to-left past configured trusted hops, and chooses the first untrusted address. Invalid entries yield `unknown`; if every hop is trusted, it uses the leftmost. Added tests for the Tokyo/frpc chain, a forged leftmost entry, repeated header fields, fully trusted chain, invalid chain, and empty default configuration. The configured CIDR remains empty until Card E verifies the live path.
+
+Rerun results in this worktree:
+
+| Check | Result |
+| --- | --- |
+| `ruff check app tests` | Passed |
+| `lint-imports` | Passed: 4 kept, 0 broken |
+| pyright on changed implementation files | Passed: 0 errors, 0 warnings, 0 informations |
+| `pytest -q tests/test_agent_onboarding_unit.py tests/test_kernel_invariants.py` | 21 passed |
+| `pytest -q tests/test_agent_onboarding_db.py` | 3 skipped: both disposable PostgreSQL URL variables are absent |
+| Full `pytest -vv -x` | Collected 943; first 9 tests passed; hangs at `tests/test_agent_onboarding.py::test_download_contract_is_authenticated_config_only_no_store[None]`; stopped with Ctrl+C (exit 130), not passed |
+
+For the requested redacted environment diagnostic, matching variable names present were `HTTP_PROXY`, `HTTPS_PROXY`, `NO_PROXY` and lowercase equivalents; values were not read into the report. No `AGENT_TEST_DATABASE_URL` or `DELIVERY_TEST_DATABASE_URL` is set. This does not establish that proxy settings cause the HTTP hang. The PostgreSQL CTE/concurrency fix therefore remains unverified against a real disposable test database in this worktree. The hanging HTTP test was not excluded from the full-suite result.
+
+## 2026-10-10 · Edge cluster DNS step 1 (read-only only)
+
+Context: SDD 0013 section 5.1. Queried context `kind-sunmoon-kind`; all three nodes were `Ready`, Kubernetes `v1.36.5`. No resources were changed.
+
+The live CoreDNS Corefile contains only this explicit hosts mapping:
+
+```text
+hosts {
+    172.18.0.1 harbor.sunmoonai.com
+    fallthrough
+}
+```
+
+The investment API Pod was `investment-api-54ff7fb96-j6mtd`. Its `/etc/hosts` had no `hostAliases` and no entries for the three queried names; its resolver was `nameserver 10.99.0.10`, search `app-platform-dev.svc.cluster.local svc.cluster.local cluster.local`, `ndots:2`.
+
+The requested `getent hosts casdoor.sunmoonai.com relay.sunmoonai.com investment.sunmoonai.com` returned:
+
+```text
+127.0.0.1 harbor.sunmoonai.com casdoor.sunmoonai.com
+127.0.0.1 info.sunmoonai.com relay.sunmoonai.com
+127.0.0.1 harbor.sunmoonai.com investment.sunmoonai.com
+```
+
+Individual `getent ahostsv4` confirmed `casdoor` and `investment` resolve to `127.0.0.1` (reported canonical name `harbor.sunmoonai.com`), `relay` to `127.0.0.1` (canonical `info.sunmoonai.com`), while `harbor.sunmoonai.com` resolves to `172.18.0.1`. The Corefile has no explicit entries for casdoor, relay, or investment; those three therefore do not currently resolve to the cluster gateway. This step stopped at read-only verification: no DNS/CoreDNS changes, no release, and no public DNS changes. Hand off this evidence for review before preparing the next implementation/release card.

@@ -134,14 +134,29 @@ export async function runTray(): Promise<void> {
   child.stdin.end(JSON.stringify({ node: process.execPath, cli, state: CONFIG_DIR, instance: instanceKey(CONFIG_DIR) }));
   await new Promise<void>((resolve, reject) => { child.once("error", reject); child.once("exit", code => code === 0 ? resolve() : reject(new Error("Tray failed; check Windows script policy"))); });
 }
+type DesktopChild = {
+  stdin: { end(data: string, callback: () => void): void; on(event: "error", listener: () => void): void } | null;
+  once(event: "error", listener: (error: Error) => void): void;
+  unref(): void;
+};
+/** Resolve only after the PowerShell stdin payload is flushed. menu then process.exit must not drop it. */
+export function deliverDesktop(
+  launch: (command: string, args: string[], options: { detached: true; windowsHide: true; stdio: ["pipe", "ignore", "ignore"] }) => DesktopChild,
+  command: string, args: string[], payload: string,
+): Promise<void> {
+  const child = launch(command, args, { detached: true, windowsHide: true, stdio: ["pipe", "ignore", "ignore"] });
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const finish = (error?: Error) => { if (settled) return; settled = true; error ? reject(error) : resolve(); };
+    child.once("error", finish);
+    if (!child.stdin) { finish(new Error("Desktop input unavailable")); return; }
+    child.stdin.on("error", () => finish(new Error("Desktop input unavailable")));
+    child.stdin.end(payload, () => { child.unref(); finish(); });
+  });
+}
 export function openDesktop(action: "tray" | "onboard"): Promise<void> {
   checkControlDirectory();
-  const child = spawn(powershell(), ["-NoLogo", "-NoProfile", "-NonInteractive", "-File", path.join(nativeDirectory, "desktop.ps1"), "-Action", action], { detached: true, windowsHide: true, stdio: ["pipe", "ignore", "ignore"] });
-  child.stdin.end(JSON.stringify({ node: process.execPath, cli, state: CONFIG_DIR, instance: instanceKey(CONFIG_DIR) }));
-  return new Promise((resolve, reject) => {
-    child.once("error", reject);
-    child.once("spawn", () => { child.unref(); resolve(); });
-  });
+  return deliverDesktop(spawn, powershell(), ["-NoLogo", "-NoProfile", "-NonInteractive", "-File", path.join(nativeDirectory, "desktop.ps1"), "-Action", action], JSON.stringify({ node: process.execPath, cli, state: CONFIG_DIR, instance: instanceKey(CONFIG_DIR) }));
 }
 export async function autostart(action: string): Promise<any> {
   checkControlDirectory();

@@ -23,9 +23,9 @@ import { readHiddenToken } from "./hiddenToken.js";
 import { windowsConfirm } from "./windowsDesktop.js";
 import { acquireResident, autostart, preferences, readResidentStatus, residentAlive, runTray, closeTray, startResident, stopResident, setupElevated, openDesktop } from "./resident.js";
 import { installedLaunchError } from "./siteTrust.js";
-import { configHasToken, menuTarget, osLabel, runPair, siteDocument } from "./pair.js";
+import { configHasToken, menuPlan, osLabel, runPair, siteDocument } from "./pair.js";
 
-const VERSION = "0.2.3";
+const VERSION = "0.2.4";
 const STATUS_PATH = path.join(CONFIG_DIR, "status.json");
 
 function arg(flag: string, argv: string[]): string | undefined {
@@ -79,7 +79,7 @@ async function main(argv: string[]): Promise<number> {
   }
 
   if (cmd === "pair") {
-    if (argv.length) throw new Error("pair 不接受参数");
+    if (argv.length > 1) throw new Error("pair 不接受参数");
     let cancel = false;
     process.stdin.on("data", (chunk: Buffer | string) => { if (String(chunk).includes("cancel")) cancel = true; });
     const machineName = fs.existsSync(CONFIG_PATH) ? loadConfig().machineName : defaultConfig().machineName;
@@ -95,16 +95,19 @@ async function main(argv: string[]): Promise<number> {
       post: postPair,
       sleep: ms => new Promise(resolve => setTimeout(resolve, ms)),
       cancelled: () => cancel,
-      stdout: line => console.log(line),
+      stdout: line => { fs.writeSync(1, line + "\n"); },
       stopIfRunning: async () => {
         if (process.platform === "win32" && await residentAlive() && !await stopResident()) throw new Error("请先停止正在运行的代理，再连接账号。");
       },
     });
   }
   if (cmd === "menu") {
-    const action = menuTarget(configHasToken());
-    console.log(JSON.stringify({ action }));
-    if (process.platform === "win32") await openDesktop(action);
+    const hasToken = configHasToken();
+    const running = process.platform === "win32" && hasToken ? await residentAlive() : false;
+    const plan = menuPlan(hasToken, running);
+    if (plan.start) await startResident();
+    console.log(JSON.stringify({ action: plan.action, started: plan.start }));
+    if (process.platform === "win32") await openDesktop(plan.action);
     return 0;
   }
   if (cmd === "onboard") {

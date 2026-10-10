@@ -26,6 +26,12 @@ export function menuTarget(hasToken: boolean): "tray" | "onboard" {
   return hasToken ? "tray" : "onboard";
 }
 
+/** A signed-in machine whose background agent is down is started before the tray opens. */
+export function menuPlan(hasToken: boolean, running: boolean): { start: boolean; action: "tray" | "onboard" } {
+  const action = menuTarget(hasToken);
+  return { start: action === "tray" && !running, action };
+}
+
 export function configHasToken(file = CONFIG_PATH): boolean {
   try {
     const cfg = JSON.parse(fs.readFileSync(file, "utf8"));

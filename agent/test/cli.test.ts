@@ -32,6 +32,30 @@ describe("cli --help", () => {
   }
 });
 
+describe("pair command", () => {
+  it("reports the missing site file for a bare pair in the source tree", () => {
+    const home = mkdtempSync(path.join(tmpdir(), "agent-pair-cli-"));
+    try {
+      const r = spawnSync(process.execPath, [CLI, "pair"], {
+        env: { ...process.env, SUNMOON_AGENT_HOME: home }, encoding: "utf8", timeout: 5000,
+      });
+      expect(r.status).toBe(1);
+      expect(r.stdout + r.stderr).toContain("没有站点文件");
+      expect(r.stdout + r.stderr).not.toContain("不接受参数");
+    } finally { rmSync(home, { recursive: true, force: true }); }
+  });
+  it("rejects an extra pair argument", () => {
+    const home = mkdtempSync(path.join(tmpdir(), "agent-pair-extra-"));
+    try {
+      const r = spawnSync(process.execPath, [CLI, "pair", "extra"], {
+        env: { ...process.env, SUNMOON_AGENT_HOME: home }, encoding: "utf8", timeout: 5000,
+      });
+      expect(r.status).toBe(1);
+      expect(r.stdout + r.stderr).toContain("不接受参数");
+    } finally { rmSync(home, { recursive: true, force: true }); }
+  });
+});
+
 describe.skipIf(process.platform !== "win32")("Windows CLI capability admission", () => {
   it("supports configuration commands and refuses start without a recorded capability probe", () => {
     const home = mkdtempSync(path.join(tmpdir(), "agent-cli-"));

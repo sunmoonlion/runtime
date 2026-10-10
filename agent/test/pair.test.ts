@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { defaultConfig, saveConfig } from "../src/config.js";
-import { deviceSecretSha256, openableVerifyUrl, runPair, type PairResponse } from "../src/pair.js";
+import { deviceSecretSha256, menuPlan, openableVerifyUrl, runPair, type PairResponse } from "../src/pair.js";
 
 const SECRET = "device-secret-0123456789ABCDEFGHijkl";
 const TOKEN = "agent-token-should-stay-out-of-stdout";
@@ -52,6 +52,14 @@ const created = {
   status: 200,
   body: { request_id: "req-1", user_code: "ABCD-2345", expires_in: 300, interval: 3, verify_url: "https://investment.example/settings#computer" },
 };
+
+describe("menu", () => {
+  it("starts the background agent only when a token exists and it is not running", () => {
+    expect(menuPlan(true, false)).toEqual({ start: true, action: "tray" });
+    expect(menuPlan(true, true)).toEqual({ start: false, action: "tray" });
+    expect(menuPlan(false, false)).toEqual({ start: false, action: "onboard" });
+  });
+});
 
 describe("pair", () => {
   it("writes the approved token only into config", async () => {

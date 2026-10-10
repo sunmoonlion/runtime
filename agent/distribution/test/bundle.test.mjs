@@ -165,9 +165,9 @@ test('only explicit source inputs are included by builder; launcher uses bundled
 
 const devCa = fs.readFileSync(new URL('../sites/dev-kind-ca.pem', import.meta.url), 'utf8');
 const devProfile = JSON.parse(fs.readFileSync(new URL('../sites/dev-kind.json', import.meta.url), 'utf8'));
-test('dev site CA is the public root and its DER hash is written only at pack time', t => {
+test('dev site CA is the registry local CA and its DER hash is written only at pack time', t => {
   assert.equal(devCa.includes('PRIVATE KEY'), false);
-  assert.equal(certificateDerSha256(devCa), '79562e076be4c90442edba46de5a4ae2b6009d1c35dab0a895cb8797f6bce1ef');
+  assert.equal(certificateDerSha256(devCa), '76f9012886262cf6974039de8baf16ecd5e79e780237349fdcb95a2ac1aa1b3c');
   assert.equal(devProfile.trust.ca_sha256, undefined);
   assert.throws(() => siteDocument({ ...devProfile, trust: { ...devProfile.trust, ca_sha256: 'a'.repeat(64) } }, 'unused'), /computed/);
   const root = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'sunmoon-site-'));

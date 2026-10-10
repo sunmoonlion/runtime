@@ -155,10 +155,17 @@ export function deliverDesktop(
     };
     const maybe = () => { if (flushed && ready) { child.unref(); finish(); } };
     const timer = setTimeout(() => finish(new Error("Desktop window was not ready")), 15000);
+    const marker = Buffer.from('{"desktop":"ready"}');
+    const markerUtf16 = Buffer.from('{"desktop":"ready"}', "utf16le");
+    let received = Buffer.alloc(0);
     child.once("error", finish);
     child.once("exit", () => finish(new Error("Desktop window exited before it was ready")));
     if (!child.stdin || !child.stdout) { finish(new Error("Desktop input unavailable")); return; }
-    child.stdout.on("data", chunk => { if (String(chunk).includes('{"desktop":"ready"}')) { ready = true; maybe(); } });
+    child.stdout.on("data", chunk => {
+      const piece = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+      received = Buffer.concat([received, piece]);
+      if (received.includes(marker) || received.includes(markerUtf16)) { ready = true; maybe(); }
+    });
     child.stdin.on("error", () => finish(new Error("Desktop input unavailable")));
     child.stdin.end(payload, () => { flushed = true; maybe(); });
   });

@@ -34,4 +34,23 @@ describe("openDesktop waits for stdin", () => {
     expect(settled).toBe(true);
     expect(unrefed).toBe(true);
   });
+
+  it("accepts the ready line as UTF-16 and still waits for stdin", async () => {
+    let release = (): void => {};
+    let ready: ((chunk: Buffer) => void) | undefined;
+    const pending = deliverDesktop(() => ({
+      stdin: { end(_data, callback) { release = callback; }, on() {} },
+      stdout: { on(_event, listener) { ready = listener; } },
+      once() {},
+      unref() {},
+    }), "powershell.exe", ["-File", "desktop.ps1", "-Action", "tray"], "{}");
+    let settled = false;
+    void pending.then(() => { settled = true; }, () => { settled = true; });
+    ready?.(Buffer.from('{"desktop":"ready"}\n', "utf16le"));
+    await Promise.resolve();
+    expect(settled).toBe(false);
+    release();
+    await pending;
+    expect(settled).toBe(true);
+  });
 });

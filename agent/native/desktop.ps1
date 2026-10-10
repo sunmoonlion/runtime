@@ -50,7 +50,14 @@ function Signal-DesktopReady {
     # Fire only after this process is inside its own message loop, so the parent may exit.
     $Ready = New-Object System.Windows.Forms.Timer
     $Ready.Interval = 50
-    $Ready.Add_Tick({ $Ready.Stop(); $Ready.Dispose(); [Console]::Out.WriteLine('{"desktop":"ready"}'); [Console]::Out.Flush() })
+    $Ready.Add_Tick({
+        $Ready.Stop(); $Ready.Dispose()
+        # Hidden PowerShell has no console; write the redirected stdout handle as UTF-8.
+        $Bytes = [System.Text.Encoding]::UTF8.GetBytes("{`"desktop`":`"ready`"}`n")
+        $Out = [Console]::OpenStandardOutput()
+        $Out.Write($Bytes, 0, $Bytes.Length)
+        $Out.Flush()
+    })
     $Ready.Start()
 }
 

@@ -49,22 +49,6 @@ if ($Action -eq 'autostart') {
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 [System.Windows.Forms.Application]::EnableVisualStyles()
-function Signal-DesktopReady {
-    # Fire only after this process is inside its own message loop, so the parent may exit.
-    $Ready = New-Object System.Windows.Forms.Timer
-    $Ready.Interval = 50
-    # The tick runs after this function returns, so it must use the event sender, not $Ready.
-    $Ready.Add_Tick({
-        param($Sender, $Args)
-        $Sender.Stop(); $Sender.Dispose()
-        # Hidden PowerShell has no console; write the redirected stdout handle as UTF-8.
-        $Bytes = [System.Text.Encoding]::UTF8.GetBytes("{`"desktop`":`"ready`"}`n")
-        $Out = [Console]::OpenStandardOutput()
-        $Out.Write($Bytes, 0, $Bytes.Length)
-        $Out.Flush()
-    })
-    $Ready.Start()
-}
 
 if ($Action -eq 'confirm') {
     if ($InputData.challenge -notmatch '^[a-f0-9]{32}$' -or $InputData.description.Length -gt 16000) { throw 'Invalid prompt' }
@@ -322,8 +306,9 @@ function Show-Onboard {
     $Form.Controls.AddRange(@($Intro,$Connect,$Code,$Clock,$Connected,$CancelPair,$Refresh,$Next1,$FolderNote,$Roots,$Add,$Remove,$Next2,$Auto,$Next3,$Online,$Finish,$Retry))
     Show-Step 1
     $Timer.Start()
-    Signal-DesktopReady
-    try{$Form.ShowDialog()|Out-Null}finally{ $Timer.Stop(); $Timer.Dispose(); Stop-Pair; $Form.Dispose() }
+    $ReadyFile = Join-Path $State 'onboard-ready.json'
+    @{pid=$PID} | ConvertTo-Json -Compress | Set-Content -LiteralPath $ReadyFile -Encoding UTF8
+    try{$Form.ShowDialog()|Out-Null}finally{ $Timer.Stop(); $Timer.Dispose(); Stop-Pair; if (Test-Path -LiteralPath $ReadyFile) { Remove-Item -LiteralPath $ReadyFile -Force }; $Form.Dispose() }
 }
 
 if ($Action -eq 'onboard') { Show-Onboard; exit 0 }
@@ -340,15 +325,9 @@ $Start=$Menu.Items.Add('启动代理'); $Start.Add_Click({ Show-Result { Invoke-
 $Stop=$Menu.Items.Add('停止代理'); $Stop.Add_Click({ Show-Result { Invoke-Agent @('stop') } })
 $Preferences=$Menu.Items.Add('白名单与上限设置'); $Preferences.Add_Click({ try{Show-Preferences}catch{[System.Windows.Forms.MessageBox]::Show($_.Exception.Message,'SunMoon')|Out-Null} })
 $Reconnect=$Menu.Items.Add('重新连接账号'); $Reconnect.Add_Click({
-    $Ps=Join-Path $PSHOME 'powershell.exe'
-    $Info=New-Object System.Diagnostics.ProcessStartInfo
-    $Info.FileName=$Ps
-    $Info.Arguments='-NoLogo -NoProfile -NonInteractive -File "'+$PSCommandPath+'" -Action onboard'
-    $Info.UseShellExecute=$false; $Info.RedirectStandardInput=$true; $Info.CreateNoWindow=$true
-    $Child=New-Object System.Diagnostics.Process; $Child.StartInfo=$Info
-    $Child.Start()|Out-Null
-    $Child.StandardInput.Write((@{node=$Node;cli=$Cli;state=$State;instance=$InputData.instance}|ConvertTo-Json -Compress))
-    $Child.StandardInput.Close()
+    $Wscript=Join-Path $env:SystemRoot 'System32\wscript.exe'
+    $Vbs=Join-Path $PSScriptRoot 'open-desktop.vbs'
+    Start-Process -FilePath $Wscript -ArgumentList ('//B //Nologo "'+$Vbs+'" "'+$Node+'" "'+$Cli+'" "'+$State+'" onboard') -WindowStyle Hidden
 })
 $Enable=$Menu.Items.Add('启用登录自启'); $Enable.Add_Click({ Show-Result { Invoke-Agent @('autostart','enable') } })
 $Disable=$Menu.Items.Add('关闭登录自启'); $Disable.Add_Click({ Show-Result { Invoke-Agent @('autostart','disable') } })
@@ -381,6 +360,5 @@ $Timer.Add_Tick({
     } catch {$Tray.Text='SunMoon: 状态暂不可读';$Connection.Text='状态：暂不可读'}
 })
 $Timer.Start()
-Signal-DesktopReady
 try {[System.Windows.Forms.Application]::Run()}
 finally {$Timer.Dispose(); $Tray.Visible=$false; $Tray.Dispose(); $Menu.Dispose(); Remove-Item -LiteralPath $TrayStatus -ErrorAction SilentlyContinue; $Mutex.ReleaseMutex(); $Mutex.Dispose()}

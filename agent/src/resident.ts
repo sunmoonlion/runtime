@@ -128,59 +128,46 @@ export async function closeTray(): Promise<boolean> {
   for (let i = 0; i < 50; i++) { if (!fs.existsSync(file)) return true; await sleep(200); }
   throw new Error("Tray close timed out; no process was killed");
 }
-export async function runTray(): Promise<void> {
+function runDesktopScript(action: "tray" | "onboard"): Promise<void> {
   checkControlDirectory();
-  const child = spawn(powershell(), ["-NoLogo", "-NoProfile", "-NonInteractive", "-File", path.join(nativeDirectory, "desktop.ps1"), "-Action", "tray"], { windowsHide: true, stdio: ["pipe", "ignore", "ignore"] });
+  const child = spawn(powershell(), ["-NoLogo", "-NoProfile", "-NonInteractive", "-File", path.join(nativeDirectory, "desktop.ps1"), "-Action", action], { windowsHide: true, stdio: ["pipe", "ignore", "ignore"] });
   child.stdin.end(JSON.stringify({ node: process.execPath, cli, state: CONFIG_DIR, instance: instanceKey(CONFIG_DIR) }));
-  await new Promise<void>((resolve, reject) => { child.once("error", reject); child.once("exit", code => code === 0 ? resolve() : reject(new Error("Tray failed; check Windows script policy"))); });
+  return new Promise<void>((resolve, reject) => { child.once("error", reject); child.once("exit", code => code === 0 ? resolve() : reject(new Error("Desktop window failed; check Windows script policy"))); });
 }
-type DesktopChild = {
-  stdin: { end(data: string, callback: () => void): void; on(event: "error", listener: () => void): void } | null;
-  stdout: { on(event: "data", listener: (chunk: Buffer | string) => void): void } | null;
-  once(event: "error", listener: (error: Error) => void): void;
-  once(event: "exit", listener: (code: number | null) => void): void;
-  unref(): void;
-};
-/** Resolve after stdin is flushed and the window loop has started. menu then process.exit must not drop either. */
-export function deliverDesktop(
-  launch: (command: string, args: string[], options: { detached: true; windowsHide: true; stdio: ["pipe", "pipe", number] }) => DesktopChild,
-  command: string, args: string[], payload: string,
+export function runTray(): Promise<void> {
+  return runDesktopScript("tray");
+}
+/** Settings window. menu polls onboard-ready.json; this process waits until the window closes. */
+export function runOnboardWindow(): Promise<void> {
+  return runDesktopScript("onboard");
+}
+type DesktopLauncher = (command: string, args: string[], options: { detached: true; windowsHide: true; stdio: "ignore" }) => { unref(): void };
+/** Detach through wscript, then resolve only after the window publishes its ready file. */
+export function launchOpenDesktop(
+  launch: DesktopLauncher, wscript: string, script: string, nodePath: string, cliPath: string, state: string, action: "tray" | "onboard", ready: () => boolean,
 ): Promise<void> {
-  // Keep this file until the owner confirms the tray survives closing their PowerShell.
-  const errFile = path.join(process.env.TEMP || process.env.TMP || process.env.TMPDIR || "/tmp", "sunmoon-tray-err.txt");
-  const errFd = fs.openSync(errFile, "w");
-  let child: DesktopChild;
-  try {
-    child = launch(command, args, { detached: true, windowsHide: true, stdio: ["pipe", "pipe", errFd] });
-  } finally {
-    fs.closeSync(errFd);
-  }
+  launch(wscript, ["//B", "//Nologo", script, nodePath, cliPath, state, action], { detached: true, windowsHide: true, stdio: "ignore" }).unref();
   return new Promise((resolve, reject) => {
-    let settled = false, flushed = false, ready = false;
-    const finish = (error?: Error) => {
-      if (settled) return; settled = true; clearTimeout(timer);
-      error ? reject(error) : resolve();
+    const started = Date.now();
+    const tick = () => {
+      if (ready()) { resolve(); return; }
+      if (Date.now() - started >= 15000) { reject(new Error("Desktop window was not ready")); return; }
+      setTimeout(tick, 200);
     };
-    const maybe = () => { if (flushed && ready) { child.unref(); finish(); } };
-    const timer = setTimeout(() => finish(new Error("Desktop window was not ready")), 15000);
-    const marker = Buffer.from('{"desktop":"ready"}');
-    const markerUtf16 = Buffer.from('{"desktop":"ready"}', "utf16le");
-    let received = Buffer.alloc(0);
-    child.once("error", finish);
-    child.once("exit", () => finish(new Error("Desktop window exited before it was ready")));
-    if (!child.stdin || !child.stdout) { finish(new Error("Desktop input unavailable")); return; }
-    child.stdout.on("data", chunk => {
-      const piece = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
-      received = Buffer.concat([received, piece]);
-      if (received.includes(marker) || received.includes(markerUtf16)) { ready = true; maybe(); }
-    });
-    child.stdin.on("error", () => finish(new Error("Desktop input unavailable")));
-    child.stdin.end(payload, () => { flushed = true; maybe(); });
+    tick();
   });
 }
-export function openDesktop(action: "tray" | "onboard"): Promise<void> {
+export async function openDesktop(action: "tray" | "onboard"): Promise<void> {
   checkControlDirectory();
-  return deliverDesktop(spawn, powershell(), ["-NoLogo", "-NoProfile", "-NonInteractive", "-File", path.join(nativeDirectory, "desktop.ps1"), "-Action", action], JSON.stringify({ node: process.execPath, cli, state: CONFIG_DIR, instance: instanceKey(CONFIG_DIR) }));
+  const marker = path.join(CONFIG_DIR, action === "tray" ? "tray.json" : "onboard-ready.json");
+  if (action === "tray") {
+    discardDeadTrayStop(CONFIG_DIR, pidAlive);
+    if (fs.existsSync(marker) && pidAlive(readTrayControl(marker).pid)) return;
+    removePlainControl(marker);
+  } else removePlainControl(marker);
+  if (!process.env.SystemRoot) throw new Error("Windows is required");
+  const ready = () => fs.existsSync(marker) && (action !== "tray" || pidAlive(readTrayControl(marker).pid));
+  await launchOpenDesktop(spawn, path.join(process.env.SystemRoot, "System32", "wscript.exe"), path.join(nativeDirectory, "open-desktop.vbs"), process.execPath, cli, CONFIG_DIR, action, ready);
 }
 export async function autostart(action: string): Promise<any> {
   checkControlDirectory();

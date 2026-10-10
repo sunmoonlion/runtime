@@ -10,7 +10,7 @@ const isHash = value => typeof value === 'string' && HEX.test(value);
 const REQUIRED = [
   'node/node.exe', 'licenses/node-LICENSE', 'licenses/codex-LICENSE', 'licenses/codex-NOTICE',
   'app/package.json', 'app/dist/cli.js', 'app/native/helper.mjs',
-  'app/dist/resident.js', 'app/dist/windowsDesktop.js', 'app/native/desktop.ps1', 'app/native/run-hidden.vbs',
+  'app/dist/resident.js', 'app/dist/windowsDesktop.js', 'app/native/desktop.ps1', 'app/native/run-hidden.vbs', 'app/native/open-desktop.vbs',
   'app/node_modules/@openai/codex/package.json',
   'app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/bin/codex.exe',
   'app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-resources/codex-command-runner.exe',

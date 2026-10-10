@@ -13,7 +13,7 @@ import { certificateDerSha256, siteDocument, writeSite } from '../launch.mjs';
 const samplePaths = [
   'node/node.exe', 'licenses/node-LICENSE', 'licenses/codex-LICENSE', 'licenses/codex-NOTICE',
   'app/package.json', 'app/dist/cli.js', 'app/native/helper.mjs',
-  'app/dist/resident.js', 'app/dist/windowsDesktop.js', 'app/native/desktop.ps1', 'app/native/run-hidden.vbs',
+  'app/dist/resident.js', 'app/dist/windowsDesktop.js', 'app/native/desktop.ps1', 'app/native/run-hidden.vbs', 'app/native/open-desktop.vbs',
   'app/node_modules/@openai/codex/package.json',
   'app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/bin/codex.exe',
   'app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-resources/codex-command-runner.exe',
@@ -158,7 +158,8 @@ test('only explicit source inputs are included by builder; launcher uses bundled
   }
   const ps1 = fs.readFileSync(new URL('../../native/desktop.ps1', import.meta.url), 'utf8');
   const vbs = fs.readFileSync(new URL('../../native/run-hidden.vbs', import.meta.url), 'utf8');
-  for (const source of [ps1, vbs]) {
+  const opener = fs.readFileSync(new URL('../../native/open-desktop.vbs', import.meta.url), 'utf8');
+  for (const source of [ps1, vbs, opener]) {
     assert.match(source, /--use-system-ca/); assert.match(source, /NODE_OPTIONS/); assert.match(source, /bundled-ca/);
   }
   assert.match(ps1, /lastError/); assert.match(ps1, /63/);

@@ -21,7 +21,7 @@ import { importCandidates, loadMcp, saveMcp, confirmedMcpUrls } from "./mcp.js";
 import { localConfirm } from "./localConfirm.js";
 import { readHiddenToken } from "./hiddenToken.js";
 import { windowsConfirm } from "./windowsDesktop.js";
-import { acquireResident, autostart, preferences, readResidentStatus, residentAlive, runTray, closeTray, startResident, stopResident, setupElevated, openDesktop } from "./resident.js";
+import { acquireResident, autostart, preferences, readResidentStatus, residentAlive, runTray, runOnboardWindow, closeTray, startResident, stopResident, setupElevated, openDesktop } from "./resident.js";
 import { installedLaunchError } from "./siteTrust.js";
 import { configHasToken, menuPlan, osLabel, runPair, siteDocument } from "./pair.js";
 
@@ -110,9 +110,10 @@ async function main(argv: string[]): Promise<number> {
     if (process.platform === "win32") await openDesktop(plan.action);
     return 0;
   }
-  if (cmd === "onboard") {
+  if (cmd === "onboard" || cmd === "onboard-window") {
     if (process.platform !== "win32") throw new Error("Windows lifecycle command");
-    await openDesktop("onboard");
+    if (cmd === "onboard-window") await runOnboardWindow();
+    else await openDesktop("onboard");
     return 0;
   }
 
@@ -266,6 +267,7 @@ function usage(): void {
   pair                       连接账号：显示连接码并轮询，令牌只写入本机配置
   menu                       已连接则打开托盘，否则打开设置向导
   onboard                    Windows 设置向导
+  onboard-window             在本进程等待设置窗口关闭；由打开窗口的脚本调用
   autostart status|enable|disable   当前用户登录任务；安装时默认打开，可关闭
   sandbox-setup --elevated         可选 UAC；先停止代理，仅同一 Windows 用户`);
 }

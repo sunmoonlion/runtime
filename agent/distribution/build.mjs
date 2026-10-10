@@ -82,7 +82,7 @@ try {
     version: sourcePackage.version, private: true, type: 'module', engines: sourcePackage.engines,
     dependencies: Object.fromEntries(settings.packages.filter(p => !p.resolveFrom).map(p => [p.installName, p.version])),
   }, null, 2) + '\n', { flag: 'wx' });
-  for (const name of ['helper.mjs', 'desktop.ps1', 'run-hidden.vbs', 'elevated-setup.ps1']) copyFile(path.join(agent, 'native', name), path.join(staging, 'app/native', name));
+  for (const name of ['helper.mjs', 'desktop.ps1', 'run-hidden.vbs', 'open-desktop.vbs', 'elevated-setup.ps1']) copyFile(path.join(agent, 'native', name), path.join(staging, 'app/native', name));
   for (const [spec, directory] of roots) {
     const target = `app/node_modules/${spec.installName}`;
     makeSubdirectory(staging, target);

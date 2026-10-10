@@ -1,6 +1,14 @@
 # CHECKPOINT（runtime 仓，分支 luna）
 
-## 当前：0.2.3 已装到本机，真实配对被 pair 自己拒绝，停下交审（2026-10-10）
+## 当前：0.2.4 已装上并自己连上；配对接口回 404，窗口没有出现连接码，停下交审（2026-10-10）
+
+依据 k8s `0cb358f6`。源码 `a878d145553625e9283701822d455d0eb3d043c0`。包在 `C:\Users\zymun\sunmoon-probe-runs\windows-agent-c2-20261010\sunmoon-agent-a878d14`。ZIP SHA256 `d00c1392e73079d24063877656599b0600da3806e18d3943e194fde617479e6e`，清单 SHA256 `e133f26f006c5e1ae3635ed0e031213a2bedb4ab6e6c574a06d74c754eb3f543`，`ca_sha256` 仍是 `76f9012886262cf6974039de8baf16ecd5e79e780237349fdcb95a2ac1aa1b3c`。
+
+本机从正在运行的 0.2.3 升到 0.2.4。安装脚本没有手动 `start`，`menu` 打印 `started:true`，随后 `status` 为 0.2.4 connected（pid 19540）。配置和令牌摘要未变。设置窗口走了托盘同一条 `onboard` 命令，点「连接我的账号」后，站点 `POST /api/agent-pairing/requests` 回 404，窗口显示「连接没有完成，请重新获取。」没有 8 位码，没有倒计时，没有打开浏览器。没有点「允许」。没有发布，没有改集群。详情见[卡 C2 回执](scripts/results/windows-agent-onboarding-card-c2.20261010.md)。
+
+**停点：**交审。只本地提交，不推送。卡 D 等这次验收交回后再做。
+
+## 先前：0.2.3 已装到本机，真实配对被 pair 自己拒绝，停下交审（2026-10-10）
 
 依据 k8s `69fd572e`。包在 `C:\Users\zymun\sunmoon-probe-runs\windows-agent-c2-20261010`。ZIP SHA256 `77eda63720dab2e833541440ff16aaeba46cd6c13fb20e812e75b18a61102ea8`，清单 SHA256 `8c742cfc718ac9e9d5b160bbf26ca6352a09e8fb3a0dd5e627a15d8d90de136b`，`ca_sha256` 为 `76f9012886262cf6974039de8baf16ecd5e79e780237349fdcb95a2ac1aa1b3c`。
 

@@ -123,3 +123,86 @@ if (cmd === "pair") {
 ## 已做 / 未做
 
 已做：组 0.2.3 包并核对 `ca_sha256`；隔离安装检查；不进仓库的 `install.ps1`；从 0.2.2 升级并连上；同版本重跑只开窗；0.2.1 临时目录卸载。未做：真实配对、浏览器核对页、四步窗口里输入连接码。未发布，未改集群。卡 D 未开始。
+
+## 0.2.4 审读修改与本机验收（k8s `0cb358f6`）
+
+两处都改了，版本改为 **0.2.4**，三处一起改：`cli.ts` 的 `VERSION`、`agent/package.json`、`windows-x64.json` 的 `agentVersion`。文档在组包并完成本机升级后改。
+
+- `pair` 只在 `argv.length > 1` 时拒绝。源码目录对 `dist/cli.js pair` 起子进程，退出码 1，输出含「没有站点文件」，不含「不接受参数」。`pair extra` 退出码 1，输出含「不接受参数」。
+- `menuPlan`：有令牌且后台没在跑则先启动再开托盘；有令牌且已在跑只开托盘；没有令牌开设置向导、不启动。`menu` 在 Windows 上按这个结果调用 `startResident()`，然后再 `openDesktop`。
+- `pair` 的进度行改为 `fs.writeSync(1, …)`，避免管道把连接码一直缓冲到进程结束。这一处不是审读单列的必改，窗口要在 `pair` 还活着时读到码，所以一起改了。
+
+### 已跑
+
+| 检查 | 结果 |
+| --- | --- |
+| 先 `pnpm build`，再 `pnpm test`（agent） | build 通过。测试 211 通过，32 跳过。跳过的是既有 Windows 实机用例。新增的是两条 `pair` 子进程测试和一条 `menuPlan` 测试 |
+| `tsc -p agent/tsconfig.json --noEmit` | 通过（`pnpm build` 就是这条） |
+| `node --test agent/distribution/test/bundle.test.mjs` | 32 通过 |
+
+### 组包
+
+源码 `a878d145553625e9283701822d455d0eb3d043c0`。组包参数 `--site agent/distribution/sites/dev-kind.json --ca-pem agent/distribution/sites/dev-kind-ca.pem`。官方 `node.exe` 与 Windows 依赖目录沿用卡 C1，没有重新下载。
+
+| 项目 | 值 |
+| --- | --- |
+| 目录 | `C:\Users\zymun\sunmoon-probe-runs\windows-agent-c2-20261010\sunmoon-agent-a878d14` |
+| ZIP | 同一目录的上一级 `sunmoon-agent-0.2.4-a878d14-windows-x64.zip` |
+| 清单内文件 | 96 个，合计 501006445 字节；加上清单本身是 97 个 |
+| ZIP 大小 | 175305493 字节 |
+| ZIP SHA256 | `d00c1392e73079d24063877656599b0600da3806e18d3943e194fde617479e6e` |
+| 清单 SHA256 | `e133f26f006c5e1ae3635ed0e031213a2bedb4ab6e6c574a06d74c754eb3f543` |
+| `site/site.json` 里 `trust.ca_sha256` | `76f9012886262cf6974039de8baf16ecd5e79e780237349fdcb95a2ac1aa1b3c` |
+| `web_origin` | `https://investment.sunmoonai.com:30443` |
+| `relay_url` | `wss://relay.sunmoonai.com:30443` |
+
+ZIP 为 deflate、正斜杠、无外层目录。`windows-candidate.mjs` 用包内 Node 通过，原文：
+
+```text
+{"result":"pass","node":"24.19.0","codex":"0.155.1","agent":"0.2.4","manifestSha256":"e133f26f006c5e1ae3635ed0e031213a2bedb4ab6e6c574a06d74c754eb3f543","files":97,"withoutNodeOnPath":true,"launchedAgent":false,"realUserInstall":false,"isolatedInstallRemoved":true}
+```
+
+安装脚本由模板手工替换六个占位符，写在 `C:\Users\zymun\sunmoon-probe-runs\windows-agent-c2-20261010\install-024.ps1`，不在仓库里。包地址是本机 `127.0.0.1:8765` 的临时 HTTP，没有凭据。验收结束后这个临时服务会停。
+
+### 从现装 0.2.3 升级，没有手动启动
+
+升级前：清单 `8c742cfc718ac9e9d5b160bbf26ca6352a09e8fb3a0dd5e627a15d8d90de136b`，`config.json` 修改时间 2026-10-09T08:06:40Z（本地 16:06:40），984 字节，令牌长度 386，令牌 SHA256 `f3255049f2cb743745f61891b22bcdbf064bf2a842fef5a999f1ab0c6267e585`。`status` 为 0.2.3、pid 26184、connected。没有执行 `start --background`。安装脚本原文：
+
+```text
+{"action":"uninstall","target":"C:\\Users\\zymun\\AppData\\Local\\Programs\\sunmoon-agent","preserveConfig":true,"stopsOnlyThisAgent":true,"result":"removed"}
+{"action":"installed","destination":"C:\\Users\\zymun\\AppData\\Local\\Programs\\sunmoon-agent","files":97,"bytes":501006445,"startsAgent":false,"registersLogonTask":false,"changesUserConfig":false,"needsAdministrator":false}
+{"runLevel":"Limited","name":"SunMoonAgent-5b4377b497ee820ab8d076cf","installed":true,"enabled":true}
+{"action":"tray","started":true}
+已准备 SunMoon 代理 0.2.4（Codex 0.155.1）。请在弹出的窗口里继续。
+EXIT=0
+```
+
+升级后没有再启动。清单换成 `e133f26f006c5e1ae3635ed0e031213a2bedb4ab6e6c574a06d74c754eb3f543`。配置修改时间、字节数、令牌长度和令牌 SHA256 都与升级前相同。`status` 原文：
+
+```text
+{"version":"0.2.4","pid":19540,"runId":"1cc14a4f-0fa6-4683-aa16-f3e60dc7892c","background":true,"codex":"0.155.1","execServer":{"url":"ws://127.0.0.1:65020/","alive":true,"sandboxed":false,"generation":1,"protection":"inner-sandbox+strict-protocol","windowsSandbox":{"mode":"unelevated","testedAt":"2026-10-09T08:01:41.729Z","probe":"process/start","elevatedSetupForHome":false,"elevatedUsable":false}},"relay":{"url":"wss://relay.sunmoonai.com:30443/","status":"connected","lastError":"","lastNotice":""},"ceiling":{"sandbox":"workspace-write","network":false},"roots":["C:\\Users\\zymun\\Desktop"],"bridge":{"connections":0,"active":0,"forwardedUp":0,"forwardedDown":0,"denied":0},"at":"2026-10-10T08:33:31.254Z","running":true}
+```
+
+### 重新连接账号
+
+托盘菜单项启动的就是 `desktop.ps1 -Action onboard`。这次用安装目录里的这个脚本、同一份 stdin（node、cli、state、instance）打开了窗口，标题是「SunMoon - 设置」。码要等窗口里的「连接我的账号」才向站点申请，所以点了这个按钮。
+
+窗口随后显示「连接没有完成，请重新获取。」没有出现 8 位码，没有「剩余 N 秒」，没有新的浏览器窗口。
+
+同一台机器用安装目录的 `node.exe --use-system-ca` 直接跑 `pair`，退出码 1，标准输出是一条 `result`，`status` 为 `not-found`，`message` 为「not-found: 连接没有完成，请重新获取。」stderr 为空。再用同一个 Node 和随包 `site\ca.pem` 向 `https://investment.sunmoonai.com:30443/api/agent-pairing/requests` 提交契约里的五项，HTTP 状态 404，正文 `code` 为 `not_found`。对照 `POST /api/auth/web/login` 是 405，说明这台站点在应答，但配对这条路径没有挂上。核对页因此没有打开；审读里预期的页面 404 还没有走到。
+
+没有点「取消」，因为没有进入等待批准的那一步。没有点「允许」。配置修改时间、令牌长度和令牌 SHA256 仍是上面那一组。结束后 `status` 仍是 0.2.4、pid 19540、connected。
+
+本轮没有重测 0.2.1 临时目录，也没有重跑同版本 0.2.4。上一轮已经做过 0.2.1 卸载和 0.2.2→0.2.3。
+
+### 交审前自查
+
+- 版本需要升。本机已是 0.2.3，同版本只会开窗。升了三处：`cli.ts`、`agent/package.json`、`windows-x64.json`。回执和 `agent/distribution/README.md`、`CHECKPOINT.md` 跟着写成 0.2.4。
+- 本轮升级测的是正在运行的 0.2.3 → 0.2.4，配置保留，没有手动启动，`status` 已是 0.2.4 connected。0.2.2 → 0.2.3 和 0.2.1 形态卸载是上一轮，本轮没有重做。
+- 失败时窗口显示「连接没有完成，请重新获取。」这次的原因是配对接口 404，不是参数判断。
+- 证书来自组包参数 `--ca-pem agent/distribution/sites/dev-kind-ca.pem`，`ca_sha256` 由组包时对 DER 计算，值为 `76f9012886262cf6974039de8baf16ecd5e79e780237349fdcb95a2ac1aa1b3c`。`web_origin` 与 `relay_url` 来自 `agent/distribution/sites/dev-kind.json`，与包内 `site/site.json` 逐字相同。没有拿到服务端返回的 `verify_url`，所以没有做核对页地址对照。
+- 已做 / 未做见下。
+
+### 0.2.4 已做 / 未做
+
+已做：两处审读修改和 `menuPlan` 测试、`pair` 子进程测试；0.2.4 组包、清单与 `ca_sha256`；隔离安装检查；从 0.2.3 升级后不手动启动即 connected；打开重新连接窗口并点「连接我的账号」；记下落站点和窗口原文；确认令牌没换、代理仍 connected。未做：8 位码、倒计时、浏览器核对页、点「取消」后的「已取消连接」、真实「允许」。未发布，未改集群。卡 D 未开始。

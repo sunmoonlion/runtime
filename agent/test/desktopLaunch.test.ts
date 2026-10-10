@@ -4,15 +4,17 @@ import { deliverDesktop } from "../src/resident.js";
 describe("openDesktop waits for stdin", () => {
   it("does not resolve until the injected spawn finishes writing stdin", async () => {
     let release = (): void => {};
+    let ready: ((chunk: string) => void) | undefined;
     let unrefed = false;
-    const seen: { command?: string; args?: string[]; payload?: string; detached?: boolean } = {};
+    const seen: { command?: string; args?: string[]; payload?: string; stdout?: string } = {};
     const pending = deliverDesktop((command, args, options) => {
-      seen.command = command; seen.args = args; seen.detached = options.detached; seen.payload = undefined;
+      seen.command = command; seen.args = args; seen.stdout = options.stdio[1]; seen.payload = undefined;
       return {
         stdin: {
           end(data, callback) { seen.payload = data; release = callback; },
           on() {},
         },
+        stdout: { on(_event, listener) { ready = listener; } },
         once() {},
         unref() { unrefed = true; },
       };
@@ -22,9 +24,12 @@ describe("openDesktop waits for stdin", () => {
     await Promise.resolve();
     expect(settled).toBe(false);
     expect(unrefed).toBe(false);
-    expect(seen).toMatchObject({ command: "powershell.exe", detached: true, payload: "{\"action\":\"onboard\"}" });
+    expect(seen).toMatchObject({ command: "powershell.exe", stdout: "pipe", payload: "{\"action\":\"onboard\"}" });
     expect(seen.args).toEqual(["-File", "desktop.ps1", "-Action", "onboard"]);
     release();
+    await Promise.resolve();
+    expect(settled).toBe(false);
+    ready?.('{"desktop":"ready"}\n');
     await pending;
     expect(settled).toBe(true);
     expect(unrefed).toBe(true);

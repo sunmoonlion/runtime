@@ -136,22 +136,31 @@ export async function runTray(): Promise<void> {
 }
 type DesktopChild = {
   stdin: { end(data: string, callback: () => void): void; on(event: "error", listener: () => void): void } | null;
+  stdout: { on(event: "data", listener: (chunk: Buffer | string) => void): void } | null;
   once(event: "error", listener: (error: Error) => void): void;
+  once(event: "exit", listener: (code: number | null) => void): void;
   unref(): void;
 };
-/** Resolve only after the PowerShell stdin payload is flushed. menu then process.exit must not drop it. */
+/** Resolve after stdin is flushed and the window loop has started. menu then process.exit must not drop either. */
 export function deliverDesktop(
-  launch: (command: string, args: string[], options: { detached: true; windowsHide: true; stdio: ["pipe", "ignore", "ignore"] }) => DesktopChild,
+  launch: (command: string, args: string[], options: { windowsHide: true; stdio: ["pipe", "pipe", "ignore"] }) => DesktopChild,
   command: string, args: string[], payload: string,
 ): Promise<void> {
-  const child = launch(command, args, { detached: true, windowsHide: true, stdio: ["pipe", "ignore", "ignore"] });
+  const child = launch(command, args, { windowsHide: true, stdio: ["pipe", "pipe", "ignore"] });
   return new Promise((resolve, reject) => {
-    let settled = false;
-    const finish = (error?: Error) => { if (settled) return; settled = true; error ? reject(error) : resolve(); };
+    let settled = false, flushed = false, ready = false;
+    const finish = (error?: Error) => {
+      if (settled) return; settled = true; clearTimeout(timer);
+      error ? reject(error) : resolve();
+    };
+    const maybe = () => { if (flushed && ready) { child.unref(); finish(); } };
+    const timer = setTimeout(() => finish(new Error("Desktop window was not ready")), 15000);
     child.once("error", finish);
-    if (!child.stdin) { finish(new Error("Desktop input unavailable")); return; }
+    child.once("exit", () => finish(new Error("Desktop window exited before it was ready")));
+    if (!child.stdin || !child.stdout) { finish(new Error("Desktop input unavailable")); return; }
+    child.stdout.on("data", chunk => { if (String(chunk).includes('{"desktop":"ready"}')) { ready = true; maybe(); } });
     child.stdin.on("error", () => finish(new Error("Desktop input unavailable")));
-    child.stdin.end(payload, () => { child.unref(); finish(); });
+    child.stdin.end(payload, () => { flushed = true; maybe(); });
   });
 }
 export function openDesktop(action: "tray" | "onboard"): Promise<void> {

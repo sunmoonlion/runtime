@@ -46,6 +46,13 @@ if ($Action -eq 'autostart') {
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 [System.Windows.Forms.Application]::EnableVisualStyles()
+function Signal-DesktopReady {
+    # Fire only after this process is inside its own message loop, so the parent may exit.
+    $Ready = New-Object System.Windows.Forms.Timer
+    $Ready.Interval = 50
+    $Ready.Add_Tick({ $Ready.Stop(); $Ready.Dispose(); [Console]::Out.WriteLine('{"desktop":"ready"}'); [Console]::Out.Flush() })
+    $Ready.Start()
+}
 
 if ($Action -eq 'confirm') {
     if ($InputData.challenge -notmatch '^[a-f0-9]{32}$' -or $InputData.description.Length -gt 16000) { throw 'Invalid prompt' }
@@ -303,6 +310,7 @@ function Show-Onboard {
     $Form.Controls.AddRange(@($Intro,$Connect,$Code,$Clock,$Connected,$CancelPair,$Refresh,$Next1,$FolderNote,$Roots,$Add,$Remove,$Next2,$Auto,$Next3,$Online,$Finish,$Retry))
     Show-Step 1
     $Timer.Start()
+    Signal-DesktopReady
     try{$Form.ShowDialog()|Out-Null}finally{ $Timer.Stop(); $Timer.Dispose(); Stop-Pair; $Form.Dispose() }
 }
 
@@ -361,5 +369,6 @@ $Timer.Add_Tick({
     } catch {$Tray.Text='SunMoon: 状态暂不可读';$Connection.Text='状态：暂不可读'}
 })
 $Timer.Start()
+Signal-DesktopReady
 try {[System.Windows.Forms.Application]::Run()}
 finally {$Timer.Dispose(); $Tray.Visible=$false; $Tray.Dispose(); $Menu.Dispose(); Remove-Item -LiteralPath $TrayStatus -ErrorAction SilentlyContinue; $Mutex.ReleaseMutex(); $Mutex.Dispose()}

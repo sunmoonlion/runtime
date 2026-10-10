@@ -129,7 +129,7 @@ node --test agent/distribution/test/bundle.test.mjs
 
 `--site` 必填。`ca_sha256` 由组包时对证书 DER 计算，不从配置文件读入。开发站点用上面两个文件；`bundled-ca` 必须再给 `--ca-pem`，`system` 不能带证书。
 
-源码版本现为 **0.2.3**。还没有组 0.2.3 的包，没有发布到网页。已装到本机的仍是 0.2.2，摘要见[卡 C1 回执](../../scripts/results/windows-agent-onboarding-card-c1.20261010.md)。已托管的下载仍是下面的 0.2.1。
+源码版本现为 **0.2.3**。本机已组包并装上，没有发布到网页。路径、ZIP 与清单摘要见[卡 C2 回执](../../scripts/results/windows-agent-onboarding-card-c2.20261010.md)。已托管的下载仍是下面的 0.2.1。
 
 组包仅复制白名单生产文件、完整 Codex Windows 资源、固定依赖、许可证与入口。
 Node 版本/摘要来自已固定的官方物料；生成全文件 SHA256、固定源码提交和锁文件摘要。

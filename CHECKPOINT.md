@@ -1,6 +1,14 @@
 # CHECKPOINT（runtime 仓，分支 luna）
 
-## 当前：卡 C2 审读三处已改，版本 0.2.3，停下交审（2026-10-10）
+## 当前：0.2.3 已装到本机，真实配对被 pair 自己拒绝，停下交审（2026-10-10）
+
+依据 k8s `69fd572e`。包在 `C:\Users\zymun\sunmoon-probe-runs\windows-agent-c2-20261010`。ZIP SHA256 `77eda63720dab2e833541440ff16aaeba46cd6c13fb20e812e75b18a61102ea8`，清单 SHA256 `8c742cfc718ac9e9d5b160bbf26ca6352a09e8fb3a0dd5e627a15d8d90de136b`，`ca_sha256` 为 `76f9012886262cf6974039de8baf16ecd5e79e780237349fdcb95a2ac1aa1b3c`。
+
+本机已从 0.2.2 升到 0.2.3，配置保留，自启开着，开始菜单有「SunMoon 代理」，`status` 为 0.2.3 connected（pid 26184）。同版本重跑只开窗，安装目录未换。0.2.1 形态在临时目录卸完，配置保留。`pair` 不带参数也退出 1，因为 `argv.length` 把子命令名自己算进去了。没有连接码，没有打开核对页，没有换令牌。没有发布，没有改集群。详情见[卡 C2 回执](scripts/results/windows-agent-onboarding-card-c2.20261010.md)。
+
+**停点：**交审。只本地提交，不推送。卡 D 等这次验收交回后再做。
+
+## 先前：卡 C2 审读三处已改，版本 0.2.3，停下交审（2026-10-10）
 
 依据 k8s `dd62bbb0`。源码版本改为 **0.2.3**，这样装到所有者那台 0.2.2 上会走升级，而不是同版本只开窗。外部卸载器在调用旧 CLI 的 `tray stop` 之前，先清掉进程已退的 `tray-stop.json` / `tray.json`。配对失败时设置窗口读 stderr，没有 `result` 就显示最后一行或「连接没有完成，请重新获取。」，「重新获取连接码」可点。核对页只在地址以 `site.json` 的 `web_origin` 开头时打开；批准返回的 `relay_url` 必须等于安装包里的 `relay_url`。429 之后下一次多等一个间隔。
 

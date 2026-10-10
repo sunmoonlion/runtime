@@ -51,3 +51,75 @@
 | PowerShell 解析 `desktop.ps1` | 通过。窗口没有在本机手测 |
 
 没有组 0.2.3 包，没有发布，没有改集群，没有动正在运行的 0.2.2。
+
+## 0.2.3 组包与本机验收（k8s `69fd572e`）
+
+源码 `7449160d3b11ca9d8cab4583f740d0bd4df7553e`。组包参数 `--site agent/distribution/sites/dev-kind.json --ca-pem agent/distribution/sites/dev-kind-ca.pem`。官方 `node.exe` 与 Windows 依赖目录沿用卡 C1，没有重新下载。
+
+| 项目 | 值 |
+| --- | --- |
+| 目录 | `C:\Users\zymun\sunmoon-probe-runs\windows-agent-c2-20261010\sunmoon-agent-7449160` |
+| ZIP | 同一目录下 `sunmoon-agent-0.2.3-7449160-windows-x64.zip` |
+| 清单内文件 | 96 个，合计 501005949 字节；加上清单本身是 97 个 |
+| ZIP 大小 | 175305339 字节 |
+| ZIP SHA256 | `77eda63720dab2e833541440ff16aaeba46cd6c13fb20e812e75b18a61102ea8` |
+| 清单 SHA256 | `8c742cfc718ac9e9d5b160bbf26ca6352a09e8fb3a0dd5e627a15d8d90de136b` |
+| `site/site.json` 的 `ca_sha256` | `76f9012886262cf6974039de8baf16ecd5e79e780237349fdcb95a2ac1aa1b3c` |
+| `web_origin` | `https://investment.sunmoonai.com:30443` |
+| `relay_url` | `wss://relay.sunmoonai.com:30443` |
+
+ZIP 为 deflate、正斜杠、无外层目录。`windows-candidate.mjs` 用包内 Node 通过：0.2.3，97 个文件，没有启动代理，隔离目录已删。安装脚本由模板手工替换六个占位符，写在 `C:\Users\zymun\sunmoon-probe-runs\windows-agent-c2-20261010\install.ps1`，不在仓库里。包地址是本机 `127.0.0.1:8765` 的临时 HTTP，没有凭据。服务已停。
+
+### 从现装 0.2.2 升级
+
+升级前已装清单 `8e11fbbe294aaf29f4ffe6e8e8225b007920935e863dd76810e5f429063b3510`，版本 0.2.2，`status` 为 connected。安装脚本原文：
+
+```text
+{"action":"uninstall","target":"C:\\Users\\zymun\\AppData\\Local\\Programs\\sunmoon-agent","preserveConfig":true,"stopsOnlyThisAgent":true,"result":"removed"}
+{"action":"installed","destination":"C:\\Users\\zymun\\AppData\\Local\\Programs\\sunmoon-agent","files":97,"bytes":501005949,"startsAgent":false,"registersLogonTask":false,"changesUserConfig":false,"needsAdministrator":false}
+{"runLevel":"Limited","name":"SunMoonAgent-5b4377b497ee820ab8d076cf","installed":true,"enabled":true}
+{"action":"tray"}
+已准备 SunMoon 代理 0.2.3（Codex 0.155.1）。请在弹出的窗口里继续。
+```
+
+退出码 0。`config.json` 修改时间仍是 2026-10-09T16:06:40，令牌还在，没有打印令牌。开始菜单「SunMoon 代理」指向 `sunmoon-agent.cmd`，参数 `menu`。自启任务仍是 `SunMoonAgent-5b4377b497ee820ab8d076cf`，Limited，enabled=True。安装脚本不启动后台，随后执行 `start --background`，原文 `{"started":true}`。之后 `status`：
+
+```text
+{"version":"0.2.3","pid":26184,"relay":"connected","lastError":""}
+```
+
+### 同版本再跑
+
+第二次安装脚本只打印：
+
+```text
+{"action":"tray"}
+已准备 SunMoon 代理 0.2.3（Codex 0.155.1）。请在弹出的窗口里继续。
+```
+
+退出码 0。没有卸载，没有 `installed`。`node.exe` 修改时间仍是 2026-10-10T15:58:02，清单摘要仍是 `8c742cfc…136b`，配置修改时间未变。`status` 仍是 0.2.3、pid 26184、connected。
+
+### 0.2.1 形态，临时目录
+
+复制 `sunmoon-agent-6de6002` 到临时 `LOCALAPPDATA`，没有 `installer\launch.mjs`，没有 `site\`，清单版本 0.2.1，摘要 `d72f5443be1fa13895a92cb97f37b9cef6ce5fe27e7707705f3ee0e56a11f1b2`。临时状态目录放了 `config.json` 和进程号 424242 的 `tray-stop.json` / `tray.json`。用新包的 `uninstall.mjs`，`SUNMOON_AGENT_HOME` 和 `LOCALAPPDATA` 都指向临时目录。原文：
+
+```text
+{"action":"uninstall","target":"C:\\Users\\zymun\\sunmoon-probe-runs\\windows-agent-c2-20261010\\sim-021-local\\Programs\\sunmoon-agent","preserveConfig":true,"stopsOnlyThisAgent":true,"result":"removed"}
+```
+
+退出码 0。安装目录已消失，临时 `config.json` 还在，两个托盘残留文件已清掉。本机正在用的 0.2.2 当时还在，没有被这次模拟碰到。
+
+### 真实配对没有做成
+
+托盘「重新连接账号」会启动同一个 `pair`。直接跑安装目录里的 `node.exe --use-system-ca app\dist\cli.js pair`（没有别的参数）立刻退出码 1，标准输出为空。stderr 原文是一条 fatal，抛出点在 `app\dist\cli.js:104`。源码对应：
+
+```text
+if (cmd === "pair") {
+  if (argv.length) throw new Error("pair 不接受参数");
+```
+
+`argv` 里含有子命令名 `pair`，所以不带参数也会被拒绝。没有拿到连接码，没有打开核对页，没有换令牌。配置修改时间未变。结束后 `status` 仍是 0.2.3、pid 26184、connected。
+
+## 已做 / 未做
+
+已做：组 0.2.3 包并核对 `ca_sha256`；隔离安装检查；不进仓库的 `install.ps1`；从 0.2.2 升级并连上；同版本重跑只开窗；0.2.1 临时目录卸载。未做：真实配对、浏览器核对页、四步窗口里输入连接码。未发布，未改集群。卡 D 未开始。

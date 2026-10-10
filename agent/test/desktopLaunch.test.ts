@@ -1,5 +1,8 @@
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { launchOpenDesktop } from "../src/resident.js";
+import { desktopWindowReady, launchOpenDesktop } from "../src/resident.js";
 
 describe("openDesktop waits for the window marker", () => {
   it("does not resolve until the ready file exists, and detaches wscript", async () => {
@@ -20,5 +23,19 @@ describe("openDesktop waits for the window marker", () => {
     ready = true;
     await pending;
     expect(settled).toBe(true);
+  });
+
+  it("treats a tray status that cannot be read as not ready", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "sunmoon-tray-ready-"));
+    const marker = path.join(dir, "tray.json");
+    try {
+      expect(desktopWindowReady(marker, "tray")).toBe(false);
+      fs.writeFileSync(marker, "{");
+      expect(desktopWindowReady(marker, "tray")).toBe(false);
+      fs.writeFileSync(marker, JSON.stringify({ pid: 1, runId: "not-a-uuid" }));
+      expect(desktopWindowReady(marker, "tray")).toBe(false);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
   });
 });

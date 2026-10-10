@@ -157,17 +157,21 @@ export function launchOpenDesktop(
     tick();
   });
 }
+/** A tray status that is still being written is not ready; the poll must not throw out of its timer. */
+export function desktopWindowReady(marker: string, action: "tray" | "onboard"): boolean {
+  try { return fs.existsSync(marker) && (action !== "tray" || pidAlive(readTrayControl(marker).pid)); }
+  catch { return false; }
+}
 export async function openDesktop(action: "tray" | "onboard"): Promise<void> {
   checkControlDirectory();
   const marker = path.join(CONFIG_DIR, action === "tray" ? "tray.json" : "onboard-ready.json");
   if (action === "tray") {
     discardDeadTrayStop(CONFIG_DIR, pidAlive);
-    if (fs.existsSync(marker) && pidAlive(readTrayControl(marker).pid)) return;
+    if (desktopWindowReady(marker, "tray")) return;
     removePlainControl(marker);
   } else removePlainControl(marker);
   if (!process.env.SystemRoot) throw new Error("Windows is required");
-  const ready = () => fs.existsSync(marker) && (action !== "tray" || pidAlive(readTrayControl(marker).pid));
-  await launchOpenDesktop(spawn, path.join(process.env.SystemRoot, "System32", "wscript.exe"), path.join(nativeDirectory, "open-desktop.vbs"), process.execPath, cli, CONFIG_DIR, action, ready);
+  await launchOpenDesktop(spawn, path.join(process.env.SystemRoot, "System32", "wscript.exe"), path.join(nativeDirectory, "open-desktop.vbs"), process.execPath, cli, CONFIG_DIR, action, () => desktopWindowReady(marker, action));
 }
 export async function autostart(action: string): Promise<any> {
   checkControlDirectory();

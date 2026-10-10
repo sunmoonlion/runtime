@@ -1,10 +1,10 @@
 # CHECKPOINT（runtime 仓，分支 luna）
 
-## 当前：0.2.2 已在本机换上并连上，停下交审（2026-10-10）
+## 当前：0.2.2 已换上登记库 CA，本机自启验收完成，停下交审（2026-10-10）
 
-依据 k8s `2dce0e1e`「卡 C1 复审」。开发站点包在 `C:\Users\zymun\sunmoon-probe-runs\windows-agent-c1-20261010\`。ZIP SHA256 `43dc2e2cf0816b6d8413d14d6237c4f961898302dff44225b5d251a13bb8bd5b`，清单 SHA256 `53d27a66112dc79be809b696fb0c98f3a013757db3eeda8b1abbe43496f2f64c`。包内 `ca_sha256` 为 `79562e076be4c90442edba46de5a4ae2b6009d1c35dab0a895cb8797f6bce1ef`。
+依据 k8s `099da205`。随包证书改为 `CN=SunMoon Registry Local CA`，DER SHA-256 `76f9012886262cf6974039de8baf16ecd5e79e780237349fdcb95a2ac1aa1b3c`。源码 `294aa1de9939a8635f4ed93014557591318e824c`。ZIP SHA256 `007c9882fbb50391b21813f3c222fff98085e58f19df176c3d9599f59cce2bc6`，清单 SHA256 `8e11fbbe294aaf29f4ffe6e8e8225b007920935e863dd76810e5f429063b3510`。
 
-本机已保留配置卸下 0.2.1 并装上 0.2.2。用户环境里本来就没有 `NODE_OPTIONS` 和 `NODE_EXTRA_CA_CERTS`。安装目录入口启动后会合点状态为 connected。没有登录自启，所以没有重启。没有发布，没有改集群。C2 未开始。详情见[卡 C1 回执](scripts/results/windows-agent-onboarding-card-c1.20261010.md)。
+本机已保留配置换上这包。甲 `authorized=true`、签发者 `SunMoon Registry Local CA`；乙失败 `UNABLE_TO_VERIFY_LEAF_SIGNATURE`。重启登录后没有手动启动，status 为 0.2.2、connected，后台命令行带 `--use-system-ca`，`NODE_EXTRA_CA_CERTS` 指向安装目录 `site\ca.pem`。托盘打开了查看状态和设置，状态窗口为「在线 / 无连接错误」。自启保持开着。没有发布，没有改集群。两个卸载缺陷和 C2 都没动。详情见[卡 C1 回执](scripts/results/windows-agent-onboarding-card-c1.20261010.md)。
 
 **停点：**交审。只本地提交，不推送。
 

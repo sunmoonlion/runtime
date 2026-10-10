@@ -1,6 +1,6 @@
 // One human sentence per known failure. The original code stays; tokens and remote prose do not.
 const SAFE_CODE = /^[A-Za-z0-9_-]{1,64}$/;
-const TLS = /^(?:UNABLE_TO_VERIFY_|SELF_SIGNED_|DEPTH_ZERO_SELF_SIGNED)/;
+const TLS = /^(?:UNABLE_TO_VERIFY_|SELF_SIGNED_|DEPTH_ZERO_SELF_SIGNED|UNABLE_TO_GET_ISSUER_CERT|CERT_|ERR_TLS_CERT_ALTNAME_INVALID$)/;
 const NETWORK = new Set(["ENOTFOUND", "ECONNREFUSED", "ETIMEDOUT", "ESOCKETTIMEDOUT", "UND_ERR_CONNECT_TIMEOUT"]);
 
 export interface HumanError { code: string; message: string }

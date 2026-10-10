@@ -1,14 +1,12 @@
 # CHECKPOINT（runtime 仓，分支 luna）
 
-## 当前：卡 C1 已本地提交，停下交审（2026-10-10）
+## 当前：卡 C1 审读两处已改，停下交审（2026-10-10）
 
-设计依据为 k8s `1be06781` 反馈「2026-10-10 · 卡 C（代理）交 Cursor」和 SDD 0012 第二节第 1、2、4 节。只做 C1。C2（`pair`、设置四步、开始菜单与自启默认开、`install.ps1.tmpl`）未开始。
+依据 k8s `e9573559`「卡 C1 审读」。证书类补上 `UNABLE_TO_GET_ISSUER_CERT*`、`CERT_*`、`ERR_TLS_CERT_ALTNAME_INVALID`，这五个码各有一条测试。`installedLaunchError` 比较 `NODE_EXTRA_CA_CERTS` 与 `caPath` 时两边先 `realpathSync.native`，win32 再统一小写；打不开的路径算不匹配。三个 `.cmd` 已去掉 `call :launch`，启动命令内联在 `setlocal` 里。
 
-源码版本改为 **0.2.2**。开发站点配置在 `agent/distribution/sites/dev-kind.json`，证书是 SunMoonAI Root CA，DER SHA-256 `79562e076be4c90442edba46de5a4ae2b6009d1c35dab0a895cb8797f6bce1ef`。`ca_sha256` 只在组包时计算。托盘、设置、后台、开始菜单入口、自启和安装/卸载入口在有站点文件时自行加上 `--use-system-ca`，`bundled-ca` 时把 `NODE_EXTRA_CA_CERTS` 指到安装目录 `site\ca.pem`，并清掉会话里的 `NODE_OPTIONS`。错误人话进日志、`status.lastError`、托盘菜单和设置窗口，带原始错误码，不带令牌。托盘图标提示仍是短状态（Windows 限 63 字）；完整句子在托盘菜单和「查看状态」。
+先 `pnpm build`，再 `pnpm test`：200 通过、32 跳过。`tsc --noEmit` 通过。`node --test agent/distribution/test/bundle.test.mjs` 28 通过。没有组 Windows 包，没有发布，没有改集群。C2 未开始。详情见[卡 C1 回执](scripts/results/windows-agent-onboarding-card-c1.20261010.md)。
 
-Linux：`pnpm test` 194 通过、32 跳过（跳过的是既有 Windows 实机用例）；`tsc --noEmit` 通过；`node --test agent/distribution/test/bundle.test.mjs` 28 通过。PowerShell 解析 `desktop.ps1` 通过；`run-hidden.vbs` 无参数退出码 2（参数个数检查，说明脚本能启动）。没有组 Windows 包，没有发布，没有改集群，没有动已安装的 0.2.1。所有者 Windows 上去掉 `NODE_OPTIONS` 后重启、确认代理自己连上，未做。详情见[卡 C1 回执](scripts/results/windows-agent-onboarding-card-c1.20261010.md)。
-
-**停点：**交审 C1。审过之前不要在 Windows 上安装这个源码。C2 等审过再做。只本地提交，不推送。
+**停点：**交审。审过后再组 0.2.2，所有者按回执五步在 Windows 上验收。只本地提交，不推送。
 
 以下记录为先前阶段；与本节冲突时以本节和 SDD 0012 为准。
 

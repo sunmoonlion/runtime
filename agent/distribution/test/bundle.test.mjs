@@ -152,7 +152,7 @@ test('only explicit source inputs are included by builder; launcher uses bundled
     const cmd = fs.readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
     assert.match(cmd, /%~dp0node\\node.exe/); assert.match(cmd, /--use-system-ca/);
     assert.match(cmd, /NODE_OPTIONS=/); assert.match(cmd, /bundled-ca/);
-    assert.doesNotMatch(cmd, /\bnpm\b|\bpnpm\b|powershell|ExecutionPolicy/);
+    assert.doesNotMatch(cmd, /call :launch|\bnpm\b|\bpnpm\b|powershell|ExecutionPolicy/);
   }
   const ps1 = fs.readFileSync(new URL('../../native/desktop.ps1', import.meta.url), 'utf8');
   const vbs = fs.readFileSync(new URL('../../native/run-hidden.vbs', import.meta.url), 'utf8');

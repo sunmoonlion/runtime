@@ -69,4 +69,35 @@ describe("installed site launch", () => {
     expect(cleared.NODE_EXTRA_CA_CERTS).toBe(packed.caPath);
     fs.rmSync(packed.root, { recursive: true, force: true });
   });
+  it("accepts another case spelling of the same certificate and rejects a different file", () => {
+    const packed = layout();
+    const other = path.join(packed.root, "site", "other.pem");
+    fs.writeFileSync(other, `${pem}\nnot-the-packaged-file\n`);
+    const flipped = packed.caPath.replace(/[A-Za-z]/g, (ch) => ch === ch.toLowerCase() ? ch.toUpperCase() : ch.toLowerCase());
+    let spelling = "";
+    try {
+      if (flipped !== packed.caPath && fs.realpathSync.native(flipped) === fs.realpathSync.native(packed.caPath)) spelling = flipped;
+    } catch { /* this filesystem does not open the other case as the same file */ }
+    if (!spelling) {
+      spelling = path.join(packed.root, "site", "CA.pem");
+      fs.symlinkSync(packed.caPath, spelling);
+    }
+    expect(spelling).not.toBe(packed.caPath);
+    const script = `
+      import { installedLaunchError } from ${JSON.stringify(new URL("../src/siteTrust.ts", import.meta.url).href)};
+      const message = installedLaunchError(${JSON.stringify(packed.url)});
+      console.log(message ?? "OK");
+    `;
+    const run = (ca: string) => spawnSync(process.execPath, ["--use-system-ca", "--experimental-strip-types", "--disable-warning=ExperimentalWarning", "--input-type=module", "-e", script], {
+      env: { ...process.env, NODE_EXTRA_CA_CERTS: ca }, encoding: "utf8",
+    });
+    const same = run(spelling);
+    expect(same.status, same.stderr).toBe(0);
+    expect(same.stdout.trim()).toBe("OK");
+    const different = run(other);
+    expect(different.status, different.stderr).toBe(0);
+    expect(different.stdout.trim()).toContain("SITE_LAUNCH");
+    expect(different.stdout).not.toContain("other.pem");
+    fs.rmSync(packed.root, { recursive: true, force: true });
+  });
 });

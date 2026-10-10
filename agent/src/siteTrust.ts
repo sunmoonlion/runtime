@@ -61,13 +61,23 @@ export function relayHost(url: string): string {
   } catch { return "会合点"; }
 }
 
+function sameCaFile(envPath: string | undefined, caPath: string): boolean {
+  if (!envPath) return false;
+  try {
+    let left = fs.realpathSync.native(envPath);
+    let right = fs.realpathSync.native(caPath);
+    if (process.platform === "win32") { left = left.toLowerCase(); right = right.toLowerCase(); }
+    return left === right;
+  } catch { return false; }
+}
+
 export function installedLaunchError(moduleUrl: string): string | null {
   let site: InstalledSite | null;
   try { site = installedSite(moduleUrl); }
   catch (error) { return error instanceof Error ? error.message : "SITE_CA: 站点文件无法读取。请重新从网页下载安装包。"; }
   if (!site) return null;
   if (!process.execArgv.includes("--use-system-ca")) return "SITE_LAUNCH: 代理没有按安装包的方式启动。请从安装目录的入口重新打开。";
-  if (site.mode === "bundled-ca" && process.env.NODE_EXTRA_CA_CERTS !== site.caPath) {
+  if (site.mode === "bundled-ca" && !sameCaFile(process.env.NODE_EXTRA_CA_CERTS, site.caPath ?? "")) {
     return "SITE_LAUNCH: 代理没有使用安装包里的站点证书。请从安装目录的入口重新打开。";
   }
   if (site.mode === "system" && process.env.NODE_EXTRA_CA_CERTS) {

@@ -15,6 +15,18 @@ describe("connection sentences", () => {
       expect(info.message).not.toContain("fixture-token");
     }
   });
+  it.each([
+    "UNABLE_TO_GET_ISSUER_CERT",
+    "UNABLE_TO_GET_ISSUER_CERT_LOCALLY",
+    "CERT_HAS_EXPIRED",
+    "CERT_NOT_YET_VALID",
+    "ERR_TLS_CERT_ALTNAME_INVALID",
+  ])("maps %s to the certificate sentence", (code) => {
+    const info = humanizeTransport({ code, message: "fixture-token-must-not-appear" }, HOST);
+    expect(info.message).toBe(`${code}: ${CERT}`);
+    expect(info.message).not.toContain("检查网络");
+    expect(info.message).not.toContain("fixture-token");
+  });
   it("maps unreachable hosts and timeouts without copying the raw message", () => {
     for (const code of ["ENOTFOUND", "ECONNREFUSED", "ETIMEDOUT", "ESOCKETTIMEDOUT", "UND_ERR_CONNECT_TIMEOUT"]) {
       expect(humanizeTransport({ code, message: "token=fixture" }, HOST).message).toBe(`${code}: 连不上 ${HOST}。检查网络或代理设置。`);

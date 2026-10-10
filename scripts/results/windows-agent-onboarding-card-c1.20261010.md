@@ -1,7 +1,13 @@
 # Windows 代理卡 C1 回执
 
 日期：2026-10-10（Asia/Shanghai）
-依据：k8s `1be06781`，`luna-feedback.md`「2026-10-10 · 卡 C（代理）交 Cursor」；设计为 SDD 0012 第二节第 1、2、4 节里属于 C1 的部分。C2 未做。
+依据：k8s `e9573559`，`luna-feedback.md`「2026-10-10 · 卡 C1 审读」；此前实现依据同文件「卡 C（代理）交 Cursor」和 SDD 0012 第二节第 1、2、4 节里属于 C1 的部分。C2 未做。
+
+## 审读修改
+
+- `UNABLE_TO_GET_ISSUER_CERT`、`UNABLE_TO_GET_ISSUER_CERT_LOCALLY`、`CERT_HAS_EXPIRED`、`CERT_NOT_YET_VALID`、`ERR_TLS_CERT_ALTNAME_INVALID` 都归证书那句。实现按 `UNABLE_TO_GET_ISSUER_CERT*`、`CERT_*` 和这一个主机名错误码匹配。五个码各有一条测试，句子里没有「检查网络」。
+- 启动自检对 `NODE_EXTRA_CA_CERTS` 和安装目录里的 `ca.pem` 都先 `fs.realpathSync.native`。文件打不开就算不匹配。win32 上再把两边转成小写后比较。测试：同一文件换一种大小写路径应通过；另一个文件应拒绝。本机文件系统区分大小写，打不开纯大小写变体，所以这条用指向同一文件的 `CA.pem` 链接充当不同写法；win32 上会直接用大小写不同的原路径。
+- 三个 `.cmd` 去掉 `call :launch`，环境变量和 `node.exe` 命令写在主体里。
 
 ## 结果
 
@@ -16,11 +22,11 @@
 
 | 检查 | 结果 |
 | --- | --- |
-| `pnpm test`（agent） | 194 通过，32 跳过。跳过的是既有 Windows 实机用例，含生命周期里 4003 文案断言的那条 |
+| 先 `pnpm build`，再 `pnpm test`（agent） | build 通过。测试 200 通过，32 跳过。跳过的是既有 Windows 实机用例。不先 build 时 `cli.test.ts` 会因没有 `dist/cli.js` 失败 |
 | `tsc -p agent/tsconfig.json --noEmit` | 通过 |
 | `node --test agent/distribution/test/bundle.test.mjs` | 28 通过 |
-| PowerShell 解析 `desktop.ps1` | `parse-ok` |
-| `cscript run-hidden.vbs` 不带参数 | 退出码 2 |
+| PowerShell 解析 `desktop.ps1` | 上一轮 `parse-ok`。本轮未改该文件，未重跑 |
+| `cscript run-hidden.vbs` 不带参数 | 上一轮退出码 2。本轮未改该文件，未重跑 |
 
 ## 未做
 

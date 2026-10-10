@@ -8,6 +8,43 @@ import { parseArgs } from 'node:util';
 import { plainDirectory, verifyBundle, removeVerifiedBundle } from './bundle.mjs';
 import { applyLaunchEnv, nodeLaunch } from './launch.mjs';
 
+function readTrayControl(file) {
+  const st = fs.lstatSync(file);
+  if (!st.isFile() || st.isSymbolicLink() || st.nlink !== 1 || st.size > 1024) throw new Error('Unsafe tray status');
+  const current = JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
+  if (!Number.isInteger(current.pid) || current.pid <= 0 || !/^[a-f0-9-]{36}$/.test(current.runId)) throw new Error('Invalid tray status');
+  return current;
+}
+
+function removePlainControl(file) {
+  if (!fs.existsSync(file)) return;
+  const st = fs.lstatSync(file);
+  if (!st.isFile() || st.isSymbolicLink() || st.nlink !== 1) throw new Error('Unsafe tray status');
+  fs.unlinkSync(file);
+}
+
+// Same rule as the resident tray stop: a leftover file whose recorded process is
+// gone is removed here, because the installed CLI may be too old to do it.
+export function clearStaleTray(directory, alive) {
+  const file = path.join(directory, 'tray.json'), stop = path.join(directory, 'tray-stop.json');
+  if (fs.existsSync(stop)) {
+    const current = readTrayControl(stop);
+    if (!alive(current.pid)) { removePlainControl(stop); removePlainControl(file); return 'cleared'; }
+    return 'pending';
+  }
+  if (fs.existsSync(file)) {
+    const current = readTrayControl(file);
+    if (!alive(current.pid)) { removePlainControl(file); return 'cleared'; }
+  }
+  return 'continue';
+}
+
+function pidAlive(pid) {
+  try { process.kill(pid, 0); return true; }
+  catch (error) { return error.code === 'EPERM'; }
+}
+
+function main() {
 try {
   const { values } = parseArgs({ options: {
     apply: { type: 'boolean', default: false }, 'remove-config': { type: 'boolean', default: false },
@@ -57,7 +94,7 @@ try {
       if (r.status !== 0) throw new Error(`Cannot complete ${args[0]}; installation and config kept`);
     };
     // Remove restart policy before stopping. A failed step keeps program files.
-    invoke(['autostart','disable']); invoke(['tray','stop']); invoke(['stop']);
+    invoke(['autostart','disable']); clearStaleTray(state, pidAlive); invoke(['tray','stop']); invoke(['stop']);
   }
   removeVerifiedBundle(target,expected,true);
   if(values['remove-config']) {
@@ -68,3 +105,6 @@ try {
   }
   console.log(JSON.stringify({...plan,result:'removed'}));
 } catch(error){console.error(`Uninstall stopped: ${error.message}`);process.exitCode=1;}
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();

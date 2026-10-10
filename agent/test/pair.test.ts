@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { defaultConfig, saveConfig } from "../src/config.js";
-import { deviceSecretSha256, runPair, type PairResponse } from "../src/pair.js";
+import { deviceSecretSha256, openableVerifyUrl, runPair, type PairResponse } from "../src/pair.js";
 
 const SECRET = "device-secret-0123456789ABCDEFGHijkl";
 const TOKEN = "agent-token-should-stay-out-of-stdout";
@@ -14,6 +14,7 @@ function harness(replies: PairResponse[]) {
   const configPath = path.join(home, "config.json");
   const calls: { url: string; body: Record<string, string> }[] = [];
   const lines: string[] = [];
+  const sleeps: number[] = [];
   let stopped = 0;
   let cancelled = false;
   const post = async (url: string, body: Record<string, string>) => {
@@ -24,6 +25,7 @@ function harness(replies: PairResponse[]) {
   };
   const run = (extra: { jump?: number } = {}) => runPair({
     webOrigin: "https://investment.example",
+    relayUrl: "wss://relay.example/relay",
     machineName: "desk",
     osName: "Windows",
     agentVersion: "0.2.2",
@@ -31,7 +33,7 @@ function harness(replies: PairResponse[]) {
     configPath,
     secret: SECRET,
     post,
-    sleep: async ms => { clock += extra.jump ?? ms; },
+    sleep: async ms => { sleeps.push(ms); clock += extra.jump ?? ms; },
     now: () => clock,
     cancelled: () => cancelled,
     stdout: line => lines.push(line),
@@ -39,7 +41,7 @@ function harness(replies: PairResponse[]) {
   });
   let clock = 0;
   return {
-    home, configPath, calls, lines, run,
+    home, configPath, calls, lines, sleeps, run,
     stopCount: () => stopped,
     cancel: () => { cancelled = true; },
     output: () => lines.join("\n"),
@@ -63,6 +65,7 @@ describe("pair", () => {
       expect(Object.keys(body).sort()).toEqual(["agent_version", "codex_version", "device_secret_sha256", "machine_name", "os"]);
       expect(body.device_secret_sha256).toBe(deviceSecretSha256(SECRET));
       expect(body.device_secret_sha256).toBe(createHash("sha256").update(SECRET, "ascii").digest("hex"));
+      expect(h.sleeps).toEqual([3000, 6000]);
       expect(h.calls[1].url).toContain("/requests/req-1/poll");
       expect(h.calls[1].body).toEqual({ device_secret: SECRET });
       expect(h.stopCount()).toBe(1);
@@ -88,6 +91,30 @@ describe("pair", () => {
       expect(saved.machineName).toBe("kept-name");
       expect(saved.ceiling).toEqual({ sandbox: "read-only", network: false });
       expect(saved.token).toBe(TOKEN);
+    } finally { rmSync(h.home, { recursive: true, force: true }); }
+  });
+
+  it("does not offer a verify url outside the packaged site", async () => {
+    const foreign = { status: 200, body: { ...created.body as Record<string, unknown>, verify_url: "https://evil.example/settings#computer" } };
+    const h = harness([foreign, { status: 200, body: { status: "cancelled" } }]);
+    h.cancel();
+    try {
+      expect(openableVerifyUrl("https://investment.example/settings#computer", "https://investment.example")).toBe("https://investment.example/settings#computer");
+      expect(openableVerifyUrl("https://evil.example/settings#computer", "https://investment.example")).toBeNull();
+      expect(openableVerifyUrl("https://investment.example.evil/settings", "https://investment.example")).toBeNull();
+      expect(await h.run()).toBe(6);
+      expect(h.output()).toContain('"verify_url":""');
+      expect(h.output()).not.toContain("evil.example");
+    } finally { rmSync(h.home, { recursive: true, force: true }); }
+  });
+
+  it("refuses an approved relay that is not the packaged relay", async () => {
+    const h = harness([created, { status: 200, body: { status: "approved", relay_url: "wss://elsewhere.example/relay", relay_user: "owner", agent_token: TOKEN } }]);
+    try {
+      expect(await h.run()).toBe(1);
+      expect(existsSync(h.configPath)).toBe(false);
+      expect(h.output()).toContain("会合点与安装包不一致");
+      expect(h.output()).not.toContain(TOKEN);
     } finally { rmSync(h.home, { recursive: true, force: true }); }
   });
 

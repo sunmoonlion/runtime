@@ -184,7 +184,16 @@ function Show-Preferences {
 function Show-Onboard {
     $Form=New-Object System.Windows.Forms.Form
     $Form.Text='SunMoon - 设置'; $Form.Size=New-Object System.Drawing.Size(700,480); $Form.StartPosition='CenterScreen'
-    $script:Pair=$null; $script:Account=''; $script:Remaining=0
+    $script:Pair=$null; $script:Account=''; $script:Remaining=0; $script:GotResult=$false; $script:ExitSeen=$false; $script:ExitShown=$false; $script:LastErr=$null
+    $script:WebOrigin=$null
+    $NodeDir=Split-Path -Parent $Node
+    if ((Split-Path -Leaf $NodeDir) -eq 'node') {
+        $SiteFile=Join-Path (Split-Path -Parent $NodeDir) 'site\site.json'
+        if (Test-Path -LiteralPath $SiteFile) {
+            $Site=Get-Content -LiteralPath $SiteFile -Raw -Encoding UTF8 | ConvertFrom-Json
+            if ($Site.web_origin) { $script:WebOrigin=[string]$Site.web_origin }
+        }
+    }
     $Intro=New-Object System.Windows.Forms.Label; $Intro.Text='连接账号'; $Intro.SetBounds(15,15,650,24)
     $Connect=New-Object System.Windows.Forms.Button; $Connect.Text='连接我的账号'; $Connect.SetBounds(15,48,160,32)
     $Code=New-Object System.Windows.Forms.Label; $Code.Font=New-Object System.Drawing.Font('Segoe UI',28); $Code.SetBounds(15,95,650,60)
@@ -204,9 +213,20 @@ function Show-Onboard {
     $Retry=New-Object System.Windows.Forms.Button; $Retry.Text='重试'; $Retry.Visible=$false; $Retry.SetBounds(15,230,120,30)
     $Online=New-Object System.Windows.Forms.Label; $Online.Visible=$false; $Online.SetBounds(15,48,650,80)
     $script:Lines = New-Object 'System.Collections.Concurrent.ConcurrentQueue[string]'
+    $script:ErrLines = New-Object 'System.Collections.Concurrent.ConcurrentQueue[string]'
+    function Test-SiteUrl([string]$Url, [string]$Origin) {
+        if (-not $Origin -or -not $Url.StartsWith($Origin)) { return $false }
+        if ($Url.Length -gt $Origin.Length) {
+            $Rest = $Url.Substring($Origin.Length, 1)
+            if ($Rest -ne '/' -and $Rest -ne '?' -and $Rest -ne '#') { return $false }
+        }
+        return $Url -match '^https?://[^ \r\n]+$'
+    }
     $Timer=New-Object System.Windows.Forms.Timer; $Timer.Interval=1000
     $Timer.Add_Tick({
         if($script:Remaining -gt 0){ $script:Remaining--; $Clock.Text=('剩余 ' + $script:Remaining + ' 秒') }
+        $Err=$null
+        while($script:ErrLines.TryDequeue([ref]$Err)){ if([string]$Err.Trim()){ $script:LastErr=[string]$Err.Trim() } }
         $Line=$null
         while($script:Lines.TryDequeue([ref]$Line)){
             try{$Msg=$Line|ConvertFrom-Json}catch{continue}
@@ -214,22 +234,39 @@ function Show-Onboard {
                 $Code.Text=[string]$Msg.user_code
                 $script:Remaining=[int]$Msg.expires_in
                 $Clock.Text=('剩余 ' + $script:Remaining + ' 秒')
-                if([string]$Msg.verify_url -match '^https?://[^ \r\n]+$'){ Start-Process ([string]$Msg.verify_url) }
+                $Url=[string]$Msg.verify_url
+                if(Test-SiteUrl $Url $script:WebOrigin){ Start-Process $Url }
             } elseif($Msg.event -eq 'result' -and $Msg.status -eq 'approved'){
+                $script:GotResult=$true
                 $script:Account=[string]$Msg.account
                 $Connected.Text='已连接到 ' + $script:Account
                 $Next1.Enabled=$true
             } elseif($Msg.event -eq 'result'){
+                $script:GotResult=$true
                 $Connected.Text=[string]$Msg.message
+                $Refresh.Enabled=$true
             }
+        }
+        if($script:Pair -and $script:Pair.HasExited -and -not $script:GotResult -and -not $script:ExitShown){
+            if($script:LastErr -or $script:ExitSeen){
+                $script:ExitShown=$true
+                $Connected.Text = if($script:LastErr){ $script:LastErr } else { '连接没有完成，请重新获取。' }
+                $Refresh.Enabled=$true
+            } else { $script:ExitSeen=$true }
         }
     })
     function Stop-Pair { if($script:Pair -and -not $script:Pair.HasExited){ try{$script:Pair.StandardInput.WriteLine('cancel')}catch{} } }
     $Connect.Add_Click({
         Stop-Pair
+        $script:GotResult=$false; $script:ExitSeen=$false; $script:ExitShown=$false; $script:LastErr=$null
+        $Drop=$null
+        while($script:Lines.TryDequeue([ref]$Drop)){}
+        while($script:ErrLines.TryDequeue([ref]$Drop)){}
         $script:Pair=New-AgentProcess @('pair')
         $script:Pair.add_OutputDataReceived({ if($_.Data){ $script:Lines.Enqueue([string]$_.Data) } })
+        $script:Pair.add_ErrorDataReceived({ if($_.Data){ $script:ErrLines.Enqueue([string]$_.Data) } })
         $script:Pair.BeginOutputReadLine()
+        $script:Pair.BeginErrorReadLine()
     })
     $CancelPair.Add_Click({ Stop-Pair; $Connected.Text='已取消连接。' })
     $Refresh.Add_Click({ $Connect.PerformClick() })

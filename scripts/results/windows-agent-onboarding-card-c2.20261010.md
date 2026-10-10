@@ -26,11 +26,28 @@
 
 没有组包，没有发布，没有改集群，没有卸载或覆盖 `C:\Users\zymun\AppData\Local\Programs\sunmoon-agent` 里正在运行的 0.2.2，没有发起真实配对，没有改令牌。
 
-## 所有者在 Windows 上的步骤（审过并组包之后）
+## 所有者在 Windows 上的步骤（审过并组 0.2.3 包之后）
 
 本轮不要做。配对会换掉当前令牌，这台电脑会断开。
 
 1. 同版本再跑安装脚本：只打开托盘或设置，安装目录不被覆盖。
-2. 用一份按 0.2.1 清单核验得过的目录（没有 `installer\launch.mjs`、没有 `site\`）升级：配置保留，旧目录卸掉之后才装入新版本。0.2.2 形态同样先卸再装；目录还在就停。
-3. 开始菜单有「SunMoon 代理」。新装或升级后，登录自启是开着的。
-4. 在设置窗口点「连接我的账号」，在浏览器里输入连接码，走完四步，看到「已在线」。
+2. 从本机现装的 0.2.2 升级：配置保留，自启开着，开始菜单有「SunMoon 代理」。0.2.1 形态用临时目录模拟，不必真装回 0.2.1。目录还在就停，不覆盖。
+3. 在设置窗口点「连接我的账号」，在浏览器里输入连接码，走完四步，看到「已在线」。
+
+## 审读修改（k8s `dd62bbb0`）
+
+- 版本改为 **0.2.3**：`cli.ts` 的 `VERSION`、`agent/package.json`、`windows-x64.json` 的 `agentVersion`。所有者那台是 0.2.2，同版本只会开窗。
+- 外部包的 `uninstall.mjs` 在 `invoke(['tray','stop'])` 之前调用 `clearStaleTray`。规则与常驻进程相同：记录的 pid 已不在、普通文件、非链接，就删掉 `tray-stop.json` 和 `tray.json`。进程还在则留下，交给旧 CLI。符号链接不删。测试用 0.2.1 形态目录加上已退进程的残留文件，清掉之后卸载走完，旁边的 `config.json` 还在。
+- `desktop.ps1` 用 `BeginErrorReadLine` 异步读 `pair` 的 stderr。进程退出且没有 `result` 时，窗口显示 stderr 最后一行，没有则显示「连接没有完成，请重新获取。」「重新获取连接码」保持可点。PowerShell 解析通过；窗口本身没有在本机手测。
+- `verify_url` 必须以 `site.json` 的 `web_origin` 开头，且下一字符是结尾、`/`、`?` 或 `#`，才写入可打开的地址并打开浏览器。`approved` 的 `relay_url` 必须等于 `site.json` 的 `relay_url`，否则不保存令牌。收到 429 后，下一次轮询多等一个间隔（3 秒变 6 秒）。这三条都有测试。
+
+## 审读后已跑
+
+| 检查 | 结果 |
+| --- | --- |
+| 先 `pnpm build`，再 `pnpm test`（agent） | build 通过。测试 208 通过，32 跳过。跳过的是既有 Windows 实机用例 |
+| `tsc -p agent/tsconfig.json --noEmit` | 通过 |
+| `node --test agent/distribution/test/bundle.test.mjs` | 32 通过。含 0.2.1 形态加已退进程的 `tray-stop.json` |
+| PowerShell 解析 `desktop.ps1` | 通过。窗口没有在本机手测 |
+
+没有组 0.2.3 包，没有发布，没有改集群，没有动正在运行的 0.2.2。

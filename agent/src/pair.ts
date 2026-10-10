@@ -37,6 +37,7 @@ export interface PairResponse { status: number; body: unknown }
 
 export interface PairRunOptions {
   webOrigin: string;
+  relayUrl: string;
   machineName: string;
   osName: string;
   agentVersion: string;
@@ -98,16 +99,18 @@ export async function runPair(opts: PairRunOptions): Promise<number> {
   if (!/^[A-Za-z0-9-]{1,80}$/.test(requestId) || !CODE.test(userCode) || expiresIn !== 300 || interval !== 3 || !/^https?:\/\//.test(verifyUrl)) {
     return fail(opts, "invalid: 连接服务返回的内容无法使用，请重新获取。");
   }
-  say(opts.stdout, { event: "code", user_code: userCode, expires_in: expiresIn, verify_url: verifyUrl, request_id: requestId });
+  say(opts.stdout, { event: "code", user_code: userCode, expires_in: expiresIn, verify_url: openableVerifyUrl(verifyUrl, opts.webOrigin) ?? "", request_id: requestId });
   const clock = opts.now ?? (() => Date.now());
   const deadline = clock() + expiresIn * 1000;
   const pause = interval * 1000;
+  let extra = 0;
   while (clock() < deadline) {
     if (opts.cancelled?.()) { await cancelRequest(opts, requestId, secret); return done(opts, PAIR_EXIT.cancelled, "cancelled: 已取消连接。"); }
-    await opts.sleep(pause);
+    await opts.sleep(pause + extra);
+    extra = 0;
     if (opts.cancelled?.()) { await cancelRequest(opts, requestId, secret); return done(opts, PAIR_EXIT.cancelled, "cancelled: 已取消连接。"); }
     const polled = await opts.post(endpoint(opts.webOrigin, `/api/agent-pairing/requests/${requestId}/poll`), { device_secret: secret });
-    if (polled.status === 429) continue;
+    if (polled.status === 429) { extra = pause; continue; }
     if (polled.status === 404) return fail(opts, "not-found: 连接没有完成，请重新获取。");
     if (polled.status === 503) return fail(opts, "unavailable: 连接服务暂不可用，请稍后再试。");
     if (polled.status !== 200) return fail(opts, "not-found: 连接没有完成，请重新获取。");
@@ -130,6 +133,7 @@ async function accept(opts: PairRunOptions, body: Record<string, unknown>): Prom
   if (typeof token !== "string" || !token || typeof relayUrl !== "string" || typeof relayUser !== "string" || !relayUser.trim()) {
     return fail(opts, "invalid: 连接服务返回的内容无法使用，请重新获取。");
   }
+  if (relayUrl !== opts.relayUrl) return fail(opts, "invalid: 会合点与安装包不一致，没有保存连接。");
   registerSecret(token);
   if (opts.stopIfRunning) await opts.stopIfRunning();
   let cfg: AgentConfig;
@@ -152,12 +156,25 @@ function fail(opts: PairRunOptions, message: string): number {
   return done(opts, PAIR_EXIT.failed, message);
 }
 
-export function siteOrigin(moduleUrl: string): string {
+export function siteDocument(moduleUrl: string): { webOrigin: string; relayUrl: string } {
   const site = installedSite(moduleUrl);
   if (!site) throw new Error("没有站点文件。请从网页的安装命令安装。");
   const doc = JSON.parse(fs.readFileSync(path.join(site.root, "site", "site.json"), "utf8"));
-  if (typeof doc.web_origin !== "string") throw new Error("站点地址不正确");
-  return doc.web_origin;
+  if (typeof doc.web_origin !== "string" || !doc.web_origin || typeof doc.relay_url !== "string" || !doc.relay_url) throw new Error("站点地址不正确");
+  return { webOrigin: doc.web_origin, relayUrl: doc.relay_url };
+}
+
+export function siteOrigin(moduleUrl: string): string {
+  return siteDocument(moduleUrl).webOrigin;
+}
+
+/** A browser may open only a URL that is the packaged site, or a path under it. */
+export function openableVerifyUrl(verifyUrl: string, webOrigin: string): string | null {
+  if (!webOrigin || !verifyUrl.startsWith(webOrigin)) return null;
+  const rest = verifyUrl.slice(webOrigin.length);
+  if (rest && !/^[/?#]/.test(rest)) return null;
+  if (!/^https?:\/\/[^ \r\n]+$/.test(verifyUrl)) return null;
+  return verifyUrl;
 }
 
 export function osLabel(platform = process.platform): string {

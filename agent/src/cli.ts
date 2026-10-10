@@ -23,9 +23,9 @@ import { readHiddenToken } from "./hiddenToken.js";
 import { windowsConfirm } from "./windowsDesktop.js";
 import { acquireResident, autostart, preferences, readResidentStatus, residentAlive, runTray, closeTray, startResident, stopResident, setupElevated, openDesktop } from "./resident.js";
 import { installedLaunchError } from "./siteTrust.js";
-import { configHasToken, menuTarget, osLabel, runPair, siteOrigin } from "./pair.js";
+import { configHasToken, menuTarget, osLabel, runPair, siteDocument } from "./pair.js";
 
-const VERSION = "0.2.2";
+const VERSION = "0.2.3";
 const STATUS_PATH = path.join(CONFIG_DIR, "status.json");
 
 function arg(flag: string, argv: string[]): string | undefined {
@@ -83,8 +83,10 @@ async function main(argv: string[]): Promise<number> {
     let cancel = false;
     process.stdin.on("data", (chunk: Buffer | string) => { if (String(chunk).includes("cancel")) cancel = true; });
     const machineName = fs.existsSync(CONFIG_PATH) ? loadConfig().machineName : defaultConfig().machineName;
+    const site = siteDocument(import.meta.url);
     return runPair({
-      webOrigin: siteOrigin(import.meta.url),
+      webOrigin: site.webOrigin,
+      relayUrl: site.relayUrl,
       machineName,
       osName: osLabel(),
       agentVersion: VERSION,

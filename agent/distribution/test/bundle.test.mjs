@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { MANIFEST, relativeFile, digest, inventory, firstInstall, verifyBundle, validateManifest, removeVerifiedBundle } from '../bundle.mjs';
 import { decideUpgrade, inspectInstalled } from '../upgrade.mjs';
+import { clearStaleTray } from '../uninstall.mjs';
 import { certificateDerSha256, siteDocument, writeSite } from '../launch.mjs';
 
 const samplePaths = [
@@ -216,6 +217,39 @@ test('an installed 0.2.1-shaped tree is removed from its own manifest and a new 
   assert.equal(fs.readFileSync(outside, 'utf8'), 'synthetic-config-keep');
 });
 
+test('uninstall clears a dead leftover tray stop on a 0.2.1 tree before the old CLI and keeps config', t => {
+  const old = shaped(t, '0.2.1', ['installer/launch.mjs', 'installer/upgrade.mjs']);
+  const installed = path.join(old.root, 'installed-021-tray');
+  fs.cpSync(old.source, installed, { recursive: true });
+  const state = path.join(old.root, 'state');
+  fs.mkdirSync(state);
+  const run = 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';
+  const stop = path.join(state, 'tray-stop.json');
+  const tray = path.join(state, 'tray.json');
+  fs.writeFileSync(path.join(state, 'config.json'), 'synthetic-config-keep');
+  fs.writeFileSync(stop, JSON.stringify({ pid: 424242, runId: run }));
+  fs.writeFileSync(tray, JSON.stringify({ pid: 424242, runId: run }));
+  assert.equal(clearStaleTray(state, () => true), 'pending');
+  assert.equal(fs.existsSync(stop), true);
+  assert.equal(clearStaleTray(state, () => false), 'cleared');
+  assert.equal(fs.existsSync(stop), false);
+  assert.equal(fs.existsSync(tray), false);
+  removeVerifiedBundle(installed, inspectInstalled(installed).installedManifestSha256, true);
+  assert.equal(fs.existsSync(installed), false);
+  assert.equal(fs.readFileSync(path.join(state, 'config.json'), 'utf8'), 'synthetic-config-keep');
+  const linked = path.join(old.root, 'linked');
+  fs.mkdirSync(linked);
+  const target = path.join(linked, 'target.json');
+  fs.writeFileSync(target, JSON.stringify({ pid: 1, runId: run }));
+  fs.symlinkSync(target, path.join(linked, 'tray-stop.json'));
+  assert.throws(() => clearStaleTray(linked, () => false), /Unsafe tray status/);
+  assert.equal(fs.readFileSync(path.join(linked, 'tray-stop.json'), 'utf8'), fs.readFileSync(target, 'utf8'));
+  const script = fs.readFileSync(fileURLToPath(new URL('../uninstall.mjs', import.meta.url)), 'utf8');
+  const clearAt = script.indexOf('clearStaleTray(state, pidAlive)');
+  const trayAt = script.indexOf("invoke(['tray','stop'])");
+  assert.equal(clearAt > 0 && clearAt < trayAt, true);
+});
+
 test('0.2.2 and same-version decisions keep config and never replace a newer install', t => {
   const current = shaped(t, '0.2.2', []);
   const found = inspectInstalled(current.source);
@@ -244,7 +278,7 @@ test('install script upgrades either installed shape without an overwrite switch
   assert.match(text, /autostart enable/);
   assert.match(text, /请在弹出的窗口里继续/);
   const desktop = fs.readFileSync(fileURLToPath(new URL('../../native/desktop.ps1', import.meta.url)), 'utf8');
-  for (const label of ['连接我的账号', '不选的话工作和专家碰不到你的文件', '开机自动运行', '重新连接账号', '已在线', '重新获取连接码']) {
+  for (const label of ['连接我的账号', '不选的话工作和专家碰不到你的文件', '开机自动运行', '重新连接账号', '已在线', '重新获取连接码', '连接没有完成，请重新获取。', 'BeginErrorReadLine', 'web_origin']) {
     assert.equal(desktop.includes(label), true, label);
   }
 });

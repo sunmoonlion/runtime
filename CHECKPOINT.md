@@ -1,6 +1,18 @@
 # CHECKPOINT（runtime 仓，分支 luna）
 
-## 当前：卡 B 三项审读修正已提交；全量测试有环境挂起；DNS 只读核实完成（2026-10-10）
+## 当前：卡 C1 已本地提交，停下交审（2026-10-10）
+
+设计依据为 k8s `1be06781` 反馈「2026-10-10 · 卡 C（代理）交 Cursor」和 SDD 0012 第二节第 1、2、4 节。只做 C1。C2（`pair`、设置四步、开始菜单与自启默认开、`install.ps1.tmpl`）未开始。
+
+源码版本改为 **0.2.2**。开发站点配置在 `agent/distribution/sites/dev-kind.json`，证书是 SunMoonAI Root CA，DER SHA-256 `79562e076be4c90442edba46de5a4ae2b6009d1c35dab0a895cb8797f6bce1ef`。`ca_sha256` 只在组包时计算。托盘、设置、后台、开始菜单入口、自启和安装/卸载入口在有站点文件时自行加上 `--use-system-ca`，`bundled-ca` 时把 `NODE_EXTRA_CA_CERTS` 指到安装目录 `site\ca.pem`，并清掉会话里的 `NODE_OPTIONS`。错误人话进日志、`status.lastError`、托盘菜单和设置窗口，带原始错误码，不带令牌。托盘图标提示仍是短状态（Windows 限 63 字）；完整句子在托盘菜单和「查看状态」。
+
+Linux：`pnpm test` 194 通过、32 跳过（跳过的是既有 Windows 实机用例）；`tsc --noEmit` 通过；`node --test agent/distribution/test/bundle.test.mjs` 28 通过。PowerShell 解析 `desktop.ps1` 通过；`run-hidden.vbs` 无参数退出码 2（参数个数检查，说明脚本能启动）。没有组 Windows 包，没有发布，没有改集群，没有动已安装的 0.2.1。所有者 Windows 上去掉 `NODE_OPTIONS` 后重启、确认代理自己连上，未做。详情见[卡 C1 回执](scripts/results/windows-agent-onboarding-card-c1.20261010.md)。
+
+**停点：**交审 C1。审过之前不要在 Windows 上安装这个源码。C2 等审过再做。只本地提交，不推送。
+
+以下记录为先前阶段；与本节冲突时以本节和 SDD 0012 为准。
+
+## 先前：卡 B 三项审读修正已提交；全量测试有环境挂起；DNS 只读核实完成（2026-10-10）
 
 设计由 Fable 定稿，唯一实施依据为 k8s
 [SDD 0012：Windows 本地代理安装与首次接入](../k8s/sunmoonai/docs/dev-investment-agent/tree-build/SDD/modules/0012-agent-onboarding.md)。

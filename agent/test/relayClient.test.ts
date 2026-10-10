@@ -189,7 +189,7 @@ describe("RelayClient", () => {
     await relay.close(); relay = new FakeRelay("bad token"); await relay.start();
     makeClient();
     for (let i = 0; i < 50 && client.status !== "rejected"; i++) await sleep(20);
-    expect(client.status).toBe("rejected"); expect(client.lastError).toBe("bad token");
+    expect(client.status).toBe("rejected"); expect(client.lastError).toBe("401: 这台电脑的连接已失效，请点『重新连接账号』。");
   });
 
   it("calls onRejected once when the relay rejects the hello", async () => {
@@ -198,7 +198,7 @@ describe("RelayClient", () => {
     makeClient({ onRejected: (r) => seen.push(r) });
     for (let i = 0; i < 50 && seen.length === 0; i++) await sleep(20);
     await sleep(200);
-    expect(seen).toEqual(["bad token"]);
+    expect(seen).toEqual(["401: 这台电脑的连接已失效，请点『重新连接账号』。"]);
   });
 
   it("calls onRejected once when replaced by a newer agent (4000)", async () => {
@@ -208,7 +208,7 @@ describe("RelayClient", () => {
     relay.agentCtrl!.close(4000, "x");
     for (let i = 0; i < 50 && seen.length === 0; i++) await sleep(20);
     await sleep(200);
-    expect(seen).toEqual(["replaced by a newer agent for this user"]);
+    expect(seen).toEqual(["4000: 你的账号已在另一台电脑上连接，这台已断开。"]);
   });
 
   it("does not call onRejected on an ordinary disconnect", async () => {
@@ -220,8 +220,8 @@ describe("RelayClient", () => {
     expect(seen).toEqual([]);
   });
 
-  for (const [code, reason] of [[4000, "replaced by a newer agent for this user"], [4003, "token revoked"]] as const) {
-    it(`does not reconnect after close ${code} (${reason})`, async () => {
+  for (const [code, reason] of [[4000, "4000: 你的账号已在另一台电脑上连接，这台已断开。"], [4003, "4003: 这台电脑的连接已失效，请点『重新连接账号』。"]] as const) {
+    it(`does not reconnect after close ${code}`, async () => {
       makeClient();
       for (let i = 0; i < 50 && client.status !== "connected"; i++) await sleep(20);
       relay.agentCtrl!.close(code, "x");

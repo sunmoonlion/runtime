@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
+import { readInstalledSite } from './launch.mjs';
 
 export const MANIFEST = 'bundle-manifest.json';
 const HEX = /^[a-f0-9]{64}$/;
@@ -16,7 +17,7 @@ const REQUIRED = [
   'app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-resources/codex-windows-sandbox-setup.exe',
   'app/node_modules/smol-toml/package.json', 'app/node_modules/ws/package.json',
   'sunmoon-agent.cmd', 'install.cmd', 'installer/install.mjs', 'installer/bundle.mjs',
-  'uninstall.cmd', 'installer/uninstall.mjs',
+  'uninstall.cmd', 'installer/uninstall.mjs', 'installer/launch.mjs',
   'app/native/elevated-setup.ps1',
 ];
 
@@ -126,6 +127,7 @@ export function verifyBundle(directory, expectedManifestHash) {
   const expected = [...manifest.files].sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0);
   if (actual.length !== expected.length || actual.some((f, i) => f.path !== expected[i].path ||
       f.size !== expected[i].size || f.sha256 !== expected[i].sha256)) throw new Error('Bundle content mismatch');
+  if (actual.some(file => file.path === 'site/site.json')) readInstalledSite(directory);
   return manifest;
 }
 

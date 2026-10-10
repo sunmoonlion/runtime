@@ -22,8 +22,9 @@ import { localConfirm } from "./localConfirm.js";
 import { readHiddenToken } from "./hiddenToken.js";
 import { windowsConfirm } from "./windowsDesktop.js";
 import { acquireResident, autostart, preferences, readResidentStatus, residentAlive, runTray, closeTray, startResident, stopResident, setupElevated } from "./resident.js";
+import { installedLaunchError } from "./siteTrust.js";
 
-const VERSION = "0.2.1";
+const VERSION = "0.2.2";
 const STATUS_PATH = path.join(CONFIG_DIR, "status.json");
 
 function arg(flag: string, argv: string[]): string | undefined {
@@ -44,6 +45,8 @@ async function main(argv: string[]): Promise<number> {
   // 任何子命令带 --help / -h 都只打印用法：以前 `start --help` 会忽略参数、真的起一个代理（KIND 09 实测）
   if (!cmd || cmd === "help" || argv.includes("--help") || argv.includes("-h")) { usage(); return 0; }
   if (cmd === "--version") { console.log(VERSION); return 0; }
+  const launchError = installedLaunchError(import.meta.url);
+  if (launchError) { console.error(launchError); return 1; }
 
   if (cmd === "init") {
     if (process.platform === "win32" && await residentAlive()) throw new Error("Stop the running agent before replacing its configuration");

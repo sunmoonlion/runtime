@@ -11,6 +11,7 @@ import { desktopRequest, nativeDirectory, powershell } from "./windowsDesktop.js
 import { locateCodex } from "./paths.js";
 import { detectWindowsSandbox } from "./windowsBootstrap.js";
 import { canonicalPath } from "./pathuri.js";
+import { applyLaunchEnv, installedSite, nodeLaunch } from "./siteTrust.js";
 
 const cli = fileURLToPath(new URL("./cli.js", import.meta.url));
 const statusFile = path.join(CONFIG_DIR, "status.json"), stopFile = path.join(CONFIG_DIR, "stop-request.json");
@@ -72,7 +73,8 @@ export async function stopResident(): Promise<boolean> {
 export async function startResident(): Promise<void> {
   checkControlDirectory();
   if (await residentAlive()) return;
-  const child = spawn(process.execPath, [cli, "start", "--background-worker"], { env: { ...process.env, SUNMOON_AGENT_HOME: CONFIG_DIR }, detached: true, windowsHide: true, stdio: "ignore" });
+  const launch = nodeLaunch(installedSite(import.meta.url));
+  const child = spawn(process.execPath, [...launch.execArgv, cli, "start", "--background-worker"], { env: { ...applyLaunchEnv(process.env, launch), SUNMOON_AGENT_HOME: CONFIG_DIR }, detached: true, windowsHide: true, stdio: "ignore" });
   let failed = false; child.once("error", () => { failed = true; }); child.unref();
   for (let i = 0; i < 150; i++) {
     if (failed || child.exitCode !== null) throw new Error("Background agent could not start; inspect rotating agent log");

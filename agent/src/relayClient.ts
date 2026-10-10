@@ -5,7 +5,8 @@ import { WindowsBridge } from "./windowsBridge.js";
 import type { WindowsMode, WindowsHelper, WindowsTemporary } from "./windowsRuntime.js";
 import { decide, denialResponse, type Ceiling } from "./filter.js";
 import { log, registerSecret } from "./log.js";
-import { rejectionInfo } from "./rejections.js";
+import { humanizeClose, humanizeReject, humanizeTransport } from "./connectionMessages.js";
+import { relayHost } from "./siteTrust.js";
 import type { LocalPermissions } from "./permissions.js";
 import { hello, PERMISSION_CAPABILITY, validPermissionReport, type PermissionReport, type ControlMessage } from "./relayProtocol.js";
 
@@ -127,8 +128,8 @@ export class RelayClient {
         this.status = "connected"; this.backoff = 1000; this.lastError = "";
         log("info", "relay connected");
       } else if (msg.type === "reject") {
-        const info = rejectionInfo(msg.reason);
-        this.status = "rejected"; this.lastError = info.reason;
+        const info = humanizeReject(msg.reason, relayHost(this.opts.relayUrl));
+        this.status = "rejected"; this.lastError = info.message;
         log("error", info.message);
         this.stopped = true; ws.close();
         this.notifyRejected();
@@ -161,14 +162,18 @@ export class RelayClient {
       // 这两种都不重连：重连只会把对方再顶掉，两个代理每秒互踢（KIND 09 实测）
       if ((code === 4000 || code === 4003) && this.ctrl === ws) {
         this.status = "rejected";
-        this.lastError = code === 4000 ? "replaced by a newer agent for this user" : "token revoked";
+        const info = humanizeClose(code);
+        this.lastError = info.message;
         this.stopped = true;
-        log("error", rejectionInfo(this.lastError).message, { code });
+        log("error", this.lastError, { code });
         this.notifyRejected();
       }
       onDown(`close ${code}`);
     });
-    ws.on("error", () => { this.lastError = "relay connection failed"; onDown(this.lastError); });
+    ws.on("error", (error: { code?: unknown; message?: unknown }) => {
+      this.lastError = humanizeTransport(error, relayHost(this.opts.relayUrl)).message;
+      onDown(this.lastError);
+    });
   }
 
   private openStream(conn: string): void {

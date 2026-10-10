@@ -86,12 +86,31 @@ if ($Node -match '["\r\n]' -or $Cli -match '["\r\n]') { throw 'Unsupported execu
 function Invoke-Agent([string[]]$Command, $Body=$null) {
     # Command strings are fixed menu verbs. User values are only JSON on stdin.
     if (@($Command | Where-Object { $_ -notmatch '^[a-z-]+$' }).Count) { throw 'Invalid menu action' }
+    $Exec = @(); $ExtraCa = $null
+    $NodeDir = Split-Path -Parent $Node
+    if ((Split-Path -Leaf $NodeDir) -eq 'node') {
+        $Root = Split-Path -Parent $NodeDir
+        $SiteFile = Join-Path $Root 'site\site.json'
+        if (Test-Path -LiteralPath $SiteFile) {
+            $Exec = @('--use-system-ca')
+            $Raw = Get-Content -LiteralPath $SiteFile -Raw -Encoding UTF8
+            $Ca = Join-Path $Root 'site\ca.pem'
+            if ($Raw.Contains('"mode": "bundled-ca"') -and (Test-Path -LiteralPath $Ca)) { $ExtraCa = $Ca }
+        }
+    }
     $Info = New-Object System.Diagnostics.ProcessStartInfo
-    $Info.FileName=$Node; $Info.Arguments='"' + $Cli + '" ' + ($Command -join ' ')
+    $Info.FileName=$Node
+    $Prefix = if ($Exec.Count) { ($Exec -join ' ') + ' ' } else { '' }
+    $Info.Arguments=$Prefix + '"' + $Cli + '" ' + ($Command -join ' ')
     $Info.UseShellExecute=$false; $Info.CreateNoWindow=$true
     $Info.RedirectStandardInput=$true; $Info.RedirectStandardOutput=$true; $Info.RedirectStandardError=$true
     $Info.StandardOutputEncoding=New-Object System.Text.UTF8Encoding($false)
     $Info.EnvironmentVariables['SUNMOON_AGENT_HOME']=$State
+    if ($Exec.Count) {
+        if ($Info.EnvironmentVariables.ContainsKey('NODE_OPTIONS')) { [void]$Info.EnvironmentVariables.Remove('NODE_OPTIONS') }
+        if ($Info.EnvironmentVariables.ContainsKey('NODE_EXTRA_CA_CERTS')) { [void]$Info.EnvironmentVariables.Remove('NODE_EXTRA_CA_CERTS') }
+        if ($ExtraCa) { $Info.EnvironmentVariables['NODE_EXTRA_CA_CERTS'] = $ExtraCa }
+    }
     $Process=New-Object System.Diagnostics.Process; $Process.StartInfo=$Info
     $Process.Start() | Out-Null
     if ($null -ne $Body) { $Process.StandardInput.Write(($Body | ConvertTo-Json -Depth 8 -Compress)) }
@@ -145,7 +164,9 @@ function Show-Preferences {
     $Remove.Add_Click({ if($Roots.SelectedIndex -ge 0){$Roots.Items.RemoveAt($Roots.SelectedIndex)} })
     $Mode=New-Object System.Windows.Forms.ComboBox; $Mode.DropDownStyle='DropDownList'; $Mode.SetBounds(15,310,230,28); $Mode.Items.AddRange(@('read-only','workspace-write')); $Mode.SelectedItem=$Prefs.ceiling.sandbox
     $Network=New-Object System.Windows.Forms.CheckBox; $Network.Text='允许联网（包括本机代发 MCP HTTP）'; $Network.Checked=[bool]$Prefs.ceiling.network; $Network.SetBounds(270,310,395,28)
-    $Note=New-Object System.Windows.Forms.Label; $Note.Text='保存后需停止并重新启动代理才生效。全部取消勾选可关闭项目目录访问；临时批准在断开时失效。'; $Note.SetBounds(15,350,650,55)
+    $NoteText='保存后需停止并重新启动代理才生效。全部取消勾选可关闭项目目录访问；临时批准在断开时失效。'
+    try { $Current=Invoke-Agent @('status'); if($Current.relay.lastError){$NoteText+="`r`n"+[string]$Current.relay.lastError} } catch {}
+    $Note=New-Object System.Windows.Forms.Label; $Note.Text=$NoteText; $Note.SetBounds(15,350,650,55)
     $Save=New-Object System.Windows.Forms.Button; $Save.Name='SaveSettings'; $Save.Text='保存设置'; $Save.SetBounds(405,425,120,30)
     $Cancel=New-Object System.Windows.Forms.Button; $Cancel.Text='取消'; $Cancel.SetBounds(545,425,120,30)
     $Save.Add_Click({
@@ -191,7 +212,9 @@ $Timer.Add_Tick({
             $Age=((Get-Date).ToUniversalTime()-[DateTime]::Parse($Current.at).ToUniversalTime()).TotalSeconds
             $Current|Add-Member -NotePropertyName running -NotePropertyValue ($Age -ge -2 -and $Age -lt 15) -Force
             $Label=Get-ConnectionText $Current
-            $Tray.Text='SunMoon: '+$Label; $Connection.Text='状态：'+$Label
+            $Tip='SunMoon: '+$Label; if($Tip.Length -gt 63){$Tip=$Tip.Substring(0,63)}
+            $Tray.Text=$Tip
+            if($Current.relay.lastError){$Connection.Text=[string]$Current.relay.lastError}else{$Connection.Text='状态：'+$Label}
         } else {$Tray.Text='SunMoon: 已停止';$Connection.Text='状态：已停止'}
     } catch {$Tray.Text='SunMoon: 状态暂不可读';$Connection.Text='状态：暂不可读'}
 })

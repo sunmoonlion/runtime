@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { MANIFEST, relativeFile, digest, inventory, firstInstall, verifyBundle, validateManifest, removeVerifiedBundle } from '../bundle.mjs';
+import { certificateDerSha256, siteDocument, writeSite } from '../launch.mjs';
 
 const samplePaths = [
   'node/node.exe', 'licenses/node-LICENSE', 'licenses/codex-LICENSE', 'licenses/codex-NOTICE',
@@ -17,7 +18,7 @@ const samplePaths = [
   'app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-resources/codex-windows-sandbox-setup.exe',
   'app/node_modules/smol-toml/package.json', 'app/node_modules/ws/package.json',
   'sunmoon-agent.cmd', 'install.cmd', 'installer/install.mjs', 'installer/bundle.mjs',
-  'uninstall.cmd', 'installer/uninstall.mjs',
+  'uninstall.cmd', 'installer/uninstall.mjs', 'installer/launch.mjs',
   'app/native/elevated-setup.ps1',
 ];
 function fixture(t) {
@@ -146,8 +147,41 @@ test('installer refuses unsupported switches rather than accidentally applying',
 test('only explicit source inputs are included by builder; launcher uses bundled node', () => {
   const builder = fs.readFileSync(new URL('../build.mjs', import.meta.url), 'utf8');
   assert.doesNotMatch(builder, /os\.homedir|process\.env\.USERPROFILE|execSync|shell: true/);
-  for (const file of ['sunmoon-agent.cmd', 'install.cmd']) {
+  assert.match(builder, /writeSite/); assert.match(builder, /--site/);
+  for (const file of ['sunmoon-agent.cmd', 'install.cmd', 'uninstall.cmd']) {
     const cmd = fs.readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
-    assert.match(cmd, /%~dp0node\\node.exe/); assert.doesNotMatch(cmd, /\bnpm\b|\bpnpm\b|powershell|ExecutionPolicy/);
+    assert.match(cmd, /%~dp0node\\node.exe/); assert.match(cmd, /--use-system-ca/);
+    assert.match(cmd, /NODE_OPTIONS=/); assert.match(cmd, /bundled-ca/);
+    assert.doesNotMatch(cmd, /\bnpm\b|\bpnpm\b|powershell|ExecutionPolicy/);
   }
+  const ps1 = fs.readFileSync(new URL('../../native/desktop.ps1', import.meta.url), 'utf8');
+  const vbs = fs.readFileSync(new URL('../../native/run-hidden.vbs', import.meta.url), 'utf8');
+  for (const source of [ps1, vbs]) {
+    assert.match(source, /--use-system-ca/); assert.match(source, /NODE_OPTIONS/); assert.match(source, /bundled-ca/);
+  }
+  assert.match(ps1, /lastError/); assert.match(ps1, /63/);
+  assert.match(ps1, /'\/\/B \/\/Nologo "' \+ \$InputData\.hiddenScript \+ '" "' \+ \$InputData\.node \+ '" "' \+ \$InputData\.cli \+ '" "' \+ \$InputData\.state \+ '"'/);
+});
+
+const devCa = fs.readFileSync(new URL('../sites/dev-kind-ca.pem', import.meta.url), 'utf8');
+const devProfile = JSON.parse(fs.readFileSync(new URL('../sites/dev-kind.json', import.meta.url), 'utf8'));
+test('dev site CA is the public root and its DER hash is written only at pack time', t => {
+  assert.equal(devCa.includes('PRIVATE KEY'), false);
+  assert.equal(certificateDerSha256(devCa), '79562e076be4c90442edba46de5a4ae2b6009d1c35dab0a895cb8797f6bce1ef');
+  assert.equal(devProfile.trust.ca_sha256, undefined);
+  assert.throws(() => siteDocument({ ...devProfile, trust: { ...devProfile.trust, ca_sha256: 'a'.repeat(64) } }, 'unused'), /computed/);
+  const root = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'sunmoon-site-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const pem = path.join(root, 'ca.pem'); fs.writeFileSync(pem, devCa);
+  const written = writeSite(root, devProfile, pem);
+  assert.equal(written.trust.ca_sha256, certificateDerSha256(devCa));
+  assert.match(fs.readFileSync(path.join(root, 'site', 'site.json'), 'utf8'), /"mode": "bundled-ca"/);
+  const f = fixture(t);
+  fs.cpSync(path.join(root, 'site'), path.join(f.source, 'site'), { recursive: true });
+  const reseal = () => { fs.rmSync(path.join(f.source, MANIFEST)); f.manifest.files = inventory(f.source); return f.save(); };
+  assert.equal(verifyBundle(f.source, reseal()).agentVersion, '0.2.0');
+  const siteFile = path.join(f.source, 'site', 'site.json');
+  const site = JSON.parse(fs.readFileSync(siteFile, 'utf8')); site.trust.ca_sha256 = '0'.repeat(64);
+  fs.writeFileSync(siteFile, JSON.stringify(site));
+  assert.throws(() => verifyBundle(f.source, reseal()), /Site CA digest mismatch/);
 });

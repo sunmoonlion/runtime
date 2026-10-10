@@ -85,7 +85,7 @@ bearer 环境变量、URL 用户信息/查询串/fragment 的整项跳过，不�
 令牌无效/吊销：从网页重新取得 init 命令，本机重新配置；不把令牌贴到日志或工单。
 同账号被新代理替换：保留所需代理，不循环重连互踢。Codex 配对版本不一致：
 保持代理在线等待兼容沙箱，同时显示配套升级提示，不自动换版本或降级。
-`status.json` 的 `lastError`/`lastNotice` 只记录已知原因，不回显任意远端错误文本。
+`status.json` 的 `lastError` 与日志、托盘、设置窗口使用同一句人话，并带原始错误码；不回显令牌或任意远端错误文本。`lastNotice` 仍只记录已知提示。
 
 配置：`~/.sunmoon-agent/config.json`（`SUNMOON_AGENT_HOME` 可改目录），600 权限。
 Windows 路径按本地盘符绝对路径处理，大小写和斜杠形式不影响白名单匹配；

@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { parseArgs } from 'node:util';
 import { MANIFEST, copyFile, digest, exists, inventory, makeSubdirectory, plainDirectory, verifyBundle } from './bundle.mjs';
+import { writeSite } from './launch.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const agent = path.dirname(here), repo = path.dirname(agent);
@@ -45,10 +46,12 @@ function copyTree(source, destination) {
 try {
   const { values } = parseArgs({ options: {
     'node-exe': { type: 'string' }, dependencies: { type: 'string' }, output: { type: 'string' },
+    site: { type: 'string' }, 'ca-pem': { type: 'string' },
   }, allowPositionals: false, strict: true });
-  if (!values['node-exe'] || !values.dependencies || !values.output) {
-    throw new Error('Usage: node build.mjs --node-exe <official node.exe> --dependencies <Windows agent directory> --output <new directory>');
+  if (!values['node-exe'] || !values.dependencies || !values.output || !values.site) {
+    throw new Error('Usage: node build.mjs --node-exe <official node.exe> --dependencies <Windows agent directory> --site <profile.json> --output <new directory> [--ca-pem <certificate>]');
   }
+  const profile = JSON.parse(fs.readFileSync(values.site, 'utf8'));
   const output = path.resolve(values.output), deps = plainDirectory(values.dependencies);
   plainDirectory(path.dirname(output));
   if (exists(output)) throw new Error('Output already exists; choose a new directory');
@@ -89,12 +92,13 @@ try {
   for (const file of ['node-LICENSE', 'codex-LICENSE', 'codex-NOTICE']) {
     copyFile(path.join(here, 'licenses', file), path.join(staging, 'licenses', file));
   }
-  for (const file of ['bundle.mjs', 'install.mjs', 'uninstall.mjs']) copyFile(path.join(here, file), path.join(staging, 'installer', file));
+  for (const file of ['bundle.mjs', 'install.mjs', 'uninstall.mjs', 'launch.mjs']) copyFile(path.join(here, file), path.join(staging, 'installer', file));
   for (const file of ['sunmoon-agent.cmd', 'install.cmd', 'uninstall.cmd']) {
     const content = fs.readFileSync(path.join(here, file), 'utf8').replace(/\r?\n/g, '\r\n');
     fs.writeFileSync(path.join(staging, file), content, { flag: 'wx' });
   }
   copyFile(path.join(here, 'PACKAGE-README.txt'), path.join(staging, 'README.txt'));
+  writeSite(staging, profile, values['ca-pem']);
   const manifest = { schema: 1, platform: settings.platform, architecture: settings.architecture,
     agentVersion: settings.agentVersion, codexVersion: settings.codexVersion, nodeVersion: settings.node.version,
     relayProtocol: settings.relayProtocol, sourceRevision: revision, dependencyLockSha256: digest(path.join(agent, 'pnpm-lock.yaml')).sha256,

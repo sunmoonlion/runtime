@@ -119,17 +119,23 @@ HTTP 只转发启动时本机确认过的完整 MCP URL，逐字匹配且禁止�
 node agent/distribution/build.mjs \
   --node-exe '/path/to/verified/node.exe' \
   --dependencies '/path/to/windows-agent' \
+  --site agent/distribution/sites/dev-kind.json \
+  --ca-pem agent/distribution/sites/dev-kind-ca.pem \
   --output '/path/to/new/delivery'
 pnpm --dir agent build
 pnpm --dir agent test
 node --test agent/distribution/test/bundle.test.mjs
 ```
 
+`--site` 必填。`ca_sha256` 由组包时对证书 DER 计算，不从配置文件读入。开发站点用上面两个文件；`bundled-ca` 必须再给 `--ca-pem`，`system` 不能带证书。
+
+源码版本现为 **0.2.2**（卡 C1：站点文件、统一启动、错误人话）。本卡没有组包，也没有发布。已托管的下载仍是下面的 0.2.1。
+
 组包仅复制白名单生产文件、完整 Codex Windows 资源、固定依赖、许可证与入口。
 Node 版本/摘要来自已固定的官方物料；生成全文件 SHA256、固定源码提交和锁文件摘要。
 Node/Codex LICENSE/NOTICE 存 `licenses/`，其余许可证随依赖。输出不能预先存在。
 
-当前下载接入候选为 **0.2.1 / `6de6002`**；包路径、ZIP 与清单摘要、原生检查和发布前待办见
+当前已托管的下载接入候选仍为 **0.2.1 / `6de6002`**；包路径、ZIP 与清单摘要、原生检查和发布前待办见
 [接入实施记录](../../scripts/results/windows-agent-onboarding.20261009.md)。未配置托管地址、未发布。
 `21f864b` 保留为此前完整启停闭环的可信包，结果见 [第三阶段结果](../../scripts/results/windows-agent-3.20261009.md)；
 它不支持新网页的隐藏输入命令，不能替代 0.2.1。

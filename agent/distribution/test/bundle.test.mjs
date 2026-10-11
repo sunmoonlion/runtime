@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
-import { MANIFEST, relativeFile, digest, inventory, firstInstall, verifyBundle, validateManifest, removeVerifiedBundle } from '../bundle.mjs';
+import { MANIFEST, relativeFile, digest, inventory, firstInstall, verifyBundle, validateManifest, removeVerifiedBundle, retryRemoval } from '../bundle.mjs';
 import { decideUpgrade, inspectInstalled } from '../upgrade.mjs';
 import { clearStaleTray } from '../uninstall.mjs';
 import { certificateDerSha256, siteDocument, writeSite } from '../launch.mjs';
@@ -47,6 +47,16 @@ function fixture(t) {
   const save = () => { fs.writeFileSync(path.join(source, MANIFEST), JSON.stringify(manifest)); return digest(path.join(source, MANIFEST)).sha256; };
   return { root, source, localAppData, manifest, expectedManifestHash: save(), save };
 }
+
+test('locked files retry ten times at 500ms and report the exact final path', () => {
+  const file=path.join(os.tmpdir(),'sunmoon-synthetic-locked-file'); let calls=0; const waits=[];
+  retryRemoval(file,()=>{calls++;if(calls<=10)throw Object.assign(new Error('busy'),{code:'EBUSY'});},ms=>waits.push(ms));
+  assert.equal(calls,11);assert.deepEqual(waits,Array(10).fill(500));
+  calls=0;waits.length=0;
+  assert.throws(()=>retryRemoval(file,()=>{calls++;throw Object.assign(new Error('locked'),{code:'EPERM'});},ms=>waits.push(ms)),e=>e.message.includes(file)&&e.message.includes('EPERM'));
+  assert.equal(calls,11);assert.equal(waits.length,10);
+  assert.throws(()=>retryRemoval(file,()=>{throw Object.assign(new Error('denied'),{code:'EACCES'});},()=>assert.fail('must not retry')),/EACCES/);
+});
 
 test('uninstall preview keeps all files; apply removes only exact verified program inventory', t => {
   const f=fixture(t); const installed=firstInstall({...f,apply:true});
@@ -256,7 +266,7 @@ test('uninstall clears a dead leftover tray stop on a 0.2.1 tree before the old 
   assert.equal(fs.readFileSync(path.join(linked, 'tray-stop.json'), 'utf8'), fs.readFileSync(target, 'utf8'));
   const script = fs.readFileSync(fileURLToPath(new URL('../uninstall.mjs', import.meta.url)), 'utf8');
   const clearAt = script.indexOf('clearStaleTray(state, pidAlive)');
-  const trayAt = script.indexOf("invoke(['tray','stop'])");
+  const trayAt = script.indexOf("for (const args of [['tray','stop'],['stop']])");
   assert.equal(clearAt > 0 && clearAt < trayAt, true);
 });
 

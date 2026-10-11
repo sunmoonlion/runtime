@@ -189,14 +189,25 @@ export function firstInstall({ source, localAppData, expectedManifestHash, apply
 }
 
 // No recursive rm. Unknown, modified or linked files fail before any removal.
+export function retryRemoval(file, remove = fs.unlinkSync, wait = ms => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,ms)) {
+  for (let retry = 0; ; retry++) {
+    try { plainDirectory(path.dirname(file)); remove(file); return; }
+    catch (error) {
+      if (!['EPERM','EBUSY'].includes(error.code) || retry >= 10) {
+        throw new Error(`Cannot remove ${file}: ${error.code ?? error.message}`, {cause:error});
+      }
+      wait(500);
+    }
+  }
+}
 export function removeVerifiedBundle(directory, expectedManifestHash, apply = false) {
   const manifest = verifyBundle(directory, expectedManifestHash, { requireLayout: false });
   const plan = { directory, files: manifest.files.length + 1, apply };
   if (!apply) return plan;
   for (const entry of [...manifest.files, {path: MANIFEST}]) {
     plainDirectory(path.dirname(path.join(directory, entry.path)));
-    fs.unlinkSync(path.join(directory, entry.path));
+    retryRemoval(path.join(directory, entry.path));
   }
-  function empty(dir) { plainDirectory(dir); for(const name of fs.readdirSync(dir)){ const full=path.join(dir,name);if(!fs.lstatSync(full).isDirectory())throw new Error('Unexpected file appeared during removal');empty(full); }fs.rmdirSync(dir); }
+  function empty(dir) { plainDirectory(dir); for(const name of fs.readdirSync(dir)){ const full=path.join(dir,name);if(!fs.lstatSync(full).isDirectory())throw new Error('Unexpected file appeared during removal');empty(full); }retryRemoval(dir,fs.rmdirSync); }
   empty(directory); return plan;
 }

@@ -74,6 +74,15 @@ function New-FormWatchdog([System.Windows.Forms.Form]$Window) {
     return $Watch
 }
 
+function Initialize-VisibleForm([System.Windows.Forms.Form]$Window) {
+    $Window.Add_Shown({
+        param($Sender,$Event)
+        [void][SunMoonDesktop.WindowVisibility]::ShowWindow($Sender.Handle,5)
+        $Sender.Activate()
+        if (-not [SunMoonDesktop.WindowVisibility]::IsWindowVisible($Sender.Handle)) { $Sender.Close() }
+    })
+}
+
 if ($Action -eq 'confirm') {
     if ($InputData.challenge -notmatch '^[a-f0-9]{32}$' -or $InputData.description.Length -gt 16000) { throw 'Invalid prompt' }
     $Form = New-Object System.Windows.Forms.Form
@@ -95,10 +104,12 @@ if ($Action -eq 'confirm') {
     $Allow.Add_Click({ if ($Answer.Text -ceq $Code) { $Form.Tag=$true; $Form.Close() } })
     $Deny.Add_Click({ $Form.Close() })
     $Timer = New-Object System.Windows.Forms.Timer; $Timer.Interval=60000
-    $Timer.Add_Tick({ $Timer.Stop(); $Form.Close() }); $Timer.Start()
+    $Timer.Add_Tick({ $Timer.Stop(); $Form.Close() })
     $Form.Controls.AddRange(@($Description,$Label,$Answer,$Allow,$Deny))
-    try { $Form.ShowDialog() | Out-Null; $Approved = [bool]$Form.Tag }
-    finally { $Timer.Dispose(); $Form.Dispose() }
+    Initialize-VisibleForm $Form
+    $Watch = New-FormWatchdog $Form
+    try { $Watch.Start(); $Timer.Start(); $Form.ShowDialog() | Out-Null; $Approved = [bool]$Form.Tag }
+    finally { $Watch.Stop(); $Watch.Dispose(); $Timer.Stop(); $Timer.Dispose(); $Form.Dispose(); [System.Windows.Forms.Application]::Exit() }
     @{approved=$Approved; challenge=if($Approved){$InputData.challenge}else{$null}} | ConvertTo-Json -Compress
     exit 0
 }
@@ -205,6 +216,7 @@ function Show-Preferences {
     })
     $Cancel.Add_Click({$Dialog.Close()}); $Dialog.CancelButton=$Cancel
     $Dialog.Controls.AddRange(@($NameLabel,$Name,$RootLabel,$Roots,$Add,$Remove,$Mode,$Network,$Note,$Save,$Cancel))
+    Initialize-VisibleForm $Dialog
     $Watch = New-FormWatchdog $Dialog
     try{$Watch.Start(); $Dialog.ShowDialog()|Out-Null}finally{$Watch.Stop(); $Watch.Dispose(); $Dialog.Dispose()}
 }

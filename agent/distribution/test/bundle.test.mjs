@@ -32,6 +32,14 @@ test('UI watchdog covers settings and tray with a one-second lifetime check', ()
   assert.match(text, /finally\s*\{[\s\S]*foreach \(\$Name in @\('onboard-ready.json','tray.json'\)\)/);
   assert.ok(text.includes('if ($Record.pid -eq $PID)'));
 });
+test('confirm explicitly shows the first form and exits on visibility failure or disposal',()=>{
+  const text=fs.readFileSync(new URL('../../native/desktop.ps1',import.meta.url),'utf8');
+  const confirm=text.slice(text.indexOf("if ($Action -eq 'confirm')"),text.indexOf('# The tray'));
+  assert.ok(confirm.includes('Initialize-VisibleForm $Form'));
+  assert.ok(confirm.includes('New-FormWatchdog $Form'));
+  assert.match(text,/ShowWindow\(\$Sender.Handle,5\)/);
+  assert.match(text,/IsWindowVisible\(\$Sender.Handle\)\) \{ \$Sender.Close\(\) \}/);
+});
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'sunmoon-dist-test-'));
   // Only this test's unique temporary directory is removed. No actual installation/user state.

@@ -82,12 +82,31 @@ function say(stdout: ((line: string) => void) | undefined, value: unknown): void
 // 所以窗口改按文件轮询：pair 把每步进展原子写 pair-status.json，窗口的 Timer 在 UI 线程读它。
 // 文件写临时名再改名（照 mcp.ts），mode 0600（照 config/tray），内容绝不含 device_secret 或令牌。
 const statusSeq = new WeakMap<object, number>();
+/** Node 无内置同步 sleep；用 Atomics.wait 阻塞当前线程若干毫秒（rename 重试用）。 */
+function sleepSync(ms: number): void {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
 function writeStatusFile(file: string, value: Record<string, unknown>): void {
+  // 记录带 pid：窗口只认 pid 等于当前 pair 进程的记录，忽略上一次配对的残留。
+  const payload = JSON.stringify({ ...value, pid: process.pid }) + "\n";
   try {
     fs.mkdirSync(path.dirname(file), { recursive: true, mode: 0o700 });
     const temp = `${file}.${process.pid}.${value.seq}.tmp`;
-    fs.writeFileSync(temp, JSON.stringify(value) + "\n", { mode: 0o600 });
-    fs.renameSync(temp, file);
+    fs.writeFileSync(temp, payload, { mode: 0o600 });
+    // Windows 上 rename 可能被杀软/索引器短暂锁住：重试 5 次×20ms，仍失败就直接覆盖写目标。
+    let renamed = false;
+    for (let attempt = 0; attempt < 5 && !renamed; attempt++) {
+      try {
+        fs.renameSync(temp, file);
+        renamed = true;
+      } catch {
+        if (attempt < 4) sleepSync(20);
+      }
+    }
+    if (!renamed) {
+      fs.writeFileSync(file, payload, { mode: 0o600 });
+      try { fs.rmSync(temp, { force: true }); } catch { /* 临时文件清不掉就算了 */ }
+    }
   } catch { /* 状态文件尽力而为；stdout 仍是 CLI 的权威输出 */ }
 }
 /** 写一步进展到状态文件，seq 在单次 runPair 内单调递增，供窗口去重（避免重复打开浏览器）。 */
@@ -97,10 +116,11 @@ export function emitStatus(opts: { statusFile?: string }, value: Record<string, 
   statusSeq.set(opts, seq);
   writeStatusFile(opts.statusFile, { ...value, seq });
 }
-/** pair 尚未进入主循环就失败（站点文件缺失、地址不正确等）时，也让窗口看到人话原因。 */
+/** pair 尚未进入主循环就失败（站点文件缺失、地址不正确等）时，也让窗口看到人话原因。
+ *  seq 取必定最大值，确保盖过任何已写进展，窗口一定认这条失败。 */
 export function emitPairFailure(statusFile: string | undefined, message: string): void {
   if (!statusFile) return;
-  writeStatusFile(statusFile, { event: "result", status: "failed", message, seq: 1 });
+  writeStatusFile(statusFile, { event: "result", status: "failed", message, seq: 1000000 });
 }
 
 async function cancelRequest(opts: PairRunOptions, requestId: string, secret: string): Promise<void> {

@@ -1,10 +1,10 @@
 import { createHash } from "node:crypto";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import fs, { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { defaultConfig, saveConfig } from "../src/config.js";
-import { deviceSecretSha256, menuPlan, openableVerifyUrl, runPair, type PairResponse } from "../src/pair.js";
+import { deviceSecretSha256, emitPairFailure, menuPlan, openableVerifyUrl, runPair, type PairResponse } from "../src/pair.js";
 
 const SECRET = "device-secret-0123456789ABCDEFGHijkl";
 const TOKEN = "agent-token-should-stay-out-of-stdout";
@@ -159,6 +159,7 @@ describe("pair", () => {
       // 第一次 poll 前的快照 = code 事件：证明 code 也落了文件（不只写 stdout）。
       const codeStep = JSON.parse(h.snapshots[0]);
       expect(codeStep.seq).toBe(1);
+      expect(codeStep.pid).toBe(process.pid);
       expect(codeStep.event).toBe("code");
       expect(codeStep.user_code).toBe("ABCD-2345");
       expect(typeof codeStep.expires_at).toBe("string");
@@ -168,6 +169,7 @@ describe("pair", () => {
       const raw = readFileSync(h.statusFile, "utf8");
       const finalStep = JSON.parse(raw);
       expect(finalStep.seq).toBe(2);
+      expect(finalStep.pid).toBe(process.pid);
       expect(finalStep.event).toBe("result");
       expect(finalStep.status).toBe("approved");
       expect(finalStep.account).toBe("owner");
@@ -177,5 +179,43 @@ describe("pair", () => {
       expect(raw).not.toContain("agent_token");
       expect(raw).not.toContain("device_secret");
     } finally { rmSync(h.home, { recursive: true, force: true }); }
+  });
+
+  it("writes a failure record with the largest seq so the window always sees it", () => {
+    const home = mkdtempSync(path.join(tmpdir(), "agent-pair-fail-"));
+    const statusFile = path.join(home, "pair-status.json");
+    try {
+      emitPairFailure(statusFile, "站点文件缺失");
+      const rec = JSON.parse(readFileSync(statusFile, "utf8"));
+      // seq 取必定最大值，盖过任何已写进展，窗口一定认这条失败。
+      expect(rec.seq).toBe(1000000);
+      expect(rec.event).toBe("result");
+      expect(rec.status).toBe("failed");
+      expect(rec.message).toBe("站点文件缺失");
+      expect(rec.pid).toBe(process.pid);
+    } finally { rmSync(home, { recursive: true, force: true }); }
+  });
+
+  it("overwrites the status file directly when rename keeps failing", () => {
+    const home = mkdtempSync(path.join(tmpdir(), "agent-pair-rename-"));
+    const statusFile = path.join(home, "pair-status.json");
+    let renameAttempts = 0;
+    // 模拟 Windows 上 rename 被杀软/索引器短暂锁住：每次都失败，逼出覆盖写兜底。
+    const spy = vi.spyOn(fs, "renameSync").mockImplementation(() => {
+      renameAttempts += 1;
+      throw new Error("EBUSY: resource busy or locked");
+    });
+    try {
+      emitPairFailure(statusFile, "rename 一直被锁");
+      // 重试 5 次全失败后，兜底直接覆盖写目标文件，内容仍正确。
+      expect(renameAttempts).toBe(5);
+      const rec = JSON.parse(readFileSync(statusFile, "utf8"));
+      expect(rec.status).toBe("failed");
+      expect(rec.message).toBe("rename 一直被锁");
+      expect(rec.pid).toBe(process.pid);
+    } finally {
+      spy.mockRestore();
+      rmSync(home, { recursive: true, force: true });
+    }
   });
 });

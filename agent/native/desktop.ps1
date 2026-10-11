@@ -245,8 +245,8 @@ function Show-Onboard {
         try {
             if($script:Remaining -gt 0){ $script:Remaining--; $Clock.Text=('剩余 ' + $script:Remaining + ' 秒') }
             $Msg = Read-PairStatus
-            # seq 去重：只处理比上次新的进展，避免同一 code 事件重复打开浏览器。
-            if($Msg -and [int]$Msg.seq -gt $script:LastSeq){
+            # 只认当前 pair 进程写的记录（pid 匹配）+ seq 去重：忽略上一次配对残留，避免重复打开浏览器。
+            if($Msg -and $script:Pair -and [int]$Msg.pid -eq $script:Pair.Id -and [int]$Msg.seq -gt $script:LastSeq){
                 $script:LastSeq=[int]$Msg.seq
                 if($Msg.event -eq 'code'){
                     $Code.Text=[string]$Msg.user_code

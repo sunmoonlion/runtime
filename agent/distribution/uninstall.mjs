@@ -118,7 +118,7 @@ export function stopInstallationProcesses(directory, request = windowsProcessReq
 function main() {
 try {
   const { values } = parseArgs({ options: {
-    apply: { type: 'boolean', default: false }, 'remove-config': { type: 'boolean', default: false },
+    apply: { type: 'boolean', default: false }, 'remove-config': { type: 'boolean', default: false }, 'stop-only': { type:'boolean',default:false },
     'manifest-sha256': { type: 'string' }, 'installed-manifest-sha256': { type: 'string' },
   }, allowPositionals: false, strict: true });
   if (process.platform !== 'win32' || !process.env.LOCALAPPDATA) throw new Error('Windows is required');
@@ -126,6 +126,14 @@ try {
   verifyBundle(source, values['manifest-sha256']);
   const target = path.join(plainDirectory(process.env.LOCALAPPDATA), 'Programs', 'sunmoon-agent');
   if (path.relative(target, source) === '' || !path.relative(target, source).startsWith('..')) throw new Error('Use the external distribution to uninstall');
+  if (values['stop-only']) {
+    if (values['remove-config']) throw new Error('Repair must preserve config');
+    plainDirectory(target);
+    // A broken install is untrusted: never run its executable/CLI. The verified
+    // external package performs identity collection, without deleting files.
+    const result = values.apply ? stopInstallationProcesses(target) : {stoppedPids:[]};
+    console.log(JSON.stringify({action:'stop-only',preserveConfig:true,...result})); return;
+  }
   const expected = values['installed-manifest-sha256'] ?? values['manifest-sha256'];
   verifyBundle(target, expected, { requireLayout: false });
   const state = process.env.SUNMOON_AGENT_HOME ?? path.join(os.homedir(), '.sunmoon-agent');

@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { MANIFEST, relativeFile, digest, inventory, firstInstall, verifyBundle, validateManifest, removeVerifiedBundle, retryRemoval } from '../bundle.mjs';
-import { decideUpgrade, inspectInstalled } from '../upgrade.mjs';
+import { decideUpgrade, inspectInstalled, installedDecision } from '../upgrade.mjs';
 import { clearStaleTray } from '../uninstall.mjs';
 import { certificateDerSha256, siteDocument, writeSite } from '../launch.mjs';
 
@@ -56,6 +56,45 @@ test('locked files retry ten times at 500ms and report the exact final path', ()
   assert.throws(()=>retryRemoval(file,()=>{calls++;throw Object.assign(new Error('locked'),{code:'EPERM'});},ms=>waits.push(ms)),e=>e.message.includes(file)&&e.message.includes('EPERM'));
   assert.equal(calls,11);assert.equal(waits.length,10);
   assert.throws(()=>retryRemoval(file,()=>{throw Object.assign(new Error('denied'),{code:'EACCES'});},()=>assert.fail('must not retry')),/EACCES/);
+});
+
+test('half uninstall marker and missing or changed manifest files choose repair preserving config', t => {
+  const f=fixture(t),installed=firstInstall({...f,apply:true}).destination;
+  const config=path.join(f.root,'config.json'); fs.writeFileSync(config,'synthetic-config-unchanged');
+  fs.unlinkSync(path.join(installed,'app/dist/cli.js'));
+  assert.equal(installedDecision(installed,'0.2.8').action,'repair');
+  fs.writeFileSync(path.join(installed,'.uninstall-incomplete'),'synthetic');
+  fs.unlinkSync(path.join(installed,MANIFEST));
+  assert.equal(installedDecision(installed,'0.2.8').action,'repair');
+  assert.equal(installedDecision(installed,'0.2.8').preserveConfig,true);
+  assert.equal(fs.readFileSync(config,'utf8'),'synthetic-config-unchanged');
+  assert.throws(()=>installedDecision(installed,'not-a-version'),/版本号/);
+});
+test('repair never accepts a linked installation or linked leftover file', t => {
+  const f=fixture(t),installed=firstInstall({...f,apply:true}).destination;
+  fs.writeFileSync(path.join(installed,'.uninstall-incomplete'),'synthetic');
+  const outside=path.join(f.root,'outside');fs.writeFileSync(outside,'keep');
+  fs.symlinkSync(outside,path.join(installed,'linked'));
+  assert.throws(()=>installedDecision(installed,'0.2.8'),/links/);
+  assert.equal(fs.readFileSync(outside,'utf8'),'keep');
+});
+test('interrupted removal retains its recovery marker, successful removal leaves no directory', t => {
+  const f=fixture(t),installed=firstInstall({...f,apply:true}).destination;
+  const unlink=fs.unlinkSync;
+  try {
+    fs.unlinkSync=file=>{if(file.endsWith('cli.js'))throw Object.assign(new Error('synthetic denied'),{code:'EACCES'});return unlink(file);};
+    assert.throws(()=>removeVerifiedBundle(installed,f.expectedManifestHash,true),/cli.js/);
+  } finally {fs.unlinkSync=unlink;}
+  assert.equal(fs.existsSync(path.join(installed,'.uninstall-incomplete')),true);
+  assert.equal(installedDecision(installed,'0.2.8').action,'repair');
+});
+test('repair templates archive leftovers after external process collection and stay byte-identical', () => {
+  const runtime=fs.readFileSync(new URL('../install.ps1.tmpl',import.meta.url));
+  const k8s=fs.readFileSync(new URL('../../../../k8s/gitops/components/app-platform/investment-app/investment-backend/agent-releases/install.ps1.tmpl',import.meta.url));
+  assert.deepEqual(runtime,k8s);
+  const text=runtime.toString('utf8');
+  assert.ok(text.indexOf('--stop-only')<text.indexOf('[System.IO.Directory]::Move($Dest,$Broken)'));
+  assert.ok(text.includes('上次升级没做完，已清理残留'));
 });
 
 test('uninstall preview keeps all files; apply removes only exact verified program inventory', t => {

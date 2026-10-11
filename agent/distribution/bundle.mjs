@@ -204,10 +204,29 @@ export function removeVerifiedBundle(directory, expectedManifestHash, apply = fa
   const manifest = verifyBundle(directory, expectedManifestHash, { requireLayout: false });
   const plan = { directory, files: manifest.files.length + 1, apply };
   if (!apply) return plan;
+  const marker = path.join(directory, '.uninstall-incomplete');
+  // Written only after complete verification, before the first deletion. Any
+  // interruption now has an explicit recovery signal, even if manifest is gone.
+  fs.writeFileSync(marker, randomUUID(), {flag:'wx',mode:0o600});
+  try {
   for (const entry of [...manifest.files, {path: MANIFEST}]) {
     plainDirectory(path.dirname(path.join(directory, entry.path)));
     retryRemoval(path.join(directory, entry.path));
   }
-  function empty(dir) { plainDirectory(dir); for(const name of fs.readdirSync(dir)){ const full=path.join(dir,name);if(!fs.lstatSync(full).isDirectory())throw new Error('Unexpected file appeared during removal');empty(full); }retryRemoval(dir,fs.rmdirSync); }
+  function empty(dir) {
+    plainDirectory(dir);
+    for (const name of fs.readdirSync(dir)) {
+      const full=path.join(dir,name);
+      if (full === marker) continue;
+      if (!fs.lstatSync(full).isDirectory()) throw new Error('Unexpected file appeared during removal');
+      empty(full);
+    }
+    if (dir === directory) retryRemoval(marker);
+    retryRemoval(dir,fs.rmdirSync);
+  }
   empty(directory); return plan;
+  } catch (error) {
+    if (exists(directory) && !exists(marker)) { plainDirectory(directory); fs.writeFileSync(marker,'removal incomplete',{flag:'wx',mode:0o600}); }
+    throw error;
+  }
 }

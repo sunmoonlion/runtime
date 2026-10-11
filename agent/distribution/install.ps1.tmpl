@@ -80,6 +80,12 @@ try {
     if ($Plan.action -eq 'upgrade') {
         & $Node (Join-Path $Expanded 'installer\uninstall.mjs') --apply --manifest-sha256 $ManifestSha256 --installed-manifest-sha256 $Plan.installedManifestSha256
         if ($LASTEXITCODE -ne 0) { throw '旧版本没有卸下来，配置仍保留，新版本没有安装。' }
+    } elseif ($Plan.action -eq 'repair') {
+        & $Node (Join-Path $Expanded 'installer\uninstall.mjs') --apply --stop-only --manifest-sha256 $ManifestSha256
+        if ($LASTEXITCODE -ne 0) { throw '残留进程没有退出，没有移动旧目录。' }
+        $Broken = $Dest + '.broken-' + [DateTime]::UtcNow.ToString('yyyyMMddTHHmmssfffZ') + '-' + [guid]::NewGuid().ToString('n').Substring(0,8)
+        [System.IO.Directory]::Move($Dest,$Broken)
+        Write-Output '上次升级没做完，已清理残留'
     } elseif ($Plan.action -ne 'install') { throw '无法识别的安装动作，没有改动现有安装。' }
     if (Test-Path -LiteralPath $Dest) { throw '安装目录还在，没有覆盖已有安装。' }
     & $Node (Join-Path $Expanded 'installer\install.mjs') --apply --manifest-sha256 $ManifestSha256

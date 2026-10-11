@@ -23,6 +23,15 @@ const samplePaths = [
   'uninstall.cmd', 'installer/uninstall.mjs', 'installer/launch.mjs', 'installer/upgrade.mjs',
   'app/native/elevated-setup.ps1',
 ];
+
+test('UI watchdog covers settings and tray with a one-second lifetime check', () => {
+  const text = fs.readFileSync(new URL('../../native/desktop.ps1', import.meta.url), 'utf8');
+  assert.match(text, /\$Watch\.Interval=1000/);
+  assert.match(text, /\$Window\.IsDisposed -or -not \$Window\.IsHandleCreated/);
+  for (const form of ['Dialog', 'Form', 'TrayForm']) assert.ok(text.includes(`New-FormWatchdog $${form}`));
+  assert.match(text, /finally\s*\{[\s\S]*foreach \(\$Name in @\('onboard-ready.json','tray.json'\)\)/);
+  assert.ok(text.includes('if ($Record.pid -eq $PID)'));
+});
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'sunmoon-dist-test-'));
   // Only this test's unique temporary directory is removed. No actual installation/user state.

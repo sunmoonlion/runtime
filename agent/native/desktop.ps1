@@ -62,6 +62,18 @@ namespace SunMoonDesktop {
 '@
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
+function New-FormWatchdog([System.Windows.Forms.Form]$Window) {
+    # Create the handle before starting: a new (not yet shown) form is not lost.
+    $null = $Window.Handle
+    $Watch = New-Object System.Windows.Forms.Timer; $Watch.Interval=1000
+    $Watch.Add_Tick({
+        if ($Window.IsDisposed -or -not $Window.IsHandleCreated) {
+            [System.Windows.Forms.Application]::Exit()
+        }
+    }.GetNewClosure())
+    return $Watch
+}
+
 if ($Action -eq 'confirm') {
     if ($InputData.challenge -notmatch '^[a-f0-9]{32}$' -or $InputData.description.Length -gt 16000) { throw 'Invalid prompt' }
     $Form = New-Object System.Windows.Forms.Form
@@ -193,7 +205,8 @@ function Show-Preferences {
     })
     $Cancel.Add_Click({$Dialog.Close()}); $Dialog.CancelButton=$Cancel
     $Dialog.Controls.AddRange(@($NameLabel,$Name,$RootLabel,$Roots,$Add,$Remove,$Mode,$Network,$Note,$Save,$Cancel))
-    try{$Dialog.ShowDialog()|Out-Null}finally{$Dialog.Dispose()}
+    $Watch = New-FormWatchdog $Dialog
+    try{$Watch.Start(); $Dialog.ShowDialog()|Out-Null}finally{$Watch.Stop(); $Watch.Dispose(); $Dialog.Dispose()}
 }
 
 function Show-Onboard {
@@ -357,14 +370,20 @@ function Show-Onboard {
             @{pid=$PID} | ConvertTo-Json -Compress | Set-Content -LiteralPath $ReadyFile -Encoding UTF8
         } catch { $Connected.Text = '设置窗口显示失败：' + $_.Exception.Message; $Form.Close() }
     })
-    try{$Timer.Start(); $Form.ShowDialog()|Out-Null}finally{ $Timer.Stop(); $Timer.Dispose(); Stop-Pair; if (Test-Path -LiteralPath $ReadyFile) { Remove-Item -LiteralPath $ReadyFile -Force }; $Form.Dispose() }
+    $Watch = New-FormWatchdog $Form
+    try{$Watch.Start(); $Timer.Start(); $Form.ShowDialog()|Out-Null}finally{ $Watch.Stop(); $Watch.Dispose(); $Timer.Stop(); $Timer.Dispose(); Stop-Pair; if (Test-Path -LiteralPath $ReadyFile) { Remove-Item -LiteralPath $ReadyFile -Force }; $Form.Dispose() }
 }
 
+try {
 if ($Action -eq 'onboard') { Show-Onboard; exit 0 }
 if ($InputData.instance -notmatch '^[a-f0-9]{24}$') { throw 'Invalid instance' }
 $Mutex = New-Object System.Threading.Mutex($false,('Local\SunMoonAgentTray-' + $InputData.instance))
 if (-not $Mutex.WaitOne(0,$false)) { $Mutex.Dispose(); exit 0 }
 
+# Tray has no visible main form. Its private, unshown form owns the UI lifetime;
+# closing a preferences dialog normally does not close the tray.
+$TrayForm=New-Object System.Windows.Forms.Form
+$Watch=New-FormWatchdog $TrayForm
 $Tray=New-Object System.Windows.Forms.NotifyIcon; $Tray.Icon=[System.Drawing.SystemIcons]::Application; $Tray.Text='SunMoon Agent'; $Tray.Visible=$true
 $Menu=New-Object System.Windows.Forms.ContextMenuStrip
 $Connection=$Menu.Items.Add('状态：正在读取'); $Connection.Enabled=$false
@@ -408,6 +427,17 @@ $Timer.Add_Tick({
         } else {$Tray.Text='SunMoon: 已停止';$Connection.Text='状态：已停止'}
     } catch {$Tray.Text='SunMoon: 状态暂不可读';$Connection.Text='状态：暂不可读'}
 })
-$Timer.Start()
+$Watch.Start(); $Timer.Start()
 try {[System.Windows.Forms.Application]::Run()}
-finally {$Timer.Dispose(); $Tray.Visible=$false; $Tray.Dispose(); $Menu.Dispose(); Remove-Item -LiteralPath $TrayStatus -ErrorAction SilentlyContinue; $Mutex.ReleaseMutex(); $Mutex.Dispose()}
+finally {$Timer.Dispose(); $Watch.Stop(); $Watch.Dispose(); $TrayForm.Dispose(); $Tray.Visible=$false; $Tray.Dispose(); $Menu.Dispose(); Remove-Item -LiteralPath $TrayStatus -ErrorAction SilentlyContinue; $Mutex.ReleaseMutex(); $Mutex.Dispose()}
+} finally {
+    # Also handles exceptions during setup, before the modal/run-loop finally.
+    foreach ($Name in @('onboard-ready.json','tray.json')) {
+        $File=Join-Path $State $Name
+        try {
+            $Record=Get-Content -LiteralPath $File -Raw -Encoding UTF8 | ConvertFrom-Json
+            if ($Record.pid -eq $PID) { Remove-Item -LiteralPath $File -Force }
+        } catch {}
+    }
+    [System.Windows.Forms.Application]::Exit()
+}

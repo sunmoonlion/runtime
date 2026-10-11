@@ -44,6 +44,77 @@ function pidAlive(pid) {
   catch (error) { return error.code === 'EPERM'; }
 }
 
+const winPath = value => path.win32.normalize(value ?? '').toLowerCase();
+function commandHasPath(command, file) {
+  const escaped = winPath(file).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`(?:^|[\\s"])${escaped}(?=$|[\\s"])`).test((command ?? '').replaceAll('/', '\\').toLowerCase());
+}
+/** Identity classifier, separately tested without terminating processes. */
+export function installationProcesses(records, directory, userSid) {
+  const root = winPath(directory), cli = path.win32.join(root, 'app','dist','cli.js');
+  const desktop = path.win32.join(root, 'app','native','desktop.ps1');
+  const owned = [], blocked = [];
+  for (const record of records) {
+    const executable = winPath(record.executable);
+    const inside = executable.startsWith(root + '\\');
+    const desktopCommand = /^(powershell|pwsh)\.exe$/.test(path.win32.basename(executable)) && commandHasPath(record.command, desktop);
+    if (!inside && !desktopCommand) continue;
+    if (!record.sid) throw new Error(`Cannot establish owner for process ${record.pid}; no process terminated`);
+    if (record.sid !== userSid) continue;
+    if (!Number.isSafeInteger(record.pid) || record.pid <= 0 || !record.created) throw new Error('Invalid process identity');
+    const ownNode = inside && path.win32.basename(executable) === 'node.exe' && commandHasPath(record.command, cli);
+    (ownNode || desktopCommand ? owned : blocked).push(record);
+  }
+  return { owned, blocked };
+}
+function windowsProcessRequest(directory, expected = null) {
+  const script = `
+$ErrorActionPreference='Stop'
+$Sid=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+$Expected=$env:SUNMOON_UNINSTALL_EXPECTED | ConvertFrom-Json
+if ($Expected) {
+  foreach ($Record in @($Expected)) {
+    $P=Get-CimInstance Win32_Process -Filter ('ProcessId='+[int]$Record.pid)
+    if (-not $P) { continue }
+    $Owner=Invoke-CimMethod -InputObject $P -MethodName GetOwnerSid
+    if ($Owner.ReturnValue -ne 0 -or $Owner.Sid -ne $Sid -or $P.CreationDate.ToUniversalTime().ToString('o') -ne $Record.created -or $P.ExecutablePath -ne $Record.executable -or $P.CommandLine -cne $Record.command) { throw 'Process identity changed; refusing termination' }
+    Stop-Process -Id $P.ProcessId -ErrorAction Stop
+  }
+}
+$Records=@(foreach ($P in Get-CimInstance Win32_Process) {
+  if (-not ($P.ExecutablePath -and $P.ExecutablePath.StartsWith($env:SUNMOON_UNINSTALL_ROOT+'\\',[StringComparison]::OrdinalIgnoreCase)) -and -not ($P.CommandLine -and $P.CommandLine.IndexOf($env:SUNMOON_UNINSTALL_ROOT,[StringComparison]::OrdinalIgnoreCase) -ge 0)) { continue }
+  $Owner=Invoke-CimMethod -InputObject $P -MethodName GetOwnerSid
+  [pscustomobject]@{pid=[int]$P.ProcessId; executable=$P.ExecutablePath; command=$P.CommandLine; created=$P.CreationDate.ToUniversalTime().ToString('o'); sid=$(if($Owner.ReturnValue -eq 0){$Owner.Sid}else{$null})}
+})
+@{sid=$Sid;records=$Records} | ConvertTo-Json -Depth 5 -Compress
+`;
+  const executable = path.join(process.env.SystemRoot ?? 'C:\\Windows','System32','WindowsPowerShell','v1.0','powershell.exe');
+  const result = spawnSync(executable, ['-NoLogo','-NoProfile','-NonInteractive','-EncodedCommand',Buffer.from(script,'utf16le').toString('base64')], {
+    env: {...process.env, SUNMOON_UNINSTALL_ROOT:directory, SUNMOON_UNINSTALL_EXPECTED:JSON.stringify(expected)}, windowsHide:true, encoding:'utf8', timeout:30000,
+  });
+  if (result.status !== 0) throw new Error('Cannot enumerate/stop installation processes; files kept');
+  return JSON.parse(result.stdout.replace(/^\uFEFF/,''));
+}
+const pause = ms => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,ms);
+function safeCommand(command) {
+  return String(command ?? '').replace(/(--?(?:token|secret|password|device-secret)(?:=|\s+))\S+/gi,'$1[redacted]');
+}
+export function stopInstallationProcesses(directory, request = windowsProcessRequest, wait = pause) {
+  plainDirectory(directory);
+  const before = request(directory);
+  const selected = installationProcesses(before.records,directory,before.sid);
+  const refuse = records => { if(records.length) throw new Error('有进程占着安装目录: '+records.map(p=>`PID ${p.pid} ${safeCommand(p.command)}`).join('; ')); };
+  refuse(selected.blocked);
+  if (selected.owned.length) request(directory, selected.owned);
+  for (let attempt=0; attempt<=20; attempt++) {
+    const current = request(directory), remaining = installationProcesses(current.records,directory,current.sid);
+    refuse(remaining.blocked);
+    if (!remaining.owned.length) return {stoppedPids:selected.owned.map(p=>p.pid)};
+    if (attempt === 20) throw new Error('Installation processes did not exit; files kept');
+    wait(500);
+  }
+}
+
 function main() {
 try {
   const { values } = parseArgs({ options: {
@@ -94,8 +165,14 @@ try {
       if (r.status !== 0) throw new Error(`Cannot complete ${args[0]}; installation and config kept`);
     };
     // Remove restart policy before stopping. A failed step keeps program files.
-    invoke(['autostart','disable']); clearStaleTray(state, pidAlive); invoke(['tray','stop']); invoke(['stop']);
+    invoke(['autostart','disable']); clearStaleTray(state, pidAlive);
+    // Older desktop workers may no longer respond to graceful requests. The
+    // exact-identity collector below is the authorized fallback for these only.
+    for (const args of [['tray','stop'],['stop']]) {
+      try { invoke(args); } catch { console.error(`${args[0]} graceful stop unavailable; checking exact owned PIDs`); }
+    }
   }
+  stopInstallationProcesses(target);
   removeVerifiedBundle(target,expected,true);
   if(values['remove-config']) {
     configEntries.length=0; inspectConfig();

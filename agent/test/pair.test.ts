@@ -218,4 +218,32 @@ describe("pair", () => {
       rmSync(home, { recursive: true, force: true });
     }
   });
+
+  it("retries rename and succeeds once the transient lock clears", () => {
+    const home = mkdtempSync(path.join(tmpdir(), "agent-pair-rename-ok-"));
+    const statusFile = path.join(home, "pair-status.json");
+    const temp = `${statusFile}.${process.pid}.1000000.tmp`;
+    let renameAttempts = 0;
+    const realRename = fs.renameSync;
+    // 模拟 Windows 上 rename 前两次被杀软/索引器短暂锁住、第三次锁已释放：应重试后成功，不触发覆盖写兜底。
+    const spy = vi.spyOn(fs, "renameSync").mockImplementation((oldPath, newPath) => {
+      renameAttempts += 1;
+      if (renameAttempts < 3) throw new Error("EPERM: operation not permitted, rename");
+      realRename(oldPath, newPath);
+    });
+    try {
+      emitPairFailure(statusFile, "rename 前两次被锁");
+      // 第三次 rename 成功：重试分支提前结束（未达 5 次），目标由 rename 落成、临时文件被消费掉。
+      expect(renameAttempts).toBe(3);
+      const rec = JSON.parse(readFileSync(statusFile, "utf8"));
+      expect(rec.seq).toBe(1000000);
+      expect(rec.status).toBe("failed");
+      expect(rec.message).toBe("rename 前两次被锁");
+      expect(rec.pid).toBe(process.pid);
+      expect(existsSync(temp)).toBe(false);
+    } finally {
+      spy.mockRestore();
+      rmSync(home, { recursive: true, force: true });
+    }
+  });
 });

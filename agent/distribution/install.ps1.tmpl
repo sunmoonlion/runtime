@@ -97,6 +97,9 @@ try {
         if ($LASTEXITCODE -ne 0) { throw '程序已安装，但登录自启没有打开。' }
     }
     Show-AgentWindow
+} catch {
+    Write-Warning '可能有旧窗口的进程还开着，先在托盘退出、关掉所有 SunMoon 窗口再试'
+    throw
 } finally {
     if (Test-Path -LiteralPath $Temp) { Remove-Item -LiteralPath $Temp -Recurse -Force }
 }

@@ -96,6 +96,10 @@ test('repair templates archive leftovers after external process collection and s
   assert.ok(text.indexOf('--stop-only')<text.indexOf('[System.IO.Directory]::Move($Dest,$Broken)'));
   assert.ok(text.includes('上次升级没做完，已清理残留'));
 });
+test('installer preserves failure while giving an actionable old-window hint', () => {
+  const text=fs.readFileSync(new URL('../install.ps1.tmpl',import.meta.url),'utf8');
+  assert.match(text,/catch\s*\{\s*Write-Warning '可能有旧窗口的进程还开着，先在托盘退出、关掉所有 SunMoon 窗口再试'\s*throw\s*\}\s*finally/);
+});
 
 test('uninstall preview keeps all files; apply removes only exact verified program inventory', t => {
   const f=fixture(t); const installed=firstInstall({...f,apply:true});

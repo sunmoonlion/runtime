@@ -25,7 +25,7 @@ import { acquireResident, autostart, preferences, readResidentStatus, residentAl
 import { installedLaunchError } from "./siteTrust.js";
 import { configHasToken, menuPlan, osLabel, runPair, siteDocument, emitPairFailure, PAIR_EXIT } from "./pair.js";
 
-const VERSION = "0.2.7";
+const VERSION = "0.2.8";
 const STATUS_PATH = path.join(CONFIG_DIR, "status.json");
 
 function arg(flag: string, argv: string[]): string | undefined {

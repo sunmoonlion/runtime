@@ -185,6 +185,20 @@ function Show-Preferences {
 }
 
 function Show-Onboard {
+    # windowsHide keeps the console hidden, but also suppresses the first WinForms
+    # ShowWindow through STARTUPINFO. Re-show only this form after its first show.
+    Add-Type @'
+using System;
+using System.Runtime.InteropServices;
+namespace SunMoonDesktop {
+    public static class WindowVisibility {
+        [DllImport("user32.dll")]
+        public static extern bool ShowWindow(IntPtr handle, int command);
+        [DllImport("user32.dll")]
+        public static extern bool IsWindowVisible(IntPtr handle);
+    }
+}
+'@
     $Form=New-Object System.Windows.Forms.Form
     $Form.Text='SunMoon - 设置'; $Form.Size=New-Object System.Drawing.Size(700,480); $Form.StartPosition='CenterScreen'
     $script:Pair=$null; $script:Account=''; $script:Remaining=0; $script:GotResult=$false; $script:ExitSeen=$false; $script:ExitShown=$false; $script:LastErr=$null
@@ -330,10 +344,20 @@ function Show-Onboard {
     $Retry.Add_Click({ $Finish.PerformClick() })
     $Form.Controls.AddRange(@($Intro,$Connect,$Code,$Clock,$Connected,$CancelPair,$Refresh,$Next1,$FolderNote,$Roots,$Add,$Remove,$Next2,$Auto,$Next3,$Online,$Finish,$Retry))
     Show-Step 1
-    $Timer.Start()
     $ReadyFile = Join-Path $State 'onboard-ready.json'
-    @{pid=$PID} | ConvertTo-Json -Compress | Set-Content -LiteralPath $ReadyFile -Encoding UTF8
-    try{$Form.ShowDialog()|Out-Null}finally{ $Timer.Stop(); $Timer.Dispose(); Stop-Pair; if (Test-Path -LiteralPath $ReadyFile) { Remove-Item -LiteralPath $ReadyFile -Force }; $Form.Dispose() }
+    $Form.Add_Shown({
+        try {
+            # SW_SHOW=5: this second show overrides the hidden startup state.
+            # ShowWindow's return value is previous visibility, not success.
+            [void][SunMoonDesktop.WindowVisibility]::ShowWindow($Form.Handle,5)
+            $Form.Activate()
+            if (-not [SunMoonDesktop.WindowVisibility]::IsWindowVisible($Form.Handle)) {
+                throw '无法显示设置窗口；尚未写入就绪标记。'
+            }
+            @{pid=$PID} | ConvertTo-Json -Compress | Set-Content -LiteralPath $ReadyFile -Encoding UTF8
+        } catch { $Connected.Text = '设置窗口显示失败：' + $_.Exception.Message }
+    })
+    try{$Timer.Start(); $Form.ShowDialog()|Out-Null}finally{ $Timer.Stop(); $Timer.Dispose(); Stop-Pair; if (Test-Path -LiteralPath $ReadyFile) { Remove-Item -LiteralPath $ReadyFile -Force }; $Form.Dispose() }
 }
 
 if ($Action -eq 'onboard') { Show-Onboard; exit 0 }

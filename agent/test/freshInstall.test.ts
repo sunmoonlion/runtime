@@ -20,8 +20,8 @@ function emptyHome(): string {
 }
 
 describe("fresh install state", () => {
-  it("opens the settings window when there is no token", () => {
-    expect(menuPlan(false, false)).toEqual({ start: false, action: "onboard" });
+  it("opens the browser page when there is no token", () => {
+    expect(menuPlan(false, false)).toEqual({ start: false, action: "pair-page" });
   });
 
   it("prepares an empty agent home without requiring config.json", () => {

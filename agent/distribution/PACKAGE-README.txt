@@ -1,4 +1,4 @@
-SunMoonAI Windows agent — stage 3 candidate
+SunMoonAI Windows agent — 0.3.0 candidate
 
 Official Node 24.19.0 + Codex 0.155.1 + JavaScript. No separately installed
 Node, npm, pnpm, Python or custom compiled executable is needed.
@@ -16,9 +16,14 @@ First command previews; second installs into
 Installation does not start, enable autostart, change PATH or elevate.
 
 Use sunmoon-agent.cmd in the INSTALLED directory:
-  init ... --token-prompt   Copy the non-secret command from My machines, then
-                           paste your own token at the hidden terminal prompt.
-                           Never put it in the command or share it. Select roots.
+  menu                     Fresh machine: open the local browser connection page.
+                           Enter the displayed code yourself at the website and
+                           approve. Pairing saves configuration, enables logon
+                           startup and starts the background agent by default.
+                           Existing connection: start the agent and open tray.
+  pair --page              Reconnect through the same browser page. Replaces
+                           the account's previous agent token after approval.
+  init ... --token-prompt   Advanced diagnostic entry; hidden local input only.
   start --background       One background agent; local approvals use a GUI.
   tray                     Status, start/stop, roots and permissions settings.
   tray stop                Close tray only; background stays running.
@@ -35,7 +40,10 @@ Use sunmoon-agent.cmd in the INSTALLED directory:
 In tray settings, check each directory to grant access. Adding a directory only
 remembers a candidate; unchecked directories grant no access. You can uncheck
 all directories. Save, then stop/start to apply. Double-click the tray icon for
-online/offline state and the latest connection reason.
+online/offline state and the latest connection reason. If the browser cannot
+open, this status window shows the local page address and connection code.
+Use tray settings to grant directories after connecting; none are granted by
+the pairing page.
 
 Local approval requires the displayed
 fresh code and Allow button. Close, timeout or disconnect refuses. It cannot

@@ -154,7 +154,8 @@ try {
     if (!fs.existsSync(state)) return;
     if (path.resolve(state).toLowerCase() !== path.join(os.homedir(), '.sunmoon-agent').toLowerCase()) throw new Error('Config removal only supports the dedicated default home; custom test homes are preserved');
     plainDirectory(state);
-    const allowed = new Set(['config.json','mcp.json','status.json','codex-home','logs','tray.json','tray-stop.json','stop-request.json','pair-status.json','onboard-ready.json']);
+    // Keep the two old markers for one release so 0.2.x explicit removal works.
+    const allowed = new Set(['config.json','mcp.json','status.json','codex-home','logs','tray.json','tray-stop.json','stop-request.json','pair-page.json','pair-status.json','onboard-ready.json']);
     for (const name of fs.readdirSync(state)) if (!allowed.has(name)) throw new Error('Unexpected user data in config home; refusing deletion');
     const walk = dir => { plainDirectory(dir); for (const name of fs.readdirSync(dir)) { const file=path.join(dir,name), st=fs.lstatSync(file); if(st.isSymbolicLink())throw new Error('Linked config data; refusing deletion');if(st.isDirectory())walk(file);else if(st.isFile())configEntries.push(file);else throw new Error('Unsupported config entry');} configEntries.push(dir); };
     walk(state);

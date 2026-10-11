@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {spawn} from 'node:child_process';
 
-for (const action of ['onboard','tray','confirm']) test(`real Windows ${action} exits and clears readiness after UI disposal`, {skip:process.platform!=='win32',timeout:20000}, async t=>{
+for (const action of ['tray','confirm']) test(`real Windows ${action} exits and clears readiness after UI disposal`, {skip:process.platform!=='win32',timeout:20000}, async t=>{
   const base=fs.mkdtempSync(path.join(process.env.SUNMOON_PROBE_ROOT ?? os.tmpdir(),'sunmoon-watchdog-'));
   let passed=false;
   t.after(()=>{if(passed)fs.rmSync(base,{recursive:true,force:true});else console.log(`Failed watchdog fixture retained: ${base}`);});
@@ -22,7 +22,7 @@ $TestDispose.Add_Tick({
 })
 $TestDispose.Start()
 `;
-  const needle=action==='onboard'?'try{$Watch.Start(); $Timer.Start(); $Form.ShowDialog()':action==='confirm'?'    try { $Watch.Start(); $Timer.Start(); $Form.ShowDialog()':'\n$Watch.Start(); $Timer.Start()\n';
+  const needle=action==='confirm'?'    try { $Watch.Start(); $Timer.Start(); $Form.ShowDialog()':'\n$Watch.Start(); $Timer.Start()\n';
   assert.ok(source.includes(needle));
   assert.equal(source.split(needle).length,2,'exactly one lifecycle injection point');
   const trace=path.join(base,'watchdog-ticks.txt').replaceAll("'","''");

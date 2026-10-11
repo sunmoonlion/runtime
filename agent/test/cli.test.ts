@@ -41,7 +41,7 @@ describe("pair command", () => {
       });
       expect(r.status).toBe(1);
       expect(r.stdout + r.stderr).toContain("没有站点文件");
-      expect(r.stdout + r.stderr).not.toContain("不接受参数");
+      expect(r.stdout + r.stderr).not.toContain("只接受 --page");
     } finally { rmSync(home, { recursive: true, force: true }); }
   });
   it("rejects an extra pair argument", () => {
@@ -51,7 +51,7 @@ describe("pair command", () => {
         env: { ...process.env, SUNMOON_AGENT_HOME: home }, encoding: "utf8", timeout: 5000,
       });
       expect(r.status).toBe(1);
-      expect(r.stdout + r.stderr).toContain("不接受参数");
+      expect(r.stdout + r.stderr).toContain("只接受 --page");
     } finally { rmSync(home, { recursive: true, force: true }); }
   });
 });

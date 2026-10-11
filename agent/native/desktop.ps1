@@ -1,4 +1,4 @@
-﻿param([Parameter(Mandatory=$true)][ValidateSet('confirm','tray','autostart','setup','onboard')][string]$Action)
+﻿param([Parameter(Mandatory=$true)][ValidateSet('confirm','tray','autostart','setup')][string]$Action)
 $ErrorActionPreference = 'Stop'
 try {
     # detached PowerShell has no console; assigning these throws. Redirected stdin still works.
@@ -118,7 +118,7 @@ if ($Action -eq 'confirm') {
 $Node = [string]$InputData.node; $Cli = [string]$InputData.cli; $State = [string]$InputData.state
 if ($Node -match '["\r\n]' -or $Cli -match '["\r\n]') { throw 'Unsupported executable path' }
 
-function New-AgentProcess([string[]]$Command) {
+function New-AgentProcess([string[]]$Command, [bool]$Detached=$false) {
     # Command strings are fixed menu verbs. User values are only JSON on stdin.
     if (@($Command | Where-Object { $_ -notmatch '^[a-z-]+$' }).Count) { throw 'Invalid menu action' }
     $Exec = @(); $ExtraCa = $null
@@ -146,6 +146,7 @@ function New-AgentProcess([string[]]$Command) {
         if ($Info.EnvironmentVariables.ContainsKey('NODE_EXTRA_CA_CERTS')) { [void]$Info.EnvironmentVariables.Remove('NODE_EXTRA_CA_CERTS') }
         if ($ExtraCa) { $Info.EnvironmentVariables['NODE_EXTRA_CA_CERTS'] = $ExtraCa }
     }
+    if($Detached){$Info.RedirectStandardInput=$false; $Info.RedirectStandardOutput=$false; $Info.RedirectStandardError=$false}
     $Process=New-Object System.Diagnostics.Process; $Process.StartInfo=$Info
     $Process.Start() | Out-Null
     return $Process
@@ -185,8 +186,21 @@ function Show-Status {
         if($Current.relay.lastNotice -and $Current.relay.lastNotice -ne $Reason){$Text+="`r`n提示："+[string]$Current.relay.lastNotice}
         if($Current.execServer.windowsSandbox.mode){$Text+="`r`n`r`n沙箱模式："+[string]$Current.execServer.windowsSandbox.mode}
         if($Current.at){$Text+="`r`n状态更新时间："+[string]$Current.at}
-        [System.Windows.Forms.MessageBox]::Show($Text,'SunMoon - 连接状态')|Out-Null
-    } catch {[System.Windows.Forms.MessageBox]::Show('无法读取状态，请查看本机日志。','SunMoon - 连接状态')|Out-Null}
+    } catch {$Text='无法读取代理状态，请查看本机日志。'}
+    try {
+        $Page=Invoke-Agent @('pair-page-status')
+        if($Page.active){
+            $Text+="`r`n`r`n本机接入页："+[string]$Page.url
+            if($Page.user_code){$Text+="`r`n连接码："+[string]$Page.user_code}
+            if($Page.message){$Text+="`r`n"+[string]$Page.message}
+        }
+    } catch {}
+    $Dialog=New-Object System.Windows.Forms.Form; $Dialog.Text='SunMoon - 连接状态'; $Dialog.Size=New-Object System.Drawing.Size(700,400); $Dialog.StartPosition='CenterScreen'
+    $StatusText=New-Object System.Windows.Forms.TextBox; $StatusText.Multiline=$true; $StatusText.ReadOnly=$true; $StatusText.ScrollBars='Vertical'; $StatusText.SetBounds(15,15,650,285); $StatusText.Text=$Text
+    $Close=New-Object System.Windows.Forms.Button; $Close.Text='关闭'; $Close.SetBounds(545,310,120,30); $Close.Add_Click({$Dialog.Close()}); $Dialog.CancelButton=$Close
+    $Dialog.Controls.AddRange(@($StatusText,$Close)); Initialize-VisibleForm $Dialog
+    $Watch=New-FormWatchdog $Dialog
+    try{$Watch.Start(); $Dialog.ShowDialog()|Out-Null}finally{$Watch.Stop(); $Watch.Dispose(); $Dialog.Dispose()}
 }
 function Show-Preferences {
     $Prefs=Invoke-Agent @('settings','show')
@@ -221,173 +235,7 @@ function Show-Preferences {
     try{$Watch.Start(); $Dialog.ShowDialog()|Out-Null}finally{$Watch.Stop(); $Watch.Dispose(); $Dialog.Dispose()}
 }
 
-function Show-Onboard {
-    # windowsHide keeps the console hidden, but also suppresses the first WinForms
-    # ShowWindow through STARTUPINFO. Re-show only this form after its first show.
-    $Form=New-Object System.Windows.Forms.Form
-    $Form.Text='SunMoon - 设置'; $Form.Size=New-Object System.Drawing.Size(700,480); $Form.StartPosition='CenterScreen'
-    $script:Pair=$null; $script:Account=''; $script:Remaining=0; $script:GotResult=$false; $script:ExitSeen=$false; $script:ExitShown=$false; $script:LastErr=$null
-    $script:WebOrigin=$null
-    $NodeDir=Split-Path -Parent $Node
-    if ((Split-Path -Leaf $NodeDir) -eq 'node') {
-        $SiteFile=Join-Path (Split-Path -Parent $NodeDir) 'site\site.json'
-        if (Test-Path -LiteralPath $SiteFile) {
-            $Site=Get-Content -LiteralPath $SiteFile -Raw -Encoding UTF8 | ConvertFrom-Json
-            if ($Site.web_origin) { $script:WebOrigin=[string]$Site.web_origin }
-        }
-    }
-    $Intro=New-Object System.Windows.Forms.Label; $Intro.Text='连接账号'; $Intro.SetBounds(15,15,650,24)
-    $Connect=New-Object System.Windows.Forms.Button; $Connect.Text='连接我的账号'; $Connect.SetBounds(15,48,160,32)
-    $Code=New-Object System.Windows.Forms.Label; $Code.Font=New-Object System.Drawing.Font('Segoe UI',28); $Code.SetBounds(15,95,650,60)
-    $Clock=New-Object System.Windows.Forms.Label; $Clock.SetBounds(15,160,650,24)
-    $Connected=New-Object System.Windows.Forms.Label; $Connected.SetBounds(15,190,650,28)
-    $CancelPair=New-Object System.Windows.Forms.Button; $CancelPair.Text='取消'; $CancelPair.SetBounds(15,230,120,30)
-    $Refresh=New-Object System.Windows.Forms.Button; $Refresh.Text='重新获取连接码'; $Refresh.SetBounds(150,230,160,30)
-    $Next1=New-Object System.Windows.Forms.Button; $Next1.Text='下一步'; $Next1.Enabled=$false; $Next1.SetBounds(545,390,120,30)
-    $FolderNote=New-Object System.Windows.Forms.Label; $FolderNote.Text='不选的话工作和专家碰不到你的文件'; $FolderNote.Visible=$false; $FolderNote.SetBounds(15,15,650,24)
-    $Roots=New-Object System.Windows.Forms.CheckedListBox; $Roots.Visible=$false; $Roots.CheckOnClick=$true; $Roots.SetBounds(15,48,650,250)
-    $Add=New-Object System.Windows.Forms.Button; $Add.Text='添加待选目录'; $Add.Visible=$false; $Add.SetBounds(15,310,135,30)
-    $Remove=New-Object System.Windows.Forms.Button; $Remove.Text='移除选中行'; $Remove.Visible=$false; $Remove.SetBounds(165,310,135,30)
-    $Next2=New-Object System.Windows.Forms.Button; $Next2.Text='下一步'; $Next2.Visible=$false; $Next2.SetBounds(545,390,120,30)
-    $Auto=New-Object System.Windows.Forms.CheckBox; $Auto.Text='开机自动运行'; $Auto.Checked=$true; $Auto.Visible=$false; $Auto.SetBounds(15,48,300,28)
-    $Next3=New-Object System.Windows.Forms.Button; $Next3.Text='下一步'; $Next3.Visible=$false; $Next3.SetBounds(545,390,120,30)
-    $Finish=New-Object System.Windows.Forms.Button; $Finish.Text='完成'; $Finish.Visible=$false; $Finish.SetBounds(405,390,120,30)
-    $Retry=New-Object System.Windows.Forms.Button; $Retry.Text='重试'; $Retry.Visible=$false; $Retry.SetBounds(15,230,120,30)
-    $Online=New-Object System.Windows.Forms.Label; $Online.Visible=$false; $Online.SetBounds(15,48,650,80)
-    # 0.2.7：窗口按文件轮询读 pair 进展，不再给子进程挂 stdout/stderr 事件回调——脚本块回调会在
-    # 无 runspace 的线程池线程上执行并以 exit 2 终止整个窗口（对照实验见 0.2.7 取证 b）。
-    $script:StatusFile = Join-Path $State 'pair-status.json'
-    $script:LastSeq = 0
-    # 照 tray.json 的读取校验：存在、非符号链接、大小受限、去 BOM、解析失败当没有。
-    function Read-PairStatus {
-        try {
-            if (-not (Test-Path -LiteralPath $script:StatusFile)) { return $null }
-            $Item = Get-Item -LiteralPath $script:StatusFile
-            if ($Item.Length -gt 4096) { return $null }
-            if ($Item.Attributes -band [IO.FileAttributes]::ReparsePoint) { return $null }
-            $Raw = Get-Content -LiteralPath $script:StatusFile -Raw -Encoding UTF8
-            if (-not $Raw) { return $null }
-            return (($Raw -replace '^\uFEFF','') | ConvertFrom-Json)
-        } catch { return $null }
-    }
-    function Test-SiteUrl([string]$Url, [string]$Origin) {
-        if (-not $Origin -or -not $Url.StartsWith($Origin)) { return $false }
-        if ($Url.Length -gt $Origin.Length) {
-            $Rest = $Url.Substring($Origin.Length, 1)
-            if ($Rest -ne '/' -and $Rest -ne '?' -and $Rest -ne '#') { return $false }
-        }
-        return $Url -match '^https?://[^ \r\n]+$'
-    }
-    $Timer=New-Object System.Windows.Forms.Timer; $Timer.Interval=1000
-    $Timer.Add_Tick({
-        # 0.2.7 code1b：整体包 try/catch，任何异常只显示到 $Connected，绝不让窗口退出。
-        try {
-            if($script:Remaining -gt 0){ $script:Remaining--; $Clock.Text=('剩余 ' + $script:Remaining + ' 秒') }
-            $Msg = Read-PairStatus
-            # 只认当前 pair 进程写的记录（pid 匹配）+ seq 去重：忽略上一次配对残留，避免重复打开浏览器。
-            if($Msg -and $script:Pair -and [int]$Msg.pid -eq $script:Pair.Id -and [int]$Msg.seq -gt $script:LastSeq){
-                $script:LastSeq=[int]$Msg.seq
-                if($Msg.event -eq 'code'){
-                    $Code.Text=[string]$Msg.user_code
-                    # 用绝对时刻 expires_at 算倒计时，比写入时刻的 expires_in 更准。
-                    try{
-                        $Expire=[datetime]::Parse([string]$Msg.expires_at,[Globalization.CultureInfo]::InvariantCulture,[Globalization.DateTimeStyles]::AdjustToUniversal)
-                        $script:Remaining=[int][math]::Max(0,($Expire-[datetime]::UtcNow).TotalSeconds)
-                    }catch{ $script:Remaining=300 }
-                    $Clock.Text=('剩余 ' + $script:Remaining + ' 秒')
-                    $Url=[string]$Msg.verify_url
-                    if(Test-SiteUrl $Url $script:WebOrigin){ Start-Process $Url }
-                } elseif($Msg.event -eq 'result' -and $Msg.status -eq 'approved'){
-                    $script:GotResult=$true
-                    $script:Account=[string]$Msg.account
-                    $Connected.Text='已连接到 ' + $script:Account
-                    $Next1.Enabled=$true
-                } elseif($Msg.event -eq 'result'){
-                    $script:GotResult=$true
-                    $script:LastErr=if($Msg.message){[string]$Msg.message}else{$null}
-                    $Connected.Text=[string]$Msg.message
-                    $Refresh.Enabled=$true
-                }
-            }
-            if($script:Pair -and $script:Pair.HasExited -and -not $script:GotResult -and -not $script:ExitShown){
-                if($script:LastErr -or $script:ExitSeen){
-                    $script:ExitShown=$true
-                    $Connected.Text = if($script:LastErr){ $script:LastErr } else { '连接没有完成，请重新获取。' }
-                    $Refresh.Enabled=$true
-                } else { $script:ExitSeen=$true }
-            }
-        } catch { $Connected.Text = '窗口内部错误：' + $_.Exception.Message }
-    })
-    function Stop-Pair { if($script:Pair -and -not $script:Pair.HasExited){ try{$script:Pair.StandardInput.WriteLine('cancel')}catch{} } }
-    $Connect.Add_Click({
-        # 0.2.7 code1b：整体包 try/catch，任何异常只显示到 $Connected，绝不让窗口退出。
-        try {
-            Stop-Pair
-            $script:GotResult=$false; $script:ExitSeen=$false; $script:ExitShown=$false; $script:LastErr=$null
-            # 点击前先删旧状态文件、seq 归零，确保读到的是本次配对的进展。
-            $script:LastSeq=0
-            try{ if(Test-Path -LiteralPath $script:StatusFile){ Remove-Item -LiteralPath $script:StatusFile -Force } }catch{}
-            $Code.Text=''; $Clock.Text=''; $Connected.Text='正在获取连接码…'; $Next1.Enabled=$false
-            $script:Pair=New-AgentProcess @('pair')
-            # 不挂输出/错误事件脚本块回调（会在无 runspace 线程执行并终止窗口）。
-            # 改用 ReadToEndAsync 把 stdout/stderr 读掉丢弃：既防管道缓冲区满阻塞 pair，又不涉脚本块回调。
-            [void]$script:Pair.StandardOutput.ReadToEndAsync()
-            [void]$script:Pair.StandardError.ReadToEndAsync()
-        } catch { $Connected.Text = '无法开始连接：' + $_.Exception.Message }
-    })
-    $CancelPair.Add_Click({ Stop-Pair; $Connected.Text='已取消连接。' })
-    $Refresh.Add_Click({ $Connect.PerformClick() })
-    $Add.Add_Click({ $Picker=New-Object System.Windows.Forms.FolderBrowserDialog; try { if($Picker.ShowDialog() -eq 'OK' -and -not $Roots.Items.Contains($Picker.SelectedPath)){$Roots.Items.Add($Picker.SelectedPath,$false)|Out-Null} } finally{$Picker.Dispose()} })
-    $Remove.Add_Click({ if($Roots.SelectedIndex -ge 0){$Roots.Items.RemoveAt($Roots.SelectedIndex)} })
-    function Show-Step([int]$Step) {
-        $first=$Step -eq 1; $second=$Step -eq 2; $third=$Step -eq 3; $fourth=$Step -eq 4
-        foreach($Item in @($Intro,$Connect,$Code,$Clock,$Connected,$CancelPair,$Refresh,$Next1)){ $Item.Visible=$first }
-        foreach($Item in @($FolderNote,$Roots,$Add,$Remove,$Next2)){ $Item.Visible=$second }
-        foreach($Item in @($Auto,$Next3)){ $Item.Visible=$third }
-        foreach($Item in @($Online,$Finish,$Retry)){ $Item.Visible=$fourth }
-    }
-    $Next1.Add_Click({ Show-Step 2 })
-    $Next2.Add_Click({ Show-Step 3 })
-    $Next3.Add_Click({ Show-Step 4 })
-    function Complete-Setup {
-        $Chosen=@($Roots.CheckedItems | ForEach-Object{[string]$_})
-        $All=@($Roots.Items | ForEach-Object{[string]$_})
-        $Prefs=Invoke-Agent @('settings','show')
-        Invoke-Agent @('settings','set') @{machineName=$Prefs.machineName; roots=$Chosen; rootChoices=$(if($All.Count){$All}else{$Chosen}); ceiling=$Prefs.ceiling} | Out-Null
-        if($Auto.Checked){ Invoke-Agent @('autostart','enable') | Out-Null } else { Invoke-Agent @('autostart','disable') | Out-Null }
-        try { Invoke-Agent @('start','--background') | Out-Null } catch {}
-        $Deadline=(Get-Date).AddSeconds(30)
-        do {
-            Start-Sleep -Seconds 1
-            $Current=Invoke-Agent @('status')
-            if($Current.running -and $Current.relay.status -eq 'connected'){ $Online.Text='已在线'; return }
-            if($Current.relay.lastError){ $Online.Text=[string]$Current.relay.lastError }
-        } while((Get-Date) -lt $Deadline)
-        if(-not $Online.Text){ $Online.Text='还没有连上。' }
-    }
-    $Finish.Add_Click({ try{ Complete-Setup }catch{ $Online.Text=$_.Exception.Message } })
-    $Retry.Add_Click({ $Finish.PerformClick() })
-    $Form.Controls.AddRange(@($Intro,$Connect,$Code,$Clock,$Connected,$CancelPair,$Refresh,$Next1,$FolderNote,$Roots,$Add,$Remove,$Next2,$Auto,$Next3,$Online,$Finish,$Retry))
-    Show-Step 1
-    $ReadyFile = Join-Path $State 'onboard-ready.json'
-    $Form.Add_Shown({
-        try {
-            # SW_SHOW=5: this second show overrides the hidden startup state.
-            # ShowWindow's return value is previous visibility, not success.
-            [void][SunMoonDesktop.WindowVisibility]::ShowWindow($Form.Handle,5)
-            $Form.Activate()
-            if (-not [SunMoonDesktop.WindowVisibility]::IsWindowVisible($Form.Handle)) {
-                throw '无法显示设置窗口；尚未写入就绪标记。'
-            }
-            @{pid=$PID} | ConvertTo-Json -Compress | Set-Content -LiteralPath $ReadyFile -Encoding UTF8
-        } catch { $Connected.Text = '设置窗口显示失败：' + $_.Exception.Message; $Form.Close() }
-    })
-    $Watch = New-FormWatchdog $Form
-    try{$Watch.Start(); $Timer.Start(); $Form.ShowDialog()|Out-Null}finally{ $Watch.Stop(); $Watch.Dispose(); $Timer.Stop(); $Timer.Dispose(); Stop-Pair; if (Test-Path -LiteralPath $ReadyFile) { Remove-Item -LiteralPath $ReadyFile -Force }; $Form.Dispose() }
-}
-
 try {
-if ($Action -eq 'onboard') { Show-Onboard; exit 0 }
 if ($InputData.instance -notmatch '^[a-f0-9]{24}$') { throw 'Invalid instance' }
 $Mutex = New-Object System.Threading.Mutex($false,('Local\SunMoonAgentTray-' + $InputData.instance))
 if (-not $Mutex.WaitOne(0,$false)) { $Mutex.Dispose(); exit 0 }
@@ -405,9 +253,8 @@ $Start=$Menu.Items.Add('启动代理'); $Start.Add_Click({ Show-Result { Invoke-
 $Stop=$Menu.Items.Add('停止代理'); $Stop.Add_Click({ Show-Result { Invoke-Agent @('stop') } })
 $Preferences=$Menu.Items.Add('白名单与上限设置'); $Preferences.Add_Click({ try{Show-Preferences}catch{[System.Windows.Forms.MessageBox]::Show($_.Exception.Message,'SunMoon')|Out-Null} })
 $Reconnect=$Menu.Items.Add('重新连接账号'); $Reconnect.Add_Click({
-    $Wscript=Join-Path $env:SystemRoot 'System32\wscript.exe'
-    $Vbs=Join-Path $PSScriptRoot 'open-desktop.vbs'
-    Start-Process -FilePath $Wscript -ArgumentList ('//B //Nologo "'+$Vbs+'" "'+$Node+'" "'+$Cli+'" "'+$State+'" onboard') -WindowStyle Hidden
+    try{$PageProcess=New-AgentProcess @('pair','--page') $true; $PageProcess.Dispose()}
+    catch{[System.Windows.Forms.MessageBox]::Show('本机接入页未打开，请查看连接状态。','SunMoon')|Out-Null}
 })
 $Enable=$Menu.Items.Add('启用登录自启'); $Enable.Add_Click({ Show-Result { Invoke-Agent @('autostart','enable') } })
 $Disable=$Menu.Items.Add('关闭登录自启'); $Disable.Add_Click({ Show-Result { Invoke-Agent @('autostart','disable') } })
@@ -444,7 +291,7 @@ try {[System.Windows.Forms.Application]::Run()}
 finally {$Timer.Dispose(); $Watch.Stop(); $Watch.Dispose(); $TrayForm.Dispose(); $Tray.Visible=$false; $Tray.Dispose(); $Menu.Dispose(); Remove-Item -LiteralPath $TrayStatus -ErrorAction SilentlyContinue; $Mutex.ReleaseMutex(); $Mutex.Dispose()}
 } finally {
     # Also handles exceptions during setup, before the modal/run-loop finally.
-    foreach ($Name in @('onboard-ready.json','tray.json')) {
+    foreach ($Name in @('tray.json')) {
         $File=Join-Path $State $Name
         try {
             $Record=Get-Content -LiteralPath $File -Raw -Encoding UTF8 | ConvertFrom-Json

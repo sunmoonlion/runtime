@@ -29,7 +29,7 @@ test('UI watchdog covers settings and tray with a one-second lifetime check', ()
   assert.match(text, /\$Watch\.Interval=1000/);
   assert.match(text, /\$Window\.IsDisposed -or -not \$Window\.IsHandleCreated/);
   for (const form of ['Dialog', 'Form', 'TrayForm']) assert.ok(text.includes(`New-FormWatchdog $${form}`));
-  assert.match(text, /finally\s*\{[\s\S]*foreach \(\$Name in @\('onboard-ready.json','tray.json'\)\)/);
+  assert.match(text, /finally\s*\{[\s\S]*foreach \(\$Name in @\('tray.json'\)\)/);
   assert.ok(text.includes('if ($Record.pid -eq $PID)'));
 });
 test('confirm explicitly shows the first form and exits on visibility failure or disposal',()=>{
@@ -342,14 +342,13 @@ test('0.2.2 and same-version decisions keep config and never replace a newer ins
   assert.equal(fs.existsSync(path.join(current.source, 'installer/launch.mjs')), true);
 });
 
-test('onboard explicitly shows its form before publishing readiness and closes on failure', () => {
-  const text = fs.readFileSync(fileURLToPath(new URL('../../native/desktop.ps1', import.meta.url)), 'utf8');
-  assert.equal(text.split('public static class WindowVisibility').length - 1, 1);
-  assert.ok(text.indexOf('public static class WindowVisibility') < text.indexOf('function Show-Onboard'));
-  const shown = text.slice(text.indexOf('$Form.Add_Shown('), text.indexOf('if ($Action -eq \'onboard\')'));
-  assert.ok(shown.indexOf('::ShowWindow') < shown.indexOf('::IsWindowVisible'));
-  assert.ok(shown.indexOf('::IsWindowVisible') < shown.indexOf('Set-Content'));
-  assert.match(shown, /catch\s*\{[^}]*\$Form\.Close\(\)/);
+test('onboard is retired and every retained visible form uses common visibility handling',()=>{
+  const text=fs.readFileSync(new URL('../../native/desktop.ps1',import.meta.url),'utf8');
+  assert.ok(!text.includes('Show-Onboard'));
+  assert.equal(text.split('Initialize-VisibleForm $Dialog').length,3);
+  assert.ok(text.includes('Initialize-VisibleForm $Form'));
+  const vbs=fs.readFileSync(new URL('../../native/open-desktop.vbs',import.meta.url),'utf8');
+  assert.ok(!vbs.includes('onboard'));
 });
 
 test('install script upgrades either installed shape without an overwrite switch', () => {
@@ -370,13 +369,14 @@ test('install script upgrades either installed shape without an overwrite switch
   assert.match(text, /SunMoon 代理/);
   assert.match(text, /Test-Path -LiteralPath \$ConfigPath/);
   assert.match(text, /autostart enable/);
-  assert.match(text, /请在弹出的窗口里继续/);
+  assert.match(text, /请在自动打开的浏览器页面继续/);
   const desktop = fs.readFileSync(fileURLToPath(new URL('../../native/desktop.ps1', import.meta.url)), 'utf8');
-  for (const label of ['连接我的账号', '不选的话工作和专家碰不到你的文件', '开机自动运行', '重新连接账号', '已在线', '重新获取连接码', '连接没有完成，请重新获取。', 'web_origin']) {
+  for (const label of ['重新连接账号', 'pair-page-status', '本机接入页', '连接码：']) {
     assert.equal(desktop.includes(label), true, label);
   }
-  // 0.2.7：设置窗口改文件轮询，绝不能再给 pair 子进程挂输出事件脚本块回调——
-  // 那会在无 runspace 的线程池线程上执行并以 exit 2 终止整个窗口（见 0.2.7 取证 b）。
+  const page=fs.readFileSync(new URL('../../src/pairPage.ts',import.meta.url),'utf8');
+  for(const label of ['不选的话工作和专家碰不到你的文件','开机自动运行已打开','已在线','重新获取'])assert.ok(page.includes(label),label);
+  // No runspace callbacks or pairing state files remain in the desktop process.
   for (const banned of ['add_OutputDataReceived', 'add_ErrorDataReceived', 'BeginOutputReadLine', 'BeginErrorReadLine']) {
     assert.equal(desktop.includes(banned), false, banned);
   }

@@ -2,9 +2,9 @@ import { createHash } from "node:crypto";
 import fs, { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { defaultConfig, saveConfig } from "../src/config.js";
-import { deviceSecretSha256, emitPairFailure, menuPlan, openableVerifyUrl, runPair, type PairResponse } from "../src/pair.js";
+import { deviceSecretSha256, menuPlan, openableVerifyUrl, runPair, type PairResponse } from "../src/pair.js";
 
 const SECRET = "device-secret-0123456789ABCDEFGHijkl";
 const TOKEN = "agent-token-should-stay-out-of-stdout";
@@ -17,6 +17,7 @@ function harness(replies: PairResponse[]) {
   const lines: string[] = [];
   const sleeps: number[] = [];
   const snapshots: string[] = [];
+  let progress: unknown;
   let stopped = 0;
   let cancelled = false;
   const post = async (url: string, body: Record<string, string>) => {
@@ -35,17 +36,17 @@ function harness(replies: PairResponse[]) {
     configPath,
     secret: SECRET,
     post,
-    // 每次 poll 前抓一份状态文件快照：第一次 sleep 时 code 事件已落文件，可直接断言。
-    sleep: async ms => { sleeps.push(ms); clock += extra.jump ?? ms; try { snapshots.push(readFileSync(statusFile, "utf8")); } catch { /* 尚未写入 */ } },
+    // Capture memory progress before poll; no filesystem progress record.
+    sleep: async ms => { sleeps.push(ms); clock += extra.jump ?? ms; snapshots.push(JSON.stringify(progress)); },
     now: () => clock,
     cancelled: () => cancelled,
     stdout: line => lines.push(line),
-    statusFile,
+    progress: value => { progress=value; },
     stopIfRunning: async () => { stopped += 1; },
   });
   let clock = 0;
   return {
-    home, configPath, statusFile, snapshots, calls, lines, sleeps, run,
+    home, configPath, statusFile, snapshots, final: () => progress, calls, lines, sleeps, run,
     stopCount: () => stopped,
     cancel: () => { cancelled = true; },
     output: () => lines.join("\n"),
@@ -61,7 +62,7 @@ describe("menu", () => {
   it("starts the background agent only when a token exists and it is not running", () => {
     expect(menuPlan(true, false)).toEqual({ start: true, action: "tray" });
     expect(menuPlan(true, true)).toEqual({ start: false, action: "tray" });
-    expect(menuPlan(false, false)).toEqual({ start: false, action: "onboard" });
+    expect(menuPlan(false, false)).toEqual({ start: false, action: "pair-page" });
   });
 });
 
@@ -149,31 +150,29 @@ describe("pair", () => {
     }
   });
 
-  it("writes each pair step to the status file without secrets", async () => {
+  it("emits memory-only progress without secrets or status files", async () => {
     const h = harness([created, { status: 429, body: { error: "slow_down" } }, {
       status: 200,
       body: { status: "approved", relay_url: "wss://relay.example/relay", relay_user: "owner", agent_token: TOKEN, agent_token_expires_at: "2026-11-09T00:00:00Z" },
     }]);
     try {
       expect(await h.run()).toBe(0);
-      // 第一次 poll 前的快照 = code 事件：证明 code 也落了文件（不只写 stdout）。
+      // The first callback captures the code in memory.
       const codeStep = JSON.parse(h.snapshots[0]);
-      expect(codeStep.seq).toBe(1);
-      expect(codeStep.pid).toBe(process.pid);
+      expect(existsSync(h.statusFile)).toBe(false);
       expect(codeStep.event).toBe("code");
       expect(codeStep.user_code).toBe("ABCD-2345");
       expect(typeof codeStep.expires_at).toBe("string");
       expect(Number.isNaN(Date.parse(codeStep.expires_at))).toBe(false);
       expect(h.snapshots[0]).not.toContain(SECRET);
-      // 终态文件 = approved：seq 递增到 2，证明 code 与 result 两步都落了文件。
-      const raw = readFileSync(h.statusFile, "utf8");
+      // Terminal callback replaces the previous in-memory code.
+      const raw = JSON.stringify(h.final());
       const finalStep = JSON.parse(raw);
-      expect(finalStep.seq).toBe(2);
-      expect(finalStep.pid).toBe(process.pid);
+      expect(existsSync(h.statusFile)).toBe(false);
       expect(finalStep.event).toBe("result");
       expect(finalStep.status).toBe("approved");
       expect(finalStep.account).toBe("owner");
-      // 状态文件绝不含令牌、设备密钥，连它们的字段名都不出现。
+      // Progress never contains credentials or their fields.
       expect(raw).not.toContain(TOKEN);
       expect(raw).not.toContain(SECRET);
       expect(raw).not.toContain("agent_token");
@@ -181,69 +180,4 @@ describe("pair", () => {
     } finally { rmSync(h.home, { recursive: true, force: true }); }
   });
 
-  it("writes a failure record with the largest seq so the window always sees it", () => {
-    const home = mkdtempSync(path.join(tmpdir(), "agent-pair-fail-"));
-    const statusFile = path.join(home, "pair-status.json");
-    try {
-      emitPairFailure(statusFile, "站点文件缺失");
-      const rec = JSON.parse(readFileSync(statusFile, "utf8"));
-      // seq 取必定最大值，盖过任何已写进展，窗口一定认这条失败。
-      expect(rec.seq).toBe(1000000);
-      expect(rec.event).toBe("result");
-      expect(rec.status).toBe("failed");
-      expect(rec.message).toBe("站点文件缺失");
-      expect(rec.pid).toBe(process.pid);
-    } finally { rmSync(home, { recursive: true, force: true }); }
-  });
-
-  it("overwrites the status file directly when rename keeps failing", () => {
-    const home = mkdtempSync(path.join(tmpdir(), "agent-pair-rename-"));
-    const statusFile = path.join(home, "pair-status.json");
-    let renameAttempts = 0;
-    // 模拟 Windows 上 rename 被杀软/索引器短暂锁住：每次都失败，逼出覆盖写兜底。
-    const spy = vi.spyOn(fs, "renameSync").mockImplementation(() => {
-      renameAttempts += 1;
-      throw new Error("EBUSY: resource busy or locked");
-    });
-    try {
-      emitPairFailure(statusFile, "rename 一直被锁");
-      // 重试 5 次全失败后，兜底直接覆盖写目标文件，内容仍正确。
-      expect(renameAttempts).toBe(5);
-      const rec = JSON.parse(readFileSync(statusFile, "utf8"));
-      expect(rec.status).toBe("failed");
-      expect(rec.message).toBe("rename 一直被锁");
-      expect(rec.pid).toBe(process.pid);
-    } finally {
-      spy.mockRestore();
-      rmSync(home, { recursive: true, force: true });
-    }
-  });
-
-  it("retries rename and succeeds once the transient lock clears", () => {
-    const home = mkdtempSync(path.join(tmpdir(), "agent-pair-rename-ok-"));
-    const statusFile = path.join(home, "pair-status.json");
-    const temp = `${statusFile}.${process.pid}.1000000.tmp`;
-    let renameAttempts = 0;
-    const realRename = fs.renameSync;
-    // 模拟 Windows 上 rename 前两次被杀软/索引器短暂锁住、第三次锁已释放：应重试后成功，不触发覆盖写兜底。
-    const spy = vi.spyOn(fs, "renameSync").mockImplementation((oldPath, newPath) => {
-      renameAttempts += 1;
-      if (renameAttempts < 3) throw new Error("EPERM: operation not permitted, rename");
-      realRename(oldPath, newPath);
-    });
-    try {
-      emitPairFailure(statusFile, "rename 前两次被锁");
-      // 第三次 rename 成功：重试分支提前结束（未达 5 次），目标由 rename 落成、临时文件被消费掉。
-      expect(renameAttempts).toBe(3);
-      const rec = JSON.parse(readFileSync(statusFile, "utf8"));
-      expect(rec.seq).toBe(1000000);
-      expect(rec.status).toBe("failed");
-      expect(rec.message).toBe("rename 前两次被锁");
-      expect(rec.pid).toBe(process.pid);
-      expect(existsSync(temp)).toBe(false);
-    } finally {
-      spy.mockRestore();
-      rmSync(home, { recursive: true, force: true });
-    }
-  });
 });

@@ -21,11 +21,14 @@ import { importCandidates, loadMcp, saveMcp, confirmedMcpUrls } from "./mcp.js";
 import { localConfirm } from "./localConfirm.js";
 import { readHiddenToken } from "./hiddenToken.js";
 import { windowsConfirm } from "./windowsDesktop.js";
-import { acquireResident, autostart, preferences, readResidentStatus, residentAlive, runTray, runOnboardWindow, closeTray, startResident, stopResident, setupElevated, openDesktop } from "./resident.js";
+import { acquireResident, autostart, preferences, readResidentStatus, residentAlive, runTray, closeTray, startResident, stopResident, setupElevated, openDesktop, checkControlDirectory } from "./resident.js";
 import { installedLaunchError } from "./siteTrust.js";
-import { configHasToken, menuPlan, osLabel, runPair, siteDocument, emitPairFailure, PAIR_EXIT } from "./pair.js";
+import { configHasToken, menuPlan, osLabel, runPair, siteDocument, PAIR_EXIT } from "./pair.js";
+import {runPairPage,openDefaultBrowser,PairPageError} from "./pairPage.js";
+import {humanizeTransport} from "./connectionMessages.js";
+import {openPairPage,readPageDiscovery,publishPageDiscovery,pairingPageStatus,acquirePairPage} from "./pairPageControl.js";
 
-const VERSION = "0.2.8";
+const VERSION = "0.3.0";
 const STATUS_PATH = path.join(CONFIG_DIR, "status.json");
 
 function arg(flag: string, argv: string[]): string | undefined {
@@ -44,8 +47,12 @@ const EXIT_REJECTED = 3;
 async function postPair(url: string, body: Record<string, string>): Promise<{ status: number; body: unknown }> {
   let response: Response;
   try {
-    response = await fetch(url, { method: "POST", headers: { "content-type": "application/json", accept: "application/json" }, body: JSON.stringify(body) });
-  } catch { throw new Error("连不上站点。检查网络或代理设置。"); }
+    response = await fetch(url, { method: "POST", headers: { "content-type": "application/json", accept: "application/json" }, body: JSON.stringify(body), redirect:"error",signal:AbortSignal.timeout(10000) });
+  } catch(error) {
+    const outer=error as {cause?:{code?:string;message?:string};code?:string;message?:string;name?:string};
+    const cause=outer.cause??(outer.name==="TimeoutError"?{code:"ETIMEDOUT"}:outer);
+    throw new PairPageError(humanizeTransport(cause,new URL(url).hostname).message);
+  }
   const text = await response.text();
   if (!text) return { status: response.status, body: null };
   try { return { status: response.status, body: JSON.parse(text) }; }
@@ -79,15 +86,20 @@ async function main(argv: string[]): Promise<number> {
   }
 
   if (cmd === "pair") {
-    if (argv.length > 1) throw new Error("pair 不接受参数");
-    const statusFile = path.join(CONFIG_DIR, "pair-status.json");
-    try { fs.rmSync(statusFile, { force: true }); } catch { /* 旧状态清不掉也不挡新配对 */ }
+    if (argv.length > 2 || (argv[1] && argv[1]!=="--page")) throw new Error("pair 只接受 --page");
+    const pageMode=argv[1]==="--page";
+    if(pageMode){checkControlDirectory();const old=readPageDiscovery();if(old){console.log(old.url);await openDefaultBrowser(old.url);return 0;}}
+    const releasePage=pageMode?await acquirePairPage():undefined;
+    if(pageMode&&!releasePage){
+      for(let n=0;n<100;n++){const existing=readPageDiscovery();if(existing){console.log(existing.url);await openDefaultBrowser(existing.url);return 0;}await new Promise(resolve=>setTimeout(resolve,100));}
+      throw new Error("本机接入页正在启动，请稍后再试。");
+    }
     let cancel = false;
-    process.stdin.on("data", (chunk: Buffer | string) => { if (String(chunk).includes("cancel")) cancel = true; });
+    if(!pageMode)process.stdin.on("data", (chunk: Buffer | string) => { if (String(chunk).includes("cancel")) cancel = true; });
     try {
       const machineName = fs.existsSync(CONFIG_PATH) ? loadConfig().machineName : defaultConfig().machineName;
       const site = siteDocument(import.meta.url);
-      return await runPair({
+      const options={
         webOrigin: site.webOrigin,
         relayUrl: site.relayUrl,
         machineName,
@@ -96,22 +108,32 @@ async function main(argv: string[]): Promise<number> {
         codexVersion: locateCodex().version,
         configPath: CONFIG_PATH,
         post: postPair,
-        sleep: ms => new Promise(resolve => setTimeout(resolve, ms)),
-        cancelled: () => cancel,
-        stdout: line => { fs.writeSync(1, line + "\n"); },
-        statusFile,
+        sleep: (ms:number) => new Promise<void>(resolve => setTimeout(resolve, ms)),
         stopIfRunning: async () => {
           if (process.platform === "win32" && await residentAlive() && !await stopResident()) throw new Error("请先停止正在运行的代理，再连接账号。");
         },
-      });
+      };
+      if(!pageMode)return await runPair({...options,cancelled:()=>cancel,stdout:line=>fs.writeSync(1,line+"\n")});
+      let cleanup:(()=>void)|undefined;
+      const controller=new AbortController(),abort=()=>controller.abort();
+      process.once("SIGINT",abort);process.once("SIGTERM",abort);
+      try{
+        await runPairPage({signal:controller.signal,run:(cancelled,progress)=>runPair({...options,cancelled,progress}),
+          ready:async page=>{cleanup=publishPageDiscovery(page);await openDesktop("tray");},
+          output:url=>{console.log(url);configureWindowsLogs(path.join(process.env.LOCALAPPDATA!,"sunmoon-agent","logs"),"");log("info","本机接入页",{url});},
+          complete:async()=>{
+            const deadline=Date.now()+30000;
+            await autostart("enable");await startResident();
+            while(Date.now()<deadline){const status=readResidentStatus();if(status?.relay?.status==="connected"&&await residentAlive())return;if(status?.relay?.status==="rejected")throw new PairPageError(status.relay.lastError??"连接已失效，请重新连接账号。");await new Promise(resolve=>setTimeout(resolve,500));}
+            const status=readResidentStatus();throw new PairPageError(status?.relay?.lastError??"ETIMEDOUT: 代理还没有连上，请检查网络或代理设置。");
+          }});
+      }finally{cleanup?.();process.removeListener("SIGINT",abort);process.removeListener("SIGTERM",abort);}
+      return 0;
     } catch (e) {
-      // 准备阶段（站点文件、codex 定位）或 pair 主流程抛错时，也要让设置窗口看到人话原因，
-      // 否则窗口只会干等（旧版直接 exit 1 且不写文件）。message 是我们自己的文案，不含秘密。
       const message = String((e as Error)?.message ?? e);
       log("error", "pair fatal", { error: message });
-      emitPairFailure(statusFile, message);
       return PAIR_EXIT.failed;
-    }
+    }finally{await releasePage?.();}
   }
   if (cmd === "menu") {
     const hasToken = configHasToken();
@@ -119,13 +141,18 @@ async function main(argv: string[]): Promise<number> {
     const plan = menuPlan(hasToken, running);
     if (plan.start) await startResident();
     console.log(JSON.stringify({ action: plan.action, started: plan.start }));
-    if (process.platform === "win32") await openDesktop(plan.action);
+    if (process.platform === "win32") {if(plan.action==="pair-page")await openPairPage();else await openDesktop("tray");}
     return 0;
   }
-  if (cmd === "onboard" || cmd === "onboard-window") {
-    if (process.platform !== "win32") throw new Error("Windows lifecycle command");
-    if (cmd === "onboard-window") await runOnboardWindow();
-    else await openDesktop("onboard");
+  if(cmd==="pair-page-status"){console.log(JSON.stringify(await pairingPageStatus()));return 0;}
+  if(cmd==="tray"){
+    if(process.platform!=="win32")throw new Error("Windows lifecycle command");
+    if(argv[1]==="stop")console.log(JSON.stringify({closed:await closeTray()}));
+    else if(!argv[1])await runTray();else throw new Error("tray [stop]");
+    return 0;
+  }
+  if(cmd==="status"&&!fs.existsSync(CONFIG_PATH)){
+    console.log(JSON.stringify({running:false,relay:{status:"disconnected"}}));
     return 0;
   }
   if (cmd === "autostart") {
@@ -136,10 +163,9 @@ async function main(argv: string[]): Promise<number> {
 
   const cfg = loadConfig();
   registerSecret(cfg.token);
-  if (["stop", "tray", "settings", "sandbox-setup"].includes(cmd)) {
+  if (["stop", "settings", "sandbox-setup"].includes(cmd)) {
     if (process.platform !== "win32") throw new Error("Windows lifecycle command");
     if (cmd === "stop") console.log(JSON.stringify({ stopped: await stopResident() }));
-    if (cmd === "tray") { if (argv[1] === "stop") console.log(JSON.stringify({ closed: await closeTray() })); else if (!argv[1]) await runTray(); else throw new Error("tray [stop]"); }
     if (cmd === "settings") console.log(JSON.stringify(preferences(argv.slice(1))));
     if (cmd === "sandbox-setup") { if(argv.length!==2||argv[1]!=="--elevated")throw new Error("Optional UAC: sandbox-setup --elevated"); console.log(JSON.stringify(await setupElevated())); }
     return 0;
@@ -281,9 +307,9 @@ function usage(): void {
   tray [stop]          Windows 托盘；关闭托盘不停止代理
   settings show|set    本机设置；set 从 stdin 读非秘密 JSON，重启后生效
   pair                       连接账号：显示连接码并轮询，令牌只写入本机配置
-  menu                       已连接则打开托盘，否则打开设置向导
-  onboard                    Windows 设置向导
-  onboard-window             在本进程等待设置窗口关闭；由打开窗口的脚本调用
+  pair --page                在默认浏览器打开本机接入页
+  menu                       已连接则打开托盘，否则打开浏览器接入页
+  pair-page-status           本机接入页状态（无令牌），供托盘排障
   autostart status|enable|disable   当前用户登录任务；安装时默认打开，可关闭
   sandbox-setup --elevated         可选 UAC；先停止代理，仅同一 Windows 用户`);
 }

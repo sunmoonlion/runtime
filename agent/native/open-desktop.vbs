@@ -10,8 +10,6 @@ Action = WScript.Arguments(3)
 If InStr(Node, Chr(34)) Or InStr(Cli, Chr(34)) Or InStr(State, Chr(34)) Then WScript.Quit 2
 If Action = "tray" Then
   Command = "tray"
-ElseIf Action = "onboard" Then
-  Command = "onboard-window"
 Else
   WScript.Quit 2
 End If

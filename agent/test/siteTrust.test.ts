@@ -76,7 +76,8 @@ describe("installed site launch", () => {
     const flipped = packed.caPath.replace(/[A-Za-z]/g, (ch) => ch === ch.toLowerCase() ? ch.toUpperCase() : ch.toLowerCase());
     let spelling = "";
     try {
-      if (flipped !== packed.caPath && fs.realpathSync.native(flipped) === fs.realpathSync.native(packed.caPath)) spelling = flipped;
+      const actual = fs.realpathSync.native(flipped), expected = fs.realpathSync.native(packed.caPath);
+      if (flipped !== packed.caPath && (process.platform === 'win32' ? actual.toLowerCase() === expected.toLowerCase() : actual === expected)) spelling = flipped;
     } catch { /* this filesystem does not open the other case as the same file */ }
     if (!spelling) {
       spelling = path.join(packed.root, "site", "CA.pem");

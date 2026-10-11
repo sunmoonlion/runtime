@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -43,9 +43,14 @@ describe("leftover tray stop", () => {
     const stop = path.join(dir, "tray-stop.json");
     try {
       writeFileSync(target, JSON.stringify({ pid: 1, runId: RUN }));
-      symlinkSync(target, stop);
+      if (process.platform === "win32") {
+        // Ordinary Windows users can create junctions, but not file symlinks.
+        const folder=path.join(dir,"target-dir");mkdirSync(folder);
+        writeFileSync(path.join(folder,"target.json"),readFileSync(target));
+        symlinkSync(folder,stop,"junction");
+      } else symlinkSync(target, stop);
       expect(() => discardDeadTrayStop(dir, () => false)).toThrow(/Unsafe tray status/);
-      expect(readFileSync(stop, "utf8")).toContain("\"pid\":1");
+      expect(readFileSync(process.platform === "win32" ? path.join(stop,"target.json") : stop, "utf8")).toContain("\"pid\":1");
     } finally { rmSync(dir, { recursive: true, force: true }); }
   });
 });

@@ -57,7 +57,7 @@ describe("pair command", () => {
 });
 
 describe.skipIf(process.platform !== "win32")("Windows CLI capability admission", () => {
-  it("supports configuration commands and refuses start without a recorded capability probe", () => {
+  it("supports configuration commands and detects missing capability before background start", () => {
     const home = mkdtempSync(path.join(tmpdir(), "agent-cli-"));
     const workspace = path.join(home, "workspace");
     mkdirSync(workspace);
@@ -76,15 +76,19 @@ describe.skipIf(process.platform !== "win32")("Windows CLI capability admission"
       const cfg = JSON.parse(readFileSync(path.join(home, "config.json"), "utf8"));
       expect(cfg.windowsSandbox.mode).toBe("unelevated"); expect(cfg.windowsSandbox.probe).toBe("process/start");
       delete cfg.windowsSandbox; writeFileSync(path.join(home, "config.json"), JSON.stringify(cfg));
-      const start = run("start");
+      // Since 0.2.6 start detects and persists a missing capability itself.
+      // Use the existing background lifecycle so this CLI call has a bound.
+      const start = run("start", "--background");
       expect(start.error).toBeUndefined();
-      expect(start.status).toBe(1);
-      expect(start.stdout + start.stderr).toContain("Run init to detect Windows sandbox capability");
-      expect(start.stdout + start.stderr).not.toMatch(/exec-server starting|relay connected/);
-      expect(existsSync(path.join(home, "status.json"))).toBe(false);
+      expect(start.status).toBe(0);
+      const detected=JSON.parse(readFileSync(path.join(home,"config.json"),"utf8"));
+      expect(detected.windowsSandbox.probe).toBe("process/start");
+      expect(["unelevated","elevated"]).toContain(detected.windowsSandbox.mode);
+      expect(JSON.parse(run("status").stdout).running).toBe(true);
+      expect(run("stop").status).toBe(0);
       expect(existsSync(path.join(home, "codex-home", "auth.json"))).toBe(false);
       expect(run("roots", "remove", workspace.toUpperCase()).status).toBe(0);
       expect(run("roots", "list").stdout.trim()).toBe("");
-    } finally { rmSync(home, { recursive: true, force: true }); }
+    } finally { run("stop"); rmSync(home, { recursive: true, force: true }); }
   }, 30000);
 });

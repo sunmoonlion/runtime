@@ -73,10 +73,13 @@ test('half uninstall marker and missing or changed manifest files choose repair 
 test('repair never accepts a linked installation or linked leftover file', t => {
   const f=fixture(t),installed=firstInstall({...f,apply:true}).destination;
   fs.writeFileSync(path.join(installed,'.uninstall-incomplete'),'synthetic');
-  const outside=path.join(f.root,'outside');fs.writeFileSync(outside,'keep');
-  fs.symlinkSync(outside,path.join(installed,'linked'));
+  const outside=path.join(f.root,'outside');
+  const target=process.platform==='win32'?path.join(outside,'keep.txt'):outside;
+  if(process.platform==='win32')fs.mkdirSync(outside);
+  fs.writeFileSync(target,'keep');
+  fs.symlinkSync(outside,path.join(installed,'linked'),process.platform==='win32'?'junction':undefined);
   assert.throws(()=>installedDecision(installed,'0.2.8'),/links/);
-  assert.equal(fs.readFileSync(outside,'utf8'),'keep');
+  assert.equal(fs.readFileSync(target,'utf8'),'keep');
 });
 test('interrupted removal retains its recovery marker, successful removal leaves no directory', t => {
   const f=fixture(t),installed=firstInstall({...f,apply:true}).destination;
@@ -90,7 +93,7 @@ test('interrupted removal retains its recovery marker, successful removal leaves
 });
 test('repair templates archive leftovers after external process collection and stay byte-identical', () => {
   const runtime=fs.readFileSync(new URL('../install.ps1.tmpl',import.meta.url));
-  const k8s=fs.readFileSync(new URL('../../../../k8s/gitops/components/app-platform/investment-app/investment-backend/agent-releases/install.ps1.tmpl',import.meta.url));
+  const k8s=fs.readFileSync(process.env.SUNMOON_TEST_INSTALL_TEMPLATE ?? new URL('../../../../k8s/gitops/components/app-platform/investment-app/investment-backend/agent-releases/install.ps1.tmpl',import.meta.url));
   assert.deepEqual(runtime,k8s);
   const text=runtime.toString('utf8');
   assert.ok(text.indexOf('--stop-only')<text.indexOf('[System.IO.Directory]::Move($Dest,$Broken)'));
@@ -304,9 +307,15 @@ test('uninstall clears a dead leftover tray stop on a 0.2.1 tree before the old 
   fs.mkdirSync(linked);
   const target = path.join(linked, 'target.json');
   fs.writeFileSync(target, JSON.stringify({ pid: 1, runId: run }));
-  fs.symlinkSync(target, path.join(linked, 'tray-stop.json'));
+  const linkTarget=process.platform==='win32'?path.join(linked,'target-dir'):target;
+  if(process.platform==='win32'){
+    fs.mkdirSync(linkTarget);
+    fs.writeFileSync(path.join(linkTarget,'target.json'),fs.readFileSync(target));
+  }
+  fs.symlinkSync(linkTarget, path.join(linked, 'tray-stop.json'),process.platform==='win32'?'junction':undefined);
   assert.throws(() => clearStaleTray(linked, () => false), /Unsafe tray status/);
-  assert.equal(fs.readFileSync(path.join(linked, 'tray-stop.json'), 'utf8'), fs.readFileSync(target, 'utf8'));
+  const linkedFile=process.platform==='win32'?path.join(linked,'tray-stop.json','target.json'):path.join(linked,'tray-stop.json');
+  assert.equal(fs.readFileSync(linkedFile, 'utf8'), fs.readFileSync(target, 'utf8'));
   const script = fs.readFileSync(fileURLToPath(new URL('../uninstall.mjs', import.meta.url)), 'utf8');
   const clearAt = script.indexOf('clearStaleTray(state, pidAlive)');
   const trayAt = script.indexOf("for (const args of [['tray','stop'],['stop']])");

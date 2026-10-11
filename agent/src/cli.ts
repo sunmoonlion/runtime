@@ -23,9 +23,9 @@ import { readHiddenToken } from "./hiddenToken.js";
 import { windowsConfirm } from "./windowsDesktop.js";
 import { acquireResident, autostart, preferences, readResidentStatus, residentAlive, runTray, runOnboardWindow, closeTray, startResident, stopResident, setupElevated, openDesktop } from "./resident.js";
 import { installedLaunchError } from "./siteTrust.js";
-import { configHasToken, menuPlan, osLabel, runPair, siteDocument } from "./pair.js";
+import { configHasToken, menuPlan, osLabel, runPair, siteDocument, emitPairFailure, PAIR_EXIT } from "./pair.js";
 
-const VERSION = "0.2.6";
+const VERSION = "0.2.7";
 const STATUS_PATH = path.join(CONFIG_DIR, "status.json");
 
 function arg(flag: string, argv: string[]): string | undefined {
@@ -80,26 +80,38 @@ async function main(argv: string[]): Promise<number> {
 
   if (cmd === "pair") {
     if (argv.length > 1) throw new Error("pair 不接受参数");
+    const statusFile = path.join(CONFIG_DIR, "pair-status.json");
+    try { fs.rmSync(statusFile, { force: true }); } catch { /* 旧状态清不掉也不挡新配对 */ }
     let cancel = false;
     process.stdin.on("data", (chunk: Buffer | string) => { if (String(chunk).includes("cancel")) cancel = true; });
-    const machineName = fs.existsSync(CONFIG_PATH) ? loadConfig().machineName : defaultConfig().machineName;
-    const site = siteDocument(import.meta.url);
-    return runPair({
-      webOrigin: site.webOrigin,
-      relayUrl: site.relayUrl,
-      machineName,
-      osName: osLabel(),
-      agentVersion: VERSION,
-      codexVersion: locateCodex().version,
-      configPath: CONFIG_PATH,
-      post: postPair,
-      sleep: ms => new Promise(resolve => setTimeout(resolve, ms)),
-      cancelled: () => cancel,
-      stdout: line => { fs.writeSync(1, line + "\n"); },
-      stopIfRunning: async () => {
-        if (process.platform === "win32" && await residentAlive() && !await stopResident()) throw new Error("请先停止正在运行的代理，再连接账号。");
-      },
-    });
+    try {
+      const machineName = fs.existsSync(CONFIG_PATH) ? loadConfig().machineName : defaultConfig().machineName;
+      const site = siteDocument(import.meta.url);
+      return await runPair({
+        webOrigin: site.webOrigin,
+        relayUrl: site.relayUrl,
+        machineName,
+        osName: osLabel(),
+        agentVersion: VERSION,
+        codexVersion: locateCodex().version,
+        configPath: CONFIG_PATH,
+        post: postPair,
+        sleep: ms => new Promise(resolve => setTimeout(resolve, ms)),
+        cancelled: () => cancel,
+        stdout: line => { fs.writeSync(1, line + "\n"); },
+        statusFile,
+        stopIfRunning: async () => {
+          if (process.platform === "win32" && await residentAlive() && !await stopResident()) throw new Error("请先停止正在运行的代理，再连接账号。");
+        },
+      });
+    } catch (e) {
+      // 准备阶段（站点文件、codex 定位）或 pair 主流程抛错时，也要让设置窗口看到人话原因，
+      // 否则窗口只会干等（旧版直接 exit 1 且不写文件）。message 是我们自己的文案，不含秘密。
+      const message = String((e as Error)?.message ?? e);
+      log("error", "pair fatal", { error: message });
+      emitPairFailure(statusFile, message);
+      return PAIR_EXIT.failed;
+    }
   }
   if (cmd === "menu") {
     const hasToken = configHasToken();

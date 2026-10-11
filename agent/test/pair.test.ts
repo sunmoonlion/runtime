@@ -12,9 +12,11 @@ const TOKEN = "agent-token-should-stay-out-of-stdout";
 function harness(replies: PairResponse[]) {
   const home = mkdtempSync(path.join(tmpdir(), "agent-pair-"));
   const configPath = path.join(home, "config.json");
+  const statusFile = path.join(home, "pair-status.json");
   const calls: { url: string; body: Record<string, string> }[] = [];
   const lines: string[] = [];
   const sleeps: number[] = [];
+  const snapshots: string[] = [];
   let stopped = 0;
   let cancelled = false;
   const post = async (url: string, body: Record<string, string>) => {
@@ -33,15 +35,17 @@ function harness(replies: PairResponse[]) {
     configPath,
     secret: SECRET,
     post,
-    sleep: async ms => { sleeps.push(ms); clock += extra.jump ?? ms; },
+    // 每次 poll 前抓一份状态文件快照：第一次 sleep 时 code 事件已落文件，可直接断言。
+    sleep: async ms => { sleeps.push(ms); clock += extra.jump ?? ms; try { snapshots.push(readFileSync(statusFile, "utf8")); } catch { /* 尚未写入 */ } },
     now: () => clock,
     cancelled: () => cancelled,
     stdout: line => lines.push(line),
+    statusFile,
     stopIfRunning: async () => { stopped += 1; },
   });
   let clock = 0;
   return {
-    home, configPath, calls, lines, sleeps, run,
+    home, configPath, statusFile, snapshots, calls, lines, sleeps, run,
     stopCount: () => stopped,
     cancel: () => { cancelled = true; },
     output: () => lines.join("\n"),
@@ -143,5 +147,35 @@ describe("pair", () => {
         expect(existsSync(h.configPath)).toBe(false);
       } finally { rmSync(h.home, { recursive: true, force: true }); }
     }
+  });
+
+  it("writes each pair step to the status file without secrets", async () => {
+    const h = harness([created, { status: 429, body: { error: "slow_down" } }, {
+      status: 200,
+      body: { status: "approved", relay_url: "wss://relay.example/relay", relay_user: "owner", agent_token: TOKEN, agent_token_expires_at: "2026-11-09T00:00:00Z" },
+    }]);
+    try {
+      expect(await h.run()).toBe(0);
+      // 第一次 poll 前的快照 = code 事件：证明 code 也落了文件（不只写 stdout）。
+      const codeStep = JSON.parse(h.snapshots[0]);
+      expect(codeStep.seq).toBe(1);
+      expect(codeStep.event).toBe("code");
+      expect(codeStep.user_code).toBe("ABCD-2345");
+      expect(typeof codeStep.expires_at).toBe("string");
+      expect(Number.isNaN(Date.parse(codeStep.expires_at))).toBe(false);
+      expect(h.snapshots[0]).not.toContain(SECRET);
+      // 终态文件 = approved：seq 递增到 2，证明 code 与 result 两步都落了文件。
+      const raw = readFileSync(h.statusFile, "utf8");
+      const finalStep = JSON.parse(raw);
+      expect(finalStep.seq).toBe(2);
+      expect(finalStep.event).toBe("result");
+      expect(finalStep.status).toBe("approved");
+      expect(finalStep.account).toBe("owner");
+      // 状态文件绝不含令牌、设备密钥，连它们的字段名都不出现。
+      expect(raw).not.toContain(TOKEN);
+      expect(raw).not.toContain(SECRET);
+      expect(raw).not.toContain("agent_token");
+      expect(raw).not.toContain("device_secret");
+    } finally { rmSync(h.home, { recursive: true, force: true }); }
   });
 });

@@ -215,8 +215,22 @@ function Show-Onboard {
     $Finish=New-Object System.Windows.Forms.Button; $Finish.Text='完成'; $Finish.Visible=$false; $Finish.SetBounds(405,390,120,30)
     $Retry=New-Object System.Windows.Forms.Button; $Retry.Text='重试'; $Retry.Visible=$false; $Retry.SetBounds(15,230,120,30)
     $Online=New-Object System.Windows.Forms.Label; $Online.Visible=$false; $Online.SetBounds(15,48,650,80)
-    $script:Lines = New-Object 'System.Collections.Concurrent.ConcurrentQueue[string]'
-    $script:ErrLines = New-Object 'System.Collections.Concurrent.ConcurrentQueue[string]'
+    # 0.2.7：窗口按文件轮询读 pair 进展，不再给子进程挂 stdout/stderr 事件回调——脚本块回调会在
+    # 无 runspace 的线程池线程上执行并以 exit 2 终止整个窗口（对照实验见 0.2.7 取证 b）。
+    $script:StatusFile = Join-Path $State 'pair-status.json'
+    $script:LastSeq = 0
+    # 照 tray.json 的读取校验：存在、非符号链接、大小受限、去 BOM、解析失败当没有。
+    function Read-PairStatus {
+        try {
+            if (-not (Test-Path -LiteralPath $script:StatusFile)) { return $null }
+            $Item = Get-Item -LiteralPath $script:StatusFile
+            if ($Item.Length -gt 4096) { return $null }
+            if ($Item.Attributes -band [IO.FileAttributes]::ReparsePoint) { return $null }
+            $Raw = Get-Content -LiteralPath $script:StatusFile -Raw -Encoding UTF8
+            if (-not $Raw) { return $null }
+            return (($Raw -replace '^\uFEFF','') | ConvertFrom-Json)
+        } catch { return $null }
+    }
     function Test-SiteUrl([string]$Url, [string]$Origin) {
         if (-not $Origin -or -not $Url.StartsWith($Origin)) { return $false }
         if ($Url.Length -gt $Origin.Length) {
@@ -227,49 +241,60 @@ function Show-Onboard {
     }
     $Timer=New-Object System.Windows.Forms.Timer; $Timer.Interval=1000
     $Timer.Add_Tick({
-        if($script:Remaining -gt 0){ $script:Remaining--; $Clock.Text=('剩余 ' + $script:Remaining + ' 秒') }
-        $Err=$null
-        while($script:ErrLines.TryDequeue([ref]$Err)){ if([string]$Err.Trim()){ $script:LastErr=[string]$Err.Trim() } }
-        $Line=$null
-        while($script:Lines.TryDequeue([ref]$Line)){
-            try{$Msg=$Line|ConvertFrom-Json}catch{continue}
-            if($Msg.event -eq 'code'){
-                $Code.Text=[string]$Msg.user_code
-                $script:Remaining=[int]$Msg.expires_in
-                $Clock.Text=('剩余 ' + $script:Remaining + ' 秒')
-                $Url=[string]$Msg.verify_url
-                if(Test-SiteUrl $Url $script:WebOrigin){ Start-Process $Url }
-            } elseif($Msg.event -eq 'result' -and $Msg.status -eq 'approved'){
-                $script:GotResult=$true
-                $script:Account=[string]$Msg.account
-                $Connected.Text='已连接到 ' + $script:Account
-                $Next1.Enabled=$true
-            } elseif($Msg.event -eq 'result'){
-                $script:GotResult=$true
-                $Connected.Text=[string]$Msg.message
-                $Refresh.Enabled=$true
+        # 0.2.7 code1b：整体包 try/catch，任何异常只显示到 $Connected，绝不让窗口退出。
+        try {
+            if($script:Remaining -gt 0){ $script:Remaining--; $Clock.Text=('剩余 ' + $script:Remaining + ' 秒') }
+            $Msg = Read-PairStatus
+            # seq 去重：只处理比上次新的进展，避免同一 code 事件重复打开浏览器。
+            if($Msg -and [int]$Msg.seq -gt $script:LastSeq){
+                $script:LastSeq=[int]$Msg.seq
+                if($Msg.event -eq 'code'){
+                    $Code.Text=[string]$Msg.user_code
+                    # 用绝对时刻 expires_at 算倒计时，比写入时刻的 expires_in 更准。
+                    try{
+                        $Expire=[datetime]::Parse([string]$Msg.expires_at,[Globalization.CultureInfo]::InvariantCulture,[Globalization.DateTimeStyles]::AdjustToUniversal)
+                        $script:Remaining=[int][math]::Max(0,($Expire-[datetime]::UtcNow).TotalSeconds)
+                    }catch{ $script:Remaining=300 }
+                    $Clock.Text=('剩余 ' + $script:Remaining + ' 秒')
+                    $Url=[string]$Msg.verify_url
+                    if(Test-SiteUrl $Url $script:WebOrigin){ Start-Process $Url }
+                } elseif($Msg.event -eq 'result' -and $Msg.status -eq 'approved'){
+                    $script:GotResult=$true
+                    $script:Account=[string]$Msg.account
+                    $Connected.Text='已连接到 ' + $script:Account
+                    $Next1.Enabled=$true
+                } elseif($Msg.event -eq 'result'){
+                    $script:GotResult=$true
+                    $script:LastErr=if($Msg.message){[string]$Msg.message}else{$null}
+                    $Connected.Text=[string]$Msg.message
+                    $Refresh.Enabled=$true
+                }
             }
-        }
-        if($script:Pair -and $script:Pair.HasExited -and -not $script:GotResult -and -not $script:ExitShown){
-            if($script:LastErr -or $script:ExitSeen){
-                $script:ExitShown=$true
-                $Connected.Text = if($script:LastErr){ $script:LastErr } else { '连接没有完成，请重新获取。' }
-                $Refresh.Enabled=$true
-            } else { $script:ExitSeen=$true }
-        }
+            if($script:Pair -and $script:Pair.HasExited -and -not $script:GotResult -and -not $script:ExitShown){
+                if($script:LastErr -or $script:ExitSeen){
+                    $script:ExitShown=$true
+                    $Connected.Text = if($script:LastErr){ $script:LastErr } else { '连接没有完成，请重新获取。' }
+                    $Refresh.Enabled=$true
+                } else { $script:ExitSeen=$true }
+            }
+        } catch { $Connected.Text = '窗口内部错误：' + $_.Exception.Message }
     })
     function Stop-Pair { if($script:Pair -and -not $script:Pair.HasExited){ try{$script:Pair.StandardInput.WriteLine('cancel')}catch{} } }
     $Connect.Add_Click({
-        Stop-Pair
-        $script:GotResult=$false; $script:ExitSeen=$false; $script:ExitShown=$false; $script:LastErr=$null
-        $Drop=$null
-        while($script:Lines.TryDequeue([ref]$Drop)){}
-        while($script:ErrLines.TryDequeue([ref]$Drop)){}
-        $script:Pair=New-AgentProcess @('pair')
-        $script:Pair.add_OutputDataReceived({ if($_.Data){ $script:Lines.Enqueue([string]$_.Data) } })
-        $script:Pair.add_ErrorDataReceived({ if($_.Data){ $script:ErrLines.Enqueue([string]$_.Data) } })
-        $script:Pair.BeginOutputReadLine()
-        $script:Pair.BeginErrorReadLine()
+        # 0.2.7 code1b：整体包 try/catch，任何异常只显示到 $Connected，绝不让窗口退出。
+        try {
+            Stop-Pair
+            $script:GotResult=$false; $script:ExitSeen=$false; $script:ExitShown=$false; $script:LastErr=$null
+            # 点击前先删旧状态文件、seq 归零，确保读到的是本次配对的进展。
+            $script:LastSeq=0
+            try{ if(Test-Path -LiteralPath $script:StatusFile){ Remove-Item -LiteralPath $script:StatusFile -Force } }catch{}
+            $Code.Text=''; $Clock.Text=''; $Connected.Text='正在获取连接码…'; $Next1.Enabled=$false
+            $script:Pair=New-AgentProcess @('pair')
+            # 不挂输出/错误事件脚本块回调（会在无 runspace 线程执行并终止窗口）。
+            # 改用 ReadToEndAsync 把 stdout/stderr 读掉丢弃：既防管道缓冲区满阻塞 pair，又不涉脚本块回调。
+            [void]$script:Pair.StandardOutput.ReadToEndAsync()
+            [void]$script:Pair.StandardError.ReadToEndAsync()
+        } catch { $Connected.Text = '无法开始连接：' + $_.Exception.Message }
     })
     $CancelPair.Add_Click({ Stop-Pair; $Connected.Text='已取消连接。' })
     $Refresh.Add_Click({ $Connect.PerformClick() })

@@ -283,7 +283,12 @@ test('install script upgrades either installed shape without an overwrite switch
   assert.match(text, /autostart enable/);
   assert.match(text, /请在弹出的窗口里继续/);
   const desktop = fs.readFileSync(fileURLToPath(new URL('../../native/desktop.ps1', import.meta.url)), 'utf8');
-  for (const label of ['连接我的账号', '不选的话工作和专家碰不到你的文件', '开机自动运行', '重新连接账号', '已在线', '重新获取连接码', '连接没有完成，请重新获取。', 'BeginErrorReadLine', 'web_origin']) {
+  for (const label of ['连接我的账号', '不选的话工作和专家碰不到你的文件', '开机自动运行', '重新连接账号', '已在线', '重新获取连接码', '连接没有完成，请重新获取。', 'web_origin']) {
     assert.equal(desktop.includes(label), true, label);
+  }
+  // 0.2.7：设置窗口改文件轮询，绝不能再给 pair 子进程挂输出事件脚本块回调——
+  // 那会在无 runspace 的线程池线程上执行并以 exit 2 终止整个窗口（见 0.2.7 取证 b）。
+  for (const banned of ['add_OutputDataReceived', 'add_ErrorDataReceived', 'BeginOutputReadLine', 'BeginErrorReadLine']) {
+    assert.equal(desktop.includes(banned), false, banned);
   }
 });

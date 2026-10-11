@@ -56,6 +56,8 @@ export interface PairRunOptions {
   cancelled?: () => boolean;
   stdout?: (line: string) => void;
   stopIfRunning?: () => Promise<void>;
+  /** 设置窗口按文件轮询读配对进展；给了就把每步进展原子写到这里（绝不含 device_secret 或令牌）。 */
+  statusFile?: string;
 }
 
 function printable(value: string, max: number, label: string): string {
@@ -73,6 +75,32 @@ function endpoint(origin: string, suffix: string): string {
 
 function say(stdout: ((line: string) => void) | undefined, value: unknown): void {
   stdout?.(JSON.stringify(value));
+}
+
+// 0.2.7 取证 b：设置窗口若给 pair 子进程挂 add_OutputDataReceived 脚本块，Windows PowerShell 5.1 会在
+// 无 runspace 的线程池线程上执行它并以 exit 2 有序终止整个窗口进程（对照实验：换 ReadToEnd 即 exit 0）。
+// 所以窗口改按文件轮询：pair 把每步进展原子写 pair-status.json，窗口的 Timer 在 UI 线程读它。
+// 文件写临时名再改名（照 mcp.ts），mode 0600（照 config/tray），内容绝不含 device_secret 或令牌。
+const statusSeq = new WeakMap<object, number>();
+function writeStatusFile(file: string, value: Record<string, unknown>): void {
+  try {
+    fs.mkdirSync(path.dirname(file), { recursive: true, mode: 0o700 });
+    const temp = `${file}.${process.pid}.${value.seq}.tmp`;
+    fs.writeFileSync(temp, JSON.stringify(value) + "\n", { mode: 0o600 });
+    fs.renameSync(temp, file);
+  } catch { /* 状态文件尽力而为；stdout 仍是 CLI 的权威输出 */ }
+}
+/** 写一步进展到状态文件，seq 在单次 runPair 内单调递增，供窗口去重（避免重复打开浏览器）。 */
+export function emitStatus(opts: { statusFile?: string }, value: Record<string, unknown>): void {
+  if (!opts.statusFile) return;
+  const seq = (statusSeq.get(opts) ?? 0) + 1;
+  statusSeq.set(opts, seq);
+  writeStatusFile(opts.statusFile, { ...value, seq });
+}
+/** pair 尚未进入主循环就失败（站点文件缺失、地址不正确等）时，也让窗口看到人话原因。 */
+export function emitPairFailure(statusFile: string | undefined, message: string): void {
+  if (!statusFile) return;
+  writeStatusFile(statusFile, { event: "result", status: "failed", message, seq: 1 });
 }
 
 async function cancelRequest(opts: PairRunOptions, requestId: string, secret: string): Promise<void> {
@@ -105,9 +133,12 @@ export async function runPair(opts: PairRunOptions): Promise<number> {
   if (!/^[A-Za-z0-9-]{1,80}$/.test(requestId) || !CODE.test(userCode) || expiresIn !== 300 || interval !== 3 || !/^https?:\/\//.test(verifyUrl)) {
     return fail(opts, "invalid: 连接服务返回的内容无法使用，请重新获取。");
   }
-  say(opts.stdout, { event: "code", user_code: userCode, expires_in: expiresIn, verify_url: openableVerifyUrl(verifyUrl, opts.webOrigin) ?? "", request_id: requestId });
   const clock = opts.now ?? (() => Date.now());
   const deadline = clock() + expiresIn * 1000;
+  const openable = openableVerifyUrl(verifyUrl, opts.webOrigin) ?? "";
+  say(opts.stdout, { event: "code", user_code: userCode, expires_in: expiresIn, verify_url: openable, request_id: requestId });
+  // 窗口读绝对时刻自己算倒计时，比 expires_in 的写入时刻更准；user_code / verify_url 都不是秘密。
+  emitStatus(opts, { event: "code", user_code: userCode, expires_at: new Date(deadline).toISOString(), verify_url: openable });
   const pause = interval * 1000;
   let extra = 0;
   while (clock() < deadline) {
@@ -150,11 +181,16 @@ async function accept(opts: PairRunOptions, body: Record<string, unknown>): Prom
   cfg.token = token;
   saveConfig(cfg, opts.configPath);
   say(opts.stdout, { event: "result", status: "approved", account: relayUser });
+  // account 是用户可读标识，token 只进 config.json，绝不进状态文件。
+  emitStatus(opts, { event: "result", status: "approved", account: relayUser });
   return PAIR_EXIT.ok;
 }
 
 function done(opts: PairRunOptions, code: number, message: string): number {
-  say(opts.stdout, { event: "result", status: message.split(":")[0], message });
+  const status = message.split(":")[0];
+  say(opts.stdout, { event: "result", status, message });
+  // message 是我们自己写的人话（expired / denied / cancelled / failed），不含秘密。
+  emitStatus(opts, { event: "result", status, message });
   return code;
 }
 

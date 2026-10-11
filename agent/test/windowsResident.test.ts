@@ -4,9 +4,47 @@ import path from "node:path";
 import { spawn, spawnSync } from "node:child_process";
 import { describe, it, expect } from "vitest";
 import { windowsConfirm, powershell, nativeDirectory } from "../src/windowsDesktop.js";
+import { WebSocketServer } from "ws";
+import { runPairPage, type PairPage } from "../src/pairPage.js";
 const CLI = path.resolve(__dirname, "../dist/cli.js");
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 describe.skipIf(process.platform !== "win32")("Windows background + tray lifecycle (no real account)", () => {
+  it("closing the browser pair page leaves the real Windows resident connected", async () => {
+    const base = fs.mkdtempSync(path.join(os.homedir(), "sunmoon-page-resident-test-"));
+    const home = path.join(base, "agent"), root = path.join(base, "workspace"); fs.mkdirSync(root);
+    const env = { ...process.env, SUNMOON_AGENT_HOME: home };
+    const relay = new WebSocketServer({ host: "127.0.0.1", port: 0 });
+    await new Promise<void>(resolve => relay.once("listening", resolve));
+    relay.on("connection", ws => ws.once("message", () => ws.send(JSON.stringify({ type: "welcome", proto: 1, relay: "isolated-page-test" }))));
+    const address = relay.address(); if (!address || typeof address === "string") throw Error("unexpected relay address");
+    const run = (...args: string[]) => {
+      const result = spawnSync(process.execPath, [CLI, ...args], { env, windowsHide: true, encoding: "utf8", timeout: 40000 });
+      expect(result.status, result.stderr).toBe(0); return JSON.parse(result.stdout);
+    };
+    const controller = new AbortController(); let page!: PairPage, pending: Promise<void> | undefined;
+    try {
+      const initialized = spawnSync(process.execPath, [CLI, "init", "--relay", `ws://127.0.0.1:${address.port}`, "--user", "isolated-page-test", "--token", "synthetic-not-a-credential", "--root", root], { env, windowsHide: true, encoding: "utf8", timeout: 30000 });
+      expect(initialized.status, initialized.stderr).toBe(0);
+      // Pairing is injected; background execution and the connected relay are real.
+      pending = runPairPage({ signal: controller.signal, open: async () => false, ready: async current => { page = current; }, run: async () => 0,
+        complete: async () => {
+          run("start", "--background");
+          for (let n = 0; n < 100; n++) { if (run("status").relay?.status === "connected") return; await sleep(100); }
+          throw Error("test resident did not connect");
+        } });
+      for (let n = 0; n < 300 && page?.state().status !== "connected"; n++) await sleep(50);
+      expect(page.state().status).toBe("connected"); const before = run("status");
+      expect((await fetch(page.url + "/done", { method: "POST" })).status).toBe(202); await pending;
+      await expect(fetch(page.url)).rejects.toThrow(); await sleep(1200);
+      expect(run("status")).toMatchObject({ running: true, pid: before.pid, runId: before.runId, relay: { status: "connected" } });
+      console.log(JSON.stringify({ browserPageClosed: true, residentContinuedConnected: true }));
+    } finally {
+      controller.abort(); await pending;
+      if (fs.existsSync(path.join(home, "config.json"))) spawnSync(process.execPath, [CLI, "stop"], { env, windowsHide: true, stdio: "ignore", timeout: 30000 });
+      for (const ws of relay.clients) ws.terminate(); await new Promise<void>(resolve => relay.close(() => resolve()));
+      fs.rmSync(base, { recursive: true, force: true });
+    }
+  }, 90000);
   it("one resident, closing tray keeps it alive, settings remain local, exact stop and restart", async () => {
     const base = fs.mkdtempSync(path.join(os.homedir(), "sunmoon-resident-test-"));
     const home = path.join(base, "agent"), root = path.join(base, "workspace"), unchecked = path.join(base, "unchecked"); fs.mkdirSync(root); fs.mkdirSync(unchecked);

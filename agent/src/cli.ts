@@ -14,7 +14,7 @@ import { ExecServer } from "./execServer.js";
 import { log, registerSecret, configureWindowsLogs, safeData } from "./log.js";
 import { locateCodex } from "./paths.js";
 import { RelayClient } from "./relayClient.js";
-import { detectWindowsSandbox } from "./windowsBootstrap.js";
+import { detectWindowsSandbox, ensureWindowsSandbox } from "./windowsBootstrap.js";
 import { type WindowsHelper, WindowsTemporary, assertWindowsHome, locateWindowsHelper, pinWindowsDirectories, runSandboxProbe } from "./windowsRuntime.js";
 import { canonicalPath } from "./pathuri.js";
 import { importCandidates, loadMcp, saveMcp, confirmedMcpUrls } from "./mcp.js";
@@ -25,7 +25,7 @@ import { acquireResident, autostart, preferences, readResidentStatus, residentAl
 import { installedLaunchError } from "./siteTrust.js";
 import { configHasToken, menuPlan, osLabel, runPair, siteDocument } from "./pair.js";
 
-const VERSION = "0.2.5";
+const VERSION = "0.2.6";
 const STATUS_PATH = path.join(CONFIG_DIR, "status.json");
 
 function arg(flag: string, argv: string[]): string | undefined {
@@ -116,14 +116,18 @@ async function main(argv: string[]): Promise<number> {
     else await openDesktop("onboard");
     return 0;
   }
+  if (cmd === "autostart") {
+    if (process.platform !== "win32") throw new Error("Windows lifecycle command");
+    console.log(JSON.stringify(await autostart(argv[1] ?? "status")));
+    return 0;
+  }
 
   const cfg = loadConfig();
   registerSecret(cfg.token);
-  if (["stop", "tray", "autostart", "settings", "sandbox-setup"].includes(cmd)) {
+  if (["stop", "tray", "settings", "sandbox-setup"].includes(cmd)) {
     if (process.platform !== "win32") throw new Error("Windows lifecycle command");
     if (cmd === "stop") console.log(JSON.stringify({ stopped: await stopResident() }));
     if (cmd === "tray") { if (argv[1] === "stop") console.log(JSON.stringify({ closed: await closeTray() })); else if (!argv[1]) await runTray(); else throw new Error("tray [stop]"); }
-    if (cmd === "autostart") console.log(JSON.stringify(await autostart(argv[1] ?? "status")));
     if (cmd === "settings") console.log(JSON.stringify(preferences(argv.slice(1))));
     if (cmd === "sandbox-setup") { if(argv.length!==2||argv[1]!=="--elevated")throw new Error("Optional UAC: sandbox-setup --elevated"); console.log(JSON.stringify(await setupElevated())); }
     return 0;
@@ -192,10 +196,10 @@ async function start(cfg: AgentConfig, windowed = false): Promise<number> {
   let windows: { home: string; helper: WindowsHelper; mode: "elevated" | "unelevated"; temporary: WindowsTemporary } | undefined;
   const mcpServers = process.platform === "win32" ? loadMcp(path.join(CONFIG_DIR, "mcp.json")) : undefined;
   if (process.platform === "win32") {
-    if (!cfg.windowsSandbox) throw new Error("Run init to detect Windows sandbox capability");
+    const capability = await ensureWindowsSandbox(cfg);
     assertWindowsHome(cfg.codexHome, cfg.roots);
     const helper = locateWindowsHelper();
-    windows = { home: cfg.codexHome, helper, mode: cfg.windowsSandbox.mode, temporary: await WindowsTemporary.create(cfg.codexHome, cfg.roots, helper) };
+    windows = { home: cfg.codexHome, helper, mode: capability.mode, temporary: await WindowsTemporary.create(cfg.codexHome, cfg.roots, helper) };
     try { releaseRoots = await pinWindowsDirectories(windows.helper, [...cfg.roots, cfg.codexHome], cfg.codexHome); }
     catch (error) { await windows.temporary.close(); throw error; }
     log("info", "Windows inner sandbox and strict protocol filter; no OS outer sandbox", { mode: windows.mode });

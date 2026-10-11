@@ -2,6 +2,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawn, spawnSync } from "node:child_process";
+import { CONFIG_PATH, saveConfig, type AgentConfig } from "./config.js";
+import { log } from "./log.js";
 import { locateCodex } from "./paths.js";
 import { freeLoopbackPort, waitForPort } from "./execServer.js";
 import { assertWindowsHome, locateWindowsHelper, killWindowsTree, runSandboxProbe, windowsEnvironment, WindowsTemporary, type WindowsMode } from "./windowsRuntime.js";
@@ -13,6 +15,19 @@ export interface WindowsCapability {
   elevatedSetupForHome: boolean;
   elevatedUsable: boolean;
 }
+/** Pairing replaces init; the first start on Windows still needs a real sandbox probe. */
+export async function ensureWindowsSandbox(
+  cfg: AgentConfig,
+  detect: (home: string, roots: readonly string[]) => Promise<WindowsCapability> = detectWindowsSandbox,
+  file = CONFIG_PATH,
+): Promise<WindowsCapability> {
+  if (cfg.windowsSandbox) return cfg.windowsSandbox;
+  log("info", "首次探测 Windows 沙箱");
+  cfg.windowsSandbox = await detect(cfg.codexHome, cfg.roots);
+  saveConfig(cfg, file);
+  return cfg.windowsSandbox;
+}
+
 export async function detectWindowsSandbox(home: string, roots: readonly string[]): Promise<WindowsCapability> {
   if (process.platform !== "win32") throw new Error("Windows capability probe must run natively");
   fs.mkdirSync(home, { recursive: true }); assertWindowsHome(home, roots);

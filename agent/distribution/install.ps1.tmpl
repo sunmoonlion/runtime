@@ -1,4 +1,5 @@
-﻿$ErrorActionPreference = 'Stop'
+# 不要加 UTF-8 BOM：一行命令是 irm | iex，irm 会把 BOM 留在字符串里；后端响应已带 charset=utf-8。
+$ErrorActionPreference = 'Stop'
 if (-not [Environment]::Is64BitOperatingSystem) { throw '需要 64 位 Windows。' }
 if ($PSVersionTable.PSVersion.Major -lt 5) { throw '需要 Windows PowerShell 5.1 或更高版本。' }
 
@@ -83,8 +84,12 @@ try {
     if (Test-Path -LiteralPath $Dest) { throw '安装目录还在，没有覆盖已有安装。' }
     & $Node (Join-Path $Expanded 'installer\install.mjs') --apply --manifest-sha256 $ManifestSha256
     if ($LASTEXITCODE -ne 0 -or (Test-Path -LiteralPath (Join-Path $Dest '.install-incomplete'))) { throw '新版本没有装上，原来的配置还在。' }
-    & (Join-Path $Dest 'sunmoon-agent.cmd') autostart enable
-    if ($LASTEXITCODE -ne 0) { throw '程序已安装，但登录自启没有打开。' }
+    $ConfigPath = Join-Path $env:USERPROFILE '.sunmoon-agent\config.json'
+    if ($env:SUNMOON_AGENT_HOME) { $ConfigPath = Join-Path $env:SUNMOON_AGENT_HOME 'config.json' }
+    if (Test-Path -LiteralPath $ConfigPath) {
+        & (Join-Path $Dest 'sunmoon-agent.cmd') autostart enable
+        if ($LASTEXITCODE -ne 0) { throw '程序已安装，但登录自启没有打开。' }
+    }
     Show-AgentWindow
 } finally {
     if (Test-Path -LiteralPath $Temp) { Remove-Item -LiteralPath $Temp -Recurse -Force }

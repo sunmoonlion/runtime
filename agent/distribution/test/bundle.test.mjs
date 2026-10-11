@@ -264,7 +264,10 @@ test('0.2.2 and same-version decisions keep config and never replace a newer ins
 });
 
 test('install script upgrades either installed shape without an overwrite switch', () => {
-  const text = fs.readFileSync(fileURLToPath(new URL('../install.ps1.tmpl', import.meta.url)), 'utf8');
+  const template = fileURLToPath(new URL('../install.ps1.tmpl', import.meta.url));
+  const bytes = fs.readFileSync(template);
+  assert.equal(bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf, false);
+  const text = bytes.toString('utf8');
   const names = ['PACKAGE_URL', 'VERSION', 'SIZE_BYTES', 'ZIP_SHA256', 'MANIFEST_SHA256', 'CODEX_VERSION'];
   for (const name of names) assert.equal(text.split(`{{${name}}}`).length - 1, 1, name);
   const leftover = text.replace(/\{\{(?:PACKAGE_URL|VERSION|SIZE_BYTES|ZIP_SHA256|MANIFEST_SHA256|CODEX_VERSION)\}\}/g, '');
@@ -276,6 +279,7 @@ test('install script upgrades either installed shape without an overwrite switch
   assert.equal(text.includes('ExecutionPolicy'), false);
   assert.match(text, /安装目录还在，没有覆盖已有安装/);
   assert.match(text, /SunMoon 代理/);
+  assert.match(text, /Test-Path -LiteralPath \$ConfigPath/);
   assert.match(text, /autostart enable/);
   assert.match(text, /请在弹出的窗口里继续/);
   const desktop = fs.readFileSync(fileURLToPath(new URL('../../native/desktop.ps1', import.meta.url)), 'utf8');

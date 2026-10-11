@@ -5,7 +5,7 @@ import net from "node:net";
 import { createHash, randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { CONFIG_DIR, loadConfig, saveConfig } from "./config.js";
+import { CONFIG_DIR, CONFIG_PATH, loadConfig, saveConfig } from "./config.js";
 import { assertWindowsHome } from "./windowsRuntime.js";
 import { desktopRequest, nativeDirectory, powershell } from "./windowsDesktop.js";
 import { locateCodex } from "./paths.js";
@@ -18,11 +18,19 @@ const statusFile = path.join(CONFIG_DIR, "status.json"), stopFile = path.join(CO
 export const instanceKey = (directory: string): string => createHash("sha256").update(path.win32.resolve(directory).toLowerCase()).digest("hex").slice(0, 24);
 const pipeName = () => `\\\\.\\pipe\\sunmoon-agent-${instanceKey(CONFIG_DIR)}`;
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+/** Fresh installs have no config yet; pairing writes it after the owner approves. */
+export function prepareAgentHome(home = CONFIG_DIR, configPath = CONFIG_PATH): string[] {
+  if (!fs.existsSync(configPath)) {
+    fs.mkdirSync(home, { recursive: true, mode: 0o700 });
+    return [];
+  }
+  return loadConfig(configPath).roots;
+}
+
 export function checkControlDirectory(): void {
   if (process.platform !== "win32") throw new Error("This lifecycle is Windows-only");
-  const cfg = loadConfig();
   // Control files, prompts and credentials must not be writable workspace data.
-  assertWindowsHome(CONFIG_DIR, cfg.roots);
+  assertWindowsHome(CONFIG_DIR, prepareAgentHome());
 }
 export async function residentAlive(): Promise<boolean> {
   return new Promise(resolve => {

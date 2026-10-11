@@ -1,5 +1,9 @@
 # CHECKPOINT（runtime 仓，分支 luna）
 
+## 当前：0.2.8 桌面链修复进行中（2026-10-11）
+
+按 `~/switch-test/astra-028.md` 的 1–7 项顺序实施、每项本地提交；不 push、不发布、不碰集群。第 1 项及前轮取证更正完成，33 个打包单测和 Windows 脚本解析通过；其余项和真机验收待做。任务表与重跑方法：[0.2.8 进度](scripts/results/windows-agent-0.2.8-progress.20261011.md)。现装 0.2.7 和用户配置保持原状。
+
 ## 当前：0.2.4 已装上并自己连上；配对接口回 404，窗口没有出现连接码，停下交审（2026-10-10）
 
 依据 k8s `0cb358f6`。源码 `a878d145553625e9283701822d455d0eb3d043c0`。包在 `C:\Users\zymun\sunmoon-probe-runs\windows-agent-c2-20261010\sunmoon-agent-a878d14`。ZIP SHA256 `d00c1392e73079d24063877656599b0600da3806e18d3943e194fde617479e6e`，清单 SHA256 `e133f26f006c5e1ae3635ed0e031213a2bedb4ab6e6c574a06d74c754eb3f543`，`ca_sha256` 仍是 `76f9012886262cf6974039de8baf16ecd5e79e780237349fdcb95a2ac1aa1b3c`。

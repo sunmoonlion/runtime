@@ -263,6 +263,16 @@ test('0.2.2 and same-version decisions keep config and never replace a newer ins
   assert.equal(fs.existsSync(path.join(current.source, 'installer/launch.mjs')), true);
 });
 
+test('onboard explicitly shows its form before publishing readiness and closes on failure', () => {
+  const text = fs.readFileSync(fileURLToPath(new URL('../../native/desktop.ps1', import.meta.url)), 'utf8');
+  assert.equal(text.split('public static class WindowVisibility').length - 1, 1);
+  assert.ok(text.indexOf('public static class WindowVisibility') < text.indexOf('function Show-Onboard'));
+  const shown = text.slice(text.indexOf('$Form.Add_Shown('), text.indexOf('if ($Action -eq \'onboard\')'));
+  assert.ok(shown.indexOf('::ShowWindow') < shown.indexOf('::IsWindowVisible'));
+  assert.ok(shown.indexOf('::IsWindowVisible') < shown.indexOf('Set-Content'));
+  assert.match(shown, /catch\s*\{[^}]*\$Form\.Close\(\)/);
+});
+
 test('install script upgrades either installed shape without an overwrite switch', () => {
   const template = fileURLToPath(new URL('../install.ps1.tmpl', import.meta.url));
   const bytes = fs.readFileSync(template);

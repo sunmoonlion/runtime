@@ -48,6 +48,18 @@ if ($Action -eq 'autostart') {
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+Add-Type @'
+using System;
+using System.Runtime.InteropServices;
+namespace SunMoonDesktop {
+    public static class WindowVisibility {
+        [DllImport("user32.dll")]
+        public static extern bool ShowWindow(IntPtr handle, int command);
+        [DllImport("user32.dll")]
+        public static extern bool IsWindowVisible(IntPtr handle);
+    }
+}
+'@
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
 if ($Action -eq 'confirm') {
@@ -187,18 +199,6 @@ function Show-Preferences {
 function Show-Onboard {
     # windowsHide keeps the console hidden, but also suppresses the first WinForms
     # ShowWindow through STARTUPINFO. Re-show only this form after its first show.
-    Add-Type @'
-using System;
-using System.Runtime.InteropServices;
-namespace SunMoonDesktop {
-    public static class WindowVisibility {
-        [DllImport("user32.dll")]
-        public static extern bool ShowWindow(IntPtr handle, int command);
-        [DllImport("user32.dll")]
-        public static extern bool IsWindowVisible(IntPtr handle);
-    }
-}
-'@
     $Form=New-Object System.Windows.Forms.Form
     $Form.Text='SunMoon - 设置'; $Form.Size=New-Object System.Drawing.Size(700,480); $Form.StartPosition='CenterScreen'
     $script:Pair=$null; $script:Account=''; $script:Remaining=0; $script:GotResult=$false; $script:ExitSeen=$false; $script:ExitShown=$false; $script:LastErr=$null
@@ -355,7 +355,7 @@ namespace SunMoonDesktop {
                 throw '无法显示设置窗口；尚未写入就绪标记。'
             }
             @{pid=$PID} | ConvertTo-Json -Compress | Set-Content -LiteralPath $ReadyFile -Encoding UTF8
-        } catch { $Connected.Text = '设置窗口显示失败：' + $_.Exception.Message }
+        } catch { $Connected.Text = '设置窗口显示失败：' + $_.Exception.Message; $Form.Close() }
     })
     try{$Timer.Start(); $Form.ShowDialog()|Out-Null}finally{ $Timer.Stop(); $Timer.Dispose(); Stop-Pair; if (Test-Path -LiteralPath $ReadyFile) { Remove-Item -LiteralPath $ReadyFile -Force }; $Form.Dispose() }
 }

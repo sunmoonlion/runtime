@@ -32,41 +32,106 @@ runtime 源码：`d90cef3e9114c6a336758ceb9b8e3a46b9872e27`。
 方法：P/Invoke EnumWindows；对每个 HWND 调 GetWindowThreadProcessId，筛 PID 4392、9252、40428，再读取 GetWindowText/GetClassName/IsWindowVisible/GetWindowRect/IsIconic。没有使用只返回可见主窗口的 MainWindowTitle 作为窗口存在的判据。
 
 首次成功现场枚举：2026-10-11T22:34:20.4305604+08:00。
-独立保存快照：2026-10-11T22:37:52.0992684+08:00，文件 `initial-inspection.json`。
-探针与目标都在交互 Session 1；EnumWindows 返回 true，各 GetWindowRect 返回 true。
 
-三个设置窗口：
-
-| PID | HWND | 标题 | 窗口类 | IsWindowVisible | IsIconic | GetWindowRect (L,T,R,B) |
-| --- | --- | --- | --- | --- | --- | --- |
-
-
-进程原文摘要：
+**2026-10-11 审读补正：** 之前生成报告时错把后一次采样当成首次证据。22:37:52 的 `initial-inspection.json` 中三个 PID 确实已不存在，表格因此为空；它不能支持“枚举到原窗口”。下面改为本会话首次成功工具调用的原始输出摘录（工具块 chunk `805721`，探针 PID 42532），不是重新运行、不是从后一次 JSON 推算。摘录保留三个进程及其 Form 字段；原输出还含 GDI+、IME、.NET 辅助窗口，下文不把辅助窗口算作设置窗口。
 
 ```json
-[
-  {
-    "pid": 4392,
-    "exists": false
-  },
-  {
-    "pid": 9252,
-    "exists": false
-  },
-  {
-    "pid": 40428,
-    "exists": false
-  }
-]
+{
+  "time": "2026-10-11T22:34:20.4305604+08:00",
+  "probe_pid": 42532,
+  "probe_session": 1,
+  "enum_ok": true,
+  "processes": [
+    {
+      "pid": 4392,
+      "name": "powershell",
+      "started": "2026-10-11T22:14:06.4994944+08:00",
+      "session": 1,
+      "main_title": "",
+      "main_handle": "0x0",
+      "responding": true
+    },
+    {
+      "pid": 9252,
+      "name": "powershell",
+      "started": "2026-10-11T22:14:53.6923333+08:00",
+      "session": 1,
+      "main_title": "",
+      "main_handle": "0x0",
+      "responding": true
+    },
+    {
+      "pid": 40428,
+      "name": "powershell",
+      "started": "2026-10-11T22:21:08.4491746+08:00",
+      "session": 1,
+      "main_title": "",
+      "main_handle": "0x0",
+      "responding": true
+    }
+  ],
+  "windows": [
+    {
+      "pid": 40428,
+      "thread": 33448,
+      "handle": "0x40400",
+      "title": "SunMoon - 设置",
+      "class": "WindowsForms10.Window.8.app.0.263c721_r8_ad1",
+      "visible": false,
+      "iconic": false,
+      "rect_ok": true,
+      "rect": {
+        "left": 290,
+        "right": 990,
+        "bottom": 616,
+        "top": 136
+      }
+    },
+    {
+      "pid": 9252,
+      "thread": 42072,
+      "handle": "0x4092E",
+      "title": "SunMoon - 设置",
+      "class": "WindowsForms10.Window.8.app.0.25e08d1_r8_ad1",
+      "visible": false,
+      "iconic": false,
+      "rect_ok": true,
+      "rect": {
+        "left": 290,
+        "right": 990,
+        "bottom": 616,
+        "top": 136
+      }
+    },
+    {
+      "pid": 4392,
+      "thread": 42080,
+      "handle": "0x8090C",
+      "title": "SunMoon - 设置",
+      "class": "WindowsForms10.Window.8.app.0.25e08d1_r8_ad1",
+      "visible": false,
+      "iconic": false,
+      "rect_ok": true,
+      "rect": {
+        "left": 290,
+        "right": 990,
+        "bottom": 616,
+        "top": 136
+      }
+    }
+  ]
+}
 ```
 
-以下是 EnumWindows 返回的**全部目标顶层窗口**（含系统辅助窗口，不把它们误认为设置窗口）：
+三个 Form 均为 700×480、位置 (290,136)，visible=false、iconic=false；探针与目标均在 Session 1。证据来源是首次工具输出，独立存盘的 `initial-inspection.json` 是**另一时刻**的进程已结束快照，两者不再混用。
 
-| PID | HWND | 标题 | 窗口类 | IsWindowVisible | IsIconic | GetWindowRect (L,T,R,B) |
-| --- | --- | --- | --- | --- | --- | --- |
+后一次快照原文：
 
+```json
+{"time":"2026-10-11T22:37:52.0992684+08:00","processes":[{"pid":4392,"exists":false},{"pid":9252,"exists":false},{"pid":40428,"exists":false}],"windows":[]}
+```
 
-判断：假设 1 支持。MainWindowTitle 为空、MainWindowHandle=0 与原题事实相符，但这些属性不能证明“没有窗口”；EnumWindows 找到了真实 Form。
+判断：首次工具输出支持原三个窗口隐藏；第 3 节独立对照仍是根因的主要证据。MainWindowTitle 为空、MainWindowHandle=0 不能证明“没有窗口”。
 
 ## 2. 交互控制台直接开窗
 

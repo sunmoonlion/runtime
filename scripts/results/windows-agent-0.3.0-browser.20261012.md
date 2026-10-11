@@ -179,3 +179,27 @@ Linux distribution: tests 48, pass 46, fail 0, skipped 2
 ```
 
 范围为原始及本次隔离安装路径，不按进程名清理其它程序。若通知栏暂留旧图标，是已退出进程的图标缓存，鼠标掠过后通常消失；不是仍在线的代理。
+
+
+## 后续授权清理配置与日志（2026-10-12 01:11，优先于前述保留状态）
+
+所有者进一步确认「按建议办」：删除旧0.2.7与临时0.3.0配置和日志，只保留候选包与验收回执。程序已卸载，配置专属目录亦不再用于恢复。
+
+先核对两份程序目录已不存在、对应进程与任务均为0；盘点四个精确目录，检查父目录及全部条目无链接、无共享硬链接，默认配置顶层/轮转日志符合已有允许清单。然后按盘点的文件身份逐项unlink/rmdir，不递归跟随链接，不输出配置或令牌内容。
+
+| 删除目录 | 文件数 | 字节 |
+| --- | ---: | ---: |
+| `C:\Users\zymun\.sunmoon-agent` | 9 | 6916 |
+| `C:\Users\zymun\AppData\Local\sunmoon-agent\logs` | 1 | 68892 |
+| `windows-agent-030\isolated\state` | 7 | 2341 |
+| `windows-agent-030\isolated\Local\sunmoon-agent\logs` | 1 | 1560 |
+
+后两项相对 `C:\Users\zymun\sunmoon-probe-runs`。四处删除后均不存在；共18文件、79709字节（约77.84 KiB），不是大规模空间回收。Windows原始回执在 `windows-agent-030\config-cleanup.json`。
+
+```text
+apply=true processes=0 tasks=0
+all four targets: absentAfter=true
+candidatePackageRetained=true candidateZipRetained=true
+```
+
+正式卸载器只能在程序尚存时执行，且不支持删除自定义配置目录；本次两份程序已卸载，使用明确授权的一次性目录清理工具，没有修改产品卸载规则。原始/临时私有配置都已删除，下次正式安装走全新配对并重新选白名单。用户独立 `.codex`、项目文件、候选ZIP和代码/取证回执保留。

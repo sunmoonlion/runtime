@@ -136,11 +136,53 @@ export async function closeTray(): Promise<boolean> {
   for (let i = 0; i < 50; i++) { if (!fs.existsSync(file)) return true; await sleep(200); }
   throw new Error("Tray close timed out; no process was killed");
 }
+/** Pure clock policy: never trusts a marker belonging to another window. */
+export function onboardLifetime(started: number, expectedPid: number) {
+  let seen = false, unavailableSince: number | undefined;
+  return (now: number, markerPid: number | null, alive: boolean): string | null => {
+    if (now - started >= 30 * 60 * 1000) return "Settings window exceeded 30 minutes";
+    if (markerPid === expectedPid && alive) { seen = true; unavailableSince = undefined; return null; }
+    if (seen && markerPid === null) return "Settings window readiness disappeared";
+    // Compilation may take time. Before first readiness use the same 15s startup
+    // budget as openDesktop; thereafter a dead/wrong PID gets at most 10s.
+    unavailableSince ??= now;
+    if (now - unavailableSince >= (seen ? 10000 : 15000)) return "Settings window worker unavailable";
+    return null;
+  };
+}
+function onboardPid(file: string): number | null {
+  try {
+    const st = fs.lstatSync(file);
+    if (!st.isFile() || st.isSymbolicLink() || st.nlink !== 1 || st.size > 1024) return null;
+    const value = JSON.parse(fs.readFileSync(file, "utf8").replace(/^\uFEFF/, "")).pid;
+    return Number.isSafeInteger(value) && value > 0 ? value : null;
+  } catch { return null; }
+}
 function runDesktopScript(action: "tray" | "onboard"): Promise<void> {
   checkControlDirectory();
   const child = spawn(powershell(), ["-NoLogo", "-NoProfile", "-NonInteractive", "-File", path.join(nativeDirectory, "desktop.ps1"), "-Action", action], { windowsHide: true, stdio: ["pipe", "ignore", "ignore"] });
   child.stdin.end(JSON.stringify({ node: process.execPath, cli, state: CONFIG_DIR, instance: instanceKey(CONFIG_DIR) }));
-  return new Promise<void>((resolve, reject) => { child.once("error", reject); child.once("exit", code => code === 0 ? resolve() : reject(new Error("Desktop window failed; check Windows script policy"))); });
+  return new Promise<void>((resolve, reject) => {
+    const marker = path.join(CONFIG_DIR, "onboard-ready.json");
+    const policy = onboardLifetime(Date.now(), child.pid ?? -1);
+    let timer: ReturnType<typeof setInterval> | undefined, finished = false, reason: string | null = null;
+    const finish = (error?: Error) => {
+      if (finished) return; finished = true;
+      if (timer) clearInterval(timer);
+      // A forcibly terminated PS cannot run finally. Do not remove another
+      // window's marker (including a newer concurrently opened settings form).
+      try { if (action === "onboard" && onboardPid(marker) === child.pid) removePlainControl(marker); }
+      catch (cleanupError) { error ??= cleanupError as Error; }
+      if (error) reject(error); else resolve();
+    };
+    child.once("error", finish);
+    child.once("exit", code => finish(reason ? new Error(reason) : code === 0 ? undefined : new Error("Desktop window failed; check Windows script policy")));
+    if (action === "onboard") timer = setInterval(() => {
+      const pid = onboardPid(marker);
+      const decision = policy(Date.now(), pid, pid !== null && pidAlive(pid));
+      if (decision && !reason) { reason = decision; child.kill(); } // exact spawned child only
+    }, 500);
+  });
 }
 export function runTray(): Promise<void> {
   return runDesktopScript("tray");

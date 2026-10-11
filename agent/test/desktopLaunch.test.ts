@@ -2,7 +2,31 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { desktopWindowReady, launchOpenDesktop } from "../src/resident.js";
+import { desktopWindowReady, launchOpenDesktop, onboardLifetime } from "../src/resident.js";
+
+describe("onboard child lifetime", () => {
+  it("allows startup, then closes immediately if its ready marker disappears", () => {
+    const tick = onboardLifetime(0, 42);
+    expect(tick(0, null, false)).toBeNull();
+    expect(tick(14000, 42, true)).toBeNull();
+    expect(tick(14500, null, false)).toContain("disappeared");
+  });
+  it("allows a ten-second dead PID interval, resetting on recovery", () => {
+    const tick = onboardLifetime(0, 42);
+    expect(tick(0, 42, true)).toBeNull();
+    expect(tick(1000, 42, false)).toBeNull();
+    expect(tick(10999, 42, false)).toBeNull();
+    expect(tick(11000, 42, false)).toContain("unavailable");
+    expect(tick(12000, 42, true)).toBeNull();
+    expect(tick(13000, 42, false)).toBeNull();
+  });
+  it("does not accept another window's PID or run for longer than thirty minutes", () => {
+    const tick = onboardLifetime(0, 42);
+    expect(tick(0, 99, true)).toBeNull();
+    expect(tick(15000, 99, true)).toContain("unavailable");
+    expect(tick(30 * 60000, 42, true)).toContain("30 minutes");
+  });
+});
 
 describe("openDesktop waits for the window marker", () => {
   it("does not resolve until the ready file exists, and detaches wscript", async () => {

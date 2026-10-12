@@ -92,6 +92,18 @@ describe("Windows bridge follow-up contracts", () => {
     expect((await send(bridge, { id: 9, method: "fs/readFile", params: { path: "file:///C:/Allowed/link" } })).reason).toBeTruthy();
     await bridge.close();
   });
+  it("adds UTF-8 launch setup only to the allowed forwarded process/start", async () => {
+    const bridge = new WindowsBridge(options), frame: any = start(1);
+    frame.params.argv = ["pwsh.exe", "-NoProfile", "-Command", "Get-ChildItem"];
+    frame.params.env = { PATH: "C:\\Tools", pythonutf8: "0" };
+    const answer = await send(bridge, frame);
+    expect(answer.reason).toBeUndefined();
+    const forwarded = JSON.parse(answer.forward!).params;
+    expect(forwarded.argv).toEqual(["pwsh.exe", "-NoProfile", "-Command", "try { [Console]::OutputEncoding=[System.Text.Encoding]::UTF8 } catch {}\nGet-ChildItem"]);
+    expect(forwarded.env.PYTHONUTF8).toBe("0");
+    expect(forwarded.env.PYTHONIOENCODING).toBe("utf-8");
+    await bridge.close();
+  });
   it("accepts only captured config projection, delegating to fixed-file helper", async () => {
     const bridge = new WindowsBridge(options); mocks.reply = { result: { config: { layers: [], cloudInsertionIndex: 0 } } };
     const frame = { id: 1, method: "environmentConfig/read", params: { cwd: "file:///C:/Allowed", configPaths: [["mcp_servers"]], requirementsPaths: [["mcp_servers"]] } };

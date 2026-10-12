@@ -4,6 +4,7 @@ import { windowsDecision, windowsMethodLabel, isClientWindowsEnvAnnotation, isIn
 import { pinWindowsDirectories, WindowsFiles, windowsEnvironment, type WindowsHelper, type WindowsMode, type WindowsTemporary } from "./windowsRuntime.js";
 import type { Ceiling } from "./filter.js";
 import { SessionPermissions, type LocalPermissions, type PermissionGrant } from "./permissions.js";
+import { windowsUtf8Argv, windowsUtf8Environment } from "./windowsEncoding.js";
 
 export interface WindowsBridgeOptions {
   roots: readonly string[]; ceiling: Ceiling; home: string; helper: WindowsHelper; mode: WindowsMode; url: () => string;
@@ -78,6 +79,12 @@ export class WindowsBridge {
       } else if (method.startsWith("process/") && !this.guards.has(p.processId)) {
         if (method === "process/terminate" && this.finished.has(p.processId)) return { method, response: JSON.stringify({ id: frame.id, result: { running: false } }) };
         return reject("unknown processId in this stream");
+      }
+      if (method === "process/start") {
+        // The original argv was already evaluated by windowsDecision above.
+        // Only the launched copy receives encoding setup.
+        p.argv = windowsUtf8Argv(p.argv);
+        p.env = windowsUtf8Environment(p.env);
       }
       return { method, forward: JSON.stringify(frame) };
     } catch { return reject("Windows path guard or sandboxed worker unavailable"); }

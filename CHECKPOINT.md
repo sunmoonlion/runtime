@@ -1,4 +1,12 @@
-# CHECKPOINT（runtime 仓，分支 luna）
+# CHECKPOINT（runtime 仓，分支 fable）
+
+## 当前：0.4.0 服务流合同限额冲突，段 1 未实现，交远程确认（2026-10-12）
+
+任务为 `switch-test/inbox/astra/astra-032.md`；所有者指定基线 `ef6f33f1a34f47d798e5a768a8374fab6c544e66`（含 0.3.2 托盘修复），目标版本 0.4.0。k8s 输入固定 `46438b0fd273855f45ac4fb42c3636f25eef550e`。没有产品代码或版本改动。
+
+现有 Relay 的真实回环 WebSocket 服务配对证实：1 MiB 原始文件分段生成 1,398,189 字节 JSON-RPC/base64 响应，超过双向 1 MiB 消息上限；代理数据侧关闭码 1009，工作台收不到内容。小回包对照通过。按任务“设计走不通先停下交远程”的要求停下，未进入段 2。
+
+交回选项、原始计数及固定输入见 [0.4.0 合同阻塞回执](scripts/results/windows-agent-0.4.0-contract-blocker.20261012.md)。回环探针暂在 `/tmp/sunmoon-service-frame-check.py`，复跑步骤在回执中。下一步远程确认并修改合同/会合点的消息或原始分段限额，所有者同步后再实现段 1。当前 Full Access，Windows PowerShell 已实际可调用，Windows 验收未做；不得把权限当作本次阻塞原因。不 push、不发布、不改集群或现装代理。
 
 ## 当前：0.3.0 主路径实测通过，收尾交审（2026-10-12）
 

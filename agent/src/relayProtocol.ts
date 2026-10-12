@@ -50,6 +50,7 @@ export interface Hello {
    * 能动哪些目录始终由本机的过滤和外沙箱拦。
    */
   machine?: MachineInfo;
+  capabilities?: string[];
 }
 
 export interface MachineInfo {
@@ -61,7 +62,7 @@ export interface MachineInfo {
 export type ControlMessage =
   | { type: "welcome"; relay: string; proto: number; capabilities?: string[] }
   | { type: "reject"; reason: string }
-  | { type: "open"; conn: string }
+  | { type: "open"; conn: string; kind?: "service" }
   | { type: "notice"; code: "codex_version_mismatch" }
   | { type: "permission_receipt"; id: string; status: "recorded" | "rejected" }
   | { type: "ping" }

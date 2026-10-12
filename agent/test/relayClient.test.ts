@@ -31,9 +31,9 @@ class FakeRelay {
     });
   }
   /** 模拟一个沙箱连上来：返回一对（沙箱侧 ws，可以直接收发 JSON-RPC） */
-  async connectSandbox(): Promise<WebSocket> {
+  async connectSandbox(kind?: "service"): Promise<WebSocket> {
     const conn = Math.random().toString(16).slice(2, 10); const w = waiter<WebSocket>(); this.pending.set(conn, w);
-    this.agentCtrl!.send(JSON.stringify({ type: "open", conn }));
+    this.agentCtrl!.send(JSON.stringify({ type: "open", conn, ...(kind ? { kind } : {}) }));
     // 会合点是逐消息透传：测试里直接把代理的数据流 ws 当作“沙箱侧”对端使用，语义等价
     return await w.promise;
   }
@@ -41,13 +41,14 @@ class FakeRelay {
 }
 
 class FakeExecServer {
-  wss: WebSocketServer; port = 0; received: any[] = [];
+  wss: WebSocketServer; port = 0; received: any[] = []; connections = 0;
   ready: Promise<void>;
   constructor() { this.wss = new WebSocketServer({ port: 0, host: "127.0.0.1" }); this.ready = new Promise<void>((r) => this.wss.once("listening", r)); }
   async start() {
     await this.ready;
     this.port = (this.wss.address() as any).port;
     this.wss.on("connection", (ws) => {
+      this.connections++;
       ws.on("message", (data: RawData) => {
         const f = JSON.parse(String(data)); this.received.push(f);
         if ("id" in f) ws.send(JSON.stringify({ id: f.id, result: { echoed: f.method } }));
@@ -78,6 +79,48 @@ describe("RelayClient", () => {
     for (let i = 0; i < 50 && client.status !== "connected"; i++) await sleep(20);
     expect(client.status).toBe("connected");
     expect(relay.hellos[0]).toMatchObject({ path: "/agent", type: "hello", role: "agent", user: "u1", token: "t1", codex: "0.155.1", proto: 1 });
+    expect(relay.hellos[0].capabilities).toContain("service-v1");
+  });
+
+  it("services open.kind=service without ever connecting to exec-server", async () => {
+    makeClient();
+    await connected();
+    const wb = await relay.connectSandbox("service");
+    const response = nextMessage(wb); wb.send(JSON.stringify({ jsonrpc: "2.0", id: 1, method: "service/hello" }));
+    expect(await response).toEqual({ jsonrpc: "2.0", id: 1, result: { agent: "sunmoon-agent", version: "test", roots: [ROOT], libraryDir: null, capabilities: ["service-v1"] } });
+    expect(es.connections).toBe(0); expect(client.stats.connections).toBe(0);
+    expect(client.stats.service).toMatchObject({ active: 1, requests: 1 });
+    const denied = nextMessage(wb); wb.send(JSON.stringify({ jsonrpc: "2.0", id: 2, method: "process/start", params: {} }));
+    expect((await denied).error.code).toBe(-32601); expect(es.received).toEqual([]);
+  });
+
+  async function connected() { for (let i = 0; i < 50 && client.status !== "connected"; i++) await sleep(20); expect(client.status).toBe("connected"); }
+
+  it("closes the third service stream and keeps sandbox counters independent", async () => {
+    makeClient(); await connected();
+    await relay.connectSandbox("service"); await relay.connectSandbox("service");
+    const third = await relay.connectSandbox("service");
+    await new Promise(resolve => third.once("close", resolve));
+    expect(client.stats.service.active).toBe(2); expect(es.connections).toBe(0);
+    await relay.connectSandbox(); await sleep(50);
+    expect(es.connections).toBe(1); expect(client.stats.active).toBe(1); expect(client.stats.service.active).toBe(2);
+  });
+
+  it("closes oversized or binary service messages without contacting exec-server", async () => {
+    makeClient(); await connected();
+    for (const binary of [false, true]) {
+      const wb = await relay.connectSandbox("service");
+      const closed = new Promise(resolve => wb.once("close", resolve));
+      wb.send(binary ? Buffer.from("{}") : "x".repeat(1024 * 1024 + 1), { binary }); await closed;
+    }
+    expect(es.connections).toBe(0); expect(client.stats.service.active).toBe(0);
+  });
+
+  it("cancels service streams on control disconnect", async () => {
+    makeClient(); await connected();
+    const wb = await relay.connectSandbox("service"); const closed = new Promise(resolve => wb.once("close", resolve));
+    relay.agentCtrl!.terminate(); await closed;
+    expect(client.stats.service.active).toBe(0); expect(es.connections).toBe(0);
   });
 
   it("reports the machine (name, whitelisted roots, ceiling) in the control hello only", async () => {

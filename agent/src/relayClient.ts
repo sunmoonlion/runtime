@@ -9,6 +9,9 @@ import { humanizeClose, humanizeReject, humanizeTransport } from "./connectionMe
 import { relayHost } from "./siteTrust.js";
 import type { LocalPermissions } from "./permissions.js";
 import { hello, PERMISSION_CAPABILITY, validPermissionReport, type PermissionReport, type ControlMessage } from "./relayProtocol.js";
+import { CONFIG_DIR } from "./config.js";
+import { WindowsFiles } from "./windowsRuntime.js";
+import { ServiceHandler, SERVICE_CAPABILITY, SERVICE_MAX_FRAME } from "./service.js";
 
 export interface RelayClientOptions {
   windows?: { home: string; helper: WindowsHelper; mode: WindowsMode; temporary: WindowsTemporary; executorEnvironment: () => NodeJS.ProcessEnv; confirmedHttpUrls?: readonly string[] };
@@ -26,6 +29,7 @@ export interface RelayClientOptions {
   onRejected?: (reason: string) => void;
   onNotice?: (code: "codex_version_mismatch") => void;
   confirmPermission?: LocalPermissions["confirm"];
+  codexHome?: string;
 }
 
 export interface BridgeStats {
@@ -35,14 +39,16 @@ export interface BridgeStats {
   forwardedDown: number;
   denied: number;
   lastDenial?: { method: string; reason: string; at: string };
+  service: { connections: number; active: number; requests: number; denied: number };
 }
 
 export class RelayClient {
   private ctrl: WebSocket | null = null;
   private streams = new Set<() => void>();
+  private serviceStreams = new Set<() => void>();
   private stopped = false;
   private backoff = 1000;
-  readonly stats: BridgeStats = { connections: 0, active: 0, forwardedUp: 0, forwardedDown: 0, denied: 0 };
+  readonly stats: BridgeStats = { connections: 0, active: 0, forwardedUp: 0, forwardedDown: 0, denied: 0, service: { connections: 0, active: 0, requests: 0, denied: 0 } };
   status: "disconnected" | "connecting" | "connected" | "rejected" = "disconnected";
   lastError = "";
   lastNotice = "";
@@ -116,7 +122,7 @@ export class RelayClient {
       const machine = this.opts.machineName
         ? { name: this.opts.machineName(), roots: [...this.opts.roots()], ceiling: { ...this.opts.ceiling() } }
         : undefined;
-      ws.send(hello({ role: "agent", user: this.opts.userId, token: this.opts.token, codex: this.opts.codexVersion, software: this.opts.softwareVersion, ...(machine ? { machine } : {}) }));
+      ws.send(hello({ role: "agent", user: this.opts.userId, token: this.opts.token, codex: this.opts.codexVersion, software: this.opts.softwareVersion, capabilities: [SERVICE_CAPABILITY], ...(machine ? { machine } : {}) }));
     });
     ws.on("message", (data) => {
       if (this.ctrl !== ws || this.stopped) return;
@@ -134,7 +140,7 @@ export class RelayClient {
         this.stopped = true; ws.close();
         this.notifyRejected();
       } else if (msg.type === "open") {
-        this.openStream(msg.conn);
+        if (msg.kind === undefined || msg.kind === "service") this.openStream(msg.conn, msg.kind);
       } else if (msg.type === "ping") {
         ws.send(JSON.stringify({ type: "pong" }));
       } else if (msg.type === "permission_receipt") {
@@ -150,6 +156,7 @@ export class RelayClient {
     const onDown = (why: string) => {
       if (this.ctrl !== ws) return;
       this.clearReports();
+      for (const close of this.serviceStreams) close();
       this.ctrl = null;
       if (this.status !== "rejected") this.status = "disconnected";
       if (this.stopped) return;
@@ -176,7 +183,53 @@ export class RelayClient {
     });
   }
 
-  private openStream(conn: string): void {
+  private openServiceStream(conn: string): void {
+    const up = new WebSocket(this.dataUrl(conn), { maxPayload: SERVICE_MAX_FRAME });
+    if (this.stats.service.active >= 2) {
+      log("warn", "service stream limit");
+      up.on("error", () => {});
+      up.on("open", () => {
+        up.send(hello({ role: "agent", user: this.opts.userId, token: this.opts.token, codex: this.opts.codexVersion, software: this.opts.softwareVersion, conn }));
+        up.close(1008, "service stream limit");
+      });
+      return;
+    }
+    this.stats.service.connections++; this.stats.service.active++;
+    const w = this.opts.windows;
+    const handler = new ServiceHandler({ version: this.opts.softwareVersion, roots: this.opts.roots,
+      configDir: CONFIG_DIR, codexHome: w?.home ?? this.opts.codexHome ?? CONFIG_DIR,
+      files: w ? new WindowsFiles({ url: this.opts.localUrl, home: w.home, roots: this.opts.roots(), mode: w.mode,
+        writable: false, helper: w.helper, temporary: w.temporary.directory }) : undefined,
+      onRequest: (method, code) => {
+        this.stats.service.requests++;
+        if (code) this.stats.service.denied++;
+        log(code ? "warn" : "debug", "service request", { method, ...(code ? { code } : {}) });
+      },
+    });
+    let finished = false;
+    const stop = () => finish();
+    const finish = (code = 1000) => {
+      if (finished) return; finished = true;
+      this.streams.delete(stop); this.serviceStreams.delete(stop); this.stats.service.active--;
+      void handler.close().catch(() => log("warn", "service helper close failed"));
+      up.close(code);
+    };
+    this.streams.add(stop); this.serviceStreams.add(stop);
+    up.on("open", () => {
+      if (finished) return;
+      up.send(hello({ role: "agent", user: this.opts.userId, token: this.opts.token, codex: this.opts.codexVersion, software: this.opts.softwareVersion, conn }));
+    });
+    up.on("message", (data, binary) => {
+      if (finished) return;
+      void handler.receive(String(data), binary).then(response => {
+        if (!finished && response && up.readyState === WebSocket.OPEN) up.send(response);
+      }).catch(() => finish(1009));
+    });
+    up.on("close", () => finish()); up.on("error", () => finish());
+  }
+
+  private openStream(conn: string, kind?: "service"): void {
+    if (kind === "service") { this.openServiceStream(conn); return; }
     this.stats.connections += 1; this.stats.active += 1;
     const up = new WebSocket(this.dataUrl(conn), { maxPayload: this.opts.windows ? 12 * 1024 * 1024 : 0 });
     const windows = this.opts.windows ? new WindowsBridge({ ...this.opts.windows, roots: this.opts.roots(), ceiling: this.opts.ceiling(), url: this.opts.localUrl,

@@ -138,6 +138,37 @@ if (process.argv[2] === '--pin-directory') {
   function dispatch(method, p) {
     const target = p.path ? local(p.path, ['fs/writeFile', 'fs/createDirectory', 'fs/remove'].includes(method)) : null;
     switch (method) {
+      // Private service projection: same pins/identity checks as Codex FS, no
+      // write operations, handles or executable parameters exposed remotely.
+      case 'service/getMetadata': {
+        const m = metadata(target);
+        return { type: m.isDirectory ? 'dir' : m.isFile ? 'file' : 'other', size: m.size, mtime: m.modifiedAtMs };
+      }
+      case 'service/readDirectory': return inDirectory(target, () => {
+        const entries = []; let truncated = false, bytes = 512;
+        const dir = fs.opendirSync(target);
+        try {
+          let entry;
+          while ((entry = dir.readSync())) {
+            const s = fs.lstatSync(path.join(target, entry.name));
+            const item = { name: entry.name, type: s.isSymbolicLink() ? 'link' : s.isDirectory() ? 'dir' : s.isFile() ? 'file' : 'other', size: s.size, mtime: Math.trunc(s.mtimeMs) };
+            bytes += Buffer.byteLength(JSON.stringify(item)) + 1;
+            if (entries.length >= 2000 || bytes > 1024 * 1024 - 2048) { truncated = true; break; }
+            entries.push(item); // Never resolve a listed link.
+          }
+        } finally { dir.closeSync(); }
+        return { entries, truncated };
+      });
+      case 'service/readFile': {
+        if (!Number.isSafeInteger(p.offset) || p.offset < 0 || !Number.isSafeInteger(p.length) || p.length < 1 || p.length > 524288) throw Object.assign(new Error('invalid range'), { rpcCode: -32602, rpcMessage: 'Invalid params' });
+        const fd = openRead(target);
+        try {
+          const s = fs.fstatSync(fd);
+          if (s.size > 64 * 1024 * 1024) throw Object.assign(new Error('too_large'), { rpcCode: -32011, rpcMessage: 'too_large' });
+          const b = Buffer.alloc(Math.min(p.length, Math.max(0, s.size - p.offset))), n = fs.readSync(fd, b, 0, b.length, p.offset);
+          return { content: b.subarray(0, n).toString('base64'), size: s.size, mtime: Math.trunc(s.mtimeMs), eof: p.offset + n >= s.size };
+        } finally { fs.closeSync(fd); }
+      }
       case 'environmentConfig/read': {
         const selection = v => Array.isArray(v) && v.length === 1 && Array.isArray(v[0]) && v[0].length === 1 && v[0][0] === 'mcp_servers';
         if (!selection(p.configPaths) || !selection(p.requirementsPaths)) throw new Error('config projection refused');

@@ -1,5 +1,13 @@
 # CHECKPOINT（runtime 仓，分支 fable）
 
+## 当前：032 乙案段 2 已交审，本机真人允许/拒绝与正常重启通过（2026-10-12）
+
+代码 `f002ab5346bb3e007c9de0339b960aeacb287a73`，基于已审回环段 1。五个候选口 47811–47815、未知 kid 距上次取钥超过 60 秒刷新、GET/PUT settings、共享 preferences 校验、合成本机随机码确认、原子配置替换、回包后 stop-request/startResident 重启、只读 libraryDir 与托盘字段已实现；版本仍 0.4.0，无新依赖。
+
+Linux 308 通过 / 33 平台跳过，类型与构建通过；发行 Linux 46/2 跳过、Windows 48/48。Windows 隔离源码实际落 47813，自签票 + 本地 HTTPS JWKS，知识库可读/执行写拒、收窄重启/hello、新钥 61 秒重取通过；所有者亲手按随机码允许添加目录/知识库，并点拒绝提高写上限，409 后配置字节不变。真实设置窗字段检查通过。首轮 relay 配置、窗口观察编码、发行夹具缺文件与真人探针后置换钥断言错误都保留在回执，没有抹去失败。
+
+最终 dist 68/native 5 文件与隔离源码相同，合成夹具已清理；现装 0.3.1 connected。未改同步脚本、其它仓、现装或站点，未 push/发布。现网发票/完整网页联调、elevated、干净机器安装和真实登录任务开关回滚仍待验；本轮不冒认。回执：[段 2 交审证据](scripts/results/windows-agent-0.4.0-local-stage2.20261012.md)。下一步所有者同步，远程审读，发布后补网页/现网票验收。
+
 ## 当前：032 乙案段 1 回环文件只读已实现，自签票/本地 JWKS + 隔离 Edge 通路通过（2026-10-12）
 
 基线 9d96980（服务流段 1 已由远程过审保留），本段代码 35d7964。按重写的 032/0022 第三节增加 localApi、ticket、localFiles：presence 无票；local/v1 验精确 Origin 与 ES256 票，站点固定 JWKS 十分钟缓存；原始文件字节一次 1 MiB、三项元数据头跨源可读。已过审 service/relay 与 filter/windowsPolicy/windowsBridge/pair 字节不变，版本仍 0.4.0，无新依赖。

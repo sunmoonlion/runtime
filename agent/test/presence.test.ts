@@ -2,6 +2,7 @@ import http from "node:http";
 import net from "node:net";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { startPresence } from "../src/presence.js";
+import { LOCAL_PORTS } from "../src/localApi.js";
 
 const origin = "https://investment.sunmoonai.com:30443";
 const pause = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -72,18 +73,21 @@ describe("loopback presence endpoint", () => {
     } finally { await endpoint!.close(); }
   });
 
-  it("falls back to 47812 when 47811 is occupied and reports unavailable if both are occupied", async () => {
+  it("tries five candidates in order and reports unavailable only when all five are occupied", async () => {
+    expect(LOCAL_PORTS).toEqual([47811, 47812, 47813, 47814, 47815]);
     const occupied = await listen();
     const first = await startPresence({ webOrigin: origin, version: "0.3.1", machineName: "my-pc", connected: () => false, ports: [occupied.port, 0] });
     try { expect(first?.port).toBeGreaterThan(0); }
     finally { await first?.close(); await new Promise<void>(resolve => occupied.server.close(() => resolve())); }
 
-    const a = await listen(), b = await listen(), events: unknown[] = [];
-    const none = await startPresence({ webOrigin: origin, version: "0.3.1", machineName: "my-pc", connected: () => false, ports: [a.port, b.port], onEvent: (...args) => events.push(args) });
+    const occupiedFive = await Promise.all(Array.from({ length: 5 }, () => listen())), events: unknown[] = [];
+    const fifth = await startPresence({ webOrigin: origin, version: "0.4.0", machineName: "my-pc", connected: () => false, ports: [...occupiedFive.slice(0, 4).map(value => value.port), 0] });
+    expect(fifth?.port).toBeGreaterThan(0); await fifth?.close();
+    const none = await startPresence({ webOrigin: origin, version: "0.3.1", machineName: "my-pc", connected: () => false, ports: occupiedFive.map(value => value.port), onEvent: (...args) => events.push(args) });
     try {
       expect(none).toBeNull();
       expect(events.at(-1)).toEqual(["unavailable", { code: "EADDRINUSE" }]);
-    } finally { await Promise.all([a, b].map(value => new Promise<void>(resolve => value.server.close(() => resolve())))); }
+    } finally { await Promise.all(occupiedFive.map(value => new Promise<void>(resolve => value.server.close(() => resolve())))); }
   });
 
   it("limits valid-origin requests to 20 per second and logs only the count", async () => {

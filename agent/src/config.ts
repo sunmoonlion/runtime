@@ -17,6 +17,9 @@ export interface AgentConfig {
   roots: string[];
   /** Local settings choices, including unchecked directories; never grants access. */
   rootChoices?: string[];
+  /** Local read-only library; never a writable workspace root. */
+  libraryDir?: string | null;
+  lastSettingsChange?: string | null;
   ceiling: Ceiling;
   /** exec-server 监听端口；0 = 自动选空闲回环端口 */
   execPort: number;
@@ -64,6 +67,12 @@ export function validate(cfg: AgentConfig): void {
   try { const u = new URL(cfg.relayUrl); if (!["ws:", "wss:"].includes(u.protocol) || u.username || u.password || u.search || u.hash) throw new Error(); }
   catch { throw new Error("relayUrl 必须是 ws:// 或 wss://，且不能包含口令、查询参数或片段"); }
   if (!cfg.userId) throw new Error("userId 不能为空");
+  if (cfg.libraryDir != null) {
+    let valid = false;
+    try { valid = typeof cfg.libraryDir === "string" && canonicalPath(cfg.libraryDir) !== null && fs.statSync(cfg.libraryDir).isDirectory(); } catch { /* Fixed error below, without the private directory. */ }
+    if (!valid) throw new Error("Invalid local library directory");
+  }
+  if (cfg.lastSettingsChange != null && (typeof cfg.lastSettingsChange !== "string" || !Number.isFinite(Date.parse(cfg.lastSettingsChange)))) throw new Error("Invalid settings timestamp");
   if (typeof cfg.machineName !== "string" || !cfg.machineName.trim() || cfg.machineName.length > 128 || /[\x00-\x1f\x7f]/.test(cfg.machineName)) throw new Error("machineName 要有，且不超过 128 个字符、不含控制字符");
   for (const r of cfg.roots) {
     if (canonicalPath(r) === null) throw new Error(`白名单根必须是受支持的本地绝对路径：${r}`);

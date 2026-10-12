@@ -10,8 +10,8 @@ import { assertWindowsHome } from "./windowsRuntime.js";
 import { desktopRequest, nativeDirectory, powershell } from "./windowsDesktop.js";
 import { locateCodex } from "./paths.js";
 import { detectWindowsSandbox } from "./windowsBootstrap.js";
-import { canonicalPath } from "./pathuri.js";
 import { applyLaunchEnv, installedSite, nodeLaunch } from "./siteTrust.js";
+import { preferenceView, validatePreferences } from "./preferences.js";
 
 const cli = fileURLToPath(new URL("./cli.js", import.meta.url));
 const statusFile = path.join(CONFIG_DIR, "status.json"), stopFile = path.join(CONFIG_DIR, "stop-request.json");
@@ -91,6 +91,14 @@ export async function startResident(): Promise<void> {
     await sleep(200);
   }
   throw new Error("Background agent startup timed out; inspect status before retrying");
+}
+/** A separate local lifecycle process waits for this resident to stop, then starts its replacement. */
+export async function scheduleResidentRestart(): Promise<void> {
+  checkControlDirectory();
+  const launch = nodeLaunch(installedSite(import.meta.url));
+  const child = spawn(process.execPath, [...launch.execArgv, cli, "restart-resident"], { env: { ...applyLaunchEnv(process.env, launch), SUNMOON_AGENT_HOME: CONFIG_DIR }, detached: true, windowsHide: true, stdio: "ignore" });
+  await new Promise<void>((resolve, reject) => { child.once("spawn", resolve); child.once("error", () => reject(new Error("Resident restart could not start"))); });
+  child.unref();
 }
 function readTrayControl(file: string): { pid: number; runId: string } {
   const st = fs.lstatSync(file);
@@ -203,20 +211,12 @@ export function preferences(argv: string[]): object {
   checkControlDirectory(); const cfg = loadConfig();
   if (argv[0] === "set") {
     const input = JSON.parse(fs.readFileSync(0, "utf8"));
-    if (!input || !["ceiling,machineName,roots", "ceiling,machineName,rootChoices,roots"].includes(Object.keys(input).sort().join(","))) throw new Error("Invalid settings fields");
+    if (!input || !["ceiling", "machineName", "roots"].every(key => key in input) || Object.keys(input).some(key => !["ceiling", "machineName", "roots", "rootChoices", "libraryDir"].includes(key))) throw new Error("Invalid settings fields");
     const choices = input.rootChoices ?? input.roots;
-    if (!Array.isArray(input.roots) || input.roots.length > 32
-      || !input.roots.every((root: unknown) => typeof root === "string" && fs.statSync(root).isDirectory())
-      || !Array.isArray(choices) || choices.length > 32
-      || !choices.every((root: unknown) => typeof root === "string" && fs.statSync(root).isDirectory())
-      || !["read-only", "workspace-write"].includes(input.ceiling?.sandbox)
-      || Object.keys(input.ceiling).sort().join(",") !== "network,sandbox") throw new Error("Invalid local preferences");
-    const keys = choices.map((root: string) => canonicalPath(root, "win32"));
-    if (new Set(keys).size !== keys.length || new Set(input.roots.map((root: string) => canonicalPath(root, "win32"))).size !== input.roots.length
-      || input.roots.some((root: string) => !keys.includes(canonicalPath(root, "win32")))) throw new Error("Invalid directory selection");
     fs.mkdirSync(cfg.codexHome, { recursive: true, mode: 0o700 });
-    assertWindowsHome(CONFIG_DIR, choices); assertWindowsHome(cfg.codexHome, choices);
-    cfg.roots = input.roots; cfg.rootChoices = choices; cfg.machineName = input.machineName; cfg.ceiling = input.ceiling; saveConfig(cfg);
+    const next = { ...cfg, ...input, rootChoices: choices };
+    validatePreferences(next, CONFIG_DIR); saveConfig(next); Object.assign(cfg, next);
   } else if (argv[0] && argv[0] !== "show") throw new Error("settings show|set");
-  return { machineName: cfg.machineName, roots: cfg.roots, rootChoices: cfg.rootChoices ?? cfg.roots, ceiling: cfg.ceiling };
+  const { lastSettingsChange: _timestamp, ...view } = preferenceView(cfg);
+  return view;
 }

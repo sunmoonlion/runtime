@@ -2,8 +2,8 @@ import http from "node:http";
 import { generateKeyPairSync, sign } from "node:crypto";
 
 export async function ticketFixture() {
-  const { publicKey, privateKey } = generateKeyPairSync("ec", { namedCurve: "P-256" });
-  const kid = "local-test-key";
+  let { publicKey, privateKey } = generateKeyPairSync("ec", { namedCurve: "P-256" });
+  let kid = "local-test-key";
   let available = true, requests = 0;
   const server = http.createServer((req, res) => {
     requests++;
@@ -22,6 +22,7 @@ export async function ticketFixture() {
       return head + "." + body + "." + sign("sha256", Buffer.from(head + "." + body), { key: privateKey, dsaEncoding: "ieee-p1363" }).toString("base64url");
     },
     fail: () => { available = false; },
+    rotate: () => { ({ publicKey, privateKey } = generateKeyPairSync("ec", { namedCurve: "P-256" })); kid += "-next"; },
     requests: () => requests,
     close: () => new Promise<void>(resolve => { server.close(() => resolve()); server.closeAllConnections(); }),
   };

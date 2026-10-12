@@ -10,6 +10,7 @@ const unavailable = () => new TicketError(503, "keys_unavailable");
 export class TicketVerifier {
   private keys = new Map<string, KeyObject>();
   private expires = 0;
+  private lastFetch = -Infinity;
   private loading?: Promise<void>;
   constructor(private readonly opts: { webOrigin: string; userId: () => string; fetch?: typeof fetch; now?: () => number }) {}
   async check(authorization: string | undefined): Promise<void> {
@@ -26,9 +27,10 @@ export class TicketVerifier {
       || !claims || claims.aud !== "local-agent" || claims.sub !== this.opts.userId() || typeof claims.iss !== "string" || !claims.iss.trim()
       || !Number.isSafeInteger(claims.exp) || claims.exp <= now || !Number.isSafeInteger(claims.iat) || claims.iat > now + 30
       || claims.exp <= claims.iat || claims.exp - claims.iat > 600 || signature.length !== 64) throw invalid();
-    if ((this.opts.now ?? Date.now)() >= this.expires) {
-      this.loading ??= this.load().finally(() => { this.loading = undefined; });
-      await this.loading;
+    if ((this.opts.now ?? Date.now)() >= this.expires) await this.refresh();
+    if (!this.keys.has(header.kid)) {
+      if (this.loading) await this.loading;
+      else if ((this.opts.now ?? Date.now)() - this.lastFetch > 60000) await this.refresh();
     }
     const key = this.keys.get(header.kid);
     if (!key) throw invalid();
@@ -36,6 +38,14 @@ export class TicketVerifier {
       if (!verify("sha256", Buffer.from(header64 + "." + payload64), { key, dsaEncoding: "ieee-p1363" }, signature)) throw invalid();
       if (claims.exp <= Math.floor((this.opts.now ?? Date.now)() / 1000)) throw invalid();
     } catch { throw invalid(); }
+  }
+  private refresh(): Promise<void> {
+    // Count attempts too: an unavailable endpoint must not create a fetch storm.
+    if (!this.loading) {
+      this.lastFetch = (this.opts.now ?? Date.now)();
+      this.loading = this.load().finally(() => { this.loading = undefined; });
+    }
+    return this.loading;
   }
   private async load(): Promise<void> {
     try {

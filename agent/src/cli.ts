@@ -21,13 +21,14 @@ import { importCandidates, loadMcp, saveMcp, confirmedMcpUrls } from "./mcp.js";
 import { localConfirm } from "./localConfirm.js";
 import { readHiddenToken } from "./hiddenToken.js";
 import { windowsConfirm } from "./windowsDesktop.js";
-import { acquireResident, autostart, preferences, readResidentStatus, residentAlive, runTray, closeTray, startResident, stopResident, setupElevated, openDesktop, checkControlDirectory } from "./resident.js";
+import { acquireResident, autostart, preferences, readResidentStatus, residentAlive, runTray, closeTray, startResident, stopResident, setupElevated, openDesktop, checkControlDirectory, scheduleResidentRestart } from "./resident.js";
 import { installedLaunchError } from "./siteTrust.js";
 import { configHasToken, menuPlan, osLabel, runPair, siteDocument, PAIR_EXIT } from "./pair.js";
 import {runPairPage,openDefaultBrowser,PairPageError} from "./pairPage.js";
 import {humanizeTransport} from "./connectionMessages.js";
 import {openPairPage,readPageDiscovery,publishPageDiscovery,pairingPageStatus,acquirePairPage} from "./pairPageControl.js";
 import { startLocalApi } from "./localApi.js";
+import { LocalSettings } from "./localSettings.js";
 import { LocalFiles } from "./localFiles.js";
 import { WindowsFiles } from "./windowsRuntime.js";
 
@@ -69,6 +70,10 @@ async function main(argv: string[]): Promise<number> {
   if (cmd === "--version") { console.log(VERSION); return 0; }
   const launchError = installedLaunchError(import.meta.url);
   if (launchError) { console.error(launchError); return 1; }
+  if (cmd === "restart-resident") {
+    if (argv.length !== 1) throw new Error("Invalid lifecycle arguments");
+    await stopResident(); await startResident(); return 0;
+  }
 
   if (cmd === "init") {
     if (process.platform === "win32" && await residentAlive()) throw new Error("Stop the running agent before replacing its configuration");
@@ -238,10 +243,11 @@ async function start(cfg: AgentConfig, windowed = false): Promise<number> {
   const mcpServers = process.platform === "win32" ? loadMcp(path.join(CONFIG_DIR, "mcp.json")) : undefined;
   if (process.platform === "win32") {
     const capability = await ensureWindowsSandbox(cfg);
+    if (cfg.libraryDir) { assertWindowsHome(CONFIG_DIR, [cfg.libraryDir]); assertWindowsHome(cfg.codexHome, [cfg.libraryDir]); }
     assertWindowsHome(cfg.codexHome, cfg.roots);
     const helper = locateWindowsHelper();
     windows = { home: cfg.codexHome, helper, mode: capability.mode, temporary: await WindowsTemporary.create(cfg.codexHome, cfg.roots, helper) };
-    try { releaseRoots = await pinWindowsDirectories(windows.helper, [...cfg.roots, cfg.codexHome], cfg.codexHome); }
+    try { releaseRoots = await pinWindowsDirectories(windows.helper, [...cfg.roots, ...(cfg.libraryDir ? [cfg.libraryDir] : []), cfg.codexHome], cfg.codexHome); }
     catch (error) { await windows.temporary.close(); throw error; }
     log("info", "Windows inner sandbox and strict protocol filter; no OS outer sandbox", { mode: windows.mode });
   }
@@ -265,9 +271,13 @@ async function start(cfg: AgentConfig, windowed = false): Promise<number> {
   if (resident) {
     try {
       const { webOrigin } = siteDocument(import.meta.url);
-      const files = new LocalFiles({ roots: () => cfg.roots, configDir: CONFIG_DIR, codexHome: cfg.codexHome,
-        files: windows ? new WindowsFiles({ url: () => es.url, home: windows.home, roots: cfg.roots, mode: windows.mode, writable: false, helper: windows.helper, temporary: windows.temporary.directory }) : undefined });
-      presence = await startLocalApi({ webOrigin, version: VERSION, machineName: cfg.machineName, config: () => cfg, files, connected: () => relay.status === "connected",
+      const readRoots = () => [...cfg.roots, ...(cfg.libraryDir ? [cfg.libraryDir] : [])];
+      const files = new LocalFiles({ roots: readRoots, configDir: CONFIG_DIR, codexHome: cfg.codexHome,
+        files: windows ? new WindowsFiles({ url: () => es.url, home: windows.home, roots: readRoots(), mode: windows.mode, writable: false, helper: windows.helper, temporary: windows.temporary.directory }) : undefined });
+      const settings = new LocalSettings({ file: CONFIG_PATH, config: () => cfg, confirm: windowed ? windowsConfirm : localConfirm,
+        autostart: { get: async () => (await autostart("status")).enabled === true, set: async enabled => { await autostart(enabled ? "enable" : "disable"); } },
+        restart: scheduleResidentRestart, onChange: () => log("info", "local settings applied", { code: "applied" }) });
+      presence = await startLocalApi({ webOrigin, version: VERSION, machineName: cfg.machineName, config: () => cfg, files, settings, connected: () => relay.status === "connected",
         onRequest: (category, code) => log(code ? "warn" : "debug", "local request", { category, ...(code ? { code } : {}) }),
         onEvent: (event, details) => log(event === "unavailable" ? "warn" : "info", `presence ${event}`, details) });
     } catch {

@@ -5,6 +5,31 @@ let fixture: Awaited<ReturnType<typeof ticketFixture>>, verifier: TicketVerifier
 beforeEach(async () => { fixture = await ticketFixture(); verifier = new TicketVerifier({ webOrigin: "https://investment.example", userId: () => "probe-user", fetch: fixture.fetch }); });
 afterEach(async () => { await fixture.close(); });
 describe("local-agent ES256 tickets", () => {
+  it("refreshes an unknown kid only after 60 seconds since any previous key fetch, including rotation", async () => {
+    let now = Date.now();
+    const scoped = new TicketVerifier({ webOrigin: "https://investment.example", userId: () => "probe-user", fetch: fixture.fetch, now: () => now });
+    await scoped.check("Bearer " + fixture.token()); fixture.rotate();
+    now += 60000;
+    await expect(scoped.check("Bearer " + fixture.token())).rejects.toMatchObject({ status: 401 });
+    expect(fixture.requests()).toBe(1);
+    now++;
+    await Promise.all(Array.from({ length: 8 }, () => scoped.check("Bearer " + fixture.token())));
+    expect(fixture.requests()).toBe(2);
+    for (let i = 0; i < 5; i++) await expect(scoped.check("Bearer " + fixture.token({}, { kid: "unknown-" + i }))).rejects.toMatchObject({ status: 401 });
+    expect(fixture.requests()).toBe(2);
+  });
+  it("throttles failed unknown-kid refresh attempts while retaining unexpired known keys", async () => {
+    let now = Date.now();
+    const scoped = new TicketVerifier({ webOrigin: "https://investment.example", userId: () => "probe-user", fetch: fixture.fetch, now: () => now });
+    const known = fixture.token(); await scoped.check("Bearer " + known);
+    now += 60001; fixture.fail();
+    await expect(scoped.check("Bearer " + fixture.token({}, { kid: "unknown" }))).rejects.toMatchObject({ status: 503, code: "keys_unavailable" });
+    for (let i = 0; i < 4; i++) await expect(scoped.check("Bearer " + fixture.token({}, { kid: "unknown" }))).rejects.toMatchObject({ status: 401 });
+    await scoped.check("Bearer " + known); expect(fixture.requests()).toBe(2);
+    now += 60001;
+    await expect(scoped.check("Bearer " + fixture.token({}, { kid: "unknown" }))).rejects.toMatchObject({ status: 503 });
+    expect(fixture.requests()).toBe(3);
+  });
   it("verifies a P-256 signature and caches public JWKS, never sending the ticket", async () => {
     const token = fixture.token(); await verifier.check("Bearer " + token); await verifier.check("Bearer " + token);
     expect(fixture.requests()).toBe(1);

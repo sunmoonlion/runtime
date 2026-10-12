@@ -206,7 +206,7 @@ function Show-Status {
 }
 function Show-Preferences {
     $Prefs=Invoke-Agent @('settings','show')
-    $Dialog=New-Object System.Windows.Forms.Form; $Dialog.Text='SunMoon - 本机设置'; $Dialog.Size=New-Object System.Drawing.Size(700,525); $Dialog.StartPosition='CenterScreen'
+    $Dialog=New-Object System.Windows.Forms.Form; $Dialog.Text='SunMoon - 本机设置'; $Dialog.Size=New-Object System.Drawing.Size(700,610); $Dialog.StartPosition='CenterScreen'
     $NameLabel=New-Object System.Windows.Forms.Label; $NameLabel.Text='机器名称'; $NameLabel.SetBounds(15,15,100,24)
     $Name=New-Object System.Windows.Forms.TextBox; $Name.Text=$Prefs.machineName; $Name.SetBounds(120,15,500,26)
     $RootLabel=New-Object System.Windows.Forms.Label; $RootLabel.Text='勾选允许访问的目录；未勾选的目录只记住位置，不授予访问权限。'; $RootLabel.SetBounds(15,52,650,26)
@@ -219,19 +219,26 @@ function Show-Preferences {
     $Remove.Add_Click({ if($Roots.SelectedIndex -ge 0){$Roots.Items.RemoveAt($Roots.SelectedIndex)} })
     $Mode=New-Object System.Windows.Forms.ComboBox; $Mode.DropDownStyle='DropDownList'; $Mode.SetBounds(15,310,230,28); $Mode.Items.AddRange(@('read-only','workspace-write')); $Mode.SelectedItem=$Prefs.ceiling.sandbox
     $Network=New-Object System.Windows.Forms.CheckBox; $Network.Text='允许联网（包括本机代发 MCP HTTP）'; $Network.Checked=[bool]$Prefs.ceiling.network; $Network.SetBounds(270,310,395,28)
+    $LibraryLabel=New-Object System.Windows.Forms.Label; $LibraryLabel.Text='本地知识库目录'; $LibraryLabel.SetBounds(15,350,130,26)
+    $Library=New-Object System.Windows.Forms.TextBox; $Library.Name='LibraryDirectory'; $Library.AccessibleName='本地知识库目录'; $Library.ReadOnly=$true; $Library.Text=[string]$Prefs.libraryDir; $Library.SetBounds(150,350,350,26)
+    $PickLibrary=New-Object System.Windows.Forms.Button; $PickLibrary.Text='选目录'; $PickLibrary.SetBounds(510,350,75,28)
+    $ClearLibrary=New-Object System.Windows.Forms.Button; $ClearLibrary.Text='清空'; $ClearLibrary.SetBounds(595,350,70,28)
+    $PickLibrary.Add_Click({ $Picker=New-Object System.Windows.Forms.FolderBrowserDialog; try { if($Picker.ShowDialog() -eq 'OK'){$Library.Text=$Picker.SelectedPath} } finally{$Picker.Dispose()} })
+    $ClearLibrary.Add_Click({$Library.Clear()})
+    $LibraryNote=New-Object System.Windows.Forms.Label; $LibraryNote.Text='知识库目录仅供读取，不授予工作区写入权限。'; $LibraryNote.SetBounds(150,382,515,26)
     $NoteText='保存后需停止并重新启动代理才生效。全部取消勾选可关闭项目目录访问；临时批准在断开时失效。'
     try { $Current=Invoke-Agent @('status'); if($Current.relay.lastError){$NoteText+="`r`n"+[string]$Current.relay.lastError} } catch {}
-    $Note=New-Object System.Windows.Forms.Label; $Note.Text=$NoteText; $Note.SetBounds(15,350,650,55)
-    $Save=New-Object System.Windows.Forms.Button; $Save.Name='SaveSettings'; $Save.Text='保存设置'; $Save.SetBounds(405,425,120,30)
-    $Cancel=New-Object System.Windows.Forms.Button; $Cancel.Text='取消'; $Cancel.SetBounds(545,425,120,30)
+    $Note=New-Object System.Windows.Forms.Label; $Note.Text=$NoteText; $Note.SetBounds(15,420,650,55)
+    $Save=New-Object System.Windows.Forms.Button; $Save.Name='SaveSettings'; $Save.Text='保存设置'; $Save.SetBounds(405,505,120,30)
+    $Cancel=New-Object System.Windows.Forms.Button; $Cancel.Text='取消'; $Cancel.SetBounds(545,505,120,30)
     $Save.Add_Click({
         try {
-            Invoke-Agent @('settings','set') @{machineName=$Name.Text; roots=@($Roots.CheckedItems | ForEach-Object{[string]$_}); rootChoices=@($Roots.Items | ForEach-Object{[string]$_}); ceiling=@{sandbox=[string]$Mode.SelectedItem; network=[bool]$Network.Checked}} | Out-Null
+            Invoke-Agent @('settings','set') @{machineName=$Name.Text; roots=@($Roots.CheckedItems | ForEach-Object{[string]$_}); rootChoices=@($Roots.Items | ForEach-Object{[string]$_}); ceiling=@{sandbox=[string]$Mode.SelectedItem; network=[bool]$Network.Checked}; libraryDir=$(if($Library.Text){$Library.Text}else{$null})} | Out-Null
             [System.Windows.Forms.MessageBox]::Show('已保存。请在托盘中停止、再启动代理使设置生效。','SunMoon')|Out-Null; $Dialog.Close()
         } catch { [System.Windows.Forms.MessageBox]::Show($_.Exception.Message,'SunMoon')|Out-Null }
     })
     $Cancel.Add_Click({$Dialog.Close()}); $Dialog.CancelButton=$Cancel
-    $Dialog.Controls.AddRange(@($NameLabel,$Name,$RootLabel,$Roots,$Add,$Remove,$Mode,$Network,$Note,$Save,$Cancel))
+    $Dialog.Controls.AddRange(@($NameLabel,$Name,$RootLabel,$Roots,$Add,$Remove,$Mode,$Network,$LibraryLabel,$Library,$PickLibrary,$ClearLibrary,$LibraryNote,$Note,$Save,$Cancel))
     Initialize-VisibleForm $Dialog
     $Watch = New-FormWatchdog $Dialog
     try{$Watch.Start(); $Dialog.ShowDialog()|Out-Null}finally{$Watch.Stop(); $Watch.Dispose(); $Dialog.Dispose()}

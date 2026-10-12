@@ -27,8 +27,9 @@ import { configHasToken, menuPlan, osLabel, runPair, siteDocument, PAIR_EXIT } f
 import {runPairPage,openDefaultBrowser,PairPageError} from "./pairPage.js";
 import {humanizeTransport} from "./connectionMessages.js";
 import {openPairPage,readPageDiscovery,publishPageDiscovery,pairingPageStatus,acquirePairPage} from "./pairPageControl.js";
+import { startPresence } from "./presence.js";
 
-const VERSION = "0.3.0";
+const VERSION = "0.3.1";
 const STATUS_PATH = path.join(CONFIG_DIR, "status.json");
 
 function arg(flag: string, argv: string[]): string | undefined {
@@ -257,6 +258,17 @@ async function start(cfg: AgentConfig, windowed = false): Promise<number> {
   });
   relay.start();
 
+  let presence: Awaited<ReturnType<typeof startPresence>> = null;
+  if (resident) {
+    try {
+      const { webOrigin } = siteDocument(import.meta.url);
+      presence = await startPresence({ webOrigin, version: VERSION, machineName: cfg.machineName, connected: () => relay.status === "connected",
+        onEvent: (event, details) => log(event === "unavailable" ? "warn" : "info", `presence ${event}`, details) });
+    } catch {
+      log("warn", "presence unavailable", { code: "site_profile_unavailable" });
+    }
+  }
+
   const writeStatus = () => {
     const st = { version: VERSION, pid: process.pid, ...(resident ? { runId: resident.runId, background: windowed } : {}), codex: codex.version, execServer: { url: es.url, alive: es.alive, sandboxed: es.sandboxed, generation: es.generation, ...(windows ? { protection: "inner-sandbox+strict-protocol", windowsSandbox: cfg.windowsSandbox } : {}) }, relay: { url: cfg.relayUrl, status: relay.status, lastError: relay.lastError, lastNotice: relay.lastNotice }, ceiling: cfg.ceiling, roots: cfg.roots, bridge: relay.stats, at: new Date().toISOString() };
     fs.mkdirSync(CONFIG_DIR, { recursive: true, mode: 0o700 });
@@ -281,7 +293,7 @@ async function start(cfg: AgentConfig, windowed = false): Promise<number> {
       log(code === 0 ? "info" : "error", "shutting down", { why, exitCode: code });
       clearInterval(timer);
       if (code !== 0) writeStatus(); // 保留最后状态（含被拒原因），便于用户与托盘查看
-      relay.stop(); srv.close(); await es.stop(); releaseRoots?.(); await windows?.temporary.close();
+      relay.stop(); srv.close(); await presence?.close(); await es.stop(); releaseRoots?.(); await windows?.temporary.close();
       if (code === 0) { try { fs.unlinkSync(STATUS_PATH); } catch {} }
       await resident?.close();
       resolve(code);

@@ -192,6 +192,7 @@ function Show-Status {
         if($Page.active){
             $Text+="`r`n`r`n本机接入页："+[string]$Page.url
             if($Page.user_code){$Text+="`r`n连接码："+[string]$Page.user_code}
+            $Text+="`r`n网站页会自动填码；没打开就复制上面的地址到浏览器"
             if($Page.message){$Text+="`r`n"+[string]$Page.message}
         }
     } catch {}

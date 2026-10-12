@@ -73,12 +73,17 @@ try {
   for (const alias of [textFile+':stream',root+'\\CON',root+'\\NAME~1.txt','\\\\?\\'+textFile]) assert.equal((await call('fs/readFile',{path:alias})).error.code,-32010);
   const huge = path.join(root,'huge'); fs.closeSync(fs.openSync(huge,'w')); fs.truncateSync(huge,64*1024*1024+1);
   assert.equal((await call('fs/readFile',{path:huge})).error.code,-32011);
+  const many = path.join(root,'many'); fs.mkdirSync(many);
+  for(let i=0;i<2001;i++) fs.writeFileSync(path.join(many,'文件'+String(i).padStart(4,'0')), '');
+  const listing = await call('fs/readDirectory',{path:many});
+  assert.equal(listing.result.entries.length,2000); assert.equal(listing.result.truncated,true);
+  assert(listing.result.entries.every(entry=>/^文件[0-9]{4}$/.test(entry.name)));
   const reject = new WebSocket(relayUrl+'/service');
   await new Promise((resolve,rejectError) => { reject.once('open',resolve); reject.once('error',rejectError); });
   const rejected = new Promise(resolve => reject.once('message',raw=>resolve(JSON.parse(String(raw)))));
   reject.send(JSON.stringify({type:'hello',proto:1,role:'workbench',user:'probe',software:'stage1-probe'}));
   assert.equal((await rejected).type,'reject'); reject.close();
-  console.log(JSON.stringify({stage:1,platform:'win32',agent:'0.4.0',codex:codex.version,sandbox:'unelevated',hello:true,chinese_read:true,metadata:true,directory:true,segments:10,reassembled:true,max_response_bytes:maxFrame,protected_codex_denied:true,outside_denied:true,agent_home_denied:true,not_found:true,oversized_length_denied:true,case_insensitive:true,junction_denied:true,hardlink_denied:true,aliases_denied:true,too_large_denied:true,no_token_rejected:true,sandbox_streams:client.stats.connections}));
+  console.log(JSON.stringify({stage:1,platform:'win32',agent:'0.4.0',codex:codex.version,sandbox:'unelevated',hello:true,chinese_read:true,metadata:true,directory:true,directory_limit:true,utf8_directory_names:true,segments:10,reassembled:true,max_response_bytes:maxFrame,protected_codex_denied:true,outside_denied:true,agent_home_denied:true,not_found:true,oversized_length_denied:true,case_insensitive:true,junction_denied:true,hardlink_denied:true,aliases_denied:true,too_large_denied:true,no_token_rejected:true,sandbox_streams:client.stats.connections}));
 } finally {
   wb?.close(); client?.stop(); await es.stop();
   await sleep(500); await release.close(); await temp.close();

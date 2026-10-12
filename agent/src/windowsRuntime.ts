@@ -136,6 +136,8 @@ export class WindowsFiles {
     } finally { rpc.close(); }
     if (this.stopped) throw new Error("filesystem worker closed");
     this.child = spawn(locateCodex().codexBin, windowsHelperArgs(o.home, o.roots, o.mode, o.writable, o.helper, notFound), { cwd: o.roots[0] ?? o.home, env: windowsEnvironment(o.home, {}, process.env, o.temporary), stdio: ["pipe", "pipe", "pipe"], windowsHide: true });
+    // Directory responses can span pipe chunks in the middle of a UTF-8 name.
+    this.child.stdout!.setEncoding("utf8");
     this.child.stdout!.on("data", d => {
       this.buffer += String(d);
       if (this.buffer.length > 16 * 1024 * 1024) { void this.close(); return; }

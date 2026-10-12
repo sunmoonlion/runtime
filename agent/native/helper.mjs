@@ -159,8 +159,10 @@ if (process.argv[2] === '--pin-directory') {
         } finally { dir.closeSync(); }
         return { entries, truncated };
       });
-      case 'service/readFile': {
-        if (!Number.isSafeInteger(p.offset) || p.offset < 0 || !Number.isSafeInteger(p.length) || p.length < 1 || p.length > 524288) throw Object.assign(new Error('invalid range'), { rpcCode: -32602, rpcMessage: 'Invalid params' });
+      case 'service/readFile':
+      case 'local/readFile': {
+        const limit = method === 'local/readFile' ? 1048576 : 524288;
+        if (!Number.isSafeInteger(p.offset) || p.offset < 0 || !Number.isSafeInteger(p.length) || p.length < 1 || p.length > limit) throw Object.assign(new Error('invalid range'), { rpcCode: -32602, rpcMessage: 'Invalid params' });
         const fd = openRead(target);
         try {
           const s = fs.fstatSync(fd);

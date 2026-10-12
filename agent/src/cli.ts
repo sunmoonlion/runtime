@@ -27,7 +27,9 @@ import { configHasToken, menuPlan, osLabel, runPair, siteDocument, PAIR_EXIT } f
 import {runPairPage,openDefaultBrowser,PairPageError} from "./pairPage.js";
 import {humanizeTransport} from "./connectionMessages.js";
 import {openPairPage,readPageDiscovery,publishPageDiscovery,pairingPageStatus,acquirePairPage} from "./pairPageControl.js";
-import { startPresence } from "./presence.js";
+import { startLocalApi } from "./localApi.js";
+import { LocalFiles } from "./localFiles.js";
+import { WindowsFiles } from "./windowsRuntime.js";
 
 const VERSION = "0.4.0";
 const STATUS_PATH = path.join(CONFIG_DIR, "status.json");
@@ -259,11 +261,14 @@ async function start(cfg: AgentConfig, windowed = false): Promise<number> {
   });
   relay.start();
 
-  let presence: Awaited<ReturnType<typeof startPresence>> = null;
+  let presence: Awaited<ReturnType<typeof startLocalApi>> = null;
   if (resident) {
     try {
       const { webOrigin } = siteDocument(import.meta.url);
-      presence = await startPresence({ webOrigin, version: VERSION, machineName: cfg.machineName, connected: () => relay.status === "connected",
+      const files = new LocalFiles({ roots: () => cfg.roots, configDir: CONFIG_DIR, codexHome: cfg.codexHome,
+        files: windows ? new WindowsFiles({ url: () => es.url, home: windows.home, roots: cfg.roots, mode: windows.mode, writable: false, helper: windows.helper, temporary: windows.temporary.directory }) : undefined });
+      presence = await startLocalApi({ webOrigin, version: VERSION, machineName: cfg.machineName, config: () => cfg, files, connected: () => relay.status === "connected",
+        onRequest: (category, code) => log(code ? "warn" : "debug", "local request", { category, ...(code ? { code } : {}) }),
         onEvent: (event, details) => log(event === "unavailable" ? "warn" : "info", `presence ${event}`, details) });
     } catch {
       log("warn", "presence unavailable", { code: "site_profile_unavailable" });

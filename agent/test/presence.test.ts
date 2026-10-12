@@ -64,10 +64,11 @@ describe("loopback presence endpoint", () => {
       expect(wrongMethod.status).toBe(405);
       const preflight = await request(endpoint!.port, "/presence", "OPTIONS", { Origin: origin, "Access-Control-Request-Method": "GET", "Access-Control-Request-Private-Network": "true" });
       expect(preflight.status).toBe(204);
-      expect(preflight.headers["access-control-allow-methods"]).toBe("GET");
+      expect(preflight.headers["access-control-allow-methods"]).toBe("GET, POST, PUT");
+      expect(preflight.headers["access-control-allow-headers"]).toBe("Authorization, Content-Type");
       expect(preflight.headers["access-control-allow-private-network"]).toBe("true");
       expect(preflight.headers["access-control-allow-credentials"]).toBeUndefined();
-      expect((await request(endpoint!.port, "/presence", "OPTIONS", { Origin: origin, "Access-Control-Request-Method": "POST" })).status).toBe(405);
+      expect((await request(endpoint!.port, "/presence", "OPTIONS", { Origin: origin, "Access-Control-Request-Method": "POST" })).status).toBe(204);
     } finally { await endpoint!.close(); }
   });
 

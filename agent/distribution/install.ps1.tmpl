@@ -57,7 +57,7 @@ function Show-AgentWindow {
     New-StartMenuShortcut
     & (Join-Path $Dest 'sunmoon-agent.cmd') menu
     if ($LASTEXITCODE -ne 0) { throw '窗口没有打开。' }
-    Write-Output ('已准备 SunMoon 代理 ' + $Version + '（Codex ' + $CodexVersion + '）。请在自动打开的浏览器页面继续；已连接的电脑可使用托盘。')
+    Write-Output ('已准备 SunMoon 代理 ' + $Version + '（Codex ' + $CodexVersion + '）。还没接入过的电脑会自动打开浏览器接入页；已经接入过的直接用托盘，不再开页。')
 }
 
 try {

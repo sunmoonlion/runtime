@@ -146,7 +146,8 @@ function New-AgentProcess([string[]]$Command, [bool]$Detached=$false) {
         if ($Info.EnvironmentVariables.ContainsKey('NODE_EXTRA_CA_CERTS')) { [void]$Info.EnvironmentVariables.Remove('NODE_EXTRA_CA_CERTS') }
         if ($ExtraCa) { $Info.EnvironmentVariables['NODE_EXTRA_CA_CERTS'] = $ExtraCa }
     }
-    if($Detached){$Info.RedirectStandardInput=$false; $Info.RedirectStandardOutput=$false; $Info.RedirectStandardError=$false}
+    # .NET refuses StandardOutputEncoding unless stdout is redirected; a detached start must clear it (0.3.2, tray reconnect fix).
+    if($Detached){$Info.RedirectStandardInput=$false; $Info.RedirectStandardOutput=$false; $Info.RedirectStandardError=$false; $Info.StandardOutputEncoding=$null}
     $Process=New-Object System.Diagnostics.Process; $Process.StartInfo=$Info
     $Process.Start() | Out-Null
     return $Process

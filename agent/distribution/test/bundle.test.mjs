@@ -236,6 +236,8 @@ test('only explicit source inputs are included by builder; launcher uses bundled
     assert.match(source, /--use-system-ca/); assert.match(source, /NODE_OPTIONS/); assert.match(source, /bundled-ca/);
   }
   assert.match(ps1, /lastError/); assert.match(ps1, /63/);
+  // 0.3.2：分离启动（托盘「重新连接账号」）不重定向 stdout 时必须清掉编码，否则 Process.Start 抛异常
+  assert.match(ps1, /if\(\$Detached\)\{[^}]*\$Info\.StandardOutputEncoding=\$null\}/);
   assert.match(ps1, /'\/\/B \/\/Nologo "' \+ \$InputData\.hiddenScript \+ '" "' \+ \$InputData\.node \+ '" "' \+ \$InputData\.cli \+ '" "' \+ \$InputData\.state \+ '"'/);
 });
 
@@ -369,7 +371,7 @@ test('install script upgrades either installed shape without an overwrite switch
   assert.match(text, /SunMoon 代理/);
   assert.match(text, /Test-Path -LiteralPath \$ConfigPath/);
   assert.match(text, /autostart enable/);
-  assert.match(text, /请在自动打开的浏览器页面继续/);
+  assert.match(text, /还没接入过的电脑会自动打开浏览器接入页；已经接入过的直接用托盘/);
   const desktop = fs.readFileSync(fileURLToPath(new URL('../../native/desktop.ps1', import.meta.url)), 'utf8');
   for (const label of ['重新连接账号', 'pair-page-status', '本机接入页', '连接码：']) {
     assert.equal(desktop.includes(label), true, label);

@@ -29,7 +29,7 @@ import {humanizeTransport} from "./connectionMessages.js";
 import {openPairPage,readPageDiscovery,publishPageDiscovery,pairingPageStatus,acquirePairPage} from "./pairPageControl.js";
 import { startPresence } from "./presence.js";
 
-const VERSION = "0.3.1";
+const VERSION = "0.3.2";
 const STATUS_PATH = path.join(CONFIG_DIR, "status.json");
 
 function arg(flag: string, argv: string[]): string | undefined {

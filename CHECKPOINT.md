@@ -1,5 +1,13 @@
 # CHECKPOINT（runtime 仓，分支 fable）
 
+## 当前：0.4.1 新建项目——回环口建文件夹、拉取 git 仓库（0024 段 1，远程实现，Windows 待验，2026-10-14）
+
+起因：现网新建项目只在工作台登记路径，电脑上没有那个文件夹，工作对话写文件时代理反复报工作目录不存在、模型转去请求提权。设计 `k8s/.../SDD/modules/0024-new-project.md`。
+
+回环口加 `POST /local/v1/projects/folder`、`POST /local/v1/projects/clone`（`src/localProjects.ts`），门与 0022 相同；`info.capabilities` 多 `local-project-v1`。只写工作区（`roots`），不写知识库、配置目录、codex-home、`.git` 里；本地上限只读时拒。Windows 建文件夹另起一个**可写**文件助手（工作区为写根），走它已审的 `fs/createDirectory`；建完 `service/getMetadata` 核。clone 由代理直接起 `git`（不经 shell、不在 Codex 沙箱：要用用户的凭据管理器与 ssh key），参数写死：只放行 https/ssh 传输、不拉子模块、`--` 之后才是地址；`GIT_TERMINAL_PROMPT=0`、`GCM_INTERACTIVE=never`；用户填的令牌只进 git 子进程环境，经一次性凭据助手交给 git，勾记住才 `git credential approve`。失败只按 stderr 固定片段分类，原文不回。超时 15 分钟 / 取消杀进程树，删掉本次新建的文件夹（用户选的空文件夹只清空）。Windows 上 `canonicalPath` 小写只用于比较，建的文件夹保留原名大小写。
+
+Linux 323 通过 / 34 平台跳过，类型、构建通过（新增 `test/localProjects.test.ts`、`test/localProjectsApi.test.ts`，含真 git 验一次性凭据助手）。**Windows 未验**：`test/local-project-windows-probe.mjs <隔离源码> [公开仓库] [私有仓库]`（令牌只从环境变量 `SUNMOON_PROBE_TOKEN` 读）交所有者机器跑；版本三处 0.4.1。不 push、不发布。
+
 ## 当前：032 乙案段 2 已交审，本机真人允许/拒绝与正常重启通过（2026-10-12）
 
 代码 `f002ab5346bb3e007c9de0339b960aeacb287a73`，基于已审回环段 1。五个候选口 47811–47815、未知 kid 距上次取钥超过 60 秒刷新、GET/PUT settings、共享 preferences 校验、合成本机随机码确认、原子配置替换、回包后 stop-request/startResident 重启、只读 libraryDir 与托盘字段已实现；版本仍 0.4.0，无新依赖。

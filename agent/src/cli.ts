@@ -30,9 +30,10 @@ import {openPairPage,readPageDiscovery,publishPageDiscovery,pairingPageStatus,ac
 import { startLocalApi } from "./localApi.js";
 import { LocalSettings } from "./localSettings.js";
 import { LocalFiles } from "./localFiles.js";
-import { WindowsFiles } from "./windowsRuntime.js";
+import { killWindowsTree, WindowsFiles } from "./windowsRuntime.js";
+import { LocalProjects } from "./localProjects.js";
 
-const VERSION = "0.4.0";
+const VERSION = "0.4.1";
 const STATUS_PATH = path.join(CONFIG_DIR, "status.json");
 
 function arg(flag: string, argv: string[]): string | undefined {
@@ -277,7 +278,11 @@ async function start(cfg: AgentConfig, windowed = false): Promise<number> {
       const settings = new LocalSettings({ file: CONFIG_PATH, config: () => cfg, confirm: windowed ? windowsConfirm : localConfirm,
         autostart: { get: async () => (await autostart("status")).enabled === true, set: async enabled => { await autostart(enabled ? "enable" : "disable"); } },
         restart: scheduleResidentRestart, onChange: () => log("info", "local settings applied", { code: "applied" }) });
-      presence = await startLocalApi({ webOrigin, version: VERSION, machineName: cfg.machineName, config: () => cfg, files, settings, connected: () => relay.status === "connected",
+      // 0024: new-project folders and clones go only under the workspace roots; the Windows helper is writable there unless the ceiling is read-only.
+      const projects = new LocalProjects({ roots: () => cfg.roots, denied: () => [CONFIG_DIR, cfg.codexHome, ...(cfg.libraryDir ? [cfg.libraryDir] : [])], ceiling: () => cfg.ceiling,
+        files: windows ? new WindowsFiles({ url: () => es.url, home: windows.home, roots: cfg.roots, mode: windows.mode, writable: cfg.ceiling.sandbox !== "read-only", helper: windows.helper, temporary: windows.temporary.directory }) : undefined,
+        kill: windows ? killWindowsTree : undefined });
+      presence = await startLocalApi({ webOrigin, version: VERSION, machineName: cfg.machineName, config: () => cfg, files, settings, projects, connected: () => relay.status === "connected",
         onRequest: (category, code) => log(code ? "warn" : "debug", "local request", { category, ...(code ? { code } : {}) }),
         onEvent: (event, details) => log(event === "unavailable" ? "warn" : "info", `presence ${event}`, details) });
     } catch {

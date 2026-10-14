@@ -3,6 +3,7 @@ import type { AgentConfig } from "./config.js";
 import { TicketVerifier, TicketError } from "./ticket.js";
 import { LocalFiles, LocalError, LOCAL_MAX_READ } from "./localFiles.js";
 import type { LocalSettings } from "./localSettings.js";
+import type { LocalProjects } from "./localProjects.js";
 
 export interface LocalApiOptions {
   webOrigin: string;
@@ -13,8 +14,9 @@ export interface LocalApiOptions {
   files?: LocalFiles;
   ticket?: TicketVerifier;
   settings?: LocalSettings;
+  projects?: LocalProjects;
   onEvent?: (event: "listening" | "rate_limited" | "unavailable", details: { count?: number; port?: number; code?: string }) => void;
-  onRequest?: (category: "info" | "dir" | "meta" | "file" | "settings" | "other", code?: string) => void;
+  onRequest?: (category: "info" | "dir" | "meta" | "file" | "settings" | "project" | "other", code?: string) => void;
   /** Test seam. The shipped CLI tries the five fixed ports in order. */
   ports?: readonly number[];
 }
@@ -24,7 +26,7 @@ function exactWebOrigin(value: string): boolean {
   catch { return false; }
 }
 export const LOCAL_PORTS = [47811, 47812, 47813, 47814, 47815] as const;
-const routes = ["/local/v1/info", "/local/v1/fs/dir", "/local/v1/fs/meta", "/local/v1/fs/file", "/local/v1/settings"];
+const routes = ["/local/v1/info", "/local/v1/fs/dir", "/local/v1/fs/meta", "/local/v1/fs/file", "/local/v1/settings", "/local/v1/projects/folder", "/local/v1/projects/clone"];
 const headers = (origin: string) => ({ "Access-Control-Allow-Origin": origin, Vary: "Origin", "Cache-Control": "no-store", "Content-Type": "application/json; charset=utf-8" });
 
 function readSettingsBody(req: IncomingMessage): Promise<unknown> {
@@ -64,7 +66,7 @@ function createHandler(options: LocalApiOptions) {
     try { url = new URL(req.url ?? "", "http://127.0.0.1"); } catch { error(400, "invalid_params"); return; }
     const presence = req.url === "/presence";
     const isLocal = url.pathname.startsWith("/local/v1/") && !!options.config;
-    const category = url.pathname === "/local/v1/settings" ? "settings" : url.pathname === "/local/v1/info" ? "info" : url.pathname.endsWith("/dir") ? "dir" : url.pathname.endsWith("/meta") ? "meta" : url.pathname.endsWith("/file") ? "file" : "other";
+    const category = url.pathname.startsWith("/local/v1/projects/") ? "project" : url.pathname === "/local/v1/settings" ? "settings" : url.pathname === "/local/v1/info" ? "info" : url.pathname.endsWith("/dir") ? "dir" : url.pathname.endsWith("/meta") ? "meta" : url.pathname.endsWith("/file") ? "file" : "other";
     if (!presence && !isLocal) { error(404, "not_found"); return; }
     if (req.method === "OPTIONS") {
       if (!presence && !routes.includes(url.pathname)) { error(404, "not_found"); return; }
@@ -97,11 +99,21 @@ function createHandler(options: LocalApiOptions) {
           res.once("close", () => { if (!res.writableFinished) restart(); });
           respond(res, 200, responseHeaders, JSON.stringify(result));
         } else throw new LocalError(405, "method_not_allowed");
+      } else if (category === "project") {
+        if (req.method !== "POST") throw new LocalError(405, "method_not_allowed");
+        if (url.search || !/^application\/json(?:\s*;\s*charset=utf-8)?$/i.test(req.headers["content-type"] ?? "")) throw new LocalError(400, "invalid");
+        if (!options.projects) throw new LocalError(503, "projects_unavailable");
+        const input = await readSettingsBody(req);
+        if (!input || typeof input !== "object" || Array.isArray(input)) throw new LocalError(400, "invalid_params");
+        const body = input as Record<string, unknown>, folder = url.pathname.endsWith("/folder");
+        if (Object.keys(body).some(k => !(folder ? ["path"] : ["url", "path", "auth"]).includes(k))) throw new LocalError(400, "invalid_params");
+        const result = folder ? await options.projects.folder(body.path) : await options.projects.clone(body, controller.signal);
+        if (!res.destroyed) respond(res, 200, responseHeaders, JSON.stringify(result));
       } else if (req.method !== "GET") throw new LocalError(405, "method_not_allowed");
       else if (category === "info") {
         if (url.search) throw new LocalError(400, "invalid_params");
         const cfg = options.config!();
-        respond(res, 200, responseHeaders, JSON.stringify({ agent: "sunmoon-agent", version: options.version, userId: cfg.userId, roots: cfg.roots, libraryDir: cfg.libraryDir ?? null, lastSettingsChange: cfg.lastSettingsChange ?? null, capabilities: ["local-fs-v1"] }));
+        respond(res, 200, responseHeaders, JSON.stringify({ agent: "sunmoon-agent", version: options.version, userId: cfg.userId, roots: cfg.roots, libraryDir: cfg.libraryDir ?? null, lastSettingsChange: cfg.lastSettingsChange ?? null, capabilities: ["local-fs-v1", ...(options.projects ? ["local-project-v1"] : [])] }));
       } else {
         const keys = [...url.searchParams.keys()];
         if (keys.some(key => !(category === "file" ? ["path", "offset", "length"] : ["path"]).includes(key)) || new Set(keys).size !== keys.length || !url.searchParams.get("path")) throw new LocalError(400, "invalid_params");
@@ -139,7 +151,7 @@ export async function startLocalApi(options: LocalApiOptions): Promise<LocalApiH
       await listen(server, port);
       const address = server.address(), actualPort = address && typeof address !== "string" ? address.port : port;
       options.onEvent?.("listening", { port: actualPort });
-      return { port: actualPort, close: async () => { handler.abort(); await new Promise<void>((resolve, reject) => { server.close(error => error ? reject(error) : resolve()); server.closeAllConnections(); }); await options.files?.close(); } };
+      return { port: actualPort, close: async () => { handler.abort(); await new Promise<void>((resolve, reject) => { server.close(error => error ? reject(error) : resolve()); server.closeAllConnections(); }); await options.files?.close(); await options.projects?.close(); } };
     } catch (cause) {
       lastCode = (cause as NodeJS.ErrnoException).code ?? "listen_failed";
       if (lastCode !== "EADDRINUSE") { options.onEvent?.("unavailable", { port, code: lastCode }); return null; }

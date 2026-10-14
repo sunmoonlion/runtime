@@ -37,7 +37,8 @@ describe("loopback new-project routes", () => {
     expect((await call("/local/v1/projects/folder", { path: path.join(root, "p") }, { Origin: "https://example.com" })).status).toBe(403);
     expect(fs.existsSync(path.join(root, "p"))).toBe(false);
   });
-  it("make a folder by POST with a JSON body holding only the path", async () => {
+  // 用 platform: "linux" 的 LocalProjects 在本机临时目录建文件夹；Windows 的建文件夹由真机探针覆盖
+  it.skipIf(process.platform === "win32")("make a folder by POST with a JSON body holding only the path", async () => {
     const target = path.join(root, "新项目");
     expect(await call("/local/v1/projects/folder", { path: target })).toEqual({ status: 200, body: { path: target, created: true } });
     expect(fs.statSync(target).isDirectory()).toBe(true);

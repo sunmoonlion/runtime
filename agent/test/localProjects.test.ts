@@ -29,6 +29,8 @@ const mode = (value: string) => fs.writeFileSync(path.join(fake, "mode"), value)
 const log = () => fs.readFileSync(path.join(fake, "log"), "utf8");
 const projects = (extra: Partial<ConstructorParameters<typeof LocalProjects>[0]> = {}) =>
   new LocalProjects({ roots: () => [root], denied: () => [library], ceiling: () => ceiling, platform: "linux", git: path.join(fake, "git"), ...extra });
+// Linux 路径与 #!/bin/sh 假 git 的夹具：Windows 上的同样场景由 test/local-project-windows-probe.mjs 真机覆盖（0024 段 2）
+const onWindows = process.platform === "win32";
 const code = (promise: Promise<unknown>) => promise.then(() => "ok", (error: { code?: string }) => error.code);
 
 beforeEach(() => {
@@ -40,7 +42,7 @@ beforeEach(() => {
 });
 afterEach(() => { delete process.env.FAKE_GIT_DIR; fs.rmSync(base, { recursive: true, force: true }); });
 
-describe("new project folder", () => {
+describe.skipIf(onWindows)("new project folder", () => {
   it("creates nested folders under a workspace root, then reports an existing one as not created", async () => {
     const target = path.join(root, "a", "财务预测");
     expect(await projects().folder(target)).toEqual({ path: target, created: true });
@@ -98,7 +100,7 @@ describe("clone url", () => {
   });
 });
 
-describe("clone", () => {
+describe.skipIf(onWindows)("clone", () => {
   const url = "https://example.com/team/repo.git";
   it("runs git with fixed argv, no prompts, only https/ssh transports and no submodules", async () => {
     const target = path.join(root, "repo");

@@ -1,0 +1,511 @@
+
+ RUN  v3.2.7 C:/Users/zymun/sunmoon-probe-runs/windows-agent-041/tests/agent
+
+{"t":"2026-10-14T08:06:23.601Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:23.630Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:23.659Z","level":"warn","msg":"service request","method":"unknown","code":-32601}
+{"t":"2026-10-14T08:06:23.666Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:23.689Z","level":"warn","msg":"service stream limit"}
+{"t":"2026-10-14T08:06:23.695Z","level":"info","msg":"stream bridged","conn":"10f37217","local":"ws://127.0.0.1:60189/"}
+{"t":"2026-10-14T08:06:23.748Z","level":"info","msg":"stream closed","conn":"10f37217","why":"agent stopped"}
+{"t":"2026-10-14T08:06:23.755Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:23.794Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:23.827Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-14T08:06:23.833Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:23.859Z","level":"info","msg":"stream bridged","conn":"91dce4c2","local":"ws://127.0.0.1:60207/"}
+{"t":"2026-10-14T08:06:23.859Z","level":"info","msg":"stream closed","conn":"91dce4c2","why":"agent stopped"}
+{"t":"2026-10-14T08:06:23.864Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:23.891Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:23.917Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:23.986Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:24.011Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:24.058Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-14T08:06:24.063Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:24.089Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:24.126Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:24.153Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:24.184Z","level":"warn","msg":"沙箱与本地代理的 Codex 版本不一致，已拒绝连接；请更新成配套版本后重试。代理继续等待兼容的连接。"}
+{"t":"2026-10-14T08:06:24.220Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:24.249Z","level":"info","msg":"stream bridged","conn":"d68b9453","local":"ws://127.0.0.1:60234/"}
+{"t":"2026-10-14T08:06:24.309Z","level":"info","msg":"stream closed","conn":"d68b9453","why":"agent stopped"}
+{"t":"2026-10-14T08:06:24.314Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:24.340Z","level":"info","msg":"stream bridged","conn":"b5f9bab0","local":"ws://127.0.0.1:60239/"}
+{"t":"2026-10-14T08:06:24.401Z","level":"warn","msg":"denied by local ceiling","method":"process/start","reason":"sandbox mode danger-full-access exceeds local ceiling workspace-write"}
+{"t":"2026-10-14T08:06:24.402Z","level":"info","msg":"stream closed","conn":"b5f9bab0","why":"agent stopped"}
+{"t":"2026-10-14T08:06:24.407Z","level":"error","msg":"401: 这台电脑的连接已失效，请点『重新连接账号』。"}
+{"t":"2026-10-14T08:06:24.437Z","level":"error","msg":"401: 这台电脑的连接已失效，请点『重新连接账号』。"}
+{"t":"2026-10-14T08:06:24.669Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:24.696Z","level":"error","msg":"4000: 你的账号已在另一台电脑上连接，这台已断开。","code":4000}
+{"t":"2026-10-14T08:06:24.932Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:24.960Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-14T08:06:25.369Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:25.397Z","level":"error","msg":"4000: 你的账号已在另一台电脑上连接，这台已断开。","code":4000}
+{"t":"2026-10-14T08:06:26.936Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:26.964Z","level":"error","msg":"4003: 这台电脑的连接已失效，请点『重新连接账号』。","code":4003}
+{"t":"2026-10-14T08:06:28.514Z","level":"info","msg":"relay connected"}
+{"t":"2026-10-14T08:06:28.541Z","level":"warn","msg":"relay control down, will retry","why":"close 1006","inMs":1000}
+{"t":"2026-10-14T08:06:29.544Z","level":"info","msg":"relay connected"}
+ ✓ test/relayClient.test.ts (21 tests) 6014ms
+   ✓ RelayClient > does not call onRejected on an ordinary disconnect  437ms
+   ✓ RelayClient > does not reconnect after close 4000  1568ms
+   ✓ RelayClient > does not reconnect after close 4003  1577ms
+   ✓ RelayClient > reconnects the control channel after the relay drops it  1065ms
+ ✓ test/windowsNative.test.ts (15 tests) 8399ms
+   ✓ native Windows adversarial admission > elevated OS sandbox blocks ordinary Node writes after a directory swap  1153ms
+   ✓ native Windows adversarial admission > probes an existing elevated setup and runs the protected file helper under it  3205ms
+   ✓ native Windows adversarial admission > rejects precreated native symbolic links as an ordinary user  865ms
+   ✓ native Windows adversarial admission > pins sandbox roots against replacement throughout command launch  436ms
+ ✓ test/localSettings.test.ts (25 tests | 1 skipped) 957ms
+ ✓ test/windowsPolicy.test.ts (25 tests) 34ms
+ ❯ test/localProjects.test.ts (13 tests | 9 failed) 642ms
+   × new project folder > creates nested folders under a workspace root, then reports an existing one as not created 16ms
+     → outside_whitelist
+   × new project folder > refuses outside the roots, the library, a file in the way, a linked ancestor and a read-only ceiling 14ms
+     → expected 'outside_whitelist' to be 'not_a_directory' // Object.is equality
+   ✓ new project folder on Windows > goes through the sandboxed helper's createDirectory and keeps the name as typed 9ms
+   ✓ clone url > takes https, ssh:// and user@host:path, nothing that can run a local command or carries a password 8ms
+   ✓ clone url > sorts failures by fixed fragments only 8ms
+   × clone > runs git with fixed argv, no prompts, only https/ssh transports and no submodules 8ms
+     → outside_whitelist
+   × clone > hands a typed token to git through its env only, and remembers it only when asked 10ms
+     → outside_whitelist
+   × clone > asks for a token when git cannot log in, and removes the folder it made 8ms
+     → expected 'outside_whitelist' to be 'auth_required' // Object.is equality
+   × clone > keeps an empty folder the user picked, but empties what a failed clone left in it 10ms
+     → expected 'outside_whitelist' to be 'clone_failed' // Object.is equality
+   × clone > refuses a non-empty target and a token for an ssh address; ssh login failure says so 12ms
+     → expected 'outside_whitelist' to be 'target_not_empty' // Object.is equality
+   × clone > stops git on timeout or cancel and removes the folder 11ms
+     → expected 'outside_whitelist' to be 'clone_timeout' // Object.is equality
+   × clone > says git is missing 10ms
+     → expected 'outside_whitelist' to be 'git_missing' // Object.is equality
+   ✓ one-shot credential helper with real git > answers exactly the typed pair and ignores helpers configured before it  517ms
+ ✓ test/windowsFollowup.test.ts (9 tests) 8226ms
+   ✓ native Windows stage 1b follow-up > projects confirmed HTTP MCP with the native 0.155.1 contract and no project settings  922ms
+   ✓ native Windows stage 1b follow-up > requires local approval and durable audit before a real Windows write; outside remains denied  525ms
+   ✓ native Windows stage 1b follow-up > pins temp against swaps and refuses a replaced directory after guard failure  2480ms
+stdout | test/windowsResident.test.ts > Windows background + tray lifecycle (no real account) > closing the browser pair page leaves the real Windows resident connected
+{"browserPageClosed":true,"residentContinuedConnected":true}
+
+ ✓ test/windowsLifecycle.test.ts (1 test) 52039ms
+   ✓ Windows CLI real lifecycle + loopback relay > initializes, filters, runs commands, survives 20s relay loss, reports revocation and cleans executor tree  52037ms
+ ✓ test/stage2.test.ts (11 tests) 203ms
+ ✓ test/windowsBridge.test.ts (9 tests) 133ms
+ ✓ test/pair.test.ts (7 tests) 42ms
+ ❯ test/localApi.test.ts (10 tests | 4 failed) 1921ms
+   ✓ local file HTTP API > keeps presence ticket-free while all local routes require a valid ticket 95ms
+   ✓ local file HTTP API > rejects wrong-sub/aud, expired and corrupt tickets as 401; key outage is 503 35ms
+   ✓ local file HTTP API > never returns CORS permission to wrong or absent Origin, including preflight 14ms
+   ✓ local file HTTP API > provides GET/POST/PUT, auth/content-type and private-network preflight without credentials 13ms
+   × local file HTTP API > reads original bytes with exposed metadata headers and reconstructs 5 MiB in five reads 31ms
+     → expected 403 to be 200 // Object.is equality
+   × local file HTTP API > rejects outside/parent escape/protected names, symlinks and hardlinks without revealing paths 10ms
+     → EPERM: operation not permitted, symlink 'C:\Users\zymun\AppData\Local\Temp\sunmoon-local-api-5s5ttG\outside' -> 'C:\Users\zymun\AppData\Local\Temp\sunmoon-local-api-5s5ttG\root\link'
+   × local file HTTP API > returns 413 for a file above 64 MiB and 404 for absent files 19ms
+     → expected 403 to be 413 // Object.is equality
+   × local file HTTP API > returns one-layer directory entries with path and truncation and metadata 1654ms
+     → expected undefined to be 'C:\Users\zymun\AppData\Local\Temp\sun…' // Object.is equality
+   ✓ local file HTTP API > shares twenty-per-second rate limiting with presence and local calls 38ms
+   ✓ local file HTTP API > reports keys unavailable as 503 before attempting any file read 10ms
+ ✓ test/localSettingsApi.test.ts (7 tests) 468ms
+ ✓ test/windowsHttp.test.ts (45 tests) 3079ms
+   ✓ native pinned executor HTTP (isolated loopback, no relay) > passes confirmed endpoint without redirects: streamed=false status=200  1026ms
+   ✓ native pinned executor HTTP (isolated loopback, no relay) > passes confirmed endpoint without redirects: streamed=true status=200  1021ms
+   ✓ native pinned executor HTTP (isolated loopback, no relay) > passes confirmed endpoint without redirects: streamed=false status=302  1016ms
+ ❯ test/service.test.ts (10 tests | 5 failed) 1400ms
+   × service-v1 read boundary > returns only the contracted hello and metadata fields 12ms
+     → expected undefined to deeply equal { type: 'file', size: 5, …(1) }
+   ✓ service-v1 read boundary > rejects outside, dot-dot escape, protected homes and reserved names without exposing paths 5ms
+   × service-v1 read boundary > blocks symlinks and hardlinks but lists links without traversing 5ms
+     → EPERM: operation not permitted, symlink 'C:\Users\zymun\AppData\Local\Temp\sunmoon-service-bFcQZO\outside' -> 'C:\Users\zymun\AppData\Local\Temp\sunmoon-service-bFcQZO\root\link'
+   × service-v1 read boundary > bounds and reconstructs a 5 MiB file in ten responses under the frame limit 7ms
+     → Cannot read properties of undefined (reading 'eof')
+   × service-v1 read boundary > rejects files above 64 MiB before reading and reports not-found 9ms
+     → expected { code: -32010, …(1) } to deeply equal { code: -32011, message: 'too_large' }
+   × service-v1 read boundary > truncates directories at 2000 entries 1344ms
+     → Cannot read properties of undefined (reading 'entries')
+   ✓ service-v1 read boundary > validates JSON-RPC and never exposes process, writes or helper methods 4ms
+   ✓ service-v1 read boundary > rejects request 51 in one instant, refills and rejects oversized/binary frames 5ms
+   ✓ service-v1 read boundary > uses Windows helper only, checks case/aliases and caps four pending requests 5ms
+   ✓ service-v1 read boundary > discards results after disconnect and keeps logs limited to method/code 3ms
+ ✓ test/pairPage.test.ts (6 tests) 184ms
+ ✓ test/presence.test.ts (6 tests) 103ms
+ ✓ test/filter.test.ts (19 tests) 5ms
+ ✓ test/ticket.test.ts (8 tests) 177ms
+ ✓ test/windowsResident.test.ts (4 tests) 67483ms
+   ✓ Windows background + tray lifecycle (no real account) > closing the browser pair page leaves the real Windows resident connected  16381ms
+   ✓ Windows background + tray lifecycle (no real account) > one resident, closing tray keeps it alive, settings remain local, exact stop and restart  48416ms
+   ✓ Windows background + tray lifecycle (no real account) > closes an aborted local GUI prompt without granting permission  2015ms
+   ✓ Windows background + tray lifecycle (no real account) > all shipped PowerShell scripts parse without altering execution policy  669ms
+ ❯ test/localProjectsApi.test.ts (3 tests | 1 failed) 105ms
+   ✓ loopback new-project routes > announce themselves in info and sit behind the same origin and ticket gates 60ms
+   × loopback new-project routes > make a folder by POST with a JSON body holding only the path 26ms
+     → expected { status: 403, body: { …(2) } } to deeply equal { status: 200, body: { …(2) } }
+   ✓ loopback new-project routes > check the clone address before touching the disk 18ms
+ ✓ test/connectionMessages.test.ts (10 tests) 5ms
+ ✓ test/localConfirm.test.ts (5 tests) 11ms
+{"t":"2026-10-14T08:07:44.326Z","level":"info","msg":"首次探测 Windows 沙箱"}
+ ✓ test/freshInstall.test.ts (4 tests) 22ms
+ ✓ test/hiddenToken.test.ts (10 tests) 23ms
+ ✓ test/trayStop.test.ts (3 tests) 17ms
+ ✓ test/pairPageControl.test.ts (2 tests) 33ms
+ ✓ test/windowsEncoding.test.ts (11 tests) 5ms
+ ✓ test/outerSandbox.test.ts (5 tests) 3ms
+ ✓ test/desktopLaunch.test.ts (2 tests) 210ms
+ ✓ test/windowsEnvironment.test.ts (13 tests) 5ms
+ ✓ test/cli.test.ts (8 tests) 13888ms
+   ✓ Windows CLI capability admission > supports configuration commands and detects missing capability before background start  12844ms
+ ✓ test/relayContract.test.ts (1 test) 3ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/siteTrust.test.ts [ test/siteTrust.test.ts ]
+Error: ENOENT: no such file or directory, open 'C:\Users\zymun\sunmoon-probe-runs\windows-agent-041\tests\agent\distribution\sites\dev-kind-ca.pem'
+ ❯ test/siteTrust.test.ts:10:16
+      8| import { applyLaunchEnv, installedLaunchError, installedSite, nodeLaun…
+      9| 
+     10| const pem = fs.readFileSync(new URL("../distribution/sites/dev-kind-ca…
+       |                ^
+     11| const hash = createHash("sha256").update(new X509Certificate(pem).raw)…
+     12| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/21]⎯
+
+ FAIL  test/windowsFilter.test.ts [ test/windowsFilter.test.ts ]
+Error: ENOENT: no such file or directory, open 'C:\Users\zymun\sunmoon-probe-runs\windows-agent-041\tests\probe\frames.jsonl'
+ ❯ test/windowsFilter.test.ts:9:21
+      7| // Unmodified requests captured from the native pinned executor. Mutat…
+      8| // are explicitly adversarial/normalization variants, not claimed wire…
+      9| const captures = fs.readFileSync(path.resolve(__dirname, "../../probe/…
+       |                     ^
+     10|   .trim().split("\n").map(line => JSON.parse(line));
+     11| const boundarySources = new Set([
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/21]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 19 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/localApi.test.ts > local file HTTP API > reads original bytes with exposed metadata headers and reconstructs 5 MiB in five reads
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ ❯ test/localApi.test.ts:66:26
+     64|     for (let i = 0; i < 5; i++) {
+     65|       const res = await request(file(target, "&offset=" + i * 1024 * 1…
+     66|       expect(res.status).toBe(200); expect(res.headers["content-type"]…
+       |                          ^
+     67|       expect(res.headers["x-file-size"]).toBe(String(bytes.length)); e…
+     68|       expect(res.headers["access-control-expose-headers"]).toBe("X-Fil…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/21]⎯
+
+ FAIL  test/localApi.test.ts > local file HTTP API > rejects outside/parent escape/protected names, symlinks and hardlinks without revealing paths
+Error: EPERM: operation not permitted, symlink 'C:\Users\zymun\AppData\Local\Temp\sunmoon-local-api-5s5ttG\outside' -> 'C:\Users\zymun\AppData\Local\Temp\sunmoon-local-api-5s5ttG\root\link'
+ ❯ test/localApi.test.ts:75:65
+     73|   });
+     74|   it("rejects outside/parent escape/protected names, symlinks and hard…
+     75|     fs.writeFileSync(path.join(base, "outside"), "private"); fs.symlin…
+       |                                                                 ^
+     76|     for (const target of [base, path.join(root, "..", "outside"), path…
+     77|       const res = await request(file(target)); expect(res.status).toBe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/21]⎯
+
+ FAIL  test/localApi.test.ts > local file HTTP API > returns 413 for a file above 64 MiB and 404 for absent files
+AssertionError: expected 403 to be 413 // Object.is equality
+
+- Expected
++ Received
+
+- 413
++ 403
+
+ ❯ test/localApi.test.ts:83:50
+     81|   it("returns 413 for a file above 64 MiB and 404 for absent files", a…
+     82|     const target = path.join(root, "huge"); fs.closeSync(fs.openSync(t…
+     83|     expect((await request(file(target))).status).toBe(413); expect((aw…
+       |                                                  ^
+     84|   });
+     85|   it("returns one-layer directory entries with path and truncation and…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/21]⎯
+
+ FAIL  test/localApi.test.ts > local file HTTP API > returns one-layer directory entries with path and truncation and metadata
+AssertionError: expected undefined to be 'C:\Users\zymun\AppData\Local\Temp\sun…' // Object.is equality
+
+- Expected: 
+"C:\\Users\\zymun\\AppData\\Local\\Temp\\sunmoon-local-api-NLXfTG\\root"
+
++ Received: 
+undefined
+
+ ❯ test/localApi.test.ts:88:23
+     86|     for (let i = 0; i < 2001; i++) fs.writeFileSync(path.join(root, St…
+     87|     const res = await request("/local/v1/fs/dir?path=" + encodeURIComp…
+     88|     expect(data.path).toBe(root); expect(data.entries).toHaveLength(20…
+       |                       ^
+     89|     const meta = JSON.parse((await request("/local/v1/fs/meta?path=" +…
+     90|     expect(meta).toMatchObject({ type: "dir", size: expect.any(Number)…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/21]⎯
+
+ FAIL  test/localProjects.test.ts > new project folder > creates nested folders under a workspace root, then reports an existing one as not created
+Error: outside_whitelist
+ ❯ LocalProjects.target src/localProjects.ts:65:155
+     63|     if (!normalized || !isUnderAny(value, roots, this.platform) || (!r…
+     64|       || isUnderAny(value, this.opts.denied(), this.platform)
+     65|       || normalized.split(this.platform === "win32" ? "\\" : "/").some…
+       |                                                                                                                                                           ^
+     66|     if (this.opts.ceiling().sandbox === "read-only") throw new LocalEr…
+     67|     // canonicalPath lower-cases Windows paths for comparison only; th…
+ ❯ LocalProjects.folder src/localProjects.ts:113:25
+ ❯ test/localProjects.test.ts:46:29
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/21]⎯
+
+ FAIL  test/localProjects.test.ts > new project folder > refuses outside the roots, the library, a file in the way, a linked ancestor and a read-only ceiling
+AssertionError: expected 'outside_whitelist' to be 'not_a_directory' // Object.is equality
+
+Expected: "not_a_directory"
+Received: "outside_whitelist"
+
+ ❯ test/localProjects.test.ts:56:68
+     54|     expect(await code(projects().folder(path.join(root, "a", ".git", "…
+     55|     fs.writeFileSync(path.join(root, "file"), "x");
+     56|     expect(await code(projects().folder(path.join(root, "file")))).toB…
+       |                                                                    ^
+     57|     fs.symlinkSync(base, path.join(root, "link"));
+     58|     expect(await code(projects().folder(path.join(root, "link", "x")))…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/21]⎯
+
+ FAIL  test/localProjects.test.ts > clone > runs git with fixed argv, no prompts, only https/ssh transports and no submodules
+Error: outside_whitelist
+ ❯ LocalProjects.target src/localProjects.ts:65:155
+     63|     if (!normalized || !isUnderAny(value, roots, this.platform) || (!r…
+     64|       || isUnderAny(value, this.opts.denied(), this.platform)
+     65|       || normalized.split(this.platform === "win32" ? "\\" : "/").some…
+       |                                                                                                                                                           ^
+     66|     if (this.opts.ceiling().sandbox === "read-only") throw new LocalEr…
+     67|     // canonicalPath lower-cases Windows paths for comparison only; th…
+ ❯ LocalProjects.clone src/localProjects.ts:125:25
+ ❯ test/localProjects.test.ts:105:29
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/21]⎯
+
+ FAIL  test/localProjects.test.ts > clone > hands a typed token to git through its env only, and remembers it only when asked
+Error: outside_whitelist
+ ❯ LocalProjects.target src/localProjects.ts:65:155
+     63|     if (!normalized || !isUnderAny(value, roots, this.platform) || (!r…
+     64|       || isUnderAny(value, this.opts.denied(), this.platform)
+     65|       || normalized.split(this.platform === "win32" ? "\\" : "/").some…
+       |                                                                                                                                                           ^
+     66|     if (this.opts.ceiling().sandbox === "read-only") throw new LocalEr…
+     67|     // canonicalPath lower-cases Windows paths for comparison only; th…
+ ❯ LocalProjects.clone src/localProjects.ts:125:25
+ ❯ test/localProjects.test.ts:112:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/21]⎯
+
+ FAIL  test/localProjects.test.ts > clone > asks for a token when git cannot log in, and removes the folder it made
+AssertionError: expected 'outside_whitelist' to be 'auth_required' // Object.is equality
+
+Expected: "auth_required"
+Received: "outside_whitelist"
+
+ ❯ test/localProjects.test.ts:123:65
+    121|   it("asks for a token when git cannot log in, and removes the folder …
+    122|     mode("auth"); const target = path.join(root, "private");
+    123|     expect(await code(projects().clone({ url, path: target }))).toBe("…
+       |                                                                 ^
+    124|     expect(fs.existsSync(target)).toBe(false);
+    125|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/21]⎯
+
+ FAIL  test/localProjects.test.ts > clone > keeps an empty folder the user picked, but empties what a failed clone left in it
+AssertionError: expected 'outside_whitelist' to be 'clone_failed' // Object.is equality
+
+Expected: "clone_failed"
+Received: "outside_whitelist"
+
+ ❯ test/localProjects.test.ts:128:65
+    126|   it("keeps an empty folder the user picked, but empties what a failed…
+    127|     mode("partial"); const target = path.join(root, "picked"); fs.mkdi…
+    128|     expect(await code(projects().clone({ url, path: target }))).toBe("…
+       |                                                                 ^
+    129|     expect(fs.readdirSync(target)).toEqual([]);
+    130|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/21]⎯
+
+ FAIL  test/localProjects.test.ts > clone > refuses a non-empty target and a token for an ssh address; ssh login failure says so
+AssertionError: expected 'outside_whitelist' to be 'target_not_empty' // Object.is equality
+
+Expected: "target_not_empty"
+Received: "outside_whitelist"
+
+ ❯ test/localProjects.test.ts:133:65
+    131|   it("refuses a non-empty target and a token for an ssh address; ssh l…
+    132|     const target = path.join(root, "busy"); fs.mkdirSync(target); fs.w…
+    133|     expect(await code(projects().clone({ url, path: target }))).toBe("…
+       |                                                                 ^
+    134|     expect(fs.readdirSync(target)).toEqual(["x"]);
+    135|     expect(await code(projects().clone({ url: "git@example.com:o/r.git…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/21]⎯
+
+ FAIL  test/localProjects.test.ts > clone > stops git on timeout or cancel and removes the folder
+AssertionError: expected 'outside_whitelist' to be 'clone_timeout' // Object.is equality
+
+Expected: "clone_timeout"
+Received: "outside_whitelist"
+
+ ❯ test/localProjects.test.ts:143:83
+    141|   it("stops git on timeout or cancel and removes the folder", async ()…
+    142|     mode("slow"); const target = path.join(root, "slow");
+    143|     expect(await code(projects({ timeoutMs: 300 }).clone({ url, path: …
+       |                                                                                   ^
+    144|     expect(fs.existsSync(target)).toBe(false);
+    145|     const controller = new AbortController(); setTimeout(() => control…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/21]⎯
+
+ FAIL  test/localProjects.test.ts > clone > says git is missing
+AssertionError: expected 'outside_whitelist' to be 'git_missing' // Object.is equality
+
+Expected: "git_missing"
+Received: "outside_whitelist"
+
+ ❯ test/localProjects.test.ts:150:118
+    148|   });
+    149|   it("says git is missing", async () => {
+    150|     expect(await code(projects({ git: path.join(fake, "no-such-git") }…
+       |                                                                                                                      ^
+    151|     expect(fs.existsSync(path.join(root, "m"))).toBe(false);
+    152|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/21]⎯
+
+ FAIL  test/localProjectsApi.test.ts > loopback new-project routes > make a folder by POST with a JSON body holding only the path
+AssertionError: expected { status: 403, body: { …(2) } } to deeply equal { status: 200, body: { …(2) } }
+
+- Expected
++ Received
+
+  {
+    "body": {
+-     "created": true,
+-     "path": "C:\\Users\\zymun\\AppData\\Local\\Temp\\sunmoon-projects-api-dexGek\\root\\新项目",
++     "code": "outside_whitelist",
++     "message": "outside_whitelist",
+    },
+-   "status": 200,
++   "status": 403,
+  }
+
+ ❯ test/localProjectsApi.test.ts:42:71
+     40|   it("make a folder by POST with a JSON body holding only the path", a…
+     41|     const target = path.join(root, "新项目");
+     42|     expect(await call("/local/v1/projects/folder", { path: target })).…
+       |                                                                       ^
+     43|     expect(fs.statSync(target).isDirectory()).toBe(true);
+     44|     expect((await call("/local/v1/projects/folder", undefined, {}, "GE…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/21]⎯
+
+ FAIL  test/service.test.ts > service-v1 read boundary > returns only the contracted hello and metadata fields
+AssertionError: expected undefined to deeply equal { type: 'file', size: 5, …(1) }
+
+- Expected: 
+{
+  "mtime": Any<Number>,
+  "size": 5,
+  "type": "file",
+}
+
++ Received: 
+undefined
+
+ ❯ test/service.test.ts:19:87
+     17|     expect((await rpc("service/hello")).result).toEqual({ agent: "sunm…
+     18|     fs.writeFileSync(path.join(root, "中文.txt"), "hello");
+     19|     expect((await rpc("fs/getMetadata", { path: path.join(root, "中文.tx…
+       |                                                                                       ^
+     20|   });
+     21|   it("rejects outside, dot-dot escape, protected homes and reserved na…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/21]⎯
+
+ FAIL  test/service.test.ts > service-v1 read boundary > blocks symlinks and hardlinks but lists links without traversing
+Error: EPERM: operation not permitted, symlink 'C:\Users\zymun\AppData\Local\Temp\sunmoon-service-bFcQZO\outside' -> 'C:\Users\zymun\AppData\Local\Temp\sunmoon-service-bFcQZO\root\link'
+ ❯ test/service.test.ts:33:46
+     31|   it("blocks symlinks and hardlinks but lists links without traversing…
+     32|     const outside = path.join(base, "outside"); fs.writeFileSync(outsi…
+     33|     const link = path.join(root, "link"); fs.symlinkSync(outside, link…
+       |                                              ^
+     34|     expect((await rpc("fs/readFile", { path: link })).error.code).toBe…
+     35|     expect((await rpc("fs/getMetadata", { path: link })).error.code).t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/21]⎯
+
+ FAIL  test/service.test.ts > service-v1 read boundary > bounds and reconstructs a 5 MiB file in ten responses under the frame limit
+TypeError: Cannot read properties of undefined (reading 'eof')
+ ❯ test/service.test.ts:46:27
+     44|       const reply = await rpc("fs/readFile", { path: target, offset: i…
+     45|       expect(Buffer.byteLength(JSON.stringify(reply))).toBeLessThan(SE…
+     46|       expect(reply.result.eof).toBe(i === 9); expect(reply.result.size…
+       |                           ^
+     47|       chunks.push(Buffer.from(reply.result.content, "base64"));
+     48|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/21]⎯
+
+ FAIL  test/service.test.ts > service-v1 read boundary > rejects files above 64 MiB before reading and reports not-found
+AssertionError: expected { code: -32010, …(1) } to deeply equal { code: -32011, message: 'too_large' }
+
+- Expected
++ Received
+
+  {
+-   "code": -32011,
+-   "message": "too_large",
++   "code": -32010,
++   "message": "outside_whitelist",
+  }
+
+ ❯ test/service.test.ts:55:64
+     53|   it("rejects files above 64 MiB before reading and reports not-found"…
+     54|     const target = path.join(root, "huge"); fs.closeSync(fs.openSync(t…
+     55|     expect((await rpc("fs/readFile", { path: target })).error).toEqual…
+       |                                                                ^
+     56|     expect((await rpc("fs/readFile", { path: path.join(root, "absent")…
+     57|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/21]⎯
+
+ FAIL  test/service.test.ts > service-v1 read boundary > truncates directories at 2000 entries
+TypeError: Cannot read properties of undefined (reading 'entries')
+ ❯ test/service.test.ts:61:19
+     59|     for (let i = 0; i < 2001; i++) fs.writeFileSync(path.join(root, St…
+     60|     const result = (await rpc("fs/readDirectory", { path: root })).res…
+     61|     expect(result.entries).toHaveLength(2000); expect(result.truncated…
+       |                   ^
+     62|     expect(result.entries[0]).toEqual({ name: expect.any(String), type…
+     63|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/21]⎯
+
+
+ Test Files  6 failed | 28 passed (34)
+      Tests  19 failed | 308 passed | 1 skipped (328)
+   Start at  16:06:22
+   Duration  94.18s (transform 664ms, setup 0ms, collect 2.34s, tests 165.84s, environment 6ms, prepare 3.41s)
+
+JSON report written to C:/Users/zymun/sunmoon-probe-runs/windows-agent-041/section4-vitest.json

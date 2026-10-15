@@ -674,7 +674,7 @@ Windows PID 16368（操作前再核对身份），当前状态与记录为 Windo
 readBlock 的 eof/零长度错误；opendir 不阻止重命名，保留 cwd guard。
 首轮真实网页请求已到达，initialize 被拒 3 次（resumeSessionId:null 漏列）。
 已恢复原 Linux 代理且核对配置摘要不变；又用固定版 app-server → WindowsBridge →
-exec-server 的无模型探针发现 environment/info 的 params:null 漏列，两处已修复。
+exec-server 的无模型探针发现 environment/knowfeed 的 params:null 漏列，两处已修复。
 本地客户端现在可取得环境信息并建立线程，白名单外 metadata 与 MCP 配置读取仍拒绝。
 第二轮真实网页进入工作模式，process/start 因真实客户端字段不全被拒 4 次，合计 denied=38。
 现已补齐 metadata/envPolicy/沙箱启动选项、保留标记核值后丢弃、缺失只读目录保护。

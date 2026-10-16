@@ -1,7 +1,7 @@
 # Windows agent onboarding Card A2 receipt
 
 Date: 2026-10-09 (Asia/Shanghai)
-Authority: Fable feedback, last section of `k8s/sunmoonai/docs/dev-investment-agent/switch-test/luna-feedback.md`; procedure: SDD 0012, Card A2.
+Authority: Fable feedback, last section of `k8s/docs/dev-investment-agent/switch-test/luna-feedback.md`; procedure: SDD 0012, Card A2.
 
 ## Result
 

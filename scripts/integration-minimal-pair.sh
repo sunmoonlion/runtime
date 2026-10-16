@@ -17,7 +17,7 @@ fail=0; verdict() { printf '  VERDICT %-52s %s\n' "$1" "$2"; [ "$2" = pass ] || 
 echo "--- 依赖"
 [ -x "$PY" ] || { echo "缺 .venv（uv venv .venv && uv pip install --python .venv/bin/python websockets）"; exit 3; }
 [ -f agent/dist/cli.js ] || { echo "缺 agent/dist（cd agent && pnpm install && pnpm build）"; exit 3; }
-[ -f "$K8S/sunmoonai/relay-platform/relay/relay.py" ] || { echo "找不到会合点代码：$K8S"; exit 3; }
+[ -f "$K8S/infrastructure/applications/component-images/relay/relay.py" ] || { echo "找不到会合点代码：$K8S"; exit 3; }
 [ -f "$ORCH_HOME/auth.json" ] || { echo "编排端 $ORCH_HOME 没有登录态"; exit 3; }
 for port in $RELAY_PORT $BRIDGE_PORT; do ss -ltn | grep -q ":$port " && { echo "端口 $port 被占用"; exit 4; }; done
 export CODEX_COMMAND_JSON=$(node --input-type=module -e 'import {locateCodex} from "./agent/dist/paths.js"; console.log(JSON.stringify([locateCodex().codexBin]))')
@@ -26,7 +26,7 @@ echo "codex(随包) $CODEX_VERSION  ORCH_HOME=$ORCH_HOME  ROOT=$ROOT"
 
 echo "--- 1. 会合点"
 RELAY_HOST=127.0.0.1 RELAY_PORT=$RELAY_PORT RELAY_TOKENS_JSON="{\"$USER_ID\":{\"agent\":\"$AGENT_TOKEN\",\"sandbox\":\"$SANDBOX_TOKEN\"}}" \
-  setsid "$PY" "$K8S/sunmoonai/relay-platform/relay/relay.py" > probe/it-relay.log 2>&1 < /dev/null & pids+=($!)
+  setsid "$PY" "$K8S/infrastructure/applications/component-images/relay/relay.py" > probe/it-relay.log 2>&1 < /dev/null & pids+=($!)
 for i in $(seq 1 20); do ss -ltn | grep -q ":$RELAY_PORT " && break; sleep 0.5; done
 curl -fsS "http://127.0.0.1:$RELAY_PORT/healthz" || { echo "会合点没起来"; cat probe/it-relay.log; exit 5; }
 
@@ -40,7 +40,7 @@ grep -q '"sandboxed":true' probe/it-agent.log && verdict "exec-server 在外沙�
 
 echo "--- 3. 沙箱侧桥"
 RELAY_URL="ws://127.0.0.1:$RELAY_PORT" RELAY_USER=$USER_ID RELAY_TOKEN=$SANDBOX_TOKEN CODEX_VERSION=$CODEX_VERSION BRIDGE_PORT=$BRIDGE_PORT \
-  setsid "$PY" "$K8S/sunmoonai/sandbox-platform/bridge/sandbox_bridge.py" > probe/it-bridge.log 2>&1 < /dev/null & pids+=($!)
+  setsid "$PY" "$K8S/infrastructure/applications/component-images/sandbox-platform/bridge/sandbox_bridge.py" > probe/it-bridge.log 2>&1 < /dev/null & pids+=($!)
 for i in $(seq 1 20); do ss -ltn | grep -q ":$BRIDGE_PORT " && break; sleep 0.5; done
 
 echo "--- 4. app-server 经整条链跑 turn（L1 danger 应被拒；L3 workspace-write 应写成）"

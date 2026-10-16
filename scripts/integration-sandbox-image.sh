@@ -26,7 +26,7 @@ head -c 32 /dev/urandom | base64 | tr -d '=+/\n' > "$TOKDIR/token"; chmod 644 "$
 
 echo "--- 1. 会合点（绑 0.0.0.0 让容器能连；令牌表只有 local）"
 RELAY_HOST=0.0.0.0 RELAY_PORT=$RELAY_PORT RELAY_TOKENS_JSON="{\"$USER_ID\":{\"agent\":\"$AGENT_TOKEN\",\"sandbox\":\"$SANDBOX_TOKEN\"}}" \
-  setsid "$PY" "$K8S/sunmoonai/relay-platform/relay/relay.py" > probe/it2-relay.log 2>&1 < /dev/null & pids+=($!)
+  setsid "$PY" "$K8S/infrastructure/applications/component-images/relay/relay.py" > probe/it2-relay.log 2>&1 < /dev/null & pids+=($!)
 for i in $(seq 1 20); do ss -ltn | grep -q ":$RELAY_PORT " && break; sleep 0.5; done
 curl -fsS "http://127.0.0.1:$RELAY_PORT/healthz" >/dev/null || { echo "会合点没起来"; cat probe/it2-relay.log; exit 5; }
 

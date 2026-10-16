@@ -4,7 +4,7 @@
 
 ## 对象与环境
 
-- 卡：`k8s/sunmoonai/docs/dev-investment-agent/switch-test/inbox/qwen/2026-10-14-0024-agent-041-windows.md`。
+- 卡：`k8s/docs/dev-investment-agent/switch-test/inbox/qwen/2026-10-14-0024-agent-041-windows.md`。
 - runtime 基线：`f09ec89ed5ba550d2d6c96337e5df790fd0d40d8`；分支 `qwen`；执行前 `git status --porcelain` 为空。
 - 隔离目录：`C:\Users\zymun\sunmoon-probe-runs\windows-agent-041`；应用位于 `app`。
 - 官方 Windows Node：24.19.0；SHA256 `3602f2bb1a10f2cbab4c36886218a33c1ab3db87290e73b033c46c77147d0237`，与 0.4.0 已验发行 manifest 相符。

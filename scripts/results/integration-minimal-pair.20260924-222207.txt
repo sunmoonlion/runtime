@@ -29,7 +29,7 @@ codex(随包) 0.155.1  ORCH_HOME=/home/zymun/.codex-probe  ROOT=/home/zymun/work
 curl: (7) Failed to connect to 127.0.0.1 port 47100 after 0 ms: Couldn't connect to server
 会合点没起来
 Traceback (most recent call last):
-  File "/home/zymun/worktrees/fable/k8s/sunmoonai/relay-platform/relay/relay.py", line 219, in <module>
+  File "/home/zymun/worktrees/fable/k8s/infrastructure/applications/component-images/relay/relay.py", line 219, in <module>
     asyncio.run(main())
   File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
     return runner.run(main)
@@ -40,7 +40,7 @@ Traceback (most recent call last):
   File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
     return future.result()
            ^^^^^^^^^^^^^^^
-  File "/home/zymun/worktrees/fable/k8s/sunmoonai/relay-platform/relay/relay.py", line 212, in main
+  File "/home/zymun/worktrees/fable/k8s/infrastructure/applications/component-images/relay/relay.py", line 212, in main
     async with serve(relay.handler, host, port, max_size=None, ping_interval=20, ping_timeout=20, process_request=relay.process_request):
   File "/home/zymun/worktrees/fable/runtime/.venv/lib/python3.12/site-packages/websockets/asyncio/server.py", line 462, in __aenter__
     return await self

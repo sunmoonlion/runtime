@@ -127,7 +127,7 @@ environment=`c4f8711a-5506-4b59-9469-0ed11e1d8b40`。
 
 runtime：`scripts/results/windows-agent-1e-20261008/` 保存原失败、真实聊天回执及各轮桥请求脱敏投影；
 `fix-acceptance/` 保存修复前后原 Task 只读查询及停止按钮预览截图。
-k8s：`sunmoonai/scripts/local-integration/results/reconnect-fix.20261008/` 保存真实旧源、差异和 Pod/日志核查。
+k8s：`scripts/local-integration/results/reconnect-fix.20261008/` 保存真实旧源、差异和 Pod/日志核查。
 后端：`app/scripts/results/reconnect-fix.20261008-tests.txt` 保存 63 项测试输出。
 
 第 4 轮截至 18:59 的桥请求中，出现 1 次 `environmentConfig/read` 的

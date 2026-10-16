@@ -101,7 +101,7 @@ Linux 258 通过/33 平台跳过，类型/构建通过，发行 46 通过/2 平�
 ## 先前：卡 B 三项审读修正已提交；全量测试有环境挂起；DNS 只读核实完成（2026-10-10）
 
 设计由 Fable 定稿，唯一实施依据为 k8s
-[SDD 0012：Windows 本地代理安装与首次接入](../k8s/sunmoonai/docs/dev-investment-agent/tree-build/SDD/modules/0012-agent-onboarding.md)。
+[SDD 0012：Windows 本地代理安装与首次接入](../k8s/docs/dev-investment-agent/tree-build/SDD/modules/0012-agent-onboarding.md)。
 上一版一页方案已标为历史，不可据其冲突内容实施。
 
 卡 A 已用 Edge 原始 ZIP 完成：包 SHA 与发布记录一致、ZoneId=3；Explorer 解压后 90 个文件通过清单核验，关键文件保留 Zone.Identifier。Smart App Control 为 On、Device Guard enforcement 值为 2。`.cmd`、`.vbs`、指向签名包内 Node 的 `.lnk` 默认打开均被策略拒绝；Code Integrity 有 3033/3118 事件。详见[卡 A 回执](scripts/results/windows-agent-onboarding-card-a.20261009.md)。所有者决定不购买代码签名证书。
@@ -514,7 +514,7 @@ Fable 只在 luna 审读，整体验收后再合 fable。构建镜像/发布交 
 不复用旧 source-before.yaml 回退锁；当前没有重连测试代理或发布服务。
 
 原 Cursor 待办已执行，当前接回 Luna 的真实联调：
-k8s `sunmoonai/scripts/results/luna-stage2-cursor.20261008-2146.md` 已核读。
+k8s `scripts/results/luna-stage2-cursor.20261008-2146.md` 已核读。
 报告：scripts/results/windows-agent-2.20261008-2130.md。
 Windows replica：C:\Users\zymun\sunmoon-probe-runs\windows-agent-2-20261008。
 既有无认证 elevated 测试家只复用，不复制；Node + 官方 Codex，不编译自有 exe、不关应用控制。
@@ -739,7 +739,7 @@ excludeTmpdirEnvVar=true、excludeSlashTmp=true，并核对云端客户端 Windo
 ## 这个仓是什么
 
 `0005-agent` 本地代理：装在用户机器上的唯一东西。包 `codex exec-server`（钉版，随包带），出站连会合点，守本地上限。
-设计：`k8s/sunmoonai/docs/dev-investment-agent/tree-build/SDD/modules/0005-agent.md`；安全模型：`.../SDD/architecture/security.md`「本地上限」。
+设计：`k8s/docs/dev-investment-agent/tree-build/SDD/modules/0005-agent.md`；安全模型：`.../SDD/architecture/security.md`「本地上限」。
 
 ## 现在做到哪（第二段：代理与沙箱最小对）
 
@@ -747,7 +747,7 @@ excludeTmpdirEnvVar=true、excludeSlashTmp=true，并核对云端客户端 Windo
 | --- | --- | --- |
 | 探针（第一段五个 + 外沙箱） | 全部完成，报告在 `probe/REPORT-*.md` | `probe/` |
 | 代理 `@sunmoon/agent` 0.1.0 | 骨架可用：exec-server 守护（Linux 外沙箱 = 随包 bwrap）、出站桥（会合点协议 v1）、协议过滤（process/start、fs 写、http）、CLI（init/roots/ceiling/start/status）；27 个单元测试 | `agent/` |
-| 会合点 v1、沙箱侧桥、沙箱镜像 | 在 k8s 仓 `sunmoonai/relay-platform/`、`sunmoonai/sandbox-platform/` | k8s `fable` |
+| 会合点 v1、沙箱侧桥、沙箱镜像 | 在 k8s 仓 `infrastructure/applications/component-images/relay/`、`infrastructure/applications/component-images/sandbox-platform/` | k8s `fable` |
 | 一机联调 | `scripts/integration-minimal-pair.sh` **pass**（会合点 + 代理 + 桥 + 真 app-server；danger 被拒、workspace-write 写成） | `scripts/results/` |
 
 ## 还没做（第二段剩余）

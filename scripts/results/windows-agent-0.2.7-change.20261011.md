@@ -63,7 +63,7 @@ distribution/windows-x64.json:5:  "agentVersion": "0.2.7",
 
 ## 发布环节交接（需所有者侧基础设施，停下交审）
 
-步骤 4 余下的组包→verify→upload→agent-releases→只发投资→application-check，按 0.2.6 记录（`k8s/sunmoonai/scripts/results/agent-release-026.20261011.md`）依赖：
+步骤 4 余下的组包→verify→upload→agent-releases→只发投资→application-check，按 0.2.6 记录（`k8s/scripts/results/agent-release-026.20261011.md`）依赖：
 - **组包** `distribution/build.mjs --node-exe <official node.exe> --dependencies <Windows agent 目录> --site <profile.json> --output <新目录> [--ca-pem]`：0.2.6 在 **Windows 侧**组（输出 `C:\Users\zymun\sunmoon-probe-runs\...`），且 build.mjs 强制 `git status --porcelain` tracked 干净（**组包前须先本地提交**）。
 - **windows-candidate.mjs**：用**包内 Node** 验证，须在 Windows 跑。
 - **agent-release-verify / agent-release-upload**：`infrastructure/Makefile` target，底层 **ansible**（`host/inventory.yaml`）+ 云对象存储凭证；upload 是不可逆生产动作。

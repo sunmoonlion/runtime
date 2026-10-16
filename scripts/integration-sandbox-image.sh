@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 第二段最小对，沙箱以容器形态：会合点 v1（本机 python）+ 本地代理（真 exec-server，外沙箱）+ 沙箱镜像容器（app-server ws + 桥）+ 工作台角色（ws + 能力令牌）。
 # 看什么：1) 容器里的桥经会合点配对到代理；2) 工作台经 ws 令牌连上容器里的 app-server；3) workspace-write 的 turn 在本机白名单目录写成；4) danger 被本地上限拒。
-# 前提：docker 能用且已 build sunmoon/sandbox:dev（k8s/sunmoonai/sandbox-platform）；Kimi key 在 ~/.codex-probe-kimi/auth.json（BYOK 用它，不打印）。
+# 前提：docker 能用且已 build sunmoon/sandbox:dev（k8s/infrastructure/applications/component-images/sandbox-platform）；Kimi key 在 ~/.codex-probe-kimi/auth.json（BYOK 用它，不打印）。
 # 用法：bash scripts/integration-sandbox-image.sh
 cd "$(dirname "$0")/.." || exit 2
 source scripts/env-header.sh
@@ -14,7 +14,7 @@ trap cleanup EXIT
 fail=0; verdict() { printf '  VERDICT %-52s %s\n' "$1" "$2"; [ "$2" = pass ] || fail=1; }
 
 echo "--- 依赖"
-docker image inspect "$IMAGE" >/dev/null 2>&1 || { echo "没有镜像 $IMAGE：cd $K8S/sunmoonai/sandbox-platform && docker build -t $IMAGE -f image/Dockerfile ."; exit 3; }
+docker image inspect "$IMAGE" >/dev/null 2>&1 || { echo "没有镜像 $IMAGE：cd $K8S/infrastructure/applications/component-images/sandbox-platform && docker build -t $IMAGE -f image/Dockerfile ."; exit 3; }
 [ -x "$PY" ] && [ -f agent/dist/cli.js ] || { echo "缺 .venv 或 agent/dist"; exit 3; }
 KEYFILE="${KEYFILE:-$HOME/.codex-probe-kimi/auth.json}"; [ -f "$KEYFILE" ] || { echo "缺 $KEYFILE"; exit 3; }
 for port in $RELAY_PORT $APP_PORT; do ss -ltn | grep -q ":$port " && { echo "端口 $port 被占用"; exit 4; }; done

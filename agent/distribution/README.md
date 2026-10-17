@@ -18,7 +18,7 @@ Get-FileHash .\bundle-manifest.json -Algorithm SHA256
 
 固定每用户目录 `%LOCALAPPDATA%\Programs\sunmoon-link`。默认只安装，不启动、
 
-**0.5.0 起改名**（0.5.0 之前叫 sunmoon-agent，2026-10-16 决定、0028 R5 发版）：网页安装脚本发现旧的 `%LOCALAPPDATA%\Programs\sunmoon-agent` 时，先用新包自带的 `uninstall.mjs --legacy` 卸下它（按旧安装自己的清单校验后才删；关掉它的登录自启 `SunMoonAgent-*`、停托盘与后台），旧配置 `%USERPROFILE%\.sunmoon-agent` 与旧日志保留不删；新版用新的配置目录 `.sunmoon-link`，要重新接入一次（改名后的工作台签发新凭据）。环境变量名 `SUNMOON_AGENT_HOME`、本机接口与握手里的 `agent` 字段属于内部命名与协议，不改。
+**0.5.0 起改名**（0.5.0 之前叫 sunmoon-agent，2026-10-16 决定、0028 R5 发版）：网页安装脚本发现旧的 `%LOCALAPPDATA%\Programs\sunmoon-agent` 时，先用新包自带的 `uninstall.mjs --legacy` 卸下它（按旧安装自己的清单校验后才删；关掉它的登录自启 `SunMoonAgent-*`、停托盘与后台），旧配置 `%USERPROFILE%\.sunmoon-agent` 与旧日志保留不删；新版用新的配置目录 `.sunmoon-link`，要重新接入一次（改名后的工作台从空库起，不认旧的配对与凭据）。环境变量名 `SUNMOON_AGENT_HOME`、本机接口与握手里的 `agent` 字段属于内部命名与协议，不改。
 不自启、不提权、不设置全局 PATH。已存在目标或安装中断标记均停止，不能覆盖未知文件。
 之后从**安装目录**执行 `sunmoon-link.cmd menu`，或使用网页安装脚本创建的开始菜单入口。
 无令牌时 Node 开出本机浏览器页：显示连接码和倒计时，自动打开站点核对页。

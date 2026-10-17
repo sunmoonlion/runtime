@@ -31,7 +31,7 @@ export interface AgentConfig {
   machineName: string;
 }
 
-// 0.5.0 起默认配置目录随命令改名为 .sunmoon-link（0028）：改名后工作台是新的，旧凭据不能用，要重新接入；
+// 0.5.0 起默认配置目录随命令改名为 .sunmoon-link（0028）：改名后的工作台从空库起，不认旧的配对与凭据，要重新接入；
 // 旧的 .sunmoon-agent 原样留着不删。环境变量名是内部命名，不改。
 export const CONFIG_DIR = process.env.SUNMOON_AGENT_HOME ?? path.join(os.homedir(), ".sunmoon-link");
 export const CONFIG_PATH = path.join(CONFIG_DIR, "config.json");

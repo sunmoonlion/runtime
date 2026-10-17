@@ -1,5 +1,10 @@
-const POWERSHELL_PREFIX = "try { [Console]::OutputEncoding=[System.Text.Encoding]::UTF8 } catch {}\n";
-const POWERSHELL_MARKER = "[Console]::OutputEncoding=[System.Text.Encoding]::UTF8";
+// Two encodings matter in Windows PowerShell 5.1: [Console]::OutputEncoding decodes what native programs print
+// back to PowerShell; $OutputEncoding encodes what PowerShell pipes into a native program (default ASCII, so
+// `@'…中文…'@ | python -` reached Python as "?" — 2026-10-17, a work conversation generating a .pptx). No BOM:
+// a BOM in front of a piped script is a syntax error for Python.
+const POWERSHELL_PREFIX =
+  "try { [Console]::OutputEncoding=[System.Text.Encoding]::UTF8 } catch {}\n" +
+  "try { $OutputEncoding=New-Object System.Text.UTF8Encoding($false) } catch {}\n";
 const CMD_PREFIX = "chcp 65001>nul & ";
 
 function executableName(value: string): string {
@@ -15,7 +20,7 @@ export function windowsUtf8Argv(argv: readonly string[]): string[] {
     if (commandIndex < 0 || commandIndex + 1 >= argv.length) return [...argv];
     const scriptIndex = commandIndex + 1;
     const script = argv[scriptIndex];
-    if (!script || script.includes(POWERSHELL_MARKER)) return [...argv];
+    if (!script || script.startsWith(POWERSHELL_PREFIX)) return [...argv];
     const result = [...argv];
     result[scriptIndex] = POWERSHELL_PREFIX + script;
     return result;

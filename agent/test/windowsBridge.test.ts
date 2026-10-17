@@ -99,7 +99,7 @@ describe("Windows bridge follow-up contracts", () => {
     const answer = await send(bridge, frame);
     expect(answer.reason).toBeUndefined();
     const forwarded = JSON.parse(answer.forward!).params;
-    expect(forwarded.argv).toEqual(["pwsh.exe", "-NoProfile", "-Command", "try { [Console]::OutputEncoding=[System.Text.Encoding]::UTF8 } catch {}\nGet-ChildItem"]);
+    expect(forwarded.argv).toEqual(["pwsh.exe", "-NoProfile", "-Command", "try { [Console]::OutputEncoding=[System.Text.Encoding]::UTF8 } catch {}\ntry { $OutputEncoding=New-Object System.Text.UTF8Encoding($false) } catch {}\nGet-ChildItem"]);
     expect(forwarded.env.PYTHONUTF8).toBe("0");
     expect(forwarded.env.PYTHONIOENCODING).toBe("utf-8");
     await bridge.close();

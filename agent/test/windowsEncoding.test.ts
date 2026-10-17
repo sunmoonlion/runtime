@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { windowsUtf8Argv, windowsUtf8Environment } from "../src/windowsEncoding.js";
 
-const psPrefix = "try { [Console]::OutputEncoding=[System.Text.Encoding]::UTF8 } catch {}\n";
+const psPrefix =
+  "try { [Console]::OutputEncoding=[System.Text.Encoding]::UTF8 } catch {}\n" +
+  "try { $OutputEncoding=New-Object System.Text.UTF8Encoding($false) } catch {}\n";
 
 describe("Windows UTF-8 command preparation", () => {
   it.each([
@@ -10,6 +12,9 @@ describe("Windows UTF-8 command preparation", () => {
     [["C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", "-NoProfile", "-Command", "Get-ChildItem"], ["C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", "-NoProfile", "-Command", psPrefix + "Get-ChildItem"]],
     [["pwsh.exe", "-Command", psPrefix + "Get-ChildItem"], ["pwsh.exe", "-Command", psPrefix + "Get-ChildItem"]],
     [["powershell", "-Command"], ["powershell", "-Command"]],
+    // A script that sets only the console encoding itself still gets the pipe encoding.
+    [["powershell", "-Command", "[Console]::OutputEncoding=[System.Text.Encoding]::UTF8; 'x' | python -"],
+     ["powershell", "-Command", psPrefix + "[Console]::OutputEncoding=[System.Text.Encoding]::UTF8; 'x' | python -"]],
   ] as const)("handles PowerShell invocation %j", (input, expected) => {
     expect(windowsUtf8Argv(input)).toEqual(expected);
   });

@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "platform": "linux",
+  "architecture": "x64",
+  "agentVersion": "0.4.1",
+  "codexVersion": "0.155.1",
+  "relayProtocol": 1,
+  "node": {
+    "version": "24.21.0",
+    "provided": "runtime image (platform node-runtime, node:24.21.0-trixie-slim); not bundled"
+  },
+  "packages": [
+    {"installName": "@openai/codex", "name": "@openai/codex", "version": "0.155.1"},
+    {"installName": "@openai/codex-linux-x64", "name": "@openai/codex", "version": "0.155.1-linux-x64", "resolveFrom": "@openai/codex"},
+    {"installName": "smol-toml", "name": "smol-toml", "version": "1.4.2"},
+    {"installName": "ws", "name": "ws", "version": "8.21.3"}
+  ]
+}

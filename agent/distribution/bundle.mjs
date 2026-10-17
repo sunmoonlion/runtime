@@ -20,6 +20,16 @@ const REQUIRED = [
   'uninstall.cmd', 'installer/uninstall.mjs', 'installer/launch.mjs', 'installer/upgrade.mjs',
   'app/native/elevated-setup.ps1',
 ];
+// Linux 包（分身测试的测试电脑用，SDD 0027 §3.4）：不带 Node（用镜像里的），没有 Windows 界面与安装器
+const REQUIRED_LINUX = [
+  'licenses/codex-LICENSE', 'licenses/codex-NOTICE',
+  'app/package.json', 'app/dist/cli.js',
+  'app/node_modules/@openai/codex/package.json',
+  'app/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex',
+  'app/node_modules/smol-toml/package.json', 'app/node_modules/ws/package.json',
+  'installer/bundle.mjs', 'installer/launch.mjs',
+];
+const LAYOUTS = { win32: REQUIRED, linux: REQUIRED_LINUX };
 
 export function relativeFile(name) {
   if (typeof name !== 'string' || name.length > 240 || name.includes('\\') ||
@@ -98,7 +108,9 @@ function shape(value, keys) {
 export function validateManifest(manifest, options = {}) {
   shape(manifest, ['schema', 'platform', 'architecture', 'agentVersion', 'codexVersion', 'nodeVersion',
     'relayProtocol', 'sourceRevision', 'dependencyLockSha256', 'files']);
-  if (manifest.schema !== 1 || manifest.platform !== 'win32' || manifest.architecture !== 'x64' ||
+  // 默认只认 Windows 包（安装器、升级、卸载都走这里）；Linux 包要调用方明说 platform: 'linux'
+  const platform = options.platform ?? 'win32';
+  if (manifest.schema !== 1 || manifest.platform !== platform || !Object.hasOwn(LAYOUTS, platform) || manifest.architecture !== 'x64' ||
       manifest.relayProtocol !== 1 || typeof manifest.sourceRevision !== 'string' || !/^[a-f0-9]{40}$/.test(manifest.sourceRevision) ||
       !isHash(manifest.dependencyLockSha256) ||
       !['agentVersion', 'codexVersion', 'nodeVersion'].every(k => typeof manifest[k] === 'string' && /^\d+\.\d+\.\d+$/.test(manifest[k])) ||
@@ -115,7 +127,7 @@ export function validateManifest(manifest, options = {}) {
   if (total > 2 * 1024 ** 3) throw new Error('Incomplete or oversized bundle');
   // The current file list is for packing and first install of a new package.
   // An already-installed directory is checked against its own manifest.
-  if (options.requireLayout !== false && !REQUIRED.every(name => seen.has(name.toLowerCase()))) throw new Error('Incomplete or oversized bundle');
+  if (options.requireLayout !== false && !LAYOUTS[manifest.platform].every(name => seen.has(name.toLowerCase()))) throw new Error('Incomplete or oversized bundle');
   return manifest;
 }
 

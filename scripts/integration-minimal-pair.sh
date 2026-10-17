@@ -2,7 +2,7 @@
 # 第二段「代理与沙箱最小对」的一机联调：会合点 v1 + 本地代理（真 exec-server，外沙箱）+ 沙箱侧桥 + 真 app-server。
 # 看什么：1) 代理连上会合点、沙箱经会合点配对；2) 一个 turn 在执行端跑、apply_patch 落白名单目录；
 #         3) danger-full-access 被本地上限拒绝（协议过滤给出干净错误）。
-# 前提：runtime/agent 已 pnpm install && pnpm build；~/.codex-probe 有登录态；k8s 仓与本仓并列（../k8s）。
+# 前提：sunmoon-link/agent 已 pnpm install && pnpm build；~/.codex-probe 有登录态；k8s 仓与本仓并列（../k8s）。
 # 用法：bash scripts/integration-minimal-pair.sh   （结果按 switch-test 约定落 scripts/results/）
 cd "$(dirname "$0")/.." || exit 2
 source scripts/env-header.sh

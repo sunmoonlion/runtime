@@ -13,7 +13,7 @@ echo "Python      $(python3 -V 2>&1)"
 echo "Node        $(node --version 2>/dev/null || echo '无')"
 echo "uv          $(uv --version 2>/dev/null || echo '无')"
 echo "Codex       $(codex --version 2>/dev/null || echo '无')  CODEX_HOME=${CODEX_HOME:-未设}"
-for r in k8s knowfeed-app investment-app knowbase-app tpl-app runtime; do
+for r in k8s knowfeed-app knowbench-app knowbase-app tpl-app runtime; do
   d="${HOME}/worktrees/${WS}/${r}"
   [ -d "${d}/.git" ] || [ -f "${d}/.git" ] || continue
   printf "%-22s %s  %s\n" "${r}" "$(git -C "${d}" rev-parse --short HEAD)" "$(git -C "${d}" branch --show-current)"

@@ -27,7 +27,7 @@ assert.equal(codex.version,'0.155.1');
 const temp=await WindowsTemporary.create(home,[root],helper), release=await pinWindowsDirectories(helper,[root,home],home);
 const es=new ExecServer({codexBin:codex.codexBin,bwrap:null,outerSandbox:false,roots:[root],codexHome:home,port:0,windowsMode:'unelevated',windowsTemporary:temp});
 const cfg={...defaultConfig(),userId:'local-api-probe',roots:[root],codexHome:home};
-const webOrigin='https://investment.sunmoonai.com:30443';
+const webOrigin='https://knowbench.sunmoonai.com:30443';
 const {publicKey,privateKey}=generateKeyPairSync('ec',{namedCurve:'P-256'});
 let keyRequests=0, keyReceivedTicket=false;
 const jwks=http.createServer((req,res)=>{

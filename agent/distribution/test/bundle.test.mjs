@@ -101,7 +101,7 @@ test('interrupted removal retains its recovery marker, successful removal leaves
 });
 test('repair templates archive leftovers after external process collection and stay byte-identical', () => {
   const runtime=fs.readFileSync(new URL('../install.ps1.tmpl',import.meta.url));
-  const k8s=fs.readFileSync(process.env.SUNMOON_TEST_INSTALL_TEMPLATE ?? new URL('../../../../k8s/gitops/components/app-platform/investment-app/investment-backend/agent-releases/install.ps1.tmpl',import.meta.url));
+  const k8s=fs.readFileSync(process.env.SUNMOON_TEST_INSTALL_TEMPLATE ?? new URL('../../../../k8s/gitops/components/app-platform/knowbench-app/knowbench-backend/agent-releases/install.ps1.tmpl',import.meta.url));
   assert.deepEqual(runtime,k8s);
   const text=runtime.toString('utf8');
   assert.ok(text.indexOf('--stop-only')<text.indexOf('[System.IO.Directory]::Move($Dest,$Broken)'));

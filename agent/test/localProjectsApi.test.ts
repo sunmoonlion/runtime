@@ -10,7 +10,7 @@ import { TicketVerifier } from "../src/ticket.js";
 import { startLocalApi, type LocalApiHandle } from "../src/localApi.js";
 import { ticketFixture } from "./localTicketFixture.js";
 
-const origin = "https://investment.sunmoonai.com:30443";
+const origin = "https://knowbench.sunmoonai.com:30443";
 let base: string, root: string, endpoint: LocalApiHandle, fixture: Awaited<ReturnType<typeof ticketFixture>>;
 function call(route: string, body: unknown, headers: Record<string, string> = {}, method = "POST") {
   return new Promise<{ status: number; body: any }>((resolve, reject) => {

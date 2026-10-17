@@ -20,7 +20,7 @@ function layout(): { root: string; url: string; caPath: string } {
   fs.mkdirSync(path.dirname(caPath));
   fs.writeFileSync(caPath, pem);
   fs.writeFileSync(path.join(root, "site", "site.json"), JSON.stringify({
-    site: "dev-kind", web_origin: "https://investment.sunmoonai.com:30443",
+    site: "dev-kind", web_origin: "https://knowbench.sunmoonai.com:30443",
     relay_url: "wss://relay.sunmoonai.com:30443",
     trust: { mode: "bundled-ca", ca_file: "site/ca.pem", ca_sha256: hash },
   }, null, 2) + "\n");

@@ -1,6 +1,6 @@
 {
   "site": "dev-kind",
-  "web_origin": "https://investment.sunmoonai.com:30443",
+  "web_origin": "https://knowbench.sunmoonai.com:30443",
   "relay_url": "wss://relay.sunmoonai.com:30443",
   "trust": {
     "mode": "bundled-ca",

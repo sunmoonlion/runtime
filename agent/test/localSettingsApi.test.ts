@@ -9,7 +9,7 @@ import { LocalSettings } from "../src/localSettings.js";
 import { TicketVerifier } from "../src/ticket.js";
 import { ticketFixture } from "./localTicketFixture.js";
 
-const origin = "https://investment.example";
+const origin = "https://knowbench.example";
 let base: string, file: string, root: string, other: string, cfg: AgentConfig, endpoint: LocalApiHandle;
 let fixture: Awaited<ReturnType<typeof ticketFixture>>, confirm: ReturnType<typeof vi.fn>, restart: ReturnType<typeof vi.fn>;
 const headers = () => ({ Origin: origin, Authorization: "Bearer " + fixture.token(), "Content-Type": "application/json" });

@@ -1,6 +1,6 @@
 # 项目入口指针
 
-本仓是 SunMoonAI 的客户端仓之一（`runtime` / `desktop-app`）。
+本仓是 SunMoonAI 的客户端仓之一（`sunmoon-link` / `desktop-app`）。
 
 **先读**：`k8s/docs/dev-investment-agent/pipeline.md`（九站，你接的是哪一格）。
 **动代码前必读**：`k8s/docs/dev-investment-agent/tree-build/rules/constraints.md`。

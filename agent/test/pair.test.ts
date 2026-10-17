@@ -27,7 +27,7 @@ function harness(replies: PairResponse[]) {
     return next;
   };
   const run = (extra: { jump?: number } = {}) => runPair({
-    webOrigin: "https://investment.example",
+    webOrigin: "https://knowbench.example",
     relayUrl: "wss://relay.example/relay",
     machineName: "desk",
     osName: "Windows",
@@ -55,7 +55,7 @@ function harness(replies: PairResponse[]) {
 
 const created = {
   status: 200,
-  body: { request_id: "req-1", user_code: "ABCD-2345", expires_in: 300, interval: 3, verify_url: "https://investment.example/settings#computer" },
+  body: { request_id: "req-1", user_code: "ABCD-2345", expires_in: 300, interval: 3, verify_url: "https://knowbench.example/settings#computer" },
 };
 
 describe("menu", () => {
@@ -112,9 +112,9 @@ describe("pair", () => {
     const h = harness([foreign, { status: 200, body: { status: "cancelled" } }]);
     h.cancel();
     try {
-      expect(openableVerifyUrl("https://investment.example/settings#computer", "https://investment.example")).toBe("https://investment.example/settings#computer");
-      expect(openableVerifyUrl("https://evil.example/settings#computer", "https://investment.example")).toBeNull();
-      expect(openableVerifyUrl("https://investment.example.evil/settings", "https://investment.example")).toBeNull();
+      expect(openableVerifyUrl("https://knowbench.example/settings#computer", "https://knowbench.example")).toBe("https://knowbench.example/settings#computer");
+      expect(openableVerifyUrl("https://evil.example/settings#computer", "https://knowbench.example")).toBeNull();
+      expect(openableVerifyUrl("https://knowbench.example.evil/settings", "https://knowbench.example")).toBeNull();
       expect(await h.run()).toBe(6);
       expect(h.output()).toContain('"verify_url":""');
       expect(h.output()).not.toContain("evil.example");

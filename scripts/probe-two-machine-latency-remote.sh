@@ -2,7 +2,7 @@
 # 两机公网延迟探针——远程（沙箱 + 会合点角色）这一侧。所有者同意临时开放 47100 后由远程助手跑。
 # 起会合点（0.0.0.0:47100，无认证，跑完即停）与 sandbox_bridge（47002 → 会合点），等本地代理注册后跑 probe_relay_passthrough.py，
 # 打印 bridge 的 RTT 表；对照 probe/bridge-relay.log（回环）即公网开销。
-# 用法：USER_ID=local ORCH_HOME=$HOME/.codex-probe LOCAL_ROOT=/home/<本地用户>/worktrees/fable/runtime/probe/user-ws bash scripts/probe-two-machine-latency-remote.sh
+# 用法：USER_ID=local ORCH_HOME=$HOME/.codex-probe LOCAL_ROOT=/home/<本地用户>/worktrees/fable/sunmoon-link/probe/user-ws bash scripts/probe-two-machine-latency-remote.sh
 #      LOCAL_ROOT 是本地侧真实存在的目录（cwd 发给本地执行端）；不给就用这台机的 probe/user-ws，写文件那项会失败。
 cd "$(dirname "$0")/.." || exit 2
 source scripts/env-header.sh

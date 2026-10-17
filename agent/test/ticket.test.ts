@@ -2,12 +2,12 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { TicketVerifier } from "../src/ticket.js";
 import { ticketFixture } from "./localTicketFixture.js";
 let fixture: Awaited<ReturnType<typeof ticketFixture>>, verifier: TicketVerifier;
-beforeEach(async () => { fixture = await ticketFixture(); verifier = new TicketVerifier({ webOrigin: "https://investment.example", userId: () => "probe-user", fetch: fixture.fetch }); });
+beforeEach(async () => { fixture = await ticketFixture(); verifier = new TicketVerifier({ webOrigin: "https://knowbench.example", userId: () => "probe-user", fetch: fixture.fetch }); });
 afterEach(async () => { await fixture.close(); });
 describe("local-agent ES256 tickets", () => {
   it("refreshes an unknown kid only after 60 seconds since any previous key fetch, including rotation", async () => {
     let now = Date.now();
-    const scoped = new TicketVerifier({ webOrigin: "https://investment.example", userId: () => "probe-user", fetch: fixture.fetch, now: () => now });
+    const scoped = new TicketVerifier({ webOrigin: "https://knowbench.example", userId: () => "probe-user", fetch: fixture.fetch, now: () => now });
     await scoped.check("Bearer " + fixture.token()); fixture.rotate();
     now += 60000;
     await expect(scoped.check("Bearer " + fixture.token())).rejects.toMatchObject({ status: 401 });
@@ -20,7 +20,7 @@ describe("local-agent ES256 tickets", () => {
   });
   it("throttles failed unknown-kid refresh attempts while retaining unexpired known keys", async () => {
     let now = Date.now();
-    const scoped = new TicketVerifier({ webOrigin: "https://investment.example", userId: () => "probe-user", fetch: fixture.fetch, now: () => now });
+    const scoped = new TicketVerifier({ webOrigin: "https://knowbench.example", userId: () => "probe-user", fetch: fixture.fetch, now: () => now });
     const known = fixture.token(); await scoped.check("Bearer " + known);
     now += 60001; fixture.fail();
     await expect(scoped.check("Bearer " + fixture.token({}, { kid: "unknown" }))).rejects.toMatchObject({ status: 503, code: "keys_unavailable" });
@@ -52,7 +52,7 @@ describe("local-agent ES256 tickets", () => {
     fixture.fail(); await expect(verifier.check("Bearer " + fixture.token())).rejects.toMatchObject({ status: 503, code: "keys_unavailable" });
     let now = Date.now();
     await fixture.close(); fixture = await ticketFixture();
-    const fresh = new TicketVerifier({ webOrigin: "https://investment.example", userId: () => "probe-user", fetch: fixture.fetch, now: () => now });
+    const fresh = new TicketVerifier({ webOrigin: "https://knowbench.example", userId: () => "probe-user", fetch: fixture.fetch, now: () => now });
     await fresh.check("Bearer " + fixture.token()); fixture.fail(); now += 600001;
     await expect(fresh.check("Bearer " + fixture.token({ iat: Math.floor(now / 1000), exp: Math.floor(now / 1000) + 600 }))).rejects.toMatchObject({ status: 503, code: "keys_unavailable" });
   });
@@ -62,8 +62,8 @@ describe("local-agent ES256 tickets", () => {
   });
   it("rechecks expiry after fetching keys and ignores header-supplied key URLs", async () => {
     let now = Date.now();
-    const scoped = new TicketVerifier({ webOrigin: "https://investment.example", userId: () => "probe-user", now: () => now,
-      fetch: (async (url, init) => { expect(url).toBe("https://investment.example/api/workbench/token-keys"); now += 2000; return fixture.fetch(url, init); }) as typeof fetch });
+    const scoped = new TicketVerifier({ webOrigin: "https://knowbench.example", userId: () => "probe-user", now: () => now,
+      fetch: (async (url, init) => { expect(url).toBe("https://knowbench.example/api/workbench/token-keys"); now += 2000; return fixture.fetch(url, init); }) as typeof fetch });
     const expiredWhileLoading = fixture.token({ exp: Math.floor(now / 1000) + 1 }, { jku: "https://attacker.invalid/keys" });
     await expect(scoped.check("Bearer " + expiredWhileLoading)).rejects.toMatchObject({ status: 401, code: "ticket_invalid" });
   });

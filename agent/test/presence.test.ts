@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { startPresence } from "../src/presence.js";
 import { LOCAL_PORTS } from "../src/localApi.js";
 
-const origin = "https://investment.sunmoonai.com:30443";
+const origin = "https://knowbench.sunmoonai.com:30443";
 const pause = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 async function request(port: number, path = "/presence", method = "GET", headers: Record<string, string> = {}) {
   return new Promise<{ status: number; headers: http.IncomingHttpHeaders; body: string }>((resolve, reject) => {

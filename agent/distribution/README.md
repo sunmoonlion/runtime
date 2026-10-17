@@ -166,3 +166,14 @@ Node/Codex LICENSE/NOTICE 存 `licenses/`，其余许可证随依赖。输出不
 | 干净 Windows 10/11 | 待所有者 | 不能用开发机清空 PATH 宣布通过 |
 | 真实 MCP | 已实际调用通过 | 见 `scripts/results/windows-agent-2-mcp.20261009.md`；固定回显服务，不代表认证型 MCP 均通过 |
 | 旧两次投影追踪 | 待定位 | 最新调用投影成功，不能据此解释旧拒绝 |
+
+## Linux 包（分身测试的测试电脑）
+
+分身测试（SDD 0027 §3.4）的测试电脑是集群里的一个 Linux 容器，跑同一份代理。在 Linux x64 上、从已提交的源码打包：
+
+```bash
+node agent/distribution/build-linux.mjs --dependencies agent --site agent/distribution/sites/edge-public.json --output <新目录>
+```
+
+产出目录与同名 `.tar.gz`（按名排序、时间与属主固定，同一提交打出同一个摘要）。包里不带 Node（用镜像里的），没有 Windows 界面与安装器；`site/edge-public.json` 走公网边缘、用系统信任。测试电脑初始化时用 `installer/verify-linux.mjs <目录> <清单 SHA256>` 核对。清单默认只认 Windows 包，Linux 包要显式 `platform: 'linux'`，Windows 安装器不会接受它。
+

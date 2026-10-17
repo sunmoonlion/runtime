@@ -12,10 +12,10 @@ From the delivery directory, PowerShell:
   .\install.cmd --manifest-sha256 <delivery SHA256>
   .\install.cmd --manifest-sha256 <delivery SHA256> --apply
 First command previews; second installs into
-%LOCALAPPDATA%\Programs\sunmoon-agent. Existing targets are never overwritten.
+%LOCALAPPDATA%\Programs\sunmoon-link. Existing targets are never overwritten.
 Installation does not start, enable autostart, change PATH or elevate.
 
-Use sunmoon-agent.cmd in the INSTALLED directory:
+Use sunmoon-link.cmd in the INSTALLED directory:
   menu                     Fresh machine: open the local browser connection page.
                            Enter the displayed code yourself at the website and
                            approve. Pairing saves configuration, enables logon
@@ -54,7 +54,7 @@ Uninstall from the EXTERNAL delivery directory (keep it until uninstall):
   .\uninstall.cmd --manifest-sha256 <delivery SHA256> --apply
 Removes matching task, closes tray, stops agent, removes verified program files.
 Configuration/token and logs remain by default. Add --remove-config explicitly
-only to delete the dedicated DEFAULT %USERPROFILE%\.sunmoon-agent and the five
+only to delete the dedicated DEFAULT %USERPROFILE%\.sunmoon-link and the five
 owned rotating logs. Custom SUNMOON_AGENT_HOME deletion is refused. Unknown or
 modified installed files stop removal. For a different installed version add
 --installed-manifest-sha256 with that version's trusted delivery checksum.
@@ -65,3 +65,10 @@ Your separate %USERPROFILE%\.codex is untouched.
 Candidate for owner/Fable review. Clean Windows 10/11, actual reboot, optional
 UAC setup and live GUI approval are separate acceptance items. Local tests alone
 do not mean full production acceptance.
+
+Renamed in 0.5.0: before 0.5.0 the agent was called sunmoon-agent. The web install
+script first removes an existing %LOCALAPPDATA%\Programs\sunmoon-agent with
+`uninstall.mjs --legacy` (verified against that installation's own manifest; its
+login task SunMoonAgent-* is disabled and its processes stopped). The old config
+%USERPROFILE%\.sunmoon-agent and old logs are kept. 0.5.0 uses .sunmoon-link and
+must be connected again.

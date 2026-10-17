@@ -1,12 +1,12 @@
 {
   "name": "@sunmoon/agent",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "SunMoonAI 本地代理：包 codex exec-server、出站连会合点、守本地上限",
   "private": true,
   "packageManager": "pnpm@10.24.0",
   "type": "module",
   "bin": {
-    "sunmoon-agent": "./dist/cli.js"
+    "sunmoon-link": "./dist/cli.js"
   },
   "engines": {
     "node": ">=20.13"

@@ -203,7 +203,7 @@ export class WindowsTemporary {
   static async create(home: string, roots: readonly string[], helper: WindowsHelper): Promise<WindowsTemporary> {
     const local = process.env.LOCALAPPDATA;
     if (process.platform !== "win32" || !local || canonicalPath(local, "win32") === null) throw new Error("Windows LOCALAPPDATA required");
-    const parent = path.join(local, "sunmoon-agent", "tmp");
+    const parent = path.join(local, "sunmoon-link", "tmp");
     if (roots.some(root => isUnder(parent, root, "win32") || isUnder(root, parent, "win32"))) throw new Error("Temporary storage overlaps project roots");
     // Pin the existing ancestor before creating descendants. Reparse aliases
     // in the parent are checked again by the directory guard before use.

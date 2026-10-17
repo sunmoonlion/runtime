@@ -7,7 +7,7 @@ Windows 不嵌套外沙箱。`init` 实际启动受限命令，已有可用 elev
 否则探测 unelevated；两者都不可用就拒绝启动。不会自动提权或运行 setup。
 
 ```text
-sunmoon-agent start
+sunmoon-link start
 ├── codex exec-server：Windows 原生；Linux 在 bwrap 内
 ├── 出站桥 → wss://relay.sunmoonai.com:30443
 │   ├── process/*：完整权限检查 → Codex 每请求沙箱
@@ -23,17 +23,17 @@ Windows 安装、后台、托盘、登录自启和卸载入口见[发行与日�
 ## 命令
 
 ```bash
-sunmoon-agent init --relay wss://edge.example.com/relay --user <id> --token <t> --root ~/research
-sunmoon-agent roots add|remove|list <dir>          # 改完要重启 start（外沙箱的 bind 在启动时定）
-sunmoon-agent ceiling show | set --sandbox read-only|workspace-write|danger-full-access --network on|off
-sunmoon-agent start                                # 前台调试
-sunmoon-agent start --background                   # Windows 后台，确认用本机窗口
-sunmoon-agent tray                                 # Windows 托盘；退出后后台继续
-sunmoon-agent stop                                 # Windows 正常停止
-sunmoon-agent autostart enable|disable|status        # 当前用户登录自启；安装时默认打开，可关闭
-sunmoon-agent status
-sunmoon-agent mcp import                          # Windows：本机逐项确认 HTTP MCP
-sunmoon-agent mcp list                            # 查看已确认配置；不读取用户凭据
+sunmoon-link init --relay wss://edge.example.com/relay --user <id> --token <t> --root ~/research
+sunmoon-link roots add|remove|list <dir>          # 改完要重启 start（外沙箱的 bind 在启动时定）
+sunmoon-link ceiling show | set --sandbox read-only|workspace-write|danger-full-access --network on|off
+sunmoon-link start                                # 前台调试
+sunmoon-link start --background                   # Windows 后台，确认用本机窗口
+sunmoon-link tray                                 # Windows 托盘；退出后后台继续
+sunmoon-link stop                                 # Windows 正常停止
+sunmoon-link autostart enable|disable|status        # 当前用户登录自启；安装时默认打开，可关闭
+sunmoon-link status
+sunmoon-link mcp import                          # Windows：本机逐项确认 HTTP MCP
+sunmoon-link mcp list                            # 查看已确认配置；不读取用户凭据
 ```
 
 ## Windows MCP 与临时权限（第 2 段候选）
@@ -77,7 +77,7 @@ bearer 环境变量、URL 用户信息/查询串/fragment 的整项跳过，不�
 
 ## Windows 日志与拒绝排查
 
-`start` 在 `%LOCALAPPDATA%\sunmoon-agent\logs` 写 `agent.log`，每份 2 MiB，
+`start` 在 `%LOCALAPPDATA%\sunmoon-link\logs` 写 `agent.log`，每份 2 MiB，
 共保留 5 份（含当前文件）；仅轮转这五个自有文件。stdout/stderr 继续可见。
 令牌和敏感字段脱敏，不记录执行器原始 stdout/stderr、命令正文、环境或 MCP 配置。
 轮转/写入失败给出一次提示；检查目录权限、磁盘空间，不能以关闭沙箱解决。
@@ -87,7 +87,7 @@ bearer 环境变量、URL 用户信息/查询串/fragment 的整项跳过，不�
 保持代理在线等待兼容沙箱，同时显示配套升级提示，不自动换版本或降级。
 `status.json` 的 `lastError` 与日志、托盘、设置窗口使用同一句人话，并带原始错误码；不回显令牌或任意远端错误文本。`lastNotice` 仍只记录已知提示。
 
-配置：`~/.sunmoon-agent/config.json`（`SUNMOON_AGENT_HOME` 可改目录），600 权限。
+配置：`~/.sunmoon-link/config.json`（`SUNMOON_AGENT_HOME` 可改目录），600 权限。
 Windows 路径按本地盘符绝对路径处理，大小写和斜杠形式不影响白名单匹配；
 UNC/设备路径、ADS 和存在 Win32 歧义的路径目前明确拒绝。这里只做路径规范化，
 不以字符串过滤替代 OS 沙箱对符号链接的约束。
@@ -109,7 +109,7 @@ Windows 命令继承当前用户的 PATH 和普通环境变量，过滤 `CODEX*`
 `NODE_OPTIONS`、`NODE_PATH`、`RUST*`、`LD_*`，将 CODEX_HOME 固定到代理的执行器家，
 再合并允许的远端环境变量。Windows 环境键按大小写不敏感合并；远端不能覆盖保留项。
 `TEMP`、`TMP`、`TMPDIR` 也属于保留项，统一固定到代理创建的
-`%LOCALAPPDATA%\sunmoon-agent\tmp\executor-<随机后缀>`。每次代理/探测启动独立创建，
+`%LOCALAPPDATA%\sunmoon-link\tmp\executor-<随机后缀>`。每次代理/探测启动独立创建，
 执行器及其命令共用，目录在使用期间固定；退出时先停进程树再删除自己的目录。
 不清扫其他实例的临时目录。异常断电残留的自动回收尚未实现。
 固定客户端自动附带的版本、线程 ID、CI/禁网标记先按真实协议核值，再丢弃；

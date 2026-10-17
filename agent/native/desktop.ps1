@@ -20,8 +20,8 @@ if($Action -eq 'setup'){
 
 if ($Action -eq 'autostart') {
     if ($InputData.instance -notmatch '^[a-f0-9]{24}$') { throw 'Invalid instance' }
-    $Name = 'SunMoonAgent-' + $InputData.instance
-    $Marker = 'SunMoon agent current-user login v1 ' + $InputData.instance
+    $Name = 'SunMoonLink-' + $InputData.instance
+    $Marker = 'SunMoon link current-user login v1 ' + $InputData.instance
     $Wscript = Join-Path $env:SystemRoot 'System32\wscript.exe'
     foreach ($Value in @($InputData.node,$InputData.cli,$InputData.state,$InputData.hiddenScript)) {
         if ($Value -notmatch '^[A-Za-z]:\\' -or $Value -match '["\r\n]') { throw 'Unsupported task path' }
@@ -246,7 +246,7 @@ function Show-Preferences {
 
 try {
 if ($InputData.instance -notmatch '^[a-f0-9]{24}$') { throw 'Invalid instance' }
-$Mutex = New-Object System.Threading.Mutex($false,('Local\SunMoonAgentTray-' + $InputData.instance))
+$Mutex = New-Object System.Threading.Mutex($false,('Local\SunMoonLinkTray-' + $InputData.instance))
 if (-not $Mutex.WaitOne(0,$false)) { $Mutex.Dispose(); exit 0 }
 
 # Tray has no visible main form. Its private, unshown form owns the UI lifetime;

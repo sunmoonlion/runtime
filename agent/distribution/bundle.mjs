@@ -16,7 +16,7 @@ const REQUIRED = [
   'app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-resources/codex-command-runner.exe',
   'app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-resources/codex-windows-sandbox-setup.exe',
   'app/node_modules/smol-toml/package.json', 'app/node_modules/ws/package.json',
-  'sunmoon-agent.cmd', 'install.cmd', 'installer/install.mjs', 'installer/bundle.mjs',
+  'sunmoon-link.cmd', 'install.cmd', 'installer/install.mjs', 'installer/bundle.mjs',
   'uninstall.cmd', 'installer/uninstall.mjs', 'installer/launch.mjs', 'installer/upgrade.mjs',
   'app/native/elevated-setup.ps1',
 ];
@@ -168,7 +168,7 @@ export function makeSubdirectory(root, relative) {
 
 export function firstInstall({ source, localAppData, expectedManifestHash, apply = false }) {
   const bundle = plainDirectory(source), base = plainDirectory(localAppData);
-  const destination = path.join(base, 'Programs', 'sunmoon-agent');
+  const destination = path.join(base, 'Programs', 'sunmoon-link');
   const relative = path.relative(bundle, destination);
   if (relative === '' || (!relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative))) {
     throw new Error('Source and install destination overlap');

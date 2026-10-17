@@ -9,10 +9,12 @@ $SizeBytes = [int64]'{{SIZE_BYTES}}'
 $ZipSha256 = '{{ZIP_SHA256}}'
 $ManifestSha256 = '{{MANIFEST_SHA256}}'
 $CodexVersion = '{{CODEX_VERSION}}'
-$Temp = Join-Path $env:TEMP ('sunmoon-agent-' + [guid]::NewGuid().ToString('n'))
+$Temp = Join-Path $env:TEMP ('sunmoon-link-' + [guid]::NewGuid().ToString('n'))
 $Zip = Join-Path $Temp 'pkg.zip'
 $Expanded = Join-Path $Temp 'pkg'
-$Dest = Join-Path $env:LOCALAPPDATA 'Programs\sunmoon-agent'
+$Dest = Join-Path $env:LOCALAPPDATA 'Programs\sunmoon-link'
+# 0.5.0 之前叫 sunmoon-agent（0028）：装新版前先卸下旧名字的安装与它的登录自启，旧配置保留不删
+$LegacyDest = Join-Path $env:LOCALAPPDATA 'Programs\sunmoon-agent'
 
 function Save-Package {
     New-Item -ItemType Directory -Path $Temp | Out-Null
@@ -20,7 +22,7 @@ function Save-Package {
     for ($Try = 1; $Try -le 4; $Try++) {
         try {
             $Request = [System.Net.HttpWebRequest]::Create($PackageUrl)
-            $Request.UserAgent = 'SunMoonAgentInstaller'
+            $Request.UserAgent = 'SunMoonLinkInstaller'
             $Request.AllowAutoRedirect = $true
             if ($Offset -gt 0) { [void]$Request.AddRange($Offset) }
             $Response = $Request.GetResponse()
@@ -45,7 +47,7 @@ function New-StartMenuShortcut {
     $Programs = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs'
     $Shell = New-Object -ComObject WScript.Shell
     $Link = $Shell.CreateShortcut((Join-Path $Programs 'SunMoon 代理.lnk'))
-    $Link.TargetPath = Join-Path $Dest 'sunmoon-agent.cmd'
+    $Link.TargetPath = Join-Path $Dest 'sunmoon-link.cmd'
     $Link.Arguments = 'menu'
     $Link.WorkingDirectory = $Dest
     $Link.WindowStyle = 7
@@ -53,9 +55,25 @@ function New-StartMenuShortcut {
     $Link.Save()
 }
 
+function Remove-LegacyAgent {
+    $LegacyJson = & $Node (Join-Path $Expanded 'installer\upgrade.mjs') --installed $LegacyDest --incoming-version $Version
+    if ($LASTEXITCODE -ne 0) { throw '无法核对旧名字（sunmoon-agent）的安装，没有改动。' }
+    $Legacy = $LegacyJson | ConvertFrom-Json
+    if ($Legacy.action -eq 'repair') {
+        & $Node (Join-Path $Expanded 'installer\uninstall.mjs') --apply --legacy --stop-only --manifest-sha256 $ManifestSha256
+        if ($LASTEXITCODE -ne 0) { throw '旧名字的代理还有进程没退出，没有移动旧目录。' }
+        $Broken = $LegacyDest + '.broken-' + [DateTime]::UtcNow.ToString('yyyyMMddTHHmmssfffZ') + '-' + [guid]::NewGuid().ToString('n').Substring(0,8)
+        [System.IO.Directory]::Move($LegacyDest,$Broken)
+    } elseif ($Legacy.installedManifestSha256) {
+        & $Node (Join-Path $Expanded 'installer\uninstall.mjs') --apply --legacy --manifest-sha256 $ManifestSha256 --installed-manifest-sha256 $Legacy.installedManifestSha256
+        if ($LASTEXITCODE -ne 0) { throw '旧名字（sunmoon-agent）的代理没有卸下来，新版本没有安装。' }
+    } else { throw '无法识别旧名字的安装，没有改动。' }
+    Write-Output '已卸下旧名字（sunmoon-agent）的代理与它的登录自启；旧配置 .sunmoon-agent 保留未删。改名后要重新接入一次。'
+}
+
 function Show-AgentWindow {
     New-StartMenuShortcut
-    & (Join-Path $Dest 'sunmoon-agent.cmd') menu
+    & (Join-Path $Dest 'sunmoon-link.cmd') menu
     if ($LASTEXITCODE -ne 0) { throw '窗口没有打开。' }
     Write-Output ('已准备 SunMoon 代理 ' + $Version + '（Codex ' + $CodexVersion + '）。还没接入过的电脑会自动打开浏览器接入页；已经接入过的直接用托盘，不再开页。')
 }
@@ -71,6 +89,7 @@ try {
     $ManifestHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $ManifestFile).Hash.ToLower()
     if ($ManifestHash -ne $ManifestSha256.ToLower()) { throw '安装包清单校验没有通过。' }
     $Node = Join-Path $Expanded 'node\node.exe'
+    if (Test-Path -LiteralPath $LegacyDest) { Remove-LegacyAgent }
     $PlanJson = & $Node (Join-Path $Expanded 'installer\upgrade.mjs') --installed $Dest --incoming-version $Version
     if ($LASTEXITCODE -ne 0) { throw '无法核对已安装的版本，没有覆盖现有安装。' }
     $Plan = $PlanJson | ConvertFrom-Json
@@ -90,10 +109,10 @@ try {
     if (Test-Path -LiteralPath $Dest) { throw '安装目录还在，没有覆盖已有安装。' }
     & $Node (Join-Path $Expanded 'installer\install.mjs') --apply --manifest-sha256 $ManifestSha256
     if ($LASTEXITCODE -ne 0 -or (Test-Path -LiteralPath (Join-Path $Dest '.install-incomplete'))) { throw '新版本没有装上，原来的配置还在。' }
-    $ConfigPath = Join-Path $env:USERPROFILE '.sunmoon-agent\config.json'
+    $ConfigPath = Join-Path $env:USERPROFILE '.sunmoon-link\config.json'
     if ($env:SUNMOON_AGENT_HOME) { $ConfigPath = Join-Path $env:SUNMOON_AGENT_HOME 'config.json' }
     if (Test-Path -LiteralPath $ConfigPath) {
-        & (Join-Path $Dest 'sunmoon-agent.cmd') autostart enable
+        & (Join-Path $Dest 'sunmoon-link.cmd') autostart enable
         if ($LASTEXITCODE -ne 0) { throw '程序已安装，但登录自启没有打开。' }
     }
     Show-AgentWindow

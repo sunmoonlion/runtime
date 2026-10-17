@@ -31,7 +31,9 @@ export interface AgentConfig {
   machineName: string;
 }
 
-export const CONFIG_DIR = process.env.SUNMOON_AGENT_HOME ?? path.join(os.homedir(), ".sunmoon-agent");
+// 0.5.0 起默认配置目录随命令改名为 .sunmoon-link（0028）：改名后工作台是新的，旧凭据不能用，要重新接入；
+// 旧的 .sunmoon-agent 原样留着不删。环境变量名是内部命名，不改。
+export const CONFIG_DIR = process.env.SUNMOON_AGENT_HOME ?? path.join(os.homedir(), ".sunmoon-link");
 export const CONFIG_PATH = path.join(CONFIG_DIR, "config.json");
 
 export function defaultConfig(): AgentConfig {
@@ -49,7 +51,7 @@ export function defaultConfig(): AgentConfig {
 }
 
 export function loadConfig(file = CONFIG_PATH): AgentConfig {
-  if (!fs.existsSync(file)) throw new Error(`没有配置：${file}（先跑 sunmoon-agent init）`);
+  if (!fs.existsSync(file)) throw new Error(`没有配置：${file}（先跑 sunmoon-link init）`);
   let raw: any;
   try { raw = JSON.parse(fs.readFileSync(file, "utf8")); } catch { throw new Error("代理配置无法读取或 JSON 无效；请在本机检查 config.json"); }
   const cfg: AgentConfig = { ...defaultConfig(), ...raw, ceiling: { ...defaultConfig().ceiling, ...(raw.ceiling ?? {}) } };

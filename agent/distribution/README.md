@@ -16,9 +16,11 @@ Get-FileHash .\bundle-manifest.json -Algorithm SHA256
 .\install.cmd --manifest-sha256 '<同一 SHA256>' --apply
 ```
 
-固定每用户目录 `%LOCALAPPDATA%\Programs\sunmoon-agent`。默认只安装，不启动、
+固定每用户目录 `%LOCALAPPDATA%\Programs\sunmoon-link`。默认只安装，不启动、
+
+**0.5.0 起改名**（0.5.0 之前叫 sunmoon-agent，2026-10-16 决定、0028 R5 发版）：网页安装脚本发现旧的 `%LOCALAPPDATA%\Programs\sunmoon-agent` 时，先用新包自带的 `uninstall.mjs --legacy` 卸下它（按旧安装自己的清单校验后才删；关掉它的登录自启 `SunMoonAgent-*`、停托盘与后台），旧配置 `%USERPROFILE%\.sunmoon-agent` 与旧日志保留不删；新版用新的配置目录 `.sunmoon-link`，要重新接入一次（改名后的工作台签发新凭据）。环境变量名 `SUNMOON_AGENT_HOME`、本机接口与握手里的 `agent` 字段属于内部命名与协议，不改。
 不自启、不提权、不设置全局 PATH。已存在目标或安装中断标记均停止，不能覆盖未知文件。
-之后从**安装目录**执行 `sunmoon-agent.cmd menu`，或使用网页安装脚本创建的开始菜单入口。
+之后从**安装目录**执行 `sunmoon-link.cmd menu`，或使用网页安装脚本创建的开始菜单入口。
 无令牌时 Node 开出本机浏览器页：显示连接码和倒计时，自动打开站点核对页。
 在站点页亲手输入本机显示的码、确认账号并允许；令牌只由代理 TLS 轮询取得并写入私有配置。
 允许后默认开启当前用户登录任务、启动后台；本机页显示「已在线」后可点完成。
@@ -35,7 +37,7 @@ Get-FileHash .\bundle-manifest.json -Algorithm SHA256
 可选管理员沙箱入口在完成 init 且代理停止后使用：
 
 ```powershell
-.\sunmoon-agent.cmd sandbox-setup --elevated
+.\sunmoon-link.cmd sandbox-setup --elevated
 ```
 
 这是**唯一可选 UAC**：只调用官方 `codex sandbox setup --elevated --current-user`，
@@ -45,18 +47,18 @@ Get-FileHash .\bundle-manifest.json -Algorithm SHA256
 
 ## 日常控制
 
-均在安装目录使用；未指定 `SUNMOON_AGENT_HOME` 时使用 `%USERPROFILE%\.sunmoon-agent`。
+均在安装目录使用；未指定 `SUNMOON_AGENT_HOME` 时使用 `%USERPROFILE%\.sunmoon-link`。
 
 | 操作 | 命令/入口 | 行为 |
 | --- | --- | --- |
-| 启动 | `sunmoon-agent.cmd start --background` | 单实例、隐藏后台；重复启动不会多开 |
-| 看状态 | `sunmoon-agent.cmd status` | running、relay 状态及原因；成功查询退出 0，是否运行看 running |
-| 托盘 | `sunmoon-agent.cmd tray` | 查看连接原因、启停、白名单、权限、自启 |
+| 启动 | `sunmoon-link.cmd start --background` | 单实例、隐藏后台；重复启动不会多开 |
+| 看状态 | `sunmoon-link.cmd status` | running、relay 状态及原因；成功查询退出 0，是否运行看 running |
+| 托盘 | `sunmoon-link.cmd tray` | 查看连接原因、启停、白名单、权限、自启 |
 | 关闭界面 | 托盘“退出托盘”或 `tray stop` | 后台继续；不等于停止代理 |
-| 停止 | `sunmoon-agent.cmd stop` | 匹配 PID 与本轮随机身份，正常清理执行进程，不杀未知进程 |
+| 停止 | `sunmoon-link.cmd stop` | 匹配 PID 与本轮随机身份，正常清理执行进程，不杀未知进程 |
 | 自启开关 | `autostart enable / disable / status` | 当前用户登录任务，Limited、非管理员；配对成功后默认打开，可关闭 |
 | 配置 | 托盘“白名单与上限设置” | 逐项勾选目录、只读/工作区写入、网络开关；保存后 stop/start 生效 |
-| 前台诊断 | `sunmoon-agent.cmd start` | 终端交互和日志；前台/后台共用单实例锁 |
+| 前台诊断 | `sunmoon-link.cmd start` | 终端交互和日志；前台/后台共用单实例锁 |
 
 托盘与后台分离，登录任务用系统 wscript 隐藏启动二者，不弹控制台。
 任务名 `SunMoonAgent-<配置目录摘要>`，只有名称、说明和执行路径均匹配才修改/删除。
@@ -88,7 +90,7 @@ HTTP 只转发启动时本机确认过的完整 MCP URL，逐字匹配且禁止�
 
 ## 日志与故障
 
-`%LOCALAPPDATA%\sunmoon-agent\logs\agent.log`：每份 2 MiB，共 5 份。
+`%LOCALAPPDATA%\sunmoon-link\logs\agent.log`：每份 2 MiB，共 5 份。
 不记录令牌、确认码、用户输入、命令正文和执行器原始输出。托盘状态显示 `lastError`/`lastNotice`。
 配置保持私有，执行器家不含登录态。退出或禁用自启不会删除配置和项目文件。
 脚本被策略拒绝时 GUI/任务会失败，仍保留前台诊断入口，不能自动 bypass 策略。
@@ -107,7 +109,7 @@ HTTP 只转发启动时本机确认过的完整 MCP URL，逐字匹配且禁止�
 逐文件移除安装目录；未知文件、修改或链接导致停止，不使用递归强删。部分文件被占用时
 保留现场并报告失败，不宣称卸载完成。默认配置和日志保留。
 
-`--remove-config` 只允许删除默认专用 `.sunmoon-agent`，另删五个自有日志文件；
+`--remove-config` 只允许删除默认专用 `.sunmoon-link`，另删五个自有日志文件；
 自定义配置目录、未知顶层文件、链接均拒绝。用户 `.codex` 和项目目录不删除。
 外部包与已装版本不同时，增加 `--installed-manifest-sha256 '<已装版本可信摘要>'`。
 

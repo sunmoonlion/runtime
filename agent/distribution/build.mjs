@@ -93,7 +93,7 @@ try {
     copyFile(path.join(here, 'licenses', file), path.join(staging, 'licenses', file));
   }
   for (const file of ['bundle.mjs', 'install.mjs', 'uninstall.mjs', 'launch.mjs', 'upgrade.mjs']) copyFile(path.join(here, file), path.join(staging, 'installer', file));
-  for (const file of ['sunmoon-agent.cmd', 'install.cmd', 'uninstall.cmd']) {
+  for (const file of ['sunmoon-link.cmd', 'install.cmd', 'uninstall.cmd']) {
     const content = fs.readFileSync(path.join(here, file), 'utf8').replace(/\r?\n/g, '\r\n');
     fs.writeFileSync(path.join(staging, file), content, { flag: 'wx' });
   }

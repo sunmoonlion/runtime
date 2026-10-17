@@ -115,16 +115,24 @@ export function stopInstallationProcesses(directory, request = windowsProcessReq
   }
 }
 
+// 0.5.0 起本地代理叫 sunmoon-link（2026-10-16 决定，0028 R5 发新包时改）；旧名字的安装用 --legacy 卸下
+export const NAME = 'sunmoon-link', LEGACY_NAME = 'sunmoon-agent';
+
 function main() {
 try {
   const { values } = parseArgs({ options: {
     apply: { type: 'boolean', default: false }, 'remove-config': { type: 'boolean', default: false }, 'stop-only': { type:'boolean',default:false },
+    legacy: { type: 'boolean', default: false },
     'manifest-sha256': { type: 'string' }, 'installed-manifest-sha256': { type: 'string' },
   }, allowPositionals: false, strict: true });
   if (process.platform !== 'win32' || !process.env.LOCALAPPDATA) throw new Error('Windows is required');
   const source = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
   verifyBundle(source, values['manifest-sha256']);
-  const target = path.join(plainDirectory(process.env.LOCALAPPDATA), 'Programs', 'sunmoon-agent');
+  // --legacy：卸下 0.5.0 之前、旧名字 sunmoon-agent 的安装（0028）。只停进程、关它的登录自启、删程序文件；
+  // 它的配置与日志一律保留（旧凭据指向改名前的工作台，留给用户自己处理）。
+  const name = values.legacy ? LEGACY_NAME : NAME;
+  if (values.legacy && values['remove-config']) throw new Error('Legacy removal keeps the old config');
+  const target = path.join(plainDirectory(process.env.LOCALAPPDATA), 'Programs', name);
   if (path.relative(target, source) === '' || !path.relative(target, source).startsWith('..')) throw new Error('Use the external distribution to uninstall');
   if (values['stop-only']) {
     if (values['remove-config']) throw new Error('Repair must preserve config');
@@ -136,12 +144,13 @@ try {
   }
   const expected = values['installed-manifest-sha256'] ?? values['manifest-sha256'];
   verifyBundle(target, expected, { requireLayout: false });
-  const state = process.env.SUNMOON_AGENT_HOME ?? path.join(os.homedir(), '.sunmoon-agent');
-  const plan = { action: values.apply ? 'uninstall' : 'preview', target, preserveConfig: !values['remove-config'], stopsOnlyThisAgent: true };
+  const home = path.join(os.homedir(), '.' + name);
+  const state = values.legacy ? home : (process.env.SUNMOON_AGENT_HOME ?? home);
+  const plan = { action: values.apply ? 'uninstall' : 'preview', target, preserveConfig: !values['remove-config'], stopsOnlyThisAgent: true, legacy: values.legacy };
   // Config deletion is intentionally narrower than configurable runtime homes.
   // It can only remove the standard dedicated home, never an arbitrary supplied directory.
   const configEntries = [];
-  const logs = path.join(process.env.LOCALAPPDATA,'sunmoon-agent','logs');
+  const logs = path.join(process.env.LOCALAPPDATA,name,'logs');
   const ownedLogs = () => {
     if(!fs.existsSync(logs))return [];
     plainDirectory(logs);
@@ -152,7 +161,7 @@ try {
   };
   const inspectConfig = () => {
     if (!fs.existsSync(state)) return;
-    if (path.resolve(state).toLowerCase() !== path.join(os.homedir(), '.sunmoon-agent').toLowerCase()) throw new Error('Config removal only supports the dedicated default home; custom test homes are preserved');
+    if (path.resolve(state).toLowerCase() !== home.toLowerCase()) throw new Error('Config removal only supports the dedicated default home; custom test homes are preserved');
     plainDirectory(state);
     // Keep the two old markers for one release so 0.2.x explicit removal works.
     const allowed = new Set(['config.json','mcp.json','status.json','codex-home','logs','tray.json','tray-stop.json','stop-request.json','pair-page.json','pair-status.json','onboard-ready.json']);

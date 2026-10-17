@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// sunmoon-agent：本地代理的命令行。
+// sunmoon-link：本地代理的命令行（0.5.0 前叫 sunmoon-agent）。
 //   init --relay URL --user ID --token-prompt [--root DIR ...] [--name 机器名]   隐藏输入令牌并写配置
 //   roots add|remove|list DIR                                白名单（改完要重启 start，外沙箱的 bind 在启动时定）
 //   ceiling show|set --sandbox MODE --network on|off         本地上限（本机改，仅本机生效）
@@ -33,7 +33,7 @@ import { LocalFiles } from "./localFiles.js";
 import { killWindowsTree, WindowsFiles } from "./windowsRuntime.js";
 import { LocalProjects } from "./localProjects.js";
 
-const VERSION = "0.4.1";
+const VERSION = "0.5.0";
 const STATUS_PATH = path.join(CONFIG_DIR, "status.json");
 
 function arg(flag: string, argv: string[]): string | undefined {
@@ -129,7 +129,7 @@ async function main(argv: string[]): Promise<number> {
       try{
         await runPairPage({signal:controller.signal,run:(cancelled,progress)=>runPair({...options,cancelled,progress}),
           ready:async page=>{cleanup=publishPageDiscovery(page);await openDesktop("tray");},
-          output:url=>{console.log(url);configureWindowsLogs(path.join(process.env.LOCALAPPDATA!,"sunmoon-agent","logs"),"");log("info","本机接入页",{url});},
+          output:url=>{console.log(url);configureWindowsLogs(path.join(process.env.LOCALAPPDATA!,"sunmoon-link","logs"),"");log("info","本机接入页",{url});},
           complete:async()=>{
             const deadline=Date.now()+30000;
             await autostart("enable");await startResident();
@@ -234,11 +234,11 @@ async function start(cfg: AgentConfig, windowed = false): Promise<number> {
   const resident = process.platform === "win32" ? await acquireResident(() => { requestedStop = true; process.emit("SIGINT"); }) : undefined;
   if (process.platform === "win32") {
     if (!process.env.LOCALAPPDATA) throw new Error("LOCALAPPDATA is required for agent logs");
-    configureWindowsLogs(path.join(process.env.LOCALAPPDATA, "sunmoon-agent", "logs"), cfg.token);
+    configureWindowsLogs(path.join(process.env.LOCALAPPDATA, "sunmoon-link", "logs"), cfg.token);
   }
-  if (cfg.roots.length === 0) log("warn", "白名单为空：任何 process/start 都会被拒；用 sunmoon-agent roots add <目录>");
+  if (cfg.roots.length === 0) log("warn", "白名单为空：任何 process/start 都会被拒；用 sunmoon-link roots add <目录>");
   const codex = locateCodex();
-  log("info", "sunmoon-agent starting", { version: VERSION, machine: cfg.machineName, codex: codex.version, codexBin: codex.codexBin, bwrap: codex.bwrap, platform: process.platform });
+  log("info", "sunmoon-link starting", { version: VERSION, machine: cfg.machineName, codex: codex.version, codexBin: codex.codexBin, bwrap: codex.bwrap, platform: process.platform });
   let releaseRoots: (() => void) | undefined;
   let windows: { home: string; helper: WindowsHelper; mode: "elevated" | "unelevated"; temporary: WindowsTemporary } | undefined;
   const mcpServers = process.platform === "win32" ? loadMcp(path.join(CONFIG_DIR, "mcp.json")) : undefined;
@@ -327,7 +327,7 @@ async function start(cfg: AgentConfig, windowed = false): Promise<number> {
 }
 
 function usage(): void {
-  console.log(`sunmoon-agent ${VERSION}
+  console.log(`sunmoon-link ${VERSION}
   init --relay ws://HOST:PORT --user ID --token T [--root DIR]... [--name 机器名] [--port N] [--no-outer-sandbox]
   init --relay wss://HOST --user ID --token-prompt [--root DIR]...  本机隐藏输入，不把令牌放进命令历史
   roots list | add DIR | remove DIR

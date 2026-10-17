@@ -15,7 +15,7 @@ const bundle = path.resolve(bundlePath);
 const manifest = verifyBundle(bundle, expectedManifestHash);
 const temp = fs.mkdtempSync(path.join(path.dirname(bundle), 'candidate-install-check-'));
 const localAppData = path.join(temp, 'Local'); fs.mkdirSync(localAppData);
-const privateHome = path.join(temp, '.sunmoon-agent'); fs.mkdirSync(privateHome);
+const privateHome = path.join(temp, '.sunmoon-link'); fs.mkdirSync(privateHome);
 fs.writeFileSync(path.join(privateHome, 'config.json'), 'synthetic-preserve-marker');
 const env = { ...process.env, PATH: path.join(process.env.SystemRoot, 'System32'),
   LOCALAPPDATA: localAppData, SUNMOON_AGENT_HOME: privateHome, CODEX_HOME: path.join(temp, 'codex-home') };
@@ -29,7 +29,7 @@ function run(exe, args) {
 const node = path.join(bundle, 'node/node.exe');
 assert.equal(run(node, ['--version']), `v${manifest.nodeVersion}`);
 assert.equal(run(node, [path.join(bundle, 'app/dist/cli.js'), '--version']), manifest.agentVersion);
-assert.match(run(node, [path.join(bundle, 'app/dist/cli.js'), '--help']), /sunmoon-agent/);
+assert.match(run(node, [path.join(bundle, 'app/dist/cli.js'), '--help']), /sunmoon-link/);
 // This check itself runs on bundled Node, so helper.node is also the bundled executable.
 assert.equal(process.execPath.toLowerCase(), node.toLowerCase());
 const { locateCodex } = await import(pathToFileURL(path.join(bundle, 'app/dist/paths.js')));
@@ -52,7 +52,7 @@ assert.equal(run(path.join(installed.destination, 'node/node.exe'), [path.join(i
 // Exercise the actual .cmd with no separately installed Node available through PATH.
 assert.doesNotMatch(installed.destination, /[%!\r\n&|<>^]/);
 assert.equal(run(path.join(process.env.SystemRoot, 'System32/cmd.exe'), ['/d', '/s', '/c',
-  `""${path.join(installed.destination, 'sunmoon-agent.cmd')}" --version"`]), manifest.agentVersion);
+  `""${path.join(installed.destination, 'sunmoon-link.cmd')}" --version"`]), manifest.agentVersion);
 assert.equal(fs.readFileSync(path.join(privateHome, 'config.json'), 'utf8'), 'synthetic-preserve-marker');
 assert.equal(fs.existsSync(path.join(privateHome, 'status.json')), false);
 fs.rmSync(temp, { recursive: true }); // This check's own unique fixture; all child commands have exited.

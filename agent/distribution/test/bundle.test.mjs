@@ -19,7 +19,7 @@ const samplePaths = [
   'app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-resources/codex-command-runner.exe',
   'app/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/codex-resources/codex-windows-sandbox-setup.exe',
   'app/node_modules/smol-toml/package.json', 'app/node_modules/ws/package.json',
-  'sunmoon-agent.cmd', 'install.cmd', 'installer/install.mjs', 'installer/bundle.mjs',
+  'sunmoon-link.cmd', 'install.cmd', 'installer/install.mjs', 'installer/bundle.mjs',
   'uninstall.cmd', 'installer/uninstall.mjs', 'installer/launch.mjs', 'installer/upgrade.mjs',
   'app/native/elevated-setup.ps1',
 ];
@@ -168,7 +168,7 @@ test('manifest rejects negative sizes, manifest-self entries and traversal', t =
 });
 test('preview is read-only and first install copies exact bytes without modifying separate user config', t => {
   const f = fixture(t);
-  const userConfig = path.join(f.root, '.sunmoon-agent'); fs.mkdirSync(userConfig);
+  const userConfig = path.join(f.root, '.sunmoon-link'); fs.mkdirSync(userConfig);
   fs.writeFileSync(path.join(userConfig, 'config.json'), 'synthetic-config-keep');
   const before = inventory(f.root);
   const preview = firstInstall(f);
@@ -183,7 +183,7 @@ test('preview is read-only and first install copies exact bytes without modifyin
   assert.throws(() => firstInstall({ ...f, apply: true }), /already exists/);
 });
 test('existing empty directory is not replaced or removed', t => {
-  const f = fixture(t), target = path.join(f.localAppData, 'Programs/sunmoon-agent');
+  const f = fixture(t), target = path.join(f.localAppData, 'Programs/sunmoon-link');
   fs.mkdirSync(target, { recursive: true });
   assert.throws(() => firstInstall({ ...f, apply: true }), /already exists/);
   assert.deepEqual(fs.readdirSync(target), []);
@@ -194,9 +194,9 @@ test('copy interruption keeps an incomplete marker and refuses a blind second in
   fs.copyFileSync = (...args) => { if (++copies === 3) throw new Error('synthetic copy interruption'); return originalCopy(...args); };
   try { assert.throws(() => firstInstall({ ...f, apply: true }), /synthetic copy interruption/); }
   finally { fs.copyFileSync = originalCopy; }
-  const target = path.join(f.localAppData, 'Programs/sunmoon-agent');
+  const target = path.join(f.localAppData, 'Programs/sunmoon-link');
   assert.equal(fs.existsSync(path.join(target, '.install-incomplete')), true);
-  assert.equal(fs.existsSync(path.join(target, 'sunmoon-agent.cmd')), false);
+  assert.equal(fs.existsSync(path.join(target, 'sunmoon-link.cmd')), false);
   assert.throws(() => firstInstall({ ...f, apply: true }), /already exists/);
 });
 test('source-destination nesting is refused', t => {
@@ -223,7 +223,7 @@ test('only explicit source inputs are included by builder; launcher uses bundled
   const builder = fs.readFileSync(new URL('../build.mjs', import.meta.url), 'utf8');
   assert.doesNotMatch(builder, /os\.homedir|process\.env\.USERPROFILE|execSync|shell: true/);
   assert.match(builder, /writeSite/); assert.match(builder, /--site/);
-  for (const file of ['sunmoon-agent.cmd', 'install.cmd', 'uninstall.cmd']) {
+  for (const file of ['sunmoon-link.cmd', 'install.cmd', 'uninstall.cmd']) {
     const cmd = fs.readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
     assert.match(cmd, /%~dp0node\\node.exe/); assert.match(cmd, /--use-system-ca/);
     assert.match(cmd, /NODE_OPTIONS=/); assert.match(cmd, /bundled-ca/);

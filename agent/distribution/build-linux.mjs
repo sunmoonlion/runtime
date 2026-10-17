@@ -103,8 +103,10 @@ try {
   }
   if (exists(output) || exists(tarball)) throw new Error('Output appeared during assembly');
   fs.renameSync(staging, output);
-  // 可复现的归档：文件按名字排序、时间与属主固定，同一份目录打出同一个摘要
+  // 可复现的归档：文件按名字排序、时间与属主固定、权限归一（umask 不同的机器打出同一个摘要，0028 R5.3），
+  // 同一份目录打出同一个摘要
   run('tar', ['--sort=name', '--mtime=@0', '--owner=0', '--group=0', '--numeric-owner', '--format=gnu',
+    '--mode=u=rwX,go=rX',
     '-C', output, '-cf', `${output}.tar`, '.'], path.dirname(output));
   run('gzip', ['-n', '-9', `${output}.tar`], path.dirname(output));
   const archive = digest(tarball);
